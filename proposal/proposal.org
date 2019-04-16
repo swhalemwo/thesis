@@ -1,0 +1,109 @@
+* Proposal: fluctuations of genre popularity
+** intro
+
+** theoretical framework
+*** notes
+-> RQ
+
+category emergence/abandonment
+-> institutionalization
+
+dillution
+preference for popularity
+
+boundaries: tags -> shows what people think
+-> listening and tags should align 
+# but no temporal stuff on tags fUUUUUU
+I NEED MEANING
+
+lyrics? musical features? -> topic modeling
+# oh boy so much data
+
+# - 5: Òscar Celma. Music Recommendation and Discovery: The Long Tail, Long Fail, and Long Play in the Digital Music Space. Springer-Verlag Berlin Heidelberg,Berlin, Germany, 2010.
+# - 7: Gideon Dror, Noam Koenigstein, Yehuda Koren, andMarkus Weimer. The Yahoo! music dataset and KDD-cup’11. Journal of Machine Learning Research,
+# - 4: Iván Cantador, Peter Brusilovsky, and Tsvi Kuflik.Last.fm web 2.0 dataset. In 2nd Workshop on Informa-tion Heterogeneity and Fusion in Recommender Systems, RecSys 2011, Chicago, IL, 2011.
+# - 13
+# - 8: EMI Group Limited. EMI Million Interview Dataset,2012.http://musicdatascience.com/
+# 19
+# 9
+# 24
+# pretty much all useless: no artist tags
+
+
+# no tag history: all variation in tag is with change in artists
+
+# even if i could get tags it would be aggregate -> would need to get which tags were added when 
+
+density 
+legitimacy
+
+attention
+
+typicality
+
+microfoundations
+
+*** text 
+From a neo-institutional perspective, oranizational forms have to adhere to rules/standars of legitimacy to be successful parencite:diMaggio_1983_iron,Zuckerman_1999_illegitimacy, often resulting in homogenization. 
+#
+Such emphasis on reliance on pre-existing standards has problems to explain the emergence of new forms. 
+#
+#
+However, concepts from organizational ecology such as cross-form legitimation, density dependence and saturation have been shown to explain form emergence parencite:Ruef_2000_emergence
+#
+Additionally, the emphasis on individual-level cognitive processes of quality inference from popularity parencite:Strang_2001_excellence as well as variation in individual preferences and 'dilution' effects parencite:Kovacs_2014_paradox have been proposed to explain the dynamics of organizational forms. 
+#
+~lieberson~
+
+
+
+declarative and non-declarative
+
+is non-declarative (listening habit) even useful for changing times (genre emergence)? 
+#
+declarative: tags? 
+#
+
+
+2007 tags are there
+
+** Issues: 
+The population (predominantly young and male) might not adhere to genre boundaries to an extent that results in clear boundaries, 
+# 
+The sample might be over generally be unrepresentative. 
+
+
+
+** Data and methods
+*** notes
+
+*** text
+This thesis will study the fashion dynamics of genres (organizational forms) of popular music. 
+#
+Longitudinal data 
+
+
+tags: crawl through the rateyourmusic archive.org sites to get tags? but don't know where they're coming from either
+
+# cluster all time periods, group similar ones together (across time?)
+# might merge multiple from years
+# then so be it? 
+# assumes genre can't change completelyl
+# maybe just similarity within window? like marieke: only current/previous year...
+
+** 
+tags: identity/perception: does group have a stable identity/is it perceived to be different 
+textcite:dimaggio1987classification: *socially constructed organizing principles*
+is clear abstraction formed? 
+
+
+questions: start with tags, or with networks/connections
+
+* technical
+big data: pre-processing in python? 
+graphtool? 
+
+
+google analytics for the frequencies
+
+
