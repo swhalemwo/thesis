@@ -1,0 +1,59 @@
+#+latex_class: article_usual2
+# erases make title
+#+BIND: org-export-latex-title-command ""
+
+# fucks all the maketitlestuff just to be sure
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+# #+OPTIONS: toc:nil#+TITLE: #+AUTHOR: #+DATE: 
+#+OPTIONS: h:5
+
+# -*- org-export-babel-evaluate: nil -*-
+
+
+* Pitch
+For my thesis I will investigate the structure of musical tastes and their development over time. 
+# 
+Applying network analysis and longitudinal methods to 'big data' from the music history listening dataset parencite:vigliensonimusic, I will explore how new data sources and techniques can provide further insight into questions in cultural sociology such as the univore-omnivore debate parencite:peterson1996changing,Savage_2011 and integration of music in daily routines parencite:denora2000music.
+# 
+Research puzzles are thus both methodological and theoretical. 
+#
+Techniques that allow to process the high-dimensional and dynamically changing structures of the musical field are still a rare sight within cultural sociology (but see cite:vlegels2017music), and their proper application will require substantial effort. 
+# 
+However, I believe these to be worth the investment since it will result in the possibility to analyze both the consumption and production of musical tastes. 
+# 
+Therefore, access to such fine-grained longitudinal (and reliable) data of music consumption allows to study in more detail theoretical question such as the structure of symbolic boundaries parencite:lamont2001symbolic, nd the contingency of evaluation parencite:denora2000music. 
+# 
+It will further as open the door for the study of the change in musical tastes, in particular the development of musical tastes in adolescents, as well as a number of influences on musical tastes, be it from 'trendsetters', institutions such as producers and magazines or more distant social developments such as economic indicators.
+# 
+
+
+ 
+
+
+
+
+#+Latex: \begin{sloppypar}
+#+Latex: \printbibliography
+#+Latex: \end{sloppypar}
+
+
+* export :noexport:
+#+BEGIN_SRC emacs-lisp
+  (org-babel-tangle)
+  (defun delete-org-comments (backend)
+    (loop for comment in (reverse (org-element-map (org-element-parse-buffer)
+                      'comment 'identity))
+      do
+      (setf (buffer-substring (org-element-property :begin comment)
+                  (org-element-property :end comment))
+            "")))
+
+  (let ((org-export-before-processing-hook '(delete-org-comments)))
+    (switch-to-buffer (org-latex-export-to-pdf)))
+#+END_SRC
+
+#+RESULTS:
+: #<buffer /home/johannes/Dropbox/gsss/thesis/pitch.pdf>
+
+
