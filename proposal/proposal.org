@@ -56,7 +56,6 @@ Additionally, the emphasis on individual-level cognitive processes of quality in
 ~lieberson~
 
 
-
 declarative and non-declarative
 
 is non-declarative (listening habit) even useful for changing times (genre emergence)? 
@@ -176,13 +175,18 @@ Some field-theoretical insights might also be integrated.
 # 
 While musical production has only weak links to state control or legislative requirements, it can be expected that music producers are nevertheless keen observers of their organizational environment, consisting of other artists, as well as record labels and radio states ~and~. 
 # 
-~In particular, one might say that links to other artists are either cooperative or competitive~
+~In particular, one might say that links to other artists are at least either cooperative or competitive~, with competitive relations being characterized by competition over listeners and (exclusive) legitimacy, while cooperative might be legitimating by outsourcing the main efforts of establishment to other actors. 
+# 
 
 
+*** TfP 
+Taste for popularity parencite:Zuckerman_2012_valuations,Lieberson_2003_popularity might furthermore matter insofar as it could not only be the mere number of a listening audience that is considered, but also its composition. 
+#
+In particular, one might imagine that an actor with medium TfP would be more enticed by a genre that is consumed by a small number of avant garde than one that is just being abandoned by the last audiences with a high TfP. 
+# 
+as the former provides much more potential for distinction than the former which has already been chewed through by large parts of the population.  
 
-
-Tfp: not just how many like it, but who: is it liked by people with lower TfP? then good
-
+# Tfp: not just how many like it, but who: s it liked by people with lower TfP? then good
 
 
 
