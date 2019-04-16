@@ -68,9 +68,62 @@ declarative: tags?
 2007 tags are there
 
 ** Issues: 
-The population (predominantly young and male) might not adhere to genre boundaries to an extent that results in clear boundaries, 
+The population (predominantly young and male) might not adhere to genre boundaries to an extent that results in clear boundaries. 
 # 
-The sample might be over generally be unrepresentative. 
+Similarity measures might therefore be unreliable when users listen to a large number of artists that they do not consider similar. 
+# 
+On the other hand, one might still expect patterns in the aggregate. 
+# 
+Playlists might be a useful as in these listeners group objects together on perceived similarity, and therefore would be a good application of practical classification systems parencite:van_Venrooij_2018_fuzziness. 
+# 
+However playlist data is not available from last.fm, and I have not been able to get access to the so-called Million Playlist Dataset (MPD) by Spotify. 
+# ask the DGS people? 
+
+
+The sample might be generally be unrepresentative.  
+
+
+** Identity
+Artists can be tagged by users. 
+# 
+While there is no breakdown by who tagged which artist, tags are weighted on a scale from 1 to 100 (the most frequent tag always is always 100). 
+# 
+Once genres are constructed from a similarity measure, it should be possible to construct the tags associated with each, and therefore get a measure of how clear of an identity a genre has at each point in time. 
+# 
+I assume that a clear identify enhances survival prospect.  cite:Zuckerman_1999_illegitimacy,Hsu_2006_jacks. 
+# 
+A clear identity might stand in contrast to popularity, as it might be easier to maintain a clear identity. 
+# 
+
+*** tag issues
+However, no temporal data on tags is available, i.e. the tags and their weights  would reflect the cumulative history which would pose problems if artists are changing their styles over time. 
+# 
+This might be alleviated to some degree by focus on albums or even songs as these are much more associated with the point of time of their release (although this does not for canonical works which remain popular cite:Anand_2000_sensemaking). 
+# 
+Furthermore, a finer levels means that the tags themselves are sparser. 
+# 
+Additionally, even single albums or songs might be interpreted differently throughout time, albeit I think that this does not occur to an extent that it would have a substantial impact. 
+
+
+** crises in neighboring fields
+# 
+could be
+- positive: more resources (i.e. when fields are competing)
+- negative if it kills legitimacy: 
+-> what are relations between genres? 
+
+Kovacs: imposes HCC mindset (distinction) as general cultural mechanism (something that e.g. textcite:holt1998does warns against). 
+# 
+
+
+** reflect on meetings: websites
+# 
+
+
+** Issues 
+focusing on the relation between users and artists (or works) might ignore external influences, such as promotion efforts. 
+
+
 
 
 
