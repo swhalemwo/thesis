@@ -22,50 +22,41 @@
 category emergence/abandonment
 -> institutionalization
 
-dillution
-preference for popularity
 
 boundaries: tags -> shows what people think
 -> listening and tags should align 
 # but no temporal stuff on tags fUUUUUU
 I NEED MEANING
 
-lyrics? musical features? -> topic modeling
-# oh boy so much data
 
-# - 5: Òscar Celma. Music Recommendation and Discovery: The Long Tail, Long Fail, and Long Play in the Digital Music Space. Springer-Verlag Berlin Heidelberg,Berlin, Germany, 2010.
-# - 7: Gideon Dror, Noam Koenigstein, Yehuda Koren, andMarkus Weimer. The Yahoo! music dataset and KDD-cup’11. Journal of Machine Learning Research,
-# - 4: Iván Cantador, Peter Brusilovsky, and Tsvi Kuflik.Last.fm web 2.0 dataset. In 2nd Workshop on Informa-tion Heterogeneity and Fusion in Recommender Systems, RecSys 2011, Chicago, IL, 2011.
-# - 13
-# - 8: EMI Group Limited. EMI Million Interview Dataset,2012.http://musicdatascience.com/
-# 19
-# 9
-# 24
-# pretty much all useless: no artist tags
-
-
-# no tag history: all variation in tag is with change in artists
-
-# even if i could get tags it would be aggregate -> would need to get which tags were added when 
-
-density 
-legitimacy
 
 attention
 
 typicality
 
-microfoundations
+Further elements that I think are beyond the scope of the thesis are considering the aesthetic elements themselves such as lyrics or musical features such as bpm, as genres are primarily seen as a set of objects which has similar relations to audiences parencite:dimaggio1987classification. 
+# 
+While especially latter ones seem to be used in recommendation systems, and while inclusion of this would certainly be an enrichment parencite:van_der_Laan_2016, I assume that an approach that focuses on the relations between objects and audiences is preferable given the time constraints parencite:Emirbayer_1997. 
+
+
+**** What is a genre
+Rather than defining genres in terms of form or content, I plan to focus on the "social relations among producers and consumers", assuming that genres are "partially constituted by the audiences that support them" [[parencite:dimaggio1987classification][p.441]]. 
+# 
+While textcite:dimaggio1987classification based on these considerations conceptualizes genres as "sets of works classified together on the basis of perceived similarities" (p.441), it seems to me that not only explicit classifications of objects are indicative of genres, but that of implicit usage data (in this case,  listening records) should also enable the linking of particular objects to particular audiences. 
+# 
+This does not mean that perceptions of similarity or other cognitive processes are not worthy of considering, as on the contrary, the development of cognitive associations and routines that become taken for granted is a key part of the establishment and institutionalization of new organizational forms. 
+# 
+
+
 
 *** text 
-From a neo-institutional perspective, oranizational forms have to adhere to rules/standars of legitimacy to be successful parencite:diMaggio_1983_iron,Zuckerman_1999_illegitimacy, often resulting in homogenization. 
-#
-Such emphasis on reliance on pre-existing standards has problems to explain the emergence of new forms. 
-#
-#
-However, concepts from organizational ecology such as cross-form legitimation, density dependence and saturation have been shown to explain form emergence parencite:Ruef_2000_emergence
-#
-Additionally, the emphasis on individual-level cognitive processes of quality inference from popularity parencite:Strang_2001_excellence as well as variation in individual preferences and 'dilution' effects parencite:Kovacs_2014_paradox have been proposed to explain the dynamics of organizational forms. 
+# From a neo-institutional perspective, oranizational forms have to adhere to rules/standars of legitimacy to be successful parencite:diMaggio_1983_iron,Zuckerman_1999_illegitimacy, often resulting in homogenization. 
+# #
+# Such emphasis on reliance on pre-existing standards has problems to explain the emergence of new forms. 
+# #
+# However, concepts from organizational ecology such as cross-form legitimation, density dependence and saturation have been shown to explain form emergence parencite:Ruef_2000_emergence
+# #
+# Additionally, the emphasis on individual-level cognitive processes of quality inference from popularity parencite:Strang_2001_excellence as well as variation in individual preferences and 'dilution' effects parencite:Kovacs_2014_paradox have been proposed to explain the dynamics of organizational forms. 
 #
 ~lieberson~
 
@@ -75,8 +66,6 @@ declarative and non-declarative
 is non-declarative (listening habit) even useful for changing times (genre emergence)? 
 #
 declarative: tags? 
-#
-
 
 2007 tags are there
 
@@ -117,48 +106,17 @@ This process similarly corresponds to the prototype view parencite:Murphy_2004_c
 A clear identity might stand in contrast to popularity, as it might be easier to maintain a clear identity. 
 #
 Reversely, it might be that larger genres develop more 'momentum' and through institutionalization reach more clarity, yet it could also be that a clear identity is a precondition for growth in the first place. 
-
-** fields
-#
-The trivial saying that social phenomena do not take place in a vacuum undoubtedly applies here as well, and the environment and relation to other genres might be have crucial impact. 
 # 
-ecology; 
-# can i even model overlap if i use artist similarity for construction in the first place
 
-fields: 
-- relations to other things than other genres? 
-
-is legitimation 
-- field process? nope: fields more about power, less about consensus/shared meanings which is required for legitimacy
-- ecology: yup: 
-- institutionalism? yup: adherence to institutional logic  
-  positing an institutional logic per genre would not be very parsimonious tho
-
-
-ecology: resource: are there 'areas' in teh musical space that do not have many genres? 
+*** Resource distribution
+# 
+Another relevant genre-level variable might be the resource distribution; one can imagine an ideal-typical contrast between concentration where few artists account for the majority of listeners with a relatively evenly spread distribution. 
+# 
+While this might impact survival chances, albeit I cannot think of a clear direction so far. 
 
 
 
 ** micro-processes
-people: does it matter if people are more omnivorous? 
-- more omnivorous -> might be less 'committed' to genre
-- more omnivorous -> might be more open? 
-
-# Kovacs: 
-# - popular -> cool to hate
-#   seems unlikely? might overemphasize distinction (hcc mentality)
-#   rather seems to me that genre failure will be mostly in infancy
-#   if genres are established that avant-garde thinks its cool to hate them they will have dedicated (intrinsically motivated) following 
-
-#   or does it? petit-bourgois mentality might be everywhere, trying to imitate HCC
-#   but shift to way, not object (was actually always the case (Kantian aesthetic vs necessity))
-  
-Ruef: multiple parents
--> what does one genre take from those that predate it? 
-- artists first in one, then later genre? also albums, songs
-- listeners?: how many listeners are passed on? 
-   or do i use them to create genres in the first place? 
-
 
 It is furthermore relevant to consider the individual-level processes through which macro-level mechanisms are mediatated. 
 # 
@@ -178,7 +136,7 @@ It further seems to me that the assumptions of the first mechanism, namely an in
 # 
 Obviously, only empirical analysis can settle these matters. 
 
-*** para :ignhead:
+*** other individual-level variables :ignhead:
 The impacts of other personal-level variables are also worth investigating, such as ~omnivorousness~ parencite:peterson1996changing (or more precise, atypicality and variety parencite:Goldberg_2016_span).
 # 
 Omnivores might be less committed to a particular genre as their ~identity~ is to span different genres, yet their openness parencite:Roose_2012 might nevertheless make them willing propagators of new forms. 
@@ -191,9 +149,14 @@ Next to the internal composition of a genre, the relationship to its environment
 # 
 Primarily insights from organizational ecology can be incorporated here parencite:Hannan_1977_ecology,Ruef_2000_emergence,Ruef_2004_demise,van_Venrooij_2015_ecology such as density of the musical spaces, competition over resources (listeners), saturation of different niches and reaping the benefits of form legitimation performed by other actors. 
 # 
-While field-theoretical arguments are compelling parencite:Fligstein_2015_fields,Anand_2006_charting, the complexities involved in taking into account the large number of actors which next to other artists would also increase for example record labels, radio stations and other distributors as well as the relations between them presumably is beyond the scope of this study. 
+Compelling concepts might also be gained by incorporating field-theoretical approaches, such as the primary focus on actors (or more precisely, incumbents and challengers) which in "the aggregate constitute a recognized area of institutional life" [[parencite:diMaggio_1983_iron][p.148]]. 
 # 
-
+Considerations of how their perceptions, evaluations, strategies, decision making, and alliances parencite:Fligstein_2015_fields,Anand_2006_charting would contribute to field emergence, settlement and rupture would certainly provide valuable insights. 
+# 
+However, the complexities involved in taking into account the large number of actors which next to other artists would also increase for example record labels, radio stations and other distributors as well as the relations between them presumably is beyond the scope of this study. 
+# 
+As this focus on the relations among artists and to consumers leaves out a number of key actors, caution has to be exercised to avoid misattributing effects, in particular as the textcite:Fligstein_2015_fields consider the relations to outside actors as key predictors of field stability or change (nevertheless, this might be less of an issue as musical production faces relatively little state regulation). 
+# 
 
 
 *** TfP :ignhead:
@@ -204,7 +167,6 @@ In particular, one might imagine that an actor with medium TfP would be more ent
 as the former provides much more potential for distinction than the former which has already been chewed through by large parts of the population.  
 
 # Tfp: not just how many like it, but who: s it liked by people with lower TfP? then good
-
 
 
 
@@ -219,22 +181,13 @@ Additionally, even single albums or songs might be interpreted differently throu
 #
 
 
-** crises in neighboring fields
-# 
-could be
-- positive: more resources (i.e. when fields are competing)
-- negative if it kills legitimacy: 
--> what are relations between genres? 
-
-
-
-
 ** reflect on meetings: websites
 # topic is changes in popularity of genres
 # why is listener network data approach better? 
 # no imposition of genres
 # non-declarative (actual useage, not conscious)
-# 
+# much more complete: not just what people chose to review
+ 
 
 It strikes me as somewhat ironic that a cognitive criticism of surveys is their exclusive focus on declarative culture which may be only tangentially related to action, yet the reverse is the case here as behavioral is readily available but little insights are available of the cognitive that underlie the actions (yet since the cognitive critique also stresses the loose coupling between declarative and non-declarative culture, it is not clear if attitudinal data would provide additional insights, and hence might only serve as a confirmation of the loose coupling). 
 # 
@@ -244,7 +197,7 @@ It strikes me as somewhat ironic that a cognitive criticism of surveys is their 
 
 
 ** Issues 
-focusing on the relation between users and artists (or works) might ignore external influences, such as promotion efforts. 
+
 
 
 
