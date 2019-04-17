@@ -1,3 +1,17 @@
+#+latex_class: article_usual2
+# erases make title
+#+BIND: org-export-latex-title-command ""
+
+# fucks all the maketitlestuff just to be sure
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+# #+OPTIONS: toc:nil#+TITLE: #+AUTHOR: #+DATE: 
+#+OPTIONS: h:5
+
+
+
+
+
 * Proposal: fluctuations of genre popularity
 ** intro
 
@@ -82,7 +96,9 @@ However playlist data is not available from last.fm, and I have not been able to
 # ask the DGS people? 
 
 
-The sample might be generally be unrepresentative.  
+The sample might be generally be unrepresentative. 
+
+ 
 
 
 ** Identity
@@ -169,17 +185,18 @@ Omnivores might be less committed to a particular genre as their ~identity~ is t
 # 
 
 
-*** field :ignhead:
+*** environment :ignhead:
 # 
-Some field-theoretical insights might also be integrated. 
+Next to the internal composition of a genre, the relationship to its environment needs to be taken into account. 
 # 
-While musical production has only weak links to state control or legislative requirements, it can be expected that music producers are nevertheless keen observers of their organizational environment, consisting of other artists, as well as record labels and radio states ~and~. 
+Primarily insights from organizational ecology can be incorporated here parencite:Hannan_1977_ecology,Ruef_2000_emergence,Ruef_2004_demise,van_Venrooij_2015_ecology such as density of the musical spaces, competition over resources (listeners), saturation of different niches and reaping the benefits of form legitimation performed by other actors. 
 # 
-~In particular, one might say that links to other artists are at least either cooperative or competitive~, with competitive relations being characterized by competition over listeners and (exclusive) legitimacy, while cooperative might be legitimating by outsourcing the main efforts of establishment to other actors. 
+While field-theoretical arguments are compelling parencite:Fligstein_2015_fields,Anand_2006_charting, the complexities involved in taking into account the large number of actors which next to other artists would also increase for example record labels, radio stations and other distributors as well as the relations between them presumably is beyond the scope of this study. 
 # 
 
 
-*** TfP 
+
+*** TfP :ignhead:
 Taste for popularity parencite:Zuckerman_2012_valuations,Lieberson_2003_popularity might furthermore matter insofar as it could not only be the mere number of a listening audience that is considered, but also its composition. 
 #
 In particular, one might imagine that an actor with medium TfP would be more enticed by a genre that is consumed by a small number of avant garde than one that is just being abandoned by the last audiences with a high TfP. 
@@ -191,7 +208,7 @@ as the former provides much more potential for distinction than the former which
 
 
 
-*** tag issues
+*** tag issues :ignhead:
 However, no temporal data on tags is available, i.e. the tags and their weights  would reflect the cumulative history which would pose problems if artists are changing their styles over time. 
 # 
 This might be alleviated to some degree by focus on albums or even songs as these are much more associated with the point of time of their release (although this does not for canonical works which remain popular cite:Anand_2000_sensemaking). 
@@ -209,8 +226,6 @@ could be
 - negative if it kills legitimacy: 
 -> what are relations between genres? 
 
-Kovacs: imposes HCC mindset (distinction) as general cultural mechanism (something that e.g. textcite:holt1998does warns against). 
-# 
 
 
 
@@ -230,8 +245,6 @@ It strikes me as somewhat ironic that a cognitive criticism of surveys is their 
 
 ** Issues 
 focusing on the relation between users and artists (or works) might ignore external influences, such as promotion efforts. 
-
-
 
 
 
@@ -267,4 +280,28 @@ graphtool?
 
 google analytics for the frequencies
 
+#+Latex: \begin{sloppypar}
+#+Latex: \printbibliography
+#+Latex: \end{sloppypar}
+
+
+
+
+* export :noexport:
+#+BEGIN_SRC emacs-lisp
+  (org-babel-tangle)
+  (defun delete-org-comments (backend)
+    (loop for comment in (reverse (org-element-map (org-element-parse-buffer)
+                      'comment 'identity))
+      do
+      (setf (buffer-substring (org-element-property :begin comment)
+                  (org-element-property :end comment))
+            "")))
+
+  (let ((org-export-before-processing-hook '(delete-org-comments)))
+    (switch-to-buffer (org-latex-export-to-pdf)))
+#+END_SRC
+
+#+RESULTS:
+: #<buffer /home/johannes/Dropbox/gsss/thesis/proposal/proposal.pdf>
 
