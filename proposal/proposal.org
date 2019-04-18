@@ -12,34 +12,19 @@
 
 
 
-* Proposal: fluctuations of genre popularity
-** intro
-
-** theoretical framework
-*** notes
--> RQ
-
-category emergence/abandonment
--> institutionalization
-
-
-boundaries: tags -> shows what people think
--> listening and tags should align 
-# but no temporal stuff on tags fUUUUUU
-I NEED MEANING
-
-
-
-attention
-
-typicality
-
-Further elements that I think are beyond the scope of the thesis are considering the aesthetic elements themselves such as lyrics or musical features such as bpm, as genres are primarily seen as a set of objects which has similar relations to audiences parencite:dimaggio1987classification. 
+* Thesis Proposal: Fashion Dynamics of Musical Genres 
+** Introduction
 # 
-While especially latter ones seem to be used in recommendation systems, and while inclusion of this would certainly be an enrichment parencite:van_der_Laan_2016, I assume that an approach that focuses on the relations between objects and audiences is preferable given the time constraints parencite:Emirbayer_1997. 
+The primary aim of this thesis is to investigate changes in genre popularity (size) with a particular focus on abandonment, i.e. the disappearance of a form.
+# 
+Mechanisms that explain these changes incorporate environmental, genre-level and individual mechanisms, such as competition with other genres, fuzziness of genre identity, and composition of genre in terms of listeners. 
+# 
+# As parencite:Sewell_1996_inventing argues, small ruptures of established structures take place every day, however most are absorbed, neutralized or repressed and hence lack the momentum to result in permanent changes. 
 
+** Theoretical Framework
 
-**** What is a genre
+*** Conceptualizing Genres
+**** what is genre? 1 :ignhead:
 Rather than defining genres in terms of form or content, I plan to focus on the "social relations among producers and consumers", assuming that genres are "partially constituted by the audiences that support them" [[parencite:dimaggio1987classification][p.441]]. 
 # 
 While textcite:dimaggio1987classification based on these considerations conceptualizes genres as "sets of works classified together on the basis of perceived similarities" (p.441), it seems to me that not only explicit classifications of objects are indicative of genres, but that of implicit usage data (in this case,  listening records) should also enable the linking of particular objects to particular audiences. 
@@ -48,32 +33,157 @@ This does not mean that perceptions of similarity or other cognitive processes a
 # 
 
 
-
-*** text 
-# From a neo-institutional perspective, oranizational forms have to adhere to rules/standars of legitimacy to be successful parencite:diMaggio_1983_iron,Zuckerman_1999_illegitimacy, often resulting in homogenization. 
-# #
-# Such emphasis on reliance on pre-existing standards has problems to explain the emergence of new forms. 
-# #
-# However, concepts from organizational ecology such as cross-form legitimation, density dependence and saturation have been shown to explain form emergence parencite:Ruef_2000_emergence
-# #
-# Additionally, the emphasis on individual-level cognitive processes of quality inference from popularity parencite:Strang_2001_excellence as well as variation in individual preferences and 'dilution' effects parencite:Kovacs_2014_paradox have been proposed to explain the dynamics of organizational forms. 
+**** Identity :ignhead:
+# 
+In particular, a genre is not only a collection of works judged to be similar, but (according to the prototype view of cite:Murphy_2004_concepts) it also requires a the formation (institutionalization) of a somewhat abstract, yet able to be taken-for-granted concepts which can be used in the assessment of newly encountered works (rather than requiring comparison to all individual elements). 
+# 
+These "socially constructed organizing principles" [[parencite:dimaggio1987classification][p.PAGE]] can be expected to vary in their fuzziness, which, given that fuzziness has substantial impacts on individual objects parencite:Zuckerman_1999_illegitimacy,Hsu_2006_jacks which might result in variation in long-term survival chances as well. 
+# 
+A clear identity might stand in contrast to popularity, as it might be easier to maintain a clear identity. 
 #
-~lieberson~
+Conversely, it might be that larger genres develop more 'momentum' and through institutionalization reach more clarity, yet it could also be that a clear identity is a precondition for growth in the first place. 
+
+**** Resource distribution :ignhead:
+# 
+Another relevant genre-level variable might be the resource distribution; one can imagine an ideal-typical contrast between concentration where few artists account for the majority of listeners with a relatively evenly spread distribution. 
+# 
+While this might impact survival chances, albeit I cannot think of a clear direction so far. 
 
 
-declarative and non-declarative
-
-is non-declarative (listening habit) even useful for changing times (genre emergence)? 
+*** Micro-processes
+**** kovacs :ignhead:
+It is furthermore relevant to consider the individual-level processes through which macro-level mechanisms are mediatated. 
+# 
+textcite:Kovacs_2014_paradox postulate that two mechanisms that lead to short-term devaluation might have long-term consequences. 
+# 
+First, they find that status attracts audiences not who are not intrinsically attracted and hence devalue the object due to lack of fit with their personal evaluation criteria. 
+# 
+Second, they show that increasing popularity results in more devaluation by audiences who dislike popular products and want to distinguish themselves from 'mainstream' objects. 
+# 
+I assume the measurement of both these mechanisms to be relatively straightforward. 
+# 
+While it is presumably most convenient to aggregate them to the level of genre, I do not think that this diminishes their explanatory power. 
 #
-declarative: tags? 
+However, I wonder if maybe textcite:Kovacs_2014_paradox, particularly in the second mechanism, 'impose' a high cultural capital mindset (distinction) as general mechanism (something that e.g. textcite:holt1998does warns against). 
+#
+It further seems to me that the assumptions of the first mechanism, namely an intrinsically interested audience, to some degree limit the effect of the second, as these are presumably not easily swayed by short-term shifts in public opinion. 
+# 
+Obviously, only empirical analysis can settle these matters. 
 
-2007 tags are there
+**** TfP :ignhead:
+# 
+Especially the second mechanism seems to be related to what parencite:Zuckerman_2012_valuations,Lieberson_2003_popularity label Taste for popularity (TfP). 
+# 
+TfP on its own might furthermore be relevant insofar as it could not only be the mere number of a listening audience that is considered, but also its composition. 
+#
+In particular, one might imagine that an actor with medium TfP would be more enticed by a genre that is consumed by a small number of avant garde than one that is just being abandoned by the last audiences with a high TfP, as the former provides much more potential for distinction than the former which has already been chewed through by large parts of the population.  
+
+
+**** other individual-level variables :ignhead:
+The impacts of other individual-level variables are also worth investigating, such as omnivorousness parencite:peterson1996changing, albeit the rather unprecise term might be specified in a less ambiguous way by building on for example textcite:Koppman_2016_different (omnivorousness taste by distinctiveness) or textcite:Goldberg_2016_span (taste for atypicality and variety). 
+# 
+'Omnivores' might be less committed to a particular genre as their 'identity' based on spaning different genres, yet their openness parencite:Roose_2012 might nevertheless make them willing propagators of new forms. 
+
+
+*** Environmental Influences
+# 
+Next to the internal composition of a genre, the relationship to its environment needs to be taken into account. 
+# 
+Primarily insights from organizational ecology can be incorporated here parencite:Hannan_1977_ecology,Ruef_2000_emergence,Ruef_2004_demise,van_Venrooij_2015_ecology such as density of the musical spaces, competition over resources (listeners), saturation of different niches and reaping the benefits of form legitimation performed by other actors [fn:: it also seems that social movement concepts such as contagion and bandwagoning might be useful, but I did not have the time to explore them properly]. 
+# 
+Compelling concepts might also be gained by incorporating field-theoretical approaches, such as the primary focus on actors (or more precisely, incumbents and challengers) which in "the aggregate constitute a recognized area of institutional life" [[parencite:diMaggio_1983_iron][p.148]]. 
+# 
+Considerations of how their perceptions, evaluations, strategies, decision making, and alliances parencite:Fligstein_2015_fields,Anand_2006_charting would contribute to field emergence, settlement and rupture would certainly provide valuable insights. 
+# 
+However, the complexities involved in taking into account the large number of actors which next to other artists would also increase for example record labels, radio stations and other distributors as well as the relations between them presumably is beyond the scope of this study. 
+# 
+As this focus on the relations among artists and to consumers leaves out a number of key actors, caution has to be exercised to avoid misattributing effects, in particular as the textcite:Fligstein_2015_fields consider the relations to outside actors as key predictors of field stability or change (while one might grant music is only slightly regulated by the government, textcite:rossman2012climbing still highlights the importance of outside actors and exogeneous shocks). 
+# 
 
 
 
+**** further limitations :ignhead:
+Further elements that I think are beyond the scope of the thesis are considering the aesthetic elements themselves such as lyrics or musical features such as beats per minutes, tonal frequencies or instruments as genres are primarily seen as a set of objects which has similar relations to audiences parencite:dimaggio1987classification. 
+# 
+While especially latter ones seem to be used in recommendation systems, and while inclusion of this would certainly be an enrichment parencite:van_der_Laan_2016, I assume that an approach that focuses on the relations between objects and audiences parencite:Emirbayer_1997 is preferable given the time constraints. 
 
-** Issues: 
-The population (predominantly young and male) might not adhere to genre boundaries to an extent that results in clear boundaries. 
+
+# Tfp: not just how many like it, but who: s it liked by people with lower TfP? then good
+
+
+** Operationalization
+*** Data
+**** theory :ignhead:
+It seems that the Music Listening History Dataset (MHLD, cite:Vigliensoni_2017_mlhd) is well suited for such an approach. 
+# 
+It contains the last.fm listening histories of over 500,000 people which have at least 7300 entries, resulting in a total of around 27 billion entries. 
+# 
+It allows to develop genres inductively (which does not mean that not numerous arbitrary decisions have to be made). 
+# 
+Given the large amount of genres and subgenres, this approach seems to avoiding the problem of focusing on an (arbitrary) set which would happen to be more salient to me. 
+# 
+It furthermore might be argued that unlike explicitly made reviews, listening histories tap into non-declarative culture as they document the selections themselves, and avoid the issue of post-hoc accounts parencite:Lizardo_2016_improving,Vaisey_2018_decision as well as incompleteness.[fn::It strikes me as somewhat ironic that a cognitive criticism of surveys is their exclusive focus on declarative culture which may be only tangentially related to action, yet the reverse is the case here as behavioral is readily available but little insights are available of the cognitive that underlie the actions. However, the cognitive critique also stresses the loose coupling between declarative and non-declarative culture, which hence might alleviate the impact of the relative lack of declarative data.]
+# 
+
+**** more descriptions :ignhead:
+Country, age and gender are available for some listeners (around 2 thirds), especially country might be useful as it might be necessary to focus only on one country due to the large amounts of data (the total dataset has a size of around 500 GB). 
+# 
+Each entry for a user consists of a timestamp and musicbrainz identifiers for the song, the album and the artist. 
+# 
+While data such as tags for the artists, albums and songs are not included, they can be downloaded from last.fm relatively quickly. 
+#
+Due to the high numbers of artists and users, it seems that an effective way to analyze this data is to treat it as a network. 
+# 
+The file for each user can effectively be treated as an edge list from which a two-mode network can be constructed, with the first mode being the user, and the second the artist, album or song [fn::Presumably it would be possible to construct a multi-mode network as well, but this seems too complicated to me for now]. 
+# 
+So far I've been using graph-tool, a python library which so far has been able to load and process a subset of 1000 users and 8million edges, albeit analytically I have only calculated similarity scores so far, not more network-based approaches such as community detection. 
+# 
+I still have to investigate how it performs with larger files, I am however slightly optimistic that it is up to the task as so far it could handle everything I've tasked it with. 
+
+*** Analysis
+**** genre identification :ignhead:
+Due to the relational approach outlined above, it seems to me that it should be possible to construct genres by grouping artists (or albums or songs) based on similarity, which in turn is based on the extent to which these objects share a common audience at a particular point in time. 
+# 
+I am not yet clear which similarity measure precisely to use. 
+# 
+Jaccard similarity is a possible candidate, although more network-based measures (such as modularity) might also work. 
+# 
+To investigate the longitudinal changes, it seems possible to first cluster each point in time (presumably a period of some months), and then merge the genres across time points on some threshold of some similarity score [fn::While it would have been nice to have results already, the technical setup has taken some time, and so far I've only worked with a small number of users, which (I hope) was the cause for not reaching high similarity numbers, effectively resulting in most artists being too dissimilar from all other artists to be grouped together properly] 
+#
+
+**** identity :ignhead:
+# 
+The fuzziness (or clarity) of a genres 'identity' can be assessed with 'tags' which users can employ to label artists, albums and songs. 
+# 
+Last.fm tags are weighted on a scale from 1 to 100 (the most frequent tag always is always 100; there is however no straightforward way to see which user tagged which artist). 
+#
+Once genres are constructed from a similarity measure, it should be possible to construct the cognitive identity from the tags associated with each of the genre's artists, and subsequently measure of how clear of an identity a genre has at each point in time. 
+
+**** final analysis :ignhead:
+Finally, a genre can be considered abandoned at the end of 'time point genres'. 
+# 
+For the 'merged' genres it should be possible to calculate all relevant genre-level variables for each time point, individual level ones can be constructed from the audience of each, and would be aggregated [fn::It came to my mind to use a multilevel structure in which users would be nested in genres, however this would require a more complicated model as the primary interest would be a second-level variable, and it would also require that listeners only belonged to one genre]. 
+# 
+In the final analysis, either the size or the status might be predicted in a fixed or random effects model, in which the time points would be nested in genres. 
+
+
+** Current Issues 
+*** tag issues :ignhead:
+No temporal data on tags is available, i.e. the tags and their weights reflect the cumulative history which cannot be disentangled for a particular period of time the implications of which have to be considered in the calculation of the fuzziness of the genres cognitive elements. 
+#
+If artists are (seen as) changing their styles over time, this would problems, but not if generally artists rise and fall with genres, and genres with artists. 
+# 
+Furthermore this problem might be alleviated to some degree by focus on albums or even songs as these are much more associated with the point of time of their release (although this does not for canonical works which remain popular parencite:Anand_2000_sensemaking). 
+# 
+Furthermore, a finer levels means that the tags themselves are sparser. [fn:: it is not clear to me how last.fm generates the tag weights for the artists, nor did I find out so far whether tags given to songs by users automatically extend to the album and the artist] 
+# 
+Additionally, even single albums or songs might be interpreted differently throughout time, albeit I think that this does not occur to an extent that it would have a substantial impact. 
+
+
+*** sampling
+Sampling might also be a problem: 
+# 
+The population (predominantly young and male) might (next to generally being unrepresentative) not adhere to genre boundaries to an extent that results in clear boundaries given the currently planned analytic strategy. 
 # 
 Similarity measures might therefore be unreliable when users listen to a large number of artists that they do not consider similar. 
 # 
@@ -84,154 +194,6 @@ Playlists might be a useful as in these listeners group objects together on perc
 However playlist data is not available from last.fm, and I have not been able to get access to the so-called Million Playlist Dataset (MPD) by Spotify. 
 # ask the DGS people? 
 
-
-The sample might be generally be unrepresentative. 
-
- 
-
-
-** Identity
-Artists can be tagged by users. 
-# 
-While there is no breakdown by who tagged which artist, tags are weighted on a scale from 1 to 100 (the most frequent tag always is always 100). 
-# 
-Once genres are constructed from a similarity measure, it should be possible to construct the tags associated with each, and therefore get a measure of how clear of an identity a genre has at each point in time. 
-# 
-I assume that a clear identify enhances survival prospect cite:Zuckerman_1999_illegitimacy,Hsu_2006_jacks. 
-# 
-A clear identity can be also seen as successful institutionalization, as it corresponds to the construction of a cognitive layer which solidifies the common aesthetic elements of a set of works to the degree that they become taken for granted parencite:Powell_1991_introduction. 
-# 
-This process similarly corresponds to the prototype view parencite:Murphy_2004_concepts, in which a general concept that that either lists the features of a category or additionally, posits relations between the is constructed from a set of items in a process of abstraction. 
-# 
-A clear identity might stand in contrast to popularity, as it might be easier to maintain a clear identity. 
-#
-Reversely, it might be that larger genres develop more 'momentum' and through institutionalization reach more clarity, yet it could also be that a clear identity is a precondition for growth in the first place. 
-# 
-
-*** Resource distribution
-# 
-Another relevant genre-level variable might be the resource distribution; one can imagine an ideal-typical contrast between concentration where few artists account for the majority of listeners with a relatively evenly spread distribution. 
-# 
-While this might impact survival chances, albeit I cannot think of a clear direction so far. 
-
-
-
-** micro-processes
-
-It is furthermore relevant to consider the individual-level processes through which macro-level mechanisms are mediatated. 
-# 
-textcite:Kovacs_2014_paradox postulates that two mechanisms that lead to short-term devaluation might have long-term consequences. 
-# 
-First, he finds that status attracts audiences not who are not intrinsically attracted and hence devalue the object due to lack of fit with their personal evaluation criteria. 
-# 
-Second, he finds that increasing popularity results in more devaluation by audiences who dislike popular products and want to distinguish themselves from 'mainstream' objects. 
-# 
-Both these measures should be relatively straightforward. 
-# 
-While it is presumably most convenient to aggregate them to the level of genre, I do not think that this diminishes their explanatory power. 
-#
-However, I wonder if maybe textcite:Kovacs_2014_paradox, particularly in the second mechanism, 'imposes' a high cultural capital mindset (distinction) as general mechanism (something that e.g. textcite:holt1998does warns against). 
-#
-It further seems to me that the assumptions of the first mechanism, namely an intrinsically interested audience, to some degree limit the effect of the second, as these are presumably not easily swayed by short-term shifts in public opinion. 
-# 
-Obviously, only empirical analysis can settle these matters. 
-
-*** other individual-level variables :ignhead:
-The impacts of other personal-level variables are also worth investigating, such as ~omnivorousness~ parencite:peterson1996changing (or more precise, atypicality and variety parencite:Goldberg_2016_span).
-# 
-Omnivores might be less committed to a particular genre as their ~identity~ is to span different genres, yet their openness parencite:Roose_2012 might nevertheless make them willing propagators of new forms. 
-# 
-
-
-*** environment :ignhead:
-# 
-Next to the internal composition of a genre, the relationship to its environment needs to be taken into account. 
-# 
-Primarily insights from organizational ecology can be incorporated here parencite:Hannan_1977_ecology,Ruef_2000_emergence,Ruef_2004_demise,van_Venrooij_2015_ecology such as density of the musical spaces, competition over resources (listeners), saturation of different niches and reaping the benefits of form legitimation performed by other actors. 
-# 
-Compelling concepts might also be gained by incorporating field-theoretical approaches, such as the primary focus on actors (or more precisely, incumbents and challengers) which in "the aggregate constitute a recognized area of institutional life" [[parencite:diMaggio_1983_iron][p.148]]. 
-# 
-Considerations of how their perceptions, evaluations, strategies, decision making, and alliances parencite:Fligstein_2015_fields,Anand_2006_charting would contribute to field emergence, settlement and rupture would certainly provide valuable insights. 
-# 
-However, the complexities involved in taking into account the large number of actors which next to other artists would also increase for example record labels, radio stations and other distributors as well as the relations between them presumably is beyond the scope of this study. 
-# 
-As this focus on the relations among artists and to consumers leaves out a number of key actors, caution has to be exercised to avoid misattributing effects, in particular as the textcite:Fligstein_2015_fields consider the relations to outside actors as key predictors of field stability or change (nevertheless, this might be less of an issue as musical production faces relatively little state regulation). 
-# 
-
-
-*** TfP :ignhead:
-Taste for popularity parencite:Zuckerman_2012_valuations,Lieberson_2003_popularity might furthermore matter insofar as it could not only be the mere number of a listening audience that is considered, but also its composition. 
-#
-In particular, one might imagine that an actor with medium TfP would be more enticed by a genre that is consumed by a small number of avant garde than one that is just being abandoned by the last audiences with a high TfP. 
-# 
-as the former provides much more potential for distinction than the former which has already been chewed through by large parts of the population.  
-
-# Tfp: not just how many like it, but who: s it liked by people with lower TfP? then good
-
-
-
-*** tag issues :ignhead:
-However, no temporal data on tags is available, i.e. the tags and their weights  would reflect the cumulative history which would pose problems if artists are changing their styles over time. 
-# 
-This might be alleviated to some degree by focus on albums or even songs as these are much more associated with the point of time of their release (although this does not for canonical works which remain popular cite:Anand_2000_sensemaking). 
-# 
-Furthermore, a finer levels means that the tags themselves are sparser. 
-# 
-Additionally, even single albums or songs might be interpreted differently throughout time, albeit I think that this does not occur to an extent that it would have a substantial impact. 
-#
-
-
-** reflect on meetings: websites
-# topic is changes in popularity of genres
-# why is listener network data approach better? 
-# no imposition of genres
-# non-declarative (actual useage, not conscious)
-# much more complete: not just what people chose to review
- 
-
-It strikes me as somewhat ironic that a cognitive criticism of surveys is their exclusive focus on declarative culture which may be only tangentially related to action, yet the reverse is the case here as behavioral is readily available but little insights are available of the cognitive that underlie the actions (yet since the cognitive critique also stresses the loose coupling between declarative and non-declarative culture, it is not clear if attitudinal data would provide additional insights, and hence might only serve as a confirmation of the loose coupling). 
-# 
-
-
-
-
-
-** Issues 
-
-
-
-
-** Data and methods
-*** notes
-
-*** text
-This thesis will study the fashion dynamics of genres (organizational forms) of popular music. 
-#
-Longitudinal data 
-
-
-tags: crawl through the rateyourmusic archive.org sites to get tags? but don't know where they're coming from either
-
-# cluster all time periods, group similar ones together (across time?)
-# might merge multiple from years
-# then so be it? 
-# assumes genre can't change completelyl
-# maybe just similarity within window? like marieke: only current/previous year...
-
-** 
-tags: identity/perception: does group have a stable identity/is it perceived to be different 
-textcite:dimaggio1987classification: *socially constructed organizing principles*
-is clear abstraction formed? 
-
-
-questions: start with tags, or with networks/connections
-
-* technical
-big data: pre-processing in python? 
-graphtool? 
-
-
-google analytics for the frequencies
 
 #+Latex: \begin{sloppypar}
 #+Latex: \printbibliography
