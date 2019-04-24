@@ -1,0 +1,17 @@
+* todo computing 
+* user selection
+* data filtering per timepoint
+* download tags
+* check tag technicalities
+** histories
+** set unit of analysis
+- artist
+- album
+- song
+
+nested structure? 
+
+* popularity of UoA over time
+
+
+ 
