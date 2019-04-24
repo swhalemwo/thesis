@@ -13,5 +13,10 @@ nested structure?
 
 * popularity of UoA over time
 
-
+* normalized stress MDS
+correlate distances (original and new from MDS?)
+http://cognitionandreality.blogspot.com/2015/04/computing-fit-of-mds-solution-using-r.html
  
+https://github.com/scikit-learn/scikit-learn/pull/10168
+divide by sum of squared distances? 
+
