@@ -40,6 +40,7 @@ t2 = time.time()
 
 
 
-    
-lsn_dt.a = lsn_dtsK
-    
+# use awk first
+
+# awk '$1 >= 1239200000 && $1 <= 1259400000' *.txt >> read_in.txt
+
