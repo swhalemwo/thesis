@@ -4,6 +4,29 @@
 * download tags
 * check tag technicalities
 ** histories
+tags added to website between june and september 2005
+
+maybe add website changes as dummies for website changes (exogeneous shocks)
+
+
+
+** done bit unhyped by the little time period: 8 years at most
+# fucking retards why did they stop recording so early
+
+-> ask if you can get name? 
+
+gabriel@music.mcgill.ca
+
+Dear Dr. Vigliensoni, 
+
+thank you for the MHLD! I am currently a master student in cultural sociology at the University of Amsterdam and plan to use it for my master thesis. Would it be possible for me to get access to the original user names to collect additional data on how the listening histories have developed in the last years? 
+
+Best, Johannes Aengenheyster
+
+
+I plan on using the 
+
+
 ** set unit of analysis
 - artist
 - album
@@ -13,10 +36,46 @@ nested structure?
 
 * popularity of UoA over time
 
-* normalized stress MDS
+* done normalized stress MDS
 correlate distances (original and new from MDS?)
 http://cognitionandreality.blogspot.com/2015/04/computing-fit-of-mds-solution-using-r.html
  
 https://github.com/scikit-learn/scikit-learn/pull/10168
-divide by sum of squared distances? 
+divide by sum of squared distances? test with R: 
+
+10 dims
+- R: 8.94
+- python: 0.095
+
+2 dims: 
+- Python: 0.238 
+- R: 26.63
+
+somewhat similar
+# maybe diagonals get counted differently? 
+python slightly better at few dimensions, R very slightly better at many dims
+
+
+* computing power
+** done info and request
+space on 81GB: delete windows files? 
+
+Dear SurfSara Helpdesk, 
+
+I am currently a student in the Research Master Social Sciences at the University of Amsterdam, where for my master thesis I am studying musical consumption patterns. One potential dataset that I consider using exceeds the my computer in terms of storage (hundreds of GB) and processing power, and upon mentioning this to my supervisor Alex van Venrooij, he mentioned your organization. Would it be possible to get access to the computing resources for a masters thesis? 
+
+Best, Johannes Aengenheyster
+
+
+
+
+* secondary
+** personal tags
+
+http://ws.audioscrobbler.com/2.0/?method=user.getpersonaltags&user=rj&tag=rock&taggingtype=artist&api_key=607aa0a70e1958439a7de088b66a4561
+
+would need user and tag: 50k users, 1k tags -> 50m requests
+
+also would have to identify users first
+-> secondary
 
