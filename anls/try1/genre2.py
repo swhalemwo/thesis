@@ -8,7 +8,7 @@ import cairo
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import itertools
 
 from graph_tool.all import *
 from graph_tool import *  
@@ -71,9 +71,12 @@ lsn_dt=g.new_edge_property("int")
 
 some_map = g.add_edge_list(edges, string_vals=True, hashed=True, eprops=lsn_dt)
 
-g.add_edge_list(edges, string_vals=True, hashed=True, eprops=lsn_dt)
+ids=g.add_edge_list(edges, string_vals=True, hashed=True, eprops=lsn_dt)
 t2 = time.time()
 t2 - t1
+
+g.vp.id = ids
+
 
 # read in time periods
 lsn_dt.a = lsn_dts
@@ -210,7 +213,7 @@ gt1x = GraphView(g_t1, vfilt=t1_filt_dgr, reversed=True)
 # not clear which graph to use for the eventual subset
 # there shouldn't be much of a difference but somehow there is
 subs2 = find_vertex_range(gt1x, 'in', (100, 100000000))
-subs3 = find_vertex_range(g, 'in', (2000, 100000000))
+subs3 = find_vertex_range(g, 'in', (500, 100000000))
 
 subs2 = subs3
 
@@ -218,6 +221,7 @@ NART = len(subs2)
 
 gt1x = g
 
+t1 = time.time()
 sims=np.empty([0,NART])
 for k in subs2[0:NART]:
     itrbl=[]
@@ -228,13 +232,41 @@ for k in subs2[0:NART]:
     # sim = graph_tool.topology.vertex_similarity(gt1x, 'dice', vertex_pairs=itrbl).tolist()
     sim = graph_tool.topology.vertex_similarity(GraphView(gt1x, reversed=True), 'jaccard', vertex_pairs=itrbl).tolist()    
     sims = np.append(sims, [sim], axis=0)
-    print(sims.shape)
+    # print(sims.shape)
 
+t1 = time.time()
 for i in range(NART): 
     for k in range(NART): 
         v_min = min(sims[i,k],sims[k,i])
         sims[k,i] = v_min
         sims[i,k] = v_min
+t2 = time.time()
+print(t2 - t1)
+
+
+# only pass single thing to similarity?
+
+
+# sim_in = []
+# for i in v_ids:
+#     for k in v_ids:
+#         sim_in.append((i,k))
+
+
+t3 = time.time()
+v_ids = [int(i) for i in subs2]
+sim_in2 = itertools.product(v_ids, v_ids)
+sim_in3 = list(sim_in2)
+
+sim_out = graph_tool.topology.vertex_similarity(GraphView(gt1x, reversed=True), 'jaccard', vertex_pairs=sim_in3)
+
+sim_out2 = np.split(sim_out, len(subs2))
+sim_out3 = np.array(sim_out2)
+t4 = time.time()
+print(t4-t3)
+
+
+
 
 dsims = 1-sims
 
@@ -251,16 +283,28 @@ plt.show()
 # what if people listen to a lot of stuff different?
 # but stuff is only different if boundaries exist in the first place
 
+np.savetxt("/home/johannes/Dropbox/gsss/thesis/anls/try1/mds_test754.csv", dsims)
 
 t1 = time.time()
-model = MDS(n_components=10, dissimilarity='precomputed', random_state=1)
-out = model.fit_transform(dsims)
-plt.scatter(out[:, 0], out[:, 1])
+
+fit_res = []
+
+for i in range(2,10):
+
+    model = MDS(n_components=i, dissimilarity='precomputed', metric=False, verbose=1)
+    out = model.fit_transform(dsims)
+    
+    dsims_sqrd = (dsims**2).sum() / 2
+    stress1 = np.sqrt(model.stress_ / dsims_sqrd)
+
+    fit_res.append(stress1)
+    
+
+
+plt.scatter(out[:, 0], out[:, 2])
 # plt.axis('equal');
 plt.show()
 t2 = time.time()
-
-
 
 
 dsims_sqrd = sum(sum(dsims**2))
@@ -294,7 +338,8 @@ clustering = DBSCAN(eps=3, min_samples=2).fit(X)
 
 
 g.save('/home/johannes/Dropbox/gsss/thesis/anls/try1/g8m.gt')
+g.save('/home/johannes/Dropbox/gsss/thesis/anls/try1/g8m_ids.gt')
 
 
-g = load_graph('/home/johannes/Dropbox/gsss/thesis/anls/try1/g8m.gt')
+g = load_graph('/home/johannes/Dropbox/gsss/thesis/anls/try1/g8m_ids.gt')
 
