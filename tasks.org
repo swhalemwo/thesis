@@ -1,7 +1,28 @@
-* todo computing 
 * user selection
-* data filtering per timepoint
-* download tags
+
+* done download tags
+ideally iteratively: need to get tags also later on
+-> should check whether tag downloaded already
+
+tag <-> artist network? 
+idk
+not that many tags -> 
+
+* tag space
+- convex hull of hypervolume
+- box
+
+additional: 
+- how clear is space: how many works are in there that are not of tag
+- distribution: how are artists in space of tag distributed along other tags
+
+
+how to deal with tag weights
+- 2/3 layers: core (75+), medium (35-75), periphery (5-25)
+
+
+
+
 * check tag technicalities
 ** histories
 tags added to website between june and september 2005
@@ -69,13 +90,85 @@ Best, Johannes Aengenheyster
 
 
 
+* substitutes and complements
+some tags may be dependent on others 
+isn't that legitimation tho? 
+
+female vocalist and chillout
+
+* different groups use different tags for same thing? 
+
+* asymetric competition coefs
+can't be reduced to single space
+
+is specialist similar to generalist
+or generalist similar to specialist
+
+north korea more similar to china than china to north korea
+-> specialist more similar to generalist than generalist to specialist
+
+-> ask alex, do tags first
+
+* improve reading in edges
+** done bash processing 1
+atm quite some entries in artist names that are not bids
+maybe length requirement? 
+
+
+** todo bash processing 2: read in from multiple folders
+symlink dir with all country
+
+simultaneous sub processes to pre-process? 
+
+run in 01/02/03 folder, then swoop up afterwards to be able to read from csv? 
+
+
+
+** todo bash processing 3
+unclear whether to weigh edges
+could be done with Counter
+similarity doesn't 
+
+** done data filtering per timepoint
+can be done with awk
+
+
+
+* structural equivalence
+to go from what to how? 
+
+
 * secondary
 ** personal tags
 
 http://ws.audioscrobbler.com/2.0/?method=user.getpersonaltags&user=rj&tag=rock&taggingtype=artist&api_key=607aa0a70e1958439a7de088b66a4561
 
 would need user and tag: 50k users, 1k tags -> 50m requests
+seems i can look up who gave what tags 
+
 
 also would have to identify users first
 -> secondary
 
+** identifying users
+would need to scrape last fm top listeners
+
+would get 270 per artist
+
+download histories
+test for matches
+
+not sure about approach: 
+- focus on user, as in trying to id user based on the artists
+- focus on artists: see which top listeners are in my dataset
+
+maybe both: first user to select artist, then see who of the 270 can be ided? 
+
+or primarily artist based: have the hunch it gives more findings: always everybody can be ided
+
+** additional analysis: consequences of legitimacy
+study band success based on how legitimated their tags are?
+or does that become circular?
+idk:
+would be if a tag is legitimate if it is popular
+but i think measure of legitimacy does not rely on popularity, 
