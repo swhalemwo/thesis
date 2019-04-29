@@ -213,6 +213,7 @@ gt1x = GraphView(g_t1, vfilt=t1_filt_dgr, reversed=True)
 # not clear which graph to use for the eventual subset
 # there shouldn't be much of a difference but somehow there is
 subs2 = find_vertex_range(gt1x, 'in', (100, 100000000))
+
 subs3 = find_vertex_range(g, 'in', (500, 100000000))
 
 subs2 = subs3
@@ -343,3 +344,10 @@ g.save('/home/johannes/Dropbox/gsss/thesis/anls/try1/g8m_ids.gt')
 
 g = load_graph('/home/johannes/Dropbox/gsss/thesis/anls/try1/g8m_ids.gt')
 
+# write tags artsist to file
+
+for i in subs2:
+    mbid = g.vp.id[i]
+    with open ('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/mbid_list.csv', 'a') as fo:
+        wr = csv.writer(fo)
+        wr.writerow([mbid])
