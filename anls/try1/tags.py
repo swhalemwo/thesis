@@ -1,11 +1,11 @@
 import csv
 import requests
 import argparse
-
+import sqlite3
 
 def check_existing(c):
-    q=c.execute('SELECT DISTINCT mbid from tags').fetchall()
-    f=c.execute('SELECT mbid from failed').fetchall()
+    q=[i[0] for i in c.execute('SELECT DISTINCT mbid from tags').fetchall()]
+    f=[i[0] for i in c.execute('SELECT mbid from failed').fetchall()]
 
     [q.append(i) for i in f]
     
@@ -32,16 +32,33 @@ def load_todo(infile):
 # think it's easier to check for duplicates elsehow
 
 
-# def get_tags(mbid, mbid_type, tag_file):
-def get_tags(mbid, mbid_type, tag_file):
+def check_resp(resp_dict, mbid):
+        if list(resp_dict.keys())[0] == 'error':
+            print('oopsie woopsie! ' + str(resp_dict['error']), resp_dict['message'])
+            c.execute('INSERT OR IGNORE INTO failed (mbid) VALUES (?)', (mbid,))
+            good=0
+            # conn.commit()
+
+        elif list(resp_dict.keys())[0]== 'toptags' and len(resp_dict['toptags']['tag']) ==0:
+            print('oopsie woopsie! no tags!')
+            c.execute('INSERT OR IGNORE INTO failed (mbid) VALUES (?)', (mbid,))
+            good=0
+
+        else:
+            good=1
+
+        return(good)
+
+
+def get_tags(mbid, mbid_type, c):
 
     # rage against the machine: artist, album, song
     # mbid = '3798b104-01cb-484c-a3b0-56adc6399b80'
-    mbid = '10cf6ada-ef3f-3cd3-9a7b-bdc15db2dddf'
+    # mbid = '10cf6ada-ef3f-3cd3-9a7b-bdc15db2dddf'
     # mbid = 'fa2e0148-835d-473a-babf-c2a3188879d2'
 
     # mbid_type = 'artist'
-    mbid_type = 'album'
+    # mbid_type = 'album'
     # mbid_type = 'track'
 
     if mbid_type == 'artist':
@@ -49,17 +66,12 @@ def get_tags(mbid, mbid_type, tag_file):
         str2=mbid_type +".getTopTags&mbid="
         str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
 
-
         # artst = '936db8ea-2d4b-4d2b-9665-ad8fdecac835'
         qry = str1 + str2 + mbid + str4
 
         resp_raw = requests.get(qry)
         resp_dict = resp_raw.json()
 
-
-        # NEED TO FINISH
-        # GET NAME, ALBUM from info dict
-        # put into get tags call
 
     else:
         # get info first
@@ -71,10 +83,11 @@ def get_tags(mbid, mbid_type, tag_file):
         resp_raw = requests.get(qry)
         resp_dict = resp_raw.json()
 
-        if list(resp_dict.keys())[0] == 'error':
-            print(resp_dict['error'], resp_dict['message'])
+        # if list(resp_dict.keys())[0] == 'error':
+        #     print(resp_dict['error'], resp_dict['message'])
+        #     fail = 1
 
-        else:
+        if check_resp(resp_dict, mbid) ==1:
             mbid_name = resp_dict[mbid_type]['name']
 
             if mbid_type=='album':
@@ -83,40 +96,32 @@ def get_tags(mbid, mbid_type, tag_file):
             if mbid_type=='track':
                 artst_name = resp_dict['track']['artist']['name']
 
-
             str22 = mbid_type + ".getTopTags&artist=" + artst_name + '&' + mbid_type + '=' + mbid_name
 
             qry = str1 + str22 + str4
             resp_raw = requests.get(qry)
             resp_dict = resp_raw.json()
 
-    if list(resp_dict.keys())[0] == 'error':
-        print('oopsie woopsie!')
+    return(resp_dict)
 
-    else:
-        mbid_name = resp_dict['toptags']['@attr'][mbid_type]
-        # name = resp_dict['toptags']['@attr']['artist']
 
-        # tags = [mbid,mbid_type,mbid_name]
-        # for i in resp_dict['toptags']['tag']:
-        #     # tag_weight_pr = (i['name'],i['count'])
-        #     tags.append(i['name'])
-        #     tags.append(i['count'])
+# Should add list for mbids to name
 
-        tags = []
-        for i in resp_dict['toptags']['tag']:
-            # tag_weight_pr = (i['name'],i['count'])
-            tags.append((mbid+"-"+i['name'], mbid, i['name'], i['count'], mbid_type))
+def proc_tags(resp_dict, mbid, mbid_type, c):
+    # mbid_name = resp_dict['toptags']['@attr'][mbid_type]
+    # name = resp_dict['toptags']['@attr']['artist']
 
-            # artist name in quotation marks as otherwise commas would break csv
-            # tags can't have commas afaik
-            # '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tags.csv'
+    tags = []
+    for i in resp_dict['toptags']['tag']:
+        # tag_weight_pr = (i['name'],i['count'])
+        tags.append((mbid+"-"+i['name'], mbid, i['name'], i['count'], mbid_type))
 
-        # with open(tag_file, 'a') as fo:
-        #     wr = csv.writer(fo)
-        #     wr.writerow(tags)
-        c.executemany("INSERT OR IGNORE INTO tags (link, mbid, tag, weight) VALUES (?, ?, ?, ?, ?)", tags)
-        conn.commit()
+        # artist name in quotation marks as otherwise commas would break csv
+        # tags can't have commas afaik
+
+    # print(len(tags))
+    c.executemany("INSERT OR IGNORE INTO tags (link, mbid, tag, weight, mbid_type) VALUES (?, ?, ?, ?, ?)", tags)
+    
 
 
 if __name__ == '__main__':
@@ -133,24 +138,34 @@ if __name__ == '__main__':
     mbid_file = args.mbid_file
     tag_sqldb = args.tag_sqldb
 
-    mbids_done = check_existing(tag_file)
+    tag_sqldb="/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/alb_tags1.sqlite"
+    conn = sqlite3.connect(tag_sqldb)
+    c=conn.cursor()
+
+    mbids_done = check_existing(c)
     mbids_todo = load_todo(mbid_file)
     
     mbids_todo2 = list(set(mbids_todo) - set(mbids_done))
     print(len(mbids_todo2))
 
-
     cntr = 0
     for i in mbids_todo2:
 
+        # c=conn.cursor()
         print(i)
-        get_tags(i, mbid_type, tag_file)
+        resp_dict=get_tags(i, mbid_type, c)
+        if check_resp(resp_dict, i) == 1:
+            proc_tags(resp_dict, i, mbid_type, c)
 
 
         if cntr ==25:
             print(mbids_todo2.index(i), mbids_todo2.index(i)/len(mbids_todo2) )
+            conn.commit()
             cntr = 0
         cntr+=1
+conn.commit()
+
+# maybe file just broken by now
 
 # parameters to add:
 # - type: artist, album, song
