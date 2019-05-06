@@ -126,15 +126,22 @@ It furthermore might be argued that unlike explicitly made reviews, listening hi
 # 
 
 **** more descriptions :ignhead:
-Country, age and gender are available for some listeners (around 2 thirds), especially country might be useful as it might be necessary to focus only on one country due to the large amounts of data (the total dataset has a size of around 500 GB). 
+Country, age and gender are available for approximately two thirds listeners, especially country might be useful as it might be necessary to focus only on one country due to the large amounts of data (the total dataset has a size of over 500 GB). 
 # 
-Each entry for a user consists of a timestamp and musicbrainz identifiers for the song, the album and the artist. 
+Each entry for a user consists of a (unix) timestamp and musicbrainz identifiers for the song, the album and the artist. 
 # 
 While data such as tags for the artists, albums and songs are not included, they can be downloaded from last.fm relatively quickly. 
 #
 Due to the high numbers of artists and users, it seems that an effective way to analyze this data is to treat it as a network. 
 # 
-The file for each user can effectively be treated as an edge list from which a two-mode network can be constructed, with the first mode being the user, and the second the artist, album or song [fn::Presumably it would be possible to construct a multi-mode network as well, but this seems too complicated to me for now]. 
+While the construction of a complete adjacency matrix would require extensive resources due to the high number of both listeners and artists, by treating each log file as an edge list it is possible to construct a two-mode network with the first mode being the user, and the second the artist, album or song [fn::Presumably it would be possible to construct a multi-mode network as well, but this seems too complicated to me for now]. 
+# 
+The choice whether to take the artist, album or song as the second mode is still open. 
+# 
+As there is no information of an objects tag associations available, albums and songs might be preferable as they can be expected to accumulate different associations over time to a lesser extent than artists do (whose taggings might reflect their entire production). 
+
+
+The file for each user can effectively be
 # 
 So far I've been using graph-tool, a python library which so far has been able to load and process a subset of 1000 users and 8million edges, albeit analytically I have only calculated similarity scores so far, not more network-based approaches such as community detection. 
 # 
@@ -198,6 +205,59 @@ However playlist data is not available from last.fm, and I have not been able to
 #+Latex: \begin{sloppypar}
 #+Latex: \printbibliography
 #+Latex: \end{sloppypar}
+
+
+** additions
+shift to genres as tags
+
+probability densities
+
+
+
+asymmetry: china/NK
+
+cross-form legitiation
+
+spatial metaphors
+
+niches 
+link of cultural and cognitive space -> Mohr
+
+improve speculation on trajectories
+
+concentration/distribution matters somehow
+
+
+much reliance on conventional industrial categories -> also for music
+
+categories from the ground up? 
+
+
+
+*** structure
+- genres: focus on cognitive aspect
+# how to save dimaggio? 
+- concept relations: general/special -> asymmetry
+
+
+# send alex the git diff? 
+Bourdieu: space already contains the forms
+
+
+
+
+
+
+*** whining
+causal path: from cognition to action 
+but does that work with ecology? 
+yeahhh: it seems more like how do objective conditions lead to culture :(
+ehh not quite either: cross-form legitimation is culture -> culture link
+
+Tfp is cognitive too
+fuzziness tool
+maybe see it a bit more unified: competition is also cultural, is over legitimacy as much as about users? 
+
 
 
 
