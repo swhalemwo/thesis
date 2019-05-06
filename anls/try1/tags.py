@@ -153,16 +153,21 @@ if __name__ == '__main__':
 
         # c=conn.cursor()
         print(i)
-        resp_dict=get_tags(i, mbid_type, c)
-        if check_resp(resp_dict, i) == 1:
-            proc_tags(resp_dict, i, mbid_type, c)
+        try:
+            resp_dict=get_tags(i, mbid_type, c)
+            if check_resp(resp_dict, i) == 1:
+                proc_tags(resp_dict, i, mbid_type, c)
 
 
-        if cntr ==25:
-            print(mbids_todo2.index(i), mbids_todo2.index(i)/len(mbids_todo2) )
-            conn.commit()
-            cntr = 0
-        cntr+=1
+            if cntr ==25:
+                print(mbids_todo2.index(i), mbids_todo2.index(i)/len(mbids_todo2) )
+                conn.commit()
+                cntr = 0
+            cntr+=1
+        except:
+            print("mega oopsie!")
+            pass
+        
 conn.commit()
 
 # maybe file just broken by now
