@@ -25,30 +25,61 @@ Mechanisms that explain these changes incorporate environmental, genre-level and
 
 *** Conceptualizing Genres
 **** what is genre? 1 :ignhead:
-Rather than defining genres in terms of form or content, I plan to focus on the "social relations among producers and consumers", assuming that genres are "partially constituted by the audiences that support them" [[parencite:dimaggio1987classification][p.441]]. 
 # 
-While textcite:dimaggio1987classification based on these considerations conceptualizes genres as "sets of works classified together on the basis of perceived similarities" (p.441), it seems to me that not only explicit classifications of objects are indicative of genres, but that of implicit usage data (in this case,  listening records) should also enable the linking of particular objects to particular audiences. 
+# Genres constitute a key term in cultural sociology. 
 # 
-This does not mean that perceptions of similarity or other cognitive processes are not worthy of considering, as on the contrary, the development of cognitive associations and routines that become taken for granted is a key part of the establishment and institutionalization of new organizational forms. 
+Genres can be defined as "socially constructed organizing principles" or "aggregation principle enables observers to sort products into categories" [[parencite:dimaggio1987classification][p.441]]. 
 # 
+They furthermore cannot be defined in isolation, but are "partially constituted by the audiences that support them" (ibid.). 
+# 
+~Categories and categorization more generally can be considered~
+
+
+~blueprint~
+~organizational literature~
+
+- features
+- relations across genres 
+
+textcite:dimaggio1987classification also discusses genres as "sets of works classified together on the basis of perceived similarities" (p.441); ~an aspect that also has to be considered~.
+
+# Rather than defining genres in terms of form or content, I plan to focus on the "social relations among producers and consumers", 
+
+# # 
+# While textcite:dimaggio1987classification based on these considerations conceptualizes genres as 
+
+#  (p.441), it seems to me that not only explicit classifications of objects are indicative of genres, but that of implicit usage data (in this case, listening records) should also enable the linking of particular objects to particular audiences. 
+# # 
+This does not mean that perceptions of 
+
+With a focus on the categories which audiences use to make sense of the world, attention has to be given to cognitive associations and routines that become taken for granted and thereby form a key part in the establishment and institutionalization of new organizational forms. 
+
+
+similarity or other cognitive processes are not worthy of considering, as on the contrary, the development of # 
 
 
 **** Identity :ignhead:
 # 
 In particular, a genre is not only a collection of works judged to be similar, but (according to the prototype view of cite:Murphy_2004_concepts) it also requires a the formation (institutionalization) of a somewhat abstract, yet able to be taken-for-granted concepts which can be used in the assessment of newly encountered works (rather than requiring comparison to all individual elements). 
 # 
-These "socially constructed organizing principles" [[parencite:dimaggio1987classification][p.PAGE]] can be expected to vary in their fuzziness, which, given that fuzziness has substantial impacts on individual objects parencite:Zuckerman_1999_illegitimacy,Hsu_2006_jacks which might result in variation in long-term survival chances as well. 
+These "socially constructed organizing principles" [[parencite:dimaggio1987classification][p.PAGE]] can be expected to vary in a number of aspects, such as their size and complexity or the fuzziness of their boundaries parencite:Hannan_2010_partiality,van_Venrooij_2018_fuzziness which might result in variation in long-term survival chances. 
+
+
+
+#  fuzziness, which, given that fuzziness has substantial impacts on individual objects parencite:Zuckerman_1999_illegitimacy,Hsu_2006_jacks which
 # 
-A clear identity might stand in contrast to popularity, as it might be easier to maintain a clear identity. 
+# A clear identity might stand in contrast to popularity, as it might be easier to maintain a clear identity. 
 #
-Conversely, it might be that larger genres develop more 'momentum' and through institutionalization reach more clarity, yet it could also be that a clear identity is a precondition for growth in the first place. 
+# Conversely, it might be that larger genres develop more 'momentum' and through institutionalization reach more clarity, yet it could also be that a clear identity is a precondition for growth in the first place. 
 
 **** Resource distribution :ignhead:
 # 
-Another relevant genre-level variable might be the resource distribution; one can imagine an ideal-typical contrast between concentration where few artists account for the majority of listeners with a relatively evenly spread distribution. 
+Another relevant genre-level variable might be the resource distribution; one can imagine an ideal-typical contrast between concentration where few artists account for the majority of listeners with a relatively evenly spread distribution parencite:Lounsbury_2004_sources. 
 # 
-While this might impact survival chances, albeit I cannot think of a clear direction so far. 
 
+
+# While this might impact survival chances, albeit I cannot think of a clear direction so far. 
+parencite:Ruef_2000_emergence
 
 *** Micro-processes
 **** kovacs :ignhead:
@@ -86,10 +117,13 @@ The impacts of other individual-level variables are also worth investigating, su
 
 
 *** Environmental Influences
-# 
+
+the properties of the location of the musical space in which they emerge parencite:Lizardo_2009_comparative,Hsu_2005_forms
+
+
 Next to the internal composition of a genre, the relationship to its environment needs to be taken into account. 
 # 
-Primarily insights from organizational ecology can be incorporated here parencite:Hannan_1977_ecology,Ruef_2000_emergence,Ruef_2004_demise,van_Venrooij_2015_ecology such as density of the musical spaces, competition over resources (listeners), saturation of different niches and reaping the benefits of form legitimation performed by other actors [fn:: it also seems that social movement concepts such as contagion and bandwagoning might be useful, but I did not have the time to explore them properly]. 
+Primarily insights from organizational ecology can be incorporated here such as density of the musical spaces parencite:Hannan_1977_ecology,Carroll_1989_density,Hannan_1992_dynamics, competition over resources which in this case are listeners parencite:Mark_1998_feather, saturation of different niches parencite:Ruef_2000_emergence,Ruef_2004_demise and reaping the benefits of form legitimation performed by other actors parencite:van_Venrooij_2015_ecology [fn:: it also seems that social movement concepts such as contagion and bandwagoning might be useful, but I did not have the time to explore them properly]. 
 # 
 Compelling concepts might also be gained by incorporating field-theoretical approaches, such as the primary focus on actors (or more precisely, incumbents and challengers) which in "the aggregate constitute a recognized area of institutional life" [[parencite:diMaggio_1983_iron][p.148]]. 
 # 
@@ -99,8 +133,6 @@ However, the complexities involved in taking into account the large number of ac
 # 
 As this focus on the relations among artists and to consumers leaves out a number of key actors, caution has to be exercised to avoid misattributing effects, in particular as the textcite:Fligstein_2015_fields consider the relations to outside actors as key predictors of field stability or change (while one might grant music is only slightly regulated by the government, textcite:rossman2012climbing still highlights the importance of outside actors and exogeneous shocks). 
 # 
-
-
 
 **** further limitations :ignhead:
 Further elements that I think are beyond the scope of the thesis are considering the aesthetic elements themselves such as lyrics or musical features such as beats per minutes, tonal frequencies or instruments as genres are primarily seen as a set of objects which has similar relations to audiences parencite:dimaggio1987classification. 
@@ -118,9 +150,12 @@ It seems that the Music Listening History Dataset (MHLD, cite:Vigliensoni_2017_m
 # 
 It contains the last.fm listening histories of over 500,000 people which have at least 7300 entries, resulting in a total of around 27 billion entries. 
 # 
-It allows to develop genres inductively (which does not mean that not numerous arbitrary decisions have to be made). 
+The genres - the classification principles - which are applied to the entries can be downloaded with the last.fm API. 
+
+
+# It allows to develop genres inductively (which does not mean that not numerous arbitrary decisions have to be made). 
 # 
-Given the large amount of genres and subgenres, this approach seems to avoiding the problem of focusing on an (arbitrary) set which would happen to be more salient to me. 
+# Given the large amount of genres and subgenres, this approach seems to avoiding the problem of focusing on an (arbitrary) set which would happen to be more salient to me. 
 # 
 It furthermore might be argued that unlike explicitly made reviews, listening histories tap into non-declarative culture as they document the selections themselves, and avoid the issue of post-hoc accounts parencite:Lizardo_2016_improving,Vaisey_2018_decision as well as incompleteness.[fn::It strikes me as somewhat ironic that a cognitive criticism of surveys is their exclusive focus on declarative culture which may be only tangentially related to action, yet the reverse is the case here as behavioral is readily available but little insights are available of the cognitive that underlie the actions. However, the cognitive critique also stresses the loose coupling between declarative and non-declarative culture, which hence might alleviate the impact of the relative lack of declarative data.]
 # 
@@ -141,7 +176,8 @@ The choice whether to take the artist, album or song as the second mode is still
 As there is no information of an objects tag associations available, albums and songs might be preferable as they can be expected to accumulate different associations over time to a lesser extent than artists do (whose taggings might reflect their entire production). 
 
 
-The file for each user can effectively be
+
+# The file for each user can effectively be
 # 
 So far I've been using graph-tool, a python library which so far has been able to load and process a subset of 1000 users and 8million edges, albeit analytically I have only calculated similarity scores so far, not more network-based approaches such as community detection. 
 # 
@@ -207,20 +243,21 @@ However playlist data is not available from last.fm, and I have not been able to
 #+Latex: \end{sloppypar}
 
 
-** additions
+** additions :noexport:
 shift to genres as tags
+partiality
 
 probability densities
 
 
 
-asymmetry: china/NK
+asymmetry: china/NK, Mohr, Kovacs
 
-cross-form legitiation
+# cross-form legitiation
 
 spatial metaphors
 
-niches 
+# niches 
 link of cultural and cognitive space -> Mohr
 
 improve speculation on trajectories
@@ -231,6 +268,8 @@ concentration/distribution matters somehow
 much reliance on conventional industrial categories -> also for music
 
 categories from the ground up? 
+
+categories provided by users: Zucc, Hsu
 
 
 
