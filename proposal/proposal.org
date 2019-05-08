@@ -30,41 +30,42 @@ Mechanisms that explain these changes incorporate environmental, genre-level and
 # 
 Genres can be defined as "socially constructed organizing principles" or "aggregation principle enables observers to sort products into categories" [[parencite:dimaggio1987classification][p.441]]. 
 # 
-They furthermore cannot be defined in isolation, but are "partially constituted by the audiences that support them" (ibid.). 
+They can therefore be considered as organizational forms cite:Ruef_2000_emergence which consist of a blueprint of typical features and values for assessing objects. 
+#
+Given the general importance of categories and categorization for sense-making and action  parencite:Zuckerman_1999_illegitimacy,Negro_2011_winemaking,Hsu_2015_granted, their development cite:Ruef_2004_demise,van_Venrooij_2015_ecology, persistence cite:Lounsbury_2004_sources, change cite:Negro_2011_winemaking and disappearance cite:Strang_2001_excellence,Ruef_2004_demise is of substantial interest. 
 # 
-~Categories and categorization more generally can be considered~
+Genres furthermore do exist not in isolation and have to be considered in relation to both other genres, e.g. by mapping them into a conceptual space parencite:Hannan_2019_concepts, and their audiences [[parencite:dimaggio1987classification][p.441]]. 
+# 
+It is variation in these relations that can be seen as resulting in variation in genres on a number of aspects, such as their size, complexity, concentration parencite:Lounsbury_2004_sources or the fuzziness of their boundaries parencite:Hannan_2010_partiality,van_Venrooij_2018_fuzziness which in turn can be expected to result in variation in long-term survival chances. 
+# 
+With such a relational perspective, the actual content of the genres (what feature values which an object would have to adhere to to be considered a typical member) become secondary. 
+# 
+Nevertheless, with a focus on the categories which audiences use to make sense of the world, attention has to be given to cognitive associations and routines that become taken for granted and thereby form a key part in the establishment and institutionalization of new organizational forms. 
 
 
-~blueprint~
-~organizational literature~
-
-- features
-- relations across genres 
-
-textcite:dimaggio1987classification also discusses genres as "sets of works classified together on the basis of perceived similarities" (p.441); ~an aspect that also has to be considered~.
-
+# textcite:dimaggio1987classification also discusses genres as "sets of works classified together on the basis of perceived similarities" (p.441); ~an aspect that also has to be considered~.
 # Rather than defining genres in terms of form or content, I plan to focus on the "social relations among producers and consumers", 
-
 # # 
 # While textcite:dimaggio1987classification based on these considerations conceptualizes genres as 
 
 #  (p.441), it seems to me that not only explicit classifications of objects are indicative of genres, but that of implicit usage data (in this case, listening records) should also enable the linking of particular objects to particular audiences. 
 # # 
-This does not mean that perceptions of 
-
-With a focus on the categories which audiences use to make sense of the world, attention has to be given to cognitive associations and routines that become taken for granted and thereby form a key part in the establishment and institutionalization of new organizational forms. 
-
-
-similarity or other cognitive processes are not worthy of considering, as on the contrary, the development of # 
-
-
-**** Identity :ignhead:
+# This does not mean that perceptions of 
 # 
-In particular, a genre is not only a collection of works judged to be similar, but (according to the prototype view of cite:Murphy_2004_concepts) it also requires a the formation (institutionalization) of a somewhat abstract, yet able to be taken-for-granted concepts which can be used in the assessment of newly encountered works (rather than requiring comparison to all individual elements). 
+# similarity or other cognitive processes are not worthy of considering, as on the contrary, the development of # 
+
+# **** Identity :ignhead:
+# # 
+# A genre is however not just an abstract 
+
+
+# but (according to the prototype view of cite:Murphy_2004_concepts) it also requires a the formation (institutionalization) of a somewhat abstract, yet able to be taken-for-granted concepts which can be used in the assessment of newly encountered works (rather than requiring comparison to all individual elements). 
+# # 
+# These "socially constructed organizing principles" [[parencite:dimaggio1987classification][p.PAGE]] 
+
+
 # 
-These "socially constructed organizing principles" [[parencite:dimaggio1987classification][p.PAGE]] can be expected to vary in a number of aspects, such as their size and complexity or the fuzziness of their boundaries parencite:Hannan_2010_partiality,van_Venrooij_2018_fuzziness which might result in variation in long-term survival chances. 
-
-
+# 
 
 #  fuzziness, which, given that fuzziness has substantial impacts on individual objects parencite:Zuckerman_1999_illegitimacy,Hsu_2006_jacks which
 # 
@@ -74,12 +75,10 @@ These "socially constructed organizing principles" [[parencite:dimaggio1987class
 
 **** Resource distribution :ignhead:
 # 
-Another relevant genre-level variable might be the resource distribution; one can imagine an ideal-typical contrast between concentration where few artists account for the majority of listeners with a relatively evenly spread distribution parencite:Lounsbury_2004_sources. 
+# Another relevant genre-level variable might be the resource distribution; one can imagine an ideal-typical contrast between concentration where few artists account for the majority of listeners with a relatively evenly spread distribution 
 # 
-
-
 # While this might impact survival chances, albeit I cannot think of a clear direction so far. 
-parencite:Ruef_2000_emergence
+# parencite:Ruef_2000_emergence
 
 *** Micro-processes
 **** kovacs :ignhead:
@@ -95,11 +94,11 @@ I assume the measurement of both these mechanisms to be relatively straightforwa
 # 
 While it is presumably most convenient to aggregate them to the level of genre, I do not think that this diminishes their explanatory power. 
 #
-However, I wonder if maybe textcite:Kovacs_2014_paradox, particularly in the second mechanism, 'impose' a high cultural capital mindset (distinction) as general mechanism (something that e.g. textcite:holt1998does warns against). 
+# However, I wonder if maybe textcite:Kovacs_2014_paradox, particularly in the second mechanism, 'impose' a high cultural capital mindset (distinction) as general mechanism (something that e.g. textcite:holt1998does warns against). 
 #
-It further seems to me that the assumptions of the first mechanism, namely an intrinsically interested audience, to some degree limit the effect of the second, as these are presumably not easily swayed by short-term shifts in public opinion. 
+# It further seems to me that the assumptions of the first mechanism, namely an intrinsically interested audience, to some degree limit the effect of the second, as these are presumably not easily swayed by short-term shifts in public opinion. 
 # 
-Obviously, only empirical analysis can settle these matters. 
+# Obviously, only empirical analysis can settle these matters. 
 
 **** TfP :ignhead:
 # 
@@ -118,12 +117,12 @@ The impacts of other individual-level variables are also worth investigating, su
 
 *** Environmental Influences
 
-the properties of the location of the musical space in which they emerge parencite:Lizardo_2009_comparative,Hsu_2005_forms
+# the properties of the location of the musical space in which they emerge parencite:Lizardo_2009_comparative,Hsu_2005_form
 
 
 Next to the internal composition of a genre, the relationship to its environment needs to be taken into account. 
 # 
-Primarily insights from organizational ecology can be incorporated here such as density of the musical spaces parencite:Hannan_1977_ecology,Carroll_1989_density,Hannan_1992_dynamics, competition over resources which in this case are listeners parencite:Mark_1998_feather, saturation of different niches parencite:Ruef_2000_emergence,Ruef_2004_demise and reaping the benefits of form legitimation performed by other actors parencite:van_Venrooij_2015_ecology [fn:: it also seems that social movement concepts such as contagion and bandwagoning might be useful, but I did not have the time to explore them properly]. 
+Primarily insights from organizational ecology can be incorporated here such as density of the musical spaces in which they reside parencite:Hannan_1977_ecology,Carroll_1989_density,Hannan_1992_dynamics, competition over resources which in this case are listeners parencite:Mark_1998_feather, saturation of different niches parencite:Ruef_2000_emergence,Ruef_2004_demise and reaping the benefits of form legitimation performed by other actors parencite:van_Venrooij_2015_ecology [fn:: it also seems that social movement concepts such as contagion and bandwagoning might be useful, but I did not have the time to explore them properly]. 
 # 
 Compelling concepts might also be gained by incorporating field-theoretical approaches, such as the primary focus on actors (or more precisely, incumbents and challengers) which in "the aggregate constitute a recognized area of institutional life" [[parencite:diMaggio_1983_iron][p.148]]. 
 # 
@@ -150,11 +149,13 @@ It seems that the last.fm tag system is a suitable case study the trajectories o
 # 
 Last.fm provides information on these tags through its API by listing tags as well as their relative frequency: 
 #
-Tags are weighted on a scale from 1 to 100 (the most frequent tag always is always 100) [fn::While it would be preferable to know which user tagged which artists, this information would require the usernames, which are not available for the by far most extensive datasource]. 
+Tags are weighted on a scale from 1 to 100 (the most frequent tag always is always 100) [fn::While it would be even more desirable to know which user tagged which artists, this information would require the usernames, which are not available for the by far most extensive datasource]. 
+# 
+This partiality or grade of membership can be fruitfully exploited to make inferences about genre properties such as fuzziness or concentration. 
 # 
 
 **** MLHD :ignhead:
-However as only aggregate, but no temporal information on tags is available, the popularity of the items themselves has to be analyzed as well. 
+However as only aggregate, but no temporal information on tags is available, the popularity of the items over time has to be analyzed with different means. 
 # 
 It seems that the Music Listening History Dataset (MHLD, cite:Vigliensoni_2017_mlhd) is well suited for such an approach. 
 # 
@@ -175,7 +176,7 @@ While the construction of a complete adjacency matrix would require extensive re
 # 
 The choice whether to take the artist, album or song as the second mode is still open. 
 # 
-As there is no temporal information of an item's tag associations available, albums and songs might be preferable as they can be expected to accumulate different associations over time to a lesser extent than artists do (whose taggings might reflect their entire production) and hence offer better reconstruction of the popularity of genres over time. 
+As there is no temporal information of an item's tag associations available, albums and songs might be preferable as they can be expected to accumulate different associations over time to a lesser extent than artists do (whose tags might reflect their entire production) and hence offer better reconstruction of the popularity of genres over time. 
 # 
 
 # So far I've been using graph-tool, a python library which so far has been able to load and process a subset of 6000 users and several million edges in each 3 month time chunk. 
@@ -186,7 +187,7 @@ As there is no temporal information of an item's tag associations available, alb
 *** Analysis
 **** genre measures :ignhead:
 # 
-It is relatively straightforward to calculate at for a period in time a number of measures for each genre that fulfills some conditions, such as a minimum number of artists that it is assigned to and/or minimum weights with which it is assigned to these artists. 
+It is relatively straightforward to calculate at for a period in time a number of measures for each genre (tag) that fulfills some conditions, such as a minimum number of artists that it is assigned to and/or minimum weights with which it is assigned to these artists. 
 # 
 The popularity of a genre can for example be constructed by summing up the products of tag weight and item play count for each item the tag is applied to. 
 #
@@ -313,7 +314,6 @@ ehh not quite either: cross-form legitimation is culture -> culture link
 Tfp is cognitive too
 fuzziness tool
 maybe see it a bit more unified: competition is also cultural, is over legitimacy as much as about users? 
-
 
 
 
