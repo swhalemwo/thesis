@@ -145,27 +145,29 @@ While especially latter ones seem to be used in recommendation systems, and whil
 
 ** Operationalization
 *** Data
-**** theory :ignhead:
+**** tags :ignhead:
+It seems that the last.fm tag system is a suitable case study the trajectories of categories, as last.fm  allows its users to label artists, albums and songs with arbitrary tags. 
+# 
+Last.fm provides information on these tags through its API by listing tags as well as their relative frequency: 
+#
+Tags are weighted on a scale from 1 to 100 (the most frequent tag always is always 100) [fn::While it would be preferable to know which user tagged which artists, this information would require the usernames, which are not available for the by far most extensive datasource]. 
+# 
+
+**** MLHD :ignhead:
+However as only aggregate, but no temporal information on tags is available, the popularity of the items themselves has to be analyzed as well. 
+# 
 It seems that the Music Listening History Dataset (MHLD, cite:Vigliensoni_2017_mlhd) is well suited for such an approach. 
 # 
 It contains the last.fm listening histories of over 500,000 people which have at least 7300 entries, resulting in a total of around 27 billion entries. 
 # 
-The genres - the classification principles - which are applied to the entries can be downloaded with the last.fm API. 
-
-
-# It allows to develop genres inductively (which does not mean that not numerous arbitrary decisions have to be made). 
+Information is hence available at a very detailed level, which allows to track with great accuracy the compositions of each genre in terms of audience characteristics. 
 # 
-# Given the large amount of genres and subgenres, this approach seems to avoiding the problem of focusing on an (arbitrary) set which would happen to be more salient to me. 
-# 
-It furthermore might be argued that unlike explicitly made reviews, listening histories tap into non-declarative culture as they document the selections themselves, and avoid the issue of post-hoc accounts parencite:Lizardo_2016_improving,Vaisey_2018_decision as well as incompleteness.[fn::It strikes me as somewhat ironic that a cognitive criticism of surveys is their exclusive focus on declarative culture which may be only tangentially related to action, yet the reverse is the case here as behavioral is readily available but little insights are available of the cognitive that underlie the actions. However, the cognitive critique also stresses the loose coupling between declarative and non-declarative culture, which hence might alleviate the impact of the relative lack of declarative data.]
-# 
+Similarly, the information of user data can be used to position the genres (through the items) in musical space which therefore also allows to investigate the impact of environmental conditions. 
 
 **** more descriptions :ignhead:
 Country, age and gender are available for approximately two thirds listeners, especially country might be useful as it might be necessary to focus only on one country due to the large amounts of data (the total dataset has a size of over 500 GB). 
 # 
 Each entry for a user consists of a (unix) timestamp and musicbrainz identifiers for the song, the album and the artist. 
-# 
-While data such as tags for the artists, albums and songs are not included, they can be downloaded from last.fm relatively quickly. 
 #
 Due to the high numbers of artists and users, it seems that an effective way to analyze this data is to treat it as a network. 
 # 
@@ -173,58 +175,68 @@ While the construction of a complete adjacency matrix would require extensive re
 # 
 The choice whether to take the artist, album or song as the second mode is still open. 
 # 
-As there is no information of an objects tag associations available, albums and songs might be preferable as they can be expected to accumulate different associations over time to a lesser extent than artists do (whose taggings might reflect their entire production). 
-
-
-
-# The file for each user can effectively be
+As there is no temporal information of an item's tag associations available, albums and songs might be preferable as they can be expected to accumulate different associations over time to a lesser extent than artists do (whose taggings might reflect their entire production) and hence offer better reconstruction of the popularity of genres over time. 
 # 
-So far I've been using graph-tool, a python library which so far has been able to load and process a subset of 1000 users and 8million edges, albeit analytically I have only calculated similarity scores so far, not more network-based approaches such as community detection. 
+
+# So far I've been using graph-tool, a python library which so far has been able to load and process a subset of 6000 users and several million edges in each 3 month time chunk. 
+# albeit analytically I have only calculated similarity scores so far, not more network-based approaches such as community detection. 
 # 
-I still have to investigate how it performs with larger files, I am however slightly optimistic that it is up to the task as so far it could handle everything I've tasked it with. 
+# I still have to investigate how it performs with larger files, I am however slightly optimistic that it is up to the task as so far it could handle everything I've tasked it with. 
 
 *** Analysis
-**** genre identification :ignhead:
-Due to the relational approach outlined above, it seems to me that it should be possible to construct genres by grouping artists (or albums or songs) based on similarity, which in turn is based on the extent to which these objects share a common audience at a particular point in time. 
+**** genre measures :ignhead:
 # 
-I am not yet clear which similarity measure precisely to use. 
+It is relatively straightforward to calculate at for a period in time a number of measures for each genre that fulfills some conditions, such as a minimum number of artists that it is assigned to and/or minimum weights with which it is assigned to these artists. 
 # 
-Jaccard similarity is a possible candidate, although more network-based measures (such as modularity) might also work. 
-# 
-To investigate the longitudinal changes, it seems possible to first cluster each point in time (presumably a period of some months), and then merge the genres across time points on some threshold of some similarity score [fn::While it would have been nice to have results already, the technical setup has taken some time, and so far I've only worked with a small number of users, which (I hope) was the cause for not reaching high similarity numbers, effectively resulting in most artists being too dissimilar from all other artists to be grouped together properly] 
+The popularity of a genre can for example be constructed by summing up the products of tag weight and item play count for each item the tag is applied to. 
 #
+Concentration can be assessed with the Gini index (or other measures of inequality or concentration) of these products[fn::(as it might also be seen as an indicator of fuzziness, more work has to be spent on the concrete operationalisation)], and it might be possible to assess the cohesion of a genre with the (bipartite) connectedness of the sub-network of the relevant items and their listeners. 
+# 
+Measures such as overlap can on the one hand also be calculated from the two-mode network, for example by investigating the overlap of nodes of two tags (those that are labeled with both tags)
+# 
+Alternatively, it is possible to map node positions into a lower-dimensional space based on similarity scores using multi-dimensional scaling. 
+# 
+This practice would then also result in relatively straightforward measurements of niche width. 
+# 
+Eventually this approach would result in all relevant measures available for each genre for each time period, which can then be analyzed using fixed and/or random effect models. 
 
-**** identity :ignhead:
+
+# Due to the relational approach outlined above, it seems to me that it should be possible to construct genres by grouping artists (or albums or songs) based on similarity, which in turn is based on the extent to which these objects share a common audience at a particular point in time. 
+# # 
+# I am not yet clear which similarity measure precisely to use. 
+# # 
+# Jaccard similarity is a possible candidate, although more network-based measures (such as modularity) might also work. 
+# # 
+# To investigate the longitudinal changes, it seems possible to first cluster each point in time (presumably a period of some months), and then merge the genres across time points on some threshold of some similarity score
+
+# **** identity :ignhead:
 # 
-The fuzziness (or clarity) of a genres 'identity' can be assessed with 'tags' which users can employ to label artists, albums and songs. 
-# 
-Last.fm tags are weighted on a scale from 1 to 100 (the most frequent tag always is always 100; there is however no straightforward way to see which user tagged which artist). 
-#
-Once genres are constructed from a similarity measure, it should be possible to construct the cognitive identity from the tags associated with each of the genre's artists, and subsequently measure of how clear of an identity a genre has at each point in time. 
+# The fuzziness (or clarity) of a genres 'identity' can be assessed with 'tags' which users can employ to label artists, albums and songs. 
+
+# Once genres are constructed from a similarity measure, it should be possible to construct the cognitive identity from the tags associated with each of the genre's artists, and subsequently measure of how clear of an identity a genre has at each point in time. 
 
 **** final analysis :ignhead:
-Finally, a genre can be considered abandoned at the end of 'time point genres'. 
-# 
-For the 'merged' genres it should be possible to calculate all relevant genre-level variables for each time point, individual level ones can be constructed from the audience of each, and would be aggregated [fn::It came to my mind to use a multilevel structure in which users would be nested in genres, however this would require a more complicated model as the primary interest would be a second-level variable, and it would also require that listeners only belonged to one genre]. 
-# 
-In the final analysis, either the size or the status might be predicted in a fixed or random effects model, in which the time points would be nested in genres. 
-
+# Finally, a genre can be considered abandoned at the end of 'time point genres'. 
+# # 
+# For the 'merged' genres it should be possible to calculate all relevant genre-level variables for each time point, individual level ones can be constructed from the audience of each, and would be aggregated [fn::It came to my mind to use a multilevel structure in which users would be nested in genres, however this would require a more complicated model as the primary interest would be a second-level variable, and it would also require that listeners only belonged to one genre]. 
+# # 
+# In the final analysis, either the size or the status might be predicted in a fixed or random effects model, in which the time points would be nested in genres. 
 
 ** Current Issues 
-*** tag issues :ignhead:
-No temporal data on tags is available, i.e. the tags and their weights reflect the cumulative history which cannot be disentangled for a particular period of time the implications of which have to be considered in the calculation of the fuzziness of the genres cognitive elements. 
-#
-If artists are (seen as) changing their styles over time, this would problems, but not if generally artists rise and fall with genres, and genres with artists. 
+# *** tag issues :ignhead:
+# No temporal data on tags is available, i.e. the tags and their weights reflect the cumulative history which cannot be disentangled for a particular period of time the implications of which have to be considered in the calculation of the fuzziness of the genres cognitive elements. 
+# #
+# If artists are (seen as) changing their styles over time, this would problems, but not if generally artists rise and fall with genres, and genres with artists. 
 # 
-Furthermore this problem might be alleviated to some degree by focus on albums or even songs as these are much more associated with the point of time of their release (although this does not for canonical works which remain popular parencite:Anand_2000_sensemaking). 
-# 
-Furthermore, a finer levels means that the tags themselves are sparser. [fn:: it is not clear to me how last.fm generates the tag weights for the artists, nor did I find out so far whether tags given to songs by users automatically extend to the album and the artist] 
-# 
-Additionally, even single albums or songs might be interpreted differently throughout time, albeit I think that this does not occur to an extent that it would have a substantial impact. 
+# Furthermore this problem might be alleviated to some degree by focus on albums or even songs as these are much more associated with the point of time of their release (although this does not for canonical works which remain popular parencite:Anand_2000_sensemaking). 
+# # 
 
+# Furthermore, a finer levels means that the tags themselves are sparser. [fn:: it is not clear to me how last.fm generates the tag weights for the artists, nor did I find out so far whether tags given to songs by users automatically extend to the album and the artist] 
+# # 
+# Additionally, even single albums or songs might be interpreted differently throughout time, albeit I think that this does not occur to an extent that it would have a substantial impact. 
 
 *** sampling
-Sampling might also be a problem: 
+Sampling might be a problem: 
 # 
 The population (predominantly young and male) might (next to generally being unrepresentative) not adhere to genre boundaries to an extent that results in clear boundaries given the currently planned analytic strategy. 
 # 
@@ -235,6 +247,11 @@ On the other hand, one might still expect patterns in the aggregate.
 Playlists might be a useful as in these listeners group objects together on perceived similarity, and therefore would be a good application of practical classification systems parencite:van_Venrooij_2018_fuzziness. 
 # 
 However playlist data is not available from last.fm, and I have not been able to get access to the so-called Million Playlist Dataset (MPD) by Spotify. 
+
+*** technicalities
+# 
+A number of technical issues also require further work, such as tag cleaning to deal with duplicate tags (such as "punk rock" and "punkrock", efficient ways to store and analyze the data as well as finding ways to map of items into a lower dimensional space that takes features such as asymmetry into account. 
+
 # ask the DGS people? 
 
 
