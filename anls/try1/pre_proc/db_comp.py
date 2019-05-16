@@ -1,4 +1,5 @@
 import pymonetdb
+import time
 
 connection = pymonetdb.connect(username="monetdb", password="monetdb", hostname="localhost", database="tags")
 cursor = connection.cursor()
@@ -83,7 +84,7 @@ for i in stags:
 # 107k rows/sec with between selection on weight
 # sqlite looks best tbh
 
-import mysql-connector-python
+# import mysql-connector-python
 import mysql.connector
 
 
@@ -123,3 +124,63 @@ t2=time.time()
 
 
 mydb.close()
+
+
+##############
+# CLICKHOUSE #
+##############
+
+from clickhouse_driver import Client
+client = Client(host='localhost', password='anudora', database='tagz')
+client.execute('SHOW DATABASES')
+
+client.execute('use overall')
+
+t1=time.time()
+dd = client.execute("select usr, song from tagz.tagx where time_d between '2010-10-01' and '2010-10-01'")
+t2 = time.time()
+
+
+# 444k rows/second with all
+# doesn't get worse with selection (tbea between 1 and 10k (448k/sec), between 1 and 5k: 441k/sec
+# data also seems to be super compact: 2.1m entries with like 15 columns on just 135 mb
+# melanielopez1095@outlook.esm
+
+# actual data: only 118k wtf
+# might need to switch to
+# question is kinda what's producing bottlenecks, might get faster when it can look up more stuff together?
+
+
+
+
+/home/johannes/Dropbox/gsss/thesis/anls/try1/pre_proc/test/f8561044-28a8-4cbc-b64b-5c4d05aa5e0c.txt
+
+client.execute('use tagz')
+client.execute('create table tagz (time date, mbidx String) engine=MergeTree(time, (mbidx, time), 8192)')
+
+
+client.execute('create table tagz (time date, mbidx String) engine=MergeTree(time, (mbidx, time), 8192)')
+
+
+
+date Date MATERIALIZED toDate(Unix_ts)
+
+
+client.execute('select * from tagz')
+
+
+
+
+how to get unix time stamp to date
+- something with materialize
+- try to get formating done in awk string
+
+- add as int, convert later
+  not clear if it then sorts on it properly
+  table would already have data to merge, would then need to update
+
+
+# https://github.com/yandex/ClickHouse/issues/2802
+# ENGINE = MergeTree PARTITION BY toYYYYMMDD(created_date)
+
+
