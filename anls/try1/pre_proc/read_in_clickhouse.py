@@ -6,6 +6,8 @@ from datetime import datetime
 import random
 import os
 import argparse
+import time
+import subprocess
 
 # log_dir ="/home/johannes/Dropbox/gsss/thesis/anls/try1/pre_proc/test/"
 # client = Client(host='localhost', password='anudora', database='tagz')
@@ -58,29 +60,38 @@ def get_log_clean(f):
 def proc_log_wrt_unqs(usr_log, mbid_abbrv_dict):
 
     usr_all_songs = [i[1] for i in usr_log]
-    usr_unq_songs = np.unique(usr_all_songs)
+    usr_unq_songs=list(set(usr_all_songs))
 
     # add percentages of valid songs as control to usr_info?
     # but all this should be over time.. could still use it to filter out absolute numbnuts tho
     # number of unique songs can be control
     # is like a shitty measure of omnivorism
 
+    
     db_songs_unq = list(mbid_abbrv_dict.keys())
-    usr_new_unqs=np.setdiff1d(usr_unq_songs, db_songs_unq)
 
+
+    usr_new_unqs=list(set(usr_unq_songs) - set(db_songs_unq))
+    # usr_new_unqs=np.setdiff1d(usr_unq_songs, db_songs_unq);;
+    
     cur_cnt=len(db_songs_unq)
     # print(cur_cnt)
-    
+
     nbrs_add = range(cur_cnt+1, cur_cnt+len(usr_new_unqs)+1)
     unq_ids = ['s'+ str(i) for i in nbrs_add]
 
+    # unq_ids=[]
+    # for i in nbrs_add:
+    #     print(i)
+        # unq_ids.append('s'+ str(i))
+
+        
+
     # generate random shit so that partioning is happy
+
     rnd_parts = random.choices(range(10), k=len(unq_ids))
 
     add_kv_songs = [(i) for i in zip(usr_new_unqs, unq_ids, rnd_parts)]
-
-    client.execute('insert into song_info values', add_kv_songs)
-
     return(add_kv_songs)
 
 # new_addgs = proc_log_wrt_unqs(usr_log, mbid_abbrv_dict)
@@ -119,9 +130,11 @@ def get_db_songs():
 def log_procer(ab_uid, usr_log):
     log_proc = []
     dt_cntr = 0
+
     dt1 = datetime.utcfromtimestamp(int(usr_log[0][0])).strftime('%Y-%m-%d')
 
     for i in usr_log:
+        # cntr+=1
 
         dtx = datetime.utcfromtimestamp(int(i[0])).strftime('%Y-%m-%d')
         if dtx != dt1:
@@ -133,28 +146,33 @@ def log_procer(ab_uid, usr_log):
             ab_uid,
             mbid_abbrv_dict[i[1]]))
 
-        # if usr_log.index(i) % 100 ==0:
-        #     print(dt_cntr)
 
-        if dt_cntr == 95:
-            # print('commit')
+        if dt_cntr == 200:
+            print('commit')
             retrd_insertion(log_proc)
             log_proc = []
             dt_cntr = 0
-
+        
+    if len(log_proc) > 0:
+        retrd_insertion(log_proc)
 
 
 def retrd_insertion(log_proc):
-
     # i think the python interface of clickhouse is broken for dates
     # i think i really have to write to file and then back in WTF
+    # retarded insertion is still faster than python interface and bash imitation wtf
 
     with open('dumb.csv', 'w') as fo:
         wr = csv.writer(fo)
         wr.writerows(log_proc)
+        # time.sleep(3)
 
-        os.system("clickhouse-client --password anudora --format_csv_delimiter=',' --query='INSERT INTO frrl.logs FORMAT CSV' < dumb.csv")
+    os.system("clickhouse-client --password anudora --format_csv_delimiter=',' --query='INSERT INTO frrl.logs FORMAT CSV' < dumb.csv")
 
+
+# t1=time.time()
+# log_procer('deleteme', usr_log)
+# t2=time.time()
 
 
 def check_present(usr):
@@ -164,7 +182,6 @@ def check_present(usr):
     else:
         status=True
     return(status)
-        
 
 
 if __name__ == '__main__':
@@ -174,52 +191,93 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     log_dir = args.log_dir
+    # log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/00/'
     
     client = Client(host='localhost', password='anudora', database='frrl')
 
     files1=os.listdir(log_dir)
     log_files = [i for i in files1 if i.endswith('.txt')]
 
+    t1=time.time()
     mbid_abbrv_dict=get_db_songs()
+    t2=time.time()
 
     for i in log_files:
+
+        # i='028af0fb-089e-4061-8956-5d0dbb6b7c54.txt'
+
+        # i='e618a832-8118-4d9f-9682-4b085b2529f8.txt'
+
+        # i='cd801e21-bde7-495c-a66f-52ab4b2a9e5f.txt'
         print(i)
-
+        
         f =log_dir + i
-
-        # print(i)
-
-        usr_log = get_log_clean(f)
-        new_addgs = proc_log_wrt_unqs(usr_log, mbid_abbrv_dict)
-        mbid_abbrv_dict = update_mbid_abbrv(mbid_abbrv_dict, new_addgs)
-
         uuid=i[0:36]
 
         try:
             ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
         except:
-            print('user not in usr_info')
+            # print('user not in usr_info')
+            # need to log to error file
             continue
+            # pass
+            # break
 
+        # print(i)
+        
+        # print('id retrived')
+        usr_log = get_log_clean(f)
+
+        # print('log retrieved')
+        new_addgs = proc_log_wrt_unqs(usr_log, mbid_abbrv_dict)
+        
+        # print(len(new_addgs), 'new additions retrieved')
+        
+        client.execute('insert into song_info values', new_addgs)
+
+        # print('database updated')
+
+        mbid_abbrv_dict = update_mbid_abbrv(mbid_abbrv_dict, new_addgs)
+        # print('dict updated')
+        
+        t4=time.time()
+        
 
         if check_present(ab_uid)==False:
+            t1=time.time()
             log_procer(ab_uid, usr_log)
-
+            t2=time.time()
+            
+        print('songs logged')
 
         if log_files.index(i) % 25 ==0:
             print(log_files.index(i))
 
-uuid='9c70cdf1-c0d6-44ac-a679-a0540f923420'
 
-############
-# TESTCASE #
-############
-# log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/00/'
+################
+# SETUP TABLES #
+################
 
 
 # client.execute('drop table song_info')
 
 # client.execute('create table song_info (mbid String, abbrv String, rndm Int) engine=MergeTree() Partition by rndm order by tuple()')
+
+
+# client.execute('drop table logs')
+# client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
+
+
+
+############
+# TESTCASE #
+############
+
+# uuid='9c70cdf1-c0d6-44ac-a679-a0540f923420'
+# log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/00/'
+
+
+
 
 # log_files =["7b178dae-c3d9-4a2c-8c43-1d9fc051983f.txt","f7cde63c-ef61-45bd-a0e1-58757d9d3a2a.txt",
 #             "7b32583e-be8d-454e-88fe-d2e6c526f129.txt","f8316336-39d3-4727-b577-bfe617aa39f4.txt",
@@ -276,7 +334,6 @@ uuid='9c70cdf1-c0d6-44ac-a679-a0540f923420'
 
 
 
-
 # could do multiple runs: one for reading in all unique songs ->
 # wait till it sorts everything out
 # assign abbrev once
@@ -293,18 +350,6 @@ uuid='9c70cdf1-c0d6-44ac-a679-a0540f923420'
 
 # stuff has to be be in RAM completely anyways
 # and shouldn't be that much -> maybe like five mill or so
-
-
-
-
-# CREATE TABLE my_fancy_kv_store (s String,  k UInt64)
-# ENGINE = Join(ANY, LEFT, s);
-
-# INSERT INTO my_fancy_kv_store VALUES ('abc', 1), ('def', 2);
-
-
-# SELECT joinGet('my_fancy_kv_store', 'x', 'abc');
-# SELECT joinGet('my_fancy_kv_store', 'k', 'def');
 
 
 
@@ -341,8 +386,6 @@ uuid='9c70cdf1-c0d6-44ac-a679-a0540f923420'
 
 # idk i think i'll just use a random partioning key 
 
-# client.execute('drop table logs')
-# client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
 
 
 
@@ -354,4 +397,22 @@ uuid='9c70cdf1-c0d6-44ac-a679-a0540f923420'
 
     
 
+#######################################################
+## DELETING PESKY DUPLICATES, NOT SUPER EFFICIENT THO #
+#######################################################
 
+# for i in new_addgs:
+#     client.execute("alter table song_info delete where mbid='"+i[0]+ "'")
+
+#     if new_addgs.index(i) % 50 ==0:
+#         print(new_addgs.index(i))
+    
+
+# for i in range(100):
+#     x='s'+str(2104947-i)
+
+#     res=client.execute("select count(*) from song_info where abbrv='"+x+"'")
+#     print(res[0][0])
+
+# 2104947, 1, 2104947-100):
+#     print(i)
