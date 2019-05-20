@@ -131,12 +131,14 @@ def log_procer(ab_uid, usr_log):
     log_proc = []
     dt_cntr = 0
 
-    dt1 = datetime.utcfromtimestamp(int(usr_log[0][0])).strftime('%Y-%m-%d')
+    # dt1 = datetime.utcfromtimestamp(int(usr_log[0][0])).strftime('%Y-%m-%d')
+    dt1 = datetime.date(datetime.utcfromtimestamp(int(usr_log[0][0])))
 
     for i in usr_log:
         # cntr+=1
 
-        dtx = datetime.utcfromtimestamp(int(i[0])).strftime('%Y-%m-%d')
+        # dtx = datetime.utcfromtimestamp(int(i[0])).strftime('%Y-%m-%d')
+        dtx = datetime.date(datetime.utcfromtimestamp(int(i[0])))
         if dtx != dt1:
             dt_cntr +=1
             dt1 = dtx
@@ -148,13 +150,16 @@ def log_procer(ab_uid, usr_log):
 
 
         if dt_cntr == 200:
-            print('commit')
-            retrd_insertion(log_proc)
+
+            # print('commit')
+            # retrd_insertion(log_proc)
+            better_insertion(log_proc)
             log_proc = []
             dt_cntr = 0
         
     if len(log_proc) > 0:
-        retrd_insertion(log_proc)
+        # retrd_insertion(log_proc)
+        better_insertion(log_proc)
 
 
 def retrd_insertion(log_proc):
@@ -170,6 +175,11 @@ def retrd_insertion(log_proc):
     os.system("clickhouse-client --password anudora --format_csv_delimiter=',' --query='INSERT INTO frrl.logs FORMAT CSV' < dumb.csv")
 
 
+def better_insertion(log_proc):
+    client.execute('insert into tests values', log_proc)
+    # now at something like 30k sec (for pure insertions), not bad
+    
+    
 # t1=time.time()
 # log_procer('deleteme', usr_log)
 # t2=time.time()
@@ -266,6 +276,56 @@ if __name__ == '__main__':
 
 # client.execute('drop table logs')
 # client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
+
+
+        
+
+################
+# more testing #
+################
+# client = Client(host='localhost', password='anudora', database='frrl')
+
+# client.execute('drop table tests')
+# client.execute('create table tests (tx Date, strrr String) engine=MergeTree(tx, tx, 8192)')
+# client.execute('create table tests (tx String, strrr String) engine=MergeTree() partition by tx order by tuple()')
+
+client.execute('drop table tests')
+client.execute('create table tests (tx Date, usr String, song String) engine=MergeTree(tx, tx, 8192)')
+
+
+# client.execute('insert into tests values', [(datetime(2010,10,10), 'killl')])
+# client.execute('insert into tests values', [(datetime.date(datetime(2010,10,10)), 'killl')])
+
+
+# client.execute('insert into tests values', [('2010-10-10', 'killl')])
+
+
+log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/00/'
+client = Client(host='localhost', password='anudora', database='frrl')
+files1=os.listdir(log_dir)
+log_files = [i for i in files1 if i.endswith('.txt')]
+mbid_abbrv_dict=get_db_songs()
+
+for i in log_files:
+    print(i)
+    f =log_dir + i
+    uuid=i[0:36]
+
+    try:
+        ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
+    except:
+        # print('user not in usr_info')
+        # need to log to error file
+        continue
+
+    usr_log = get_log_clean(f)
+    
+    log_procer(ab_uid, usr_log)
+
+
+
+
+
 
 
 
