@@ -71,12 +71,9 @@ def proc_log_wrt_unqs(usr_log, mbid_abbrv_dict):
     
     db_songs_unq = list(mbid_abbrv_dict.keys())
 
-
     usr_new_unqs=list(set(usr_unq_songs) - set(db_songs_unq))
-    # usr_new_unqs=np.setdiff1d(usr_unq_songs, db_songs_unq);;
     
     cur_cnt=len(db_songs_unq)
-    # print(cur_cnt)
 
     nbrs_add = range(cur_cnt+1, cur_cnt+len(usr_new_unqs)+1)
     unq_ids = ['s'+ str(i) for i in nbrs_add]
@@ -85,8 +82,6 @@ def proc_log_wrt_unqs(usr_log, mbid_abbrv_dict):
     # for i in nbrs_add:
     #     print(i)
         # unq_ids.append('s'+ str(i))
-
-        
 
     # generate random shit so that partioning is happy
 
@@ -97,6 +92,33 @@ def proc_log_wrt_unqs(usr_log, mbid_abbrv_dict):
 
 # new_addgs = proc_log_wrt_unqs(usr_log, mbid_abbrv_dict)
 
+
+usr_log = all_logs
+def unq_proc_bulk(usr_log, mbid_abbrv_dict):
+    
+    usr_all_songs = [i[2] for i in usr_log]
+    usr_unq_songs=list(set(usr_all_songs))
+
+    db_songs_unq = list(mbid_abbrv_dict.keys())
+
+    usr_new_unqs=list(set(usr_unq_songs) - set(db_songs_unq))
+    
+    cur_cnt=len(db_songs_unq)
+
+    nbrs_add = range(cur_cnt+1, cur_cnt+len(usr_new_unqs)+1)
+    unq_ids = ['s'+ str(i) for i in nbrs_add]
+
+    # unq_ids=[]
+    # for i in nbrs_add:
+    #     print(i)
+        # unq_ids.append('s'+ str(i))
+
+    # generate random shit so that partioning is happy
+
+    rnd_parts = random.choices(range(10), k=len(unq_ids))
+
+    add_kv_songs = [(i) for i in zip(usr_new_unqs, unq_ids, rnd_parts)]
+    return(add_kv_songs)
 
 
 
@@ -287,26 +309,23 @@ client = Client(host='localhost', password='anudora', database='frrl')
 files1=os.listdir(log_dir)
 log_files = [i for i in files1 if i.endswith('.txt')]
 
-chunk_size = 20
+chunk_size = 10
 
 chunks = [log_files[x:x+chunk_size] for x in range(0, len(log_files), chunk_size)]
 c=chunks[3]
 
 mbid_abbrv_dict=get_db_songs()
 
-for c in chunks:
+mbid_abbrv_dict = {}
 
+for c in chunks:
+    print('new chunk')
     # bulk dict construction
 
-    
-
-
-    t1=time.time()
+    valid_uuids = []
+    all_logs = []
     min_dts=[]
     max_dts=[]
-    
-    t1=time.time()
-    logs_proc = []
 
     for l in c:
         
@@ -315,19 +334,36 @@ for c in chunks:
 
         try:
             ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
+
+            valid_uuids.append(ab_uid)
+            logx = get_log_clean(f)
+
+            logx2 = [(
+                datetime.date(datetime.utcfromtimestamp(int(i[0]))),
+                ab_uid,
+                i[1]) for i in logx]
+            
+            min_dts.append(logx2[0][0])
+            max_dts.append(logx2[-1][0])
+            
+            all_logs = all_logs + logx2
+
         except:
             # print('user not in usr_info')
             # need to log to error file
             continue
 
-        usr_log = get_log_clean(f)
-        logx_proc = log_procer_bulk_prep(ab_uid, usr_log)
+    new_addgs = unq_proc_bulk(all_logs, mbid_abbrv_dict)
+    mbid_abbrv_dict = update_mbid_abbrv(mbid_abbrv_dict, new_addgs)
+    
+    all_logs2 = [(i[0], i[1], mbid_abbrv_dict[i[2]]) for i in all_logs]
 
-        min_dts.append(logx_proc[0][0])
-        max_dts.append(logx_proc[-1][0])
+    # should put it into proper function
+    # min/max dt, bkt size has no point to be known
+    # bckt dict neither
+    # but insertion should always be own function
 
-        logs_proc = logs_proc + logx_proc
-
+def bucketer(all_logs, min_dts, max_dts):
     min_dt = min(min_dts)
     max_dt = max(max_dts)
 
@@ -348,16 +384,19 @@ for c in chunks:
             bkt_cntr+=1
             bkt_size = 95
             
-
     buckets={}
     for i in range(0, bkt_cntr+1, 1):
         buckets[i] = []
 
-    for i in logs_proc:
+    for i in all_logs2:
         bktx = bucket_dict[i[0]]
         buckets[bktx].append(i)
 
+    return(buckets)
 
+buckets = bucketer(all_logs, min_dts, max_dts)
+
+    # needs rewriting with result of buckets
     for i in range(0, bkt_cntr+1, 1):
         client.execute('insert into tests values', buckets[i])
     t2 = time.time()
