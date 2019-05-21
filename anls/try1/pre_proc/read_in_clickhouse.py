@@ -3,11 +3,13 @@ import csv
 import json
 import numpy as np
 from datetime import datetime
+from datetime import timedelta
 import random
 import os
 import argparse
 import time
 import subprocess
+import itertools
 
 # log_dir ="/home/johannes/Dropbox/gsss/thesis/anls/try1/pre_proc/test/"
 # client = Client(host='localhost', password='anudora', database='tagz')
@@ -160,18 +162,19 @@ def log_procer(ab_uid, usr_log):
         # retrd_insertion(log_proc)
         better_insertion(log_proc)
 
+def log_procer_bulk_prep(ab_uid, usr_log):
+    log_proc=[]
+    for i in usr_log:
+        dtx = datetime.date(datetime.utcfromtimestamp(int(i[0])))
+        log_proc.append((
+            dtx,
+            ab_uid,
+            mbid_abbrv_dict[i[1]]))
 
-def retrd_insertion(log_proc):
-    # i think the python interface of clickhouse is broken for dates
-    # i think i really have to write to file and then back in WTF
-    # retarded insertion is still faster than python interface and bash imitation wtf
+    return(log_proc)
 
-    with open('dumb.csv', 'w') as fo:
-        wr = csv.writer(fo)
-        wr.writerows(log_proc)
-        # time.sleep(3)
 
-    os.system("clickhouse-client --password anudora --format_csv_delimiter=',' --query='INSERT INTO frrl.logs FORMAT CSV' < dumb.csv")
+
 
 
 def better_insertion(log_proc):
@@ -272,6 +275,96 @@ if __name__ == '__main__':
 # client.execute('drop table logs')
 # client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
 
+####################
+# bucket insertion #
+####################
+
+client.execute('drop table tests')
+client.execute('create table tests (tx Date, usr String, song String) engine=MergeTree(tx, tx, 8192)')
+
+log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/00/'
+client = Client(host='localhost', password='anudora', database='frrl')
+files1=os.listdir(log_dir)
+log_files = [i for i in files1 if i.endswith('.txt')]
+
+chunk_size = 20
+
+chunks = [log_files[x:x+chunk_size] for x in range(0, len(log_files), chunk_size)]
+c=chunks[3]
+
+mbid_abbrv_dict=get_db_songs()
+
+for c in chunks:
+
+    # bulk dict construction
+
+    
+
+
+    t1=time.time()
+    min_dts=[]
+    max_dts=[]
+    
+    t1=time.time()
+    logs_proc = []
+
+    for l in c:
+        
+        f=log_dir + l
+        uuid=l[0:36]
+
+        try:
+            ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
+        except:
+            # print('user not in usr_info')
+            # need to log to error file
+            continue
+
+        usr_log = get_log_clean(f)
+        logx_proc = log_procer_bulk_prep(ab_uid, usr_log)
+
+        min_dts.append(logx_proc[0][0])
+        max_dts.append(logx_proc[-1][0])
+
+        logs_proc = logs_proc + logx_proc
+
+    min_dt = min(min_dts)
+    max_dt = max(max_dts)
+
+    delta = max_dt - min_dt
+
+    bucket_dict = {}        
+    bkt_cntr = 0
+    bkt_size = 95
+    
+    for i in range(0, delta.days+1, 1):
+        bkt_size -=1
+
+        dtx = min_dt + timedelta(days=i)
+
+        bucket_dict[dtx]=bkt_cntr
+        
+        if bkt_size ==0:
+            bkt_cntr+=1
+            bkt_size = 95
+            
+
+    buckets={}
+    for i in range(0, bkt_cntr+1, 1):
+        buckets[i] = []
+
+    for i in logs_proc:
+        bktx = bucket_dict[i[0]]
+        buckets[bktx].append(i)
+
+
+    for i in range(0, bkt_cntr+1, 1):
+        client.execute('insert into tests values', buckets[i])
+    t2 = time.time()
+
+    # could do also bulk insertion for usr_info: new additions to mbid_abbrv_dict take time due to set command
+    
+    # 
 
 
 ######################
