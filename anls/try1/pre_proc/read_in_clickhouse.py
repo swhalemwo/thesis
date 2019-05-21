@@ -56,7 +56,6 @@ def get_log_clean(f):
 
 # usr_log = get_log_clean(f)
 
-
 def proc_log_wrt_unqs(usr_log, mbid_abbrv_dict):
 
     usr_all_songs = [i[1] for i in usr_log]
@@ -230,11 +229,7 @@ if __name__ == '__main__':
             # print('user not in usr_info')
             # need to log to error file
             continue
-            # pass
-            # break
-
-        # print(i)
-        
+       
         # print('id retrived')
         usr_log = get_log_clean(f)
 
@@ -278,11 +273,38 @@ if __name__ == '__main__':
 # client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
 
 
-        
 
-################
-# more testing #
-################
+######################
+# check unused songs #
+######################
+
+mbid_abbrv_dict=get_db_songs()
+
+tual_songs=client.execute('select distinct(song) from logs')
+tual_songs2 = [i[0] for i in tual_songs]
+
+cntr=0
+
+mbid_abbrvs = []
+for k in mbid_abbrv_dict.keys():
+    mbid_abbrvs.append(mbid_abbrv_dict[k])
+
+diff = list(set(mbid_abbrvs) - set(tual_songs2))
+diff2 = [int(i[1:len(i)]) for i in diff]
+
+import matplotlib.pyplot as plt
+
+plt.hist(diff2, bins=range(0, max(diff2), 10000))
+plt.show()
+
+# unused ones start to appear mostly in the end, first few at 1m,
+# not sure if problem
+# can't really see how they could introduce shift, but can't explain why they're there so ehhhh
+
+
+###########################################
+# more testing, now with proper insertion #
+###########################################
 # client = Client(host='localhost', password='anudora', database='frrl')
 
 # client.execute('drop table tests')
@@ -321,12 +343,6 @@ for i in log_files:
     usr_log = get_log_clean(f)
     
     log_procer(ab_uid, usr_log)
-
-
-
-
-
-
 
 
 ############
