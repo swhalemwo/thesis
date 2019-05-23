@@ -32,6 +32,8 @@ for k in unq3:
     
     # smlrtx = [Levenshtein.distance(k, i) for i in unq3]
     smlrtx = [1-(Levenshtein.jaro_winkler(k, i)) for i in unq3]
+    smlrtx = [1-(Levenshtein.jaro(k, i)) for i in unq3]
+    smlrtx = [distance.levenshtein(k, i, normalized=True) for i in unq3]
 
     tag_smlrts.append(smlrtx)
     
@@ -43,7 +45,64 @@ tag_smlrt = np.array(tag_smlrts)
 plt.hist(smlrtx, bins=20)
 plt.show()
 
+def sim_flter(l, oprtr,thrshld):
+    ops = {'<':operator.lt,
+           '>':operator.gt,
+           '=':operator.eq}
 
+    hits = []
+    cntr = 0
+
+    for i in l:
+        if ops[oprtr](i, thrshld) ==True:
+            hits.append(cntr)
+        cntr+=1
+    
+    return(hits)
+
+
+hits = sim_flter(smlrtx, '<', 0.5)
+[print(unq3[i]) for i in hits]
+
+electro should be same to:
+- electronic
+- electropop
+
+
+# maybe i should really just use it in a suuuper way to decrease the computational power needed for actual assignment comparison..
+# as in to consider/select/mark those cells of the similarity matrix which are not 999
+
+# still results in the general problem of specific vs general tags: asymmetric proximity -> Marieke
+
+# soft cosine?
+# idk i think i would have to split by some delimiter? tags would be documents
+# but would see electro-rock and electrorock as something very different?
+
+# electro and elektronisch should be similar
+# electro and electro-rap should not be that similar
+
+# maybe combine multiple measurements?
+
+textdistance.ratcliff_obershelp('electro', 'electro-blues')
+
+textdistance.ratcliff_obershelp(string1, string2)
+# maybe i really have to do really rely on similar assignments
+
+textdistance.levenshtein.normalized_similarity('arrow','arow')
+textdistance.levenshtein.normalized_similarity('electro', 'electro-rap')
+textdistance.levenshtein.normalized_similarity('electro', 'electronical')
+
+textdistance.levenshtein.normalized_distance('electro', 'electro-rap')
+textdistance.levenshtein.normalized_similarity('electro', 'electronical')
+
+textdistance.levenshtein.normalized_distance('ro', 'ro-rap')
+textdistance.levenshtein.normalized_similarity('electro', 'electronical')
+
+t1 = time.time()
+x = [distance.levenshtein('electrro', 'electro-rap', normalized=True) for i in range(5000)]
+t2=time.time()
+
+sims = list(filter(lambda x: x < 0.3, smlrtx))
 
 from sklearn.cluster import DBSCAN
 clstr = DBSCAN(eps = 2, min_samples=2, metric='precomputed', leaf_size = 1).fit(tag_smlrt)
