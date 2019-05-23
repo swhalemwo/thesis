@@ -186,3 +186,83 @@ for i in unq2[0:200]:
 # maybe also some minimum number of weights > 30
 
 
+###################
+# rescale weights #
+###################
+
+c.execute('select count(distinct(mbid)) from tags').fetchall()
+
+c.execute('create table ttl_weits (mbid text primary key)')
+c.execute("ALTER TABLE ttl_weits ADD COLUMN 'weight_ttl' INTEGER")
+conn.commit()
+
+c.execute('insert into ttl_weits select mbid, sum (weight)from tags group by mbid')
+
+# not getting ttl weight column
+dd = c.execute('select tags.link, tags.mbid, tags.tag, tags.weight from tags cross join ttl_weits on ttl_weits.mbid=tags.mbid limit 3').fetchall()
+
+
+# columns to select have to be in first select statement already 
+dd = c.execute('select tags.link, tags.mbid, tags.tag, tags.weight, ttl_weits.weight_ttl from tags join ttl_weits using (mbid) limit 3').fetchall()
+# does that mean sql statement is executed backwards? idfk
+
+c.execute("CREATE TABLE tags2 (link TEXT PRIMARY KEY, 'mbid' TEXT, 'tag' TEXT, 'weight' INTEGER,  weit_ttl Integer)")
+conn.commit()
+
+# c.execute('drop table tags2')
+
+c.execute('insert into tags2 select tags.link, tags.mbid, tags.tag, tags.weight, ttl_weits.weight_ttl from tags join ttl_weits using (mbid)')
+
+c.execute('alter table tags2 add column weit_pct Float')
+conn.commit()
+
+
+
+c.execute('select cast(weight as float)/cast(weit_ttl as float) as res from tags2 limit 3').fetchall()
+
+c.execute('update tags2 set weit_pct = cast(weight as float)/cast(weit_ttl as float)')
+
+# i think 10 is good cutoff
+
+
+# Select total_percent / no_of_scren as 'result' From yourTableName
+
+
+
+
+# dd = c.execute('select * from ttl_weits limit 3').fetchall()
+
+# CREATE TABLE tags (link TEXT PRIMARY KEY, 'mbid' TEXT, 'tag' TEXT, 'weight' INTEGER, 'mbid_type' TEXT, weit_ttl Integer)
+
+mbid_weits = c.execute('select sum (weight), mbid from tags group by mbid').fetchall()
+
+# mbid_weits = c.execute('select mbid, sum (weight) from tags group by mbid as xxx').fetchall()
+
+
+# group by tag having count (*) > 10').fetchall()
+
+# maybe with update table? 
+c.execute('alter table tags add column weit_ttl Integer')
+conn.commit()
+
+
+# c.executemany('update tags set weit_ttl=? WHERE mbid = ?', mbid_weits)
+
+cntr = 1
+for i in mbid_weits:
+
+    c.execute('update tags set weit_ttl=? WHERE mbid = ?', i)
+    if cntr % 10 ==0:
+        print(i)
+        conn.commit()
+    cntr +=1
+
+dones = c.execute('select count(distinct(mbid)) from tags where weit_ttl > 0').fetchall()
+
+8f396007-1903-3ed3-888c-4eee72e3bc7c-soul
+
+INSERT INTO new_table
+SELECT * FROM table1 CROSS JOIN table2;
+
+# make separate table, join that wit
+
