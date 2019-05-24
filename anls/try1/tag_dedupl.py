@@ -170,20 +170,80 @@ len(Counter(AHC))
 
     
 
-t1 = time.time()
 
-t2 = time.time()
-
-
-
-for i in unq2[0:200]:
-    print(i)
 
 
 
 # test stepwise: only test those in terms of assignments that are similar in terms of structure
 # test only those with some frequency 3/5/10 to weed out the weirdest ones
 # maybe also some minimum number of weights > 30
+
+
+####################
+# tag mbid network #
+####################
+
+raw = c.execute('select tag, weight, weit_pct from tags2').fetchall()
+raw_weits = [i[1] for i in raw]
+raw_pcts = [i[2] for i in raw]
+
+
+# plt.hist(raw_weits, bins=50)
+plt.hist(raw_pcts, bins=50)
+plt.show()
+
+
+# peaks at 50, 33, 25 -> all those don't have many
+# 44.3k uniques, but +80k values of 100 -> soooo many albums that have so few tags that multiple values at 100, or those that are only met with typical divisons
+c.execute('select count(distinct(mbid)) from tags2').fetchall()
+
+
+raw2 = c.execute('select mbid, tag, weit_pct from tags2 where weit_pct > 0.05 order by mbid').fetchall()
+
+# xx = c.execute("select mbid, tag, weit_pct from tags2 where weit_pct > 0.05 and mbid='00007f96-14a8-43e8-955d-0b00323a53bd'").fetchall()
+
+proc = []
+
+t1=time.time()
+for i in raw2:
+    link = []
+    for k in range(round(i[2]*10)):
+        # link.append([i[0], i[1]])
+        proc.append([i[0], i[1]])
+
+    # proc = proc + link
+    # proc.append(link)
+
+t2=time.time()
+
+gx = Graph()
+idx = gx.add_edge_list(proc, string_vals=True, hashed=True)
+
+vx1 = find_vertex(gx, idx, 'electro-pop')[0]
+vx2 = find_vertex(gx, idx, 'electropop')[0]
+
+itrb = [(int(vx1), int(vx2)), (int(vx2), int(vx1))]
+
+
+
+# 21179
+
+# [print(i) for i in gx.vertex(63711).out_neighbors()]
+
+# itrb = [(214, 1198)]
+# itrb2 = [(1198, 214)]
+
+
+# need to get more with electro tags 
+
+vertex_similarity(GraphView(gx, reversed=True), 'jaccard', vertex_pairs=itrb)
+
+len(set(vx1.in_neighbors()) & set(vx2.in_neighbors()))
+
+# also needs to incorporate actual playcount, otherwise some super small shit mbids get weighted too much
+# no idk how to tho
+
+
 
 
 ###################
@@ -265,4 +325,5 @@ INSERT INTO new_table
 SELECT * FROM table1 CROSS JOIN table2;
 
 # make separate table, join that wit
+
 
