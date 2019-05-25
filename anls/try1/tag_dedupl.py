@@ -3,6 +3,9 @@ import Levenshtein
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+from graph_tool.all import *
+from graph_tool import *  
+
 
 
 sqlite_file='/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/alb_tags1.sqlite'
@@ -198,6 +201,7 @@ plt.show()
 c.execute('select count(distinct(mbid)) from tags2').fetchall()
 
 
+raw2 = c.execute('select mbid, tag, weit_pct from tags2 where weit_pct > 0.05 order by weit_pct desc').fetchall()
 raw2 = c.execute('select mbid, tag, weit_pct from tags2 where weit_pct > 0.05 order by mbid').fetchall()
 
 # xx = c.execute("select mbid, tag, weit_pct from tags2 where weit_pct > 0.05 and mbid='00007f96-14a8-43e8-955d-0b00323a53bd'").fetchall()
@@ -207,7 +211,9 @@ proc = []
 t1=time.time()
 for i in raw2:
     link = []
-    for k in range(round(i[2]*10)):
+    # print(round(i[2]*10))
+    # print(round(i[2]*20))
+    for k in range(round(i[2]*20)):
         # link.append([i[0], i[1]])
         proc.append([i[0], i[1]])
 
@@ -222,9 +228,15 @@ idx = gx.add_edge_list(proc, string_vals=True, hashed=True)
 vx1 = find_vertex(gx, idx, 'electro-pop')[0]
 vx2 = find_vertex(gx, idx, 'electropop')[0]
 
+vx1 = find_vertex(gx, idx, 'urban')[0]
+vx2 = find_vertex(gx, idx, 'hip hop')[0]
+
+
+vx1.in_degree()
+vx2.in_degree()
+
+
 itrb = [(int(vx1), int(vx2)), (int(vx2), int(vx1))]
-
-
 
 # 21179
 
@@ -236,7 +248,13 @@ itrb = [(int(vx1), int(vx2)), (int(vx2), int(vx1))]
 
 # need to get more with electro tags 
 
-vertex_similarity(GraphView(gx, reversed=True), 'jaccard', vertex_pairs=itrb)
+slart = vertex_similarity(GraphView(gx, reversed=True), 'jaccard', vertex_pairs=itrb)
+min(slart)/max(slart)
+max(slart)/min(slart)
+
+# idk i'm kinda stuck
+
+
 
 len(set(vx1.in_neighbors()) & set(vx2.in_neighbors()))
 
@@ -252,26 +270,108 @@ len(set(vx1.in_neighbors()) & set(vx2.in_neighbors()))
 
 c.execute('select count(distinct(mbid)) from tags').fetchall()
 
+c.execute('drop table ttl_weits')
 c.execute('create table ttl_weits (mbid text primary key)')
 c.execute("ALTER TABLE ttl_weits ADD COLUMN 'weight_ttl' INTEGER")
+c.execute("ALTER TABLE ttl_weits ADD COLUMN 'mean_weit' FLOAT")
+c.execute("ALTER TABLE ttl_weits ADD COLUMN 'unq_tags' FLOAT")
+c.execute("ALTER TABLE ttl_weits ADD COLUMN 'unq_weits' FLOAT")
+
 conn.commit()
 
-c.execute('insert into ttl_weits select mbid, sum (weight)from tags group by mbid')
+# c.execute('insert into ttl_weits select mbid, sum (weight) from tags group by mbid')
+# c.execute('insert into ttl_weits select mbid, sum (weight) from tags where weight > 15 group by mbid')
+# c.execute('insert into ttl_weits select mbid, sum (weight), avg(weight) from tags where weight > 15 group by mbid')
+
+c.execute('insert into ttl_weits select mbid, sum (weight), avg(weight),count(distinct(tag)), count(distinct(weight)) from tags where weight > 15 group by mbid')
+
+
+# weits = c.execute('select weight_ttl from ttl_weits').fetchall()
+# c.execute('select weight_ttl from ttl_weits where mean_weit < 100').fetchall()
+
+weits = c.execute('select weight_ttl from ttl_weits where mean_weit < 100 and unq_tags > 3').fetchall()
+weits2 = [i[0] for i in weits if i[0] < 1500]
+
+plt.hist(weits2, bins=50)
+plt.show()
+
+c.execute("select count(*) from ttl_weits where mean_weit < 100 and unq_tags > 3").fetchall()
+# 10k have all weights with 100
+# 2k tags (6%) additionally have less than 4 unique tags
+# 18k additionallly have less than 4 uniqe weights -> great way to filter songs
+
+# may need to select songs based on more criteria:
+# - like at least 2/5/8 distinct tags
+# - not all weights 100: implies that mean is 100
+# not 
+
+
+# c.execute("select mbid, sum (weight) from tags where weight > 30 and mbid = '0002f642-03a1-4866-bc80-cef3784fd143'").fetchall()
+
+
+# c.execute("select * from tags where mbid = '0002f642-03a1-4866-bc80-cef3784fd143'").fetchall()
+# c.execute('select count(*) from tags where weight > 15').fetchall()
+
+# conn.commit()
+
+
+# c.execute("select * from ttl_weits where mbid='0002f642-03a1-4866-bc80-cef3784fd143'").fetchall()
+# c.execute("select * from ttl_weits where mbid='0011fada-6177-42c0-a3a4-880cd2a153be'").fetchall()
 
 # not getting ttl weight column
-dd = c.execute('select tags.link, tags.mbid, tags.tag, tags.weight from tags cross join ttl_weits on ttl_weits.mbid=tags.mbid limit 3').fetchall()
+# dd = c.execute('select tags.link, tags.mbid, tags.tag, tags.weight from tags cross join ttl_weits on ttl_weits.mbid=tags.mbid limit 3').fetchall()
 
 
 # columns to select have to be in first select statement already 
-dd = c.execute('select tags.link, tags.mbid, tags.tag, tags.weight, ttl_weits.weight_ttl from tags join ttl_weits using (mbid) limit 3').fetchall()
+dd = c.execute("""select tags.link, tags.mbid, tags.tag, tags.weight, ttl_weits.weight_ttl from tags
+        join ttl_weits using (mbid) limit 3""").fetchall()
+
+dd = c.execute("""select link, mbid, tag, weight, weight_ttl from tags
+        join (select mbid, weight_ttl from ttl_weits) 
+        using (mbid) limit 3""").fetchall()
+
+
 # does that mean sql statement is executed backwards? idfk
 
-c.execute("CREATE TABLE tags2 (link TEXT PRIMARY KEY, 'mbid' TEXT, 'tag' TEXT, 'weight' INTEGER,  weit_ttl Integer)")
+c.execute('drop table tags2')
+c.execute("""CREATE TABLE tags2 (link TEXT PRIMARY KEY, 
+                                'mbid' TEXT, 
+                                'tag' TEXT, 
+                                'weight' INTEGER,  
+                                weit_ttl Integer)""")
 conn.commit()
 
-# c.execute('drop table tags2')
 
-c.execute('insert into tags2 select tags.link, tags.mbid, tags.tag, tags.weight, ttl_weits.weight_ttl from tags join ttl_weits using (mbid)')
+
+# c.execute('insert into tags2 select tags.link, tags.mbid, tags.tag, tags.weight, ttl_weits.weight_ttl from tags join ttl_weits using (mbid)')
+
+c.execute("""insert into tags2 
+select link, mbid, tag, weight, weight_ttl from tags
+join 
+(select mbid, weight_ttl from ttl_weits where mean_weit < 100 and unq_tags > 3 and unq_weits > 2)
+using(mbid) 
+where weight > 15""")
+conn.commit()
+
+c.execute("""insert into tags2 select link, mbid, tag, weight, weight_ttl from tags
+join (select mbid, weight_ttl from ttl_weits)
+using(mbid) where weight > 15""")
+conn.commit()
+
+# hm not clear if i should filter songs
+# that's what i'm doing when filtering in the join statement
+# still no solution for incorporating viewer count
+# -> should rather weigh by playcount than filter on album characteristics
+
+# could add it as another edge characteristic, like an additional edge per X plays
+# idk
+# it conflates tag partiality and wealth/resources
+# 
+
+c.execute('select count(distinct(mbid)) from tags2').fetchall()
+c.execute('select count(*) from tags2').fetchall()
+
+
 
 c.execute('alter table tags2 add column weit_pct Float')
 conn.commit()
