@@ -53,41 +53,25 @@ client.execute('drop table tests3')
 # actual #
 ##########
 
-
-def song_infoer(dd):
-    part_cntr = 0
-    part = []
-    part1 = dd[0]
-
-    for i in dd:
-        if i[1] != part1:
-            part_cntr +=1
-            part1 = i[1]
-
-        part.append(i)
-
-        if part_cntr == 95 or len(part) > 50000:
-            client.execute('insert into song_info2 values', part)
-            print('commit')
-            print(dd.index(i))
-            print(part_cntr)
-                
-            part=[]
-            part_cntr=0
-
-    if len(part) > 0:
-        client.execute('insert into song_info2 values', part)
-
-
 client.execute('drop table song_info2')
-client.execute('create table song_info2 (song String, cnt Int32) engine=MergeTree() partition by cnt order by tuple()')
+client.execute('create table song_info2 (song String, cnt Int32, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
 
+# song_infoer(dd)
 
-song_infoer(dd)
+# client.execute('select song, count(*), count(*) % 30 from logs group by song limit 3')
 
+# add random shit
+client.execute("""insert into song_info2 
+select song, count(*), count(*) % 30 from logs group by song""")
+# could probably also just select 1 or any number
 
 
 client.execute('drop table song_info3')
-client.execute('create table song_info3 (mbid String, abbrv String, rndm Int32, song String, cnt Int32) engine=MergeTree() partition by rndm order by tuple()')
 
-client.execute('insert into song_info3 select * from song_info join song_info2 on song_info.abbrv=song_info2.song')
+client.execute('create table song_info3 (mbid String, abbrv String, rndm Int32, cnt Int32) engine=MergeTree() partition by rndm order by tuple()')
+
+
+client.execute("""insert into song_info3 select * from song_info join
+(select song as abbrv, cnt from song_info2) using (abbrv)""")
+
+
