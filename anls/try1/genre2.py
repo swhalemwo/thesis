@@ -84,7 +84,7 @@ lsn_dt.a = lsn_dts
 
 # JFC is this fast, 4 seconds for a million entries
 # 
-subs = find_vertex_range(g, 'in', (100, 100000000))
+subs = find_vertex_range(g, 'in', (10000, 100000000))
 
 NART = len(subs)
 
@@ -107,7 +107,7 @@ for i in range(NART):
 
 dsims = 1-sims
 
-model = MDS(n_components=2, dissimilarity='precomputed', random_state=1)
+model = MDS(n_components=2, dissimilarity='precomputed', random_state=1, verbose=2)
 out = model.fit_transform(dsims)
 plt.scatter(out[:, 0], out[:, 1])
 # plt.axis('equal');
@@ -214,7 +214,7 @@ gt1x = GraphView(g_t1, vfilt=t1_filt_dgr, reversed=True)
 # there shouldn't be much of a difference but somehow there is
 subs2 = find_vertex_range(gt1x, 'in', (100, 100000000))
 
-subs3 = find_vertex_range(g, 'in', (500, 100000000))
+subs3 = find_vertex_range(g, 'in', (1000, 100000000))
 
 subs2 = subs3
 
@@ -259,7 +259,7 @@ v_ids = [int(i) for i in subs2]
 sim_in2 = itertools.product(v_ids, v_ids)
 sim_in3 = list(sim_in2)
 
-sim_out = graph_tool.topology.vertex_similarity(GraphView(gt1x, reversed=True), 'jaccard', vertex_pairs=sim_in3)
+sim_out = graph_tool.topology.vertex_similarity(GraphView(g, reversed=True), 'jaccard', vertex_pairs=sim_in3)
 
 sim_out2 = np.split(sim_out, len(subs2))
 sim_out3 = np.array(sim_out2)
@@ -267,7 +267,7 @@ t4 = time.time()
 print(t4-t3)
 
 
-
+sims=sim_out3
 
 dsims = 1-sims
 
@@ -280,9 +280,24 @@ for i in dsims:
 plt.hist(dsimsll, bins=30)
 plt.show()
 
+
+t1 = time.time()
+for i in range(NART): 
+    for k in range(NART): 
+        v_min = min(sims[i,k],sims[k,i])
+        sims[k,i] = v_min
+        sims[i,k] = v_min
+t2 = time.time()
+print(t2 - t1)
+
+
+dsims = 1-sims
+
 # maybe approach is wrong: assumes that what people listen to is similar
 # what if people listen to a lot of stuff different?
 # but stuff is only different if boundaries exist in the first place
+
+
 
 np.savetxt("/home/johannes/Dropbox/gsss/thesis/anls/try1/mds_test754.csv", dsims)
 
@@ -292,9 +307,13 @@ fit_res = []
 
 for i in range(2,10):
 
-    model = MDS(n_components=i, dissimilarity='precomputed', metric=False, verbose=1)
-    out = model.fit_transform(dsims)
-    
+    dsims_sub = dsims[0:10, 0:10]
+
+    t1=time.time()
+    model = MDS(n_components=2, dissimilarity='precomputed', metric=True, verbose=1)
+    out = model.fit_transform(dsims[0:300, 0:300])
+    t2=time.time()
+
     dsims_sqrd = (dsims**2).sum() / 2
     stress1 = np.sqrt(model.stress_ / dsims_sqrd)
 
@@ -302,7 +321,7 @@ for i in range(2,10):
     
 
 
-plt.scatter(out[:, 0], out[:, 2])
+plt.scatter(out[:, 0], out[:, 1])
 # plt.axis('equal');
 plt.show()
 t2 = time.time()
