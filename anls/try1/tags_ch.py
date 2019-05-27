@@ -5,26 +5,186 @@ import argparse
 import os
 import re
 
-def get_tags(mbid):
-    
-    # mbid = '94a2a5ba-390d-4dd9-9f69-3e314f8b9d98'
-    # mbid= '0e37764b-0726-4a15-8c16-abc07c4ea033'
+# mbid = '94a2a5ba-390d-4dd9-9f69-3e314f8b9d98'
+# mbid= '0e37764b-0726-4a15-8c16-abc07c4ea033'
 
-    # mbid = i
-    mbid = failed[300]
+# mbid = i
+mbid = failed[300]
 
-    mbid2 = musicbrainzngs.get_recording_by_id(failed[300])['recording']['id']
-    mbid = mbid2
+mbid2 = musicbrainzngs.get_recording_by_id(failed[300])['recording']['id']
+mbid = mbid2
 
-    
+for i in dones[:50]:
+    # print(i)
+    mb_inf = musicbrainzngs.get_recording_by_id(i, includes=['releases', 'artists'])
+    rls_date1 = date_prcsr(mb_inf['recording']['release-list'])
+    mb_mbid = mb_inf['recording']['id']
 
-    musicbrainzngs.get_recording_by_id(mbid2)['recording']['id']
+    mb_title = mb_inf['recording']['title']
+    mb_artst_name = mb_inf['recording']['artist-credit'][0]['artist']['name']
 
-
+    # print(len(mb_inf['recording']['artist-credit']))
+    # now there can be multiple artists as well WTFFFF
+    # seems to be mostly one tho
     str1="http://ws.audioscrobbler.com/2.0/?method="
     str2='track' + ".getInfo&mbid="    
     str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
+
+    qry = str1 + str2 + mb_mbid + str4
+    qry = str1 + str2 + i + str4
+
+    resp_raw = requests.get(qry)
+    resp_dict = resp_raw.json()
+
+    lfm_artst_name = resp_dict['track']['artist']['name']
+    lfm_title = resp_dict['track']['name']
+    lfm_mbid = resp_dict['track']['mbid']
+
+    ################# printing #################
+    print(i)
+    print(mb_mbid)
+    print(lfm_mbid)
+    print('------------')
+    print(mb_title)
+    print(lfm_title)
+    print('------------')
+    print(mb_artst_name)
+    print(lfm_artst_name)
+    print('===============')
     
+    
+# issue: sometimes the mb_mbid can't be used, have to then use the original mlhd_mbid (i)
+# -> need to run both then
+# not too difficult tho
+
+
+
+
+print('----------------------------------------------')
+    
+musicbrainzngs.get_recording_by_id(mbid2)['recording']['id']
+
+musicbrainzngs.get_recording_by_id('8fed0a52-988a-4701-8219-ca395400caae')
+
+
+mbid='27608c0c-a89b-402d-a809-5748e72a5e82'
+mbid='82a07882-13cf-4ea3-9d6c-6dd66e87fe63'
+----------------------------------------------
+mbid='36e59810-b023-4cd7-ac63-ec4efda7db0c'
+mbid='656bc0a1-4506-4a4a-bc1b-924311bd8e1e'
+mbid='07457bc3-c8fe-442e-98e5-3e6cae9b7f5b'
+----------------------------------------------
+457d0b8d-7970-4783-a480-6fea64596502
+ec9ad7d2-a12d-4e33-9404-55eae3e9b619
+
+i think i need more song information
+mbid mlhd
+mbid mb
+mbid lfm
+
+# name mb
+# name lfm
+
+# artist name mb
+# artist name lfm
+
+album
+- name mb
+- 
+album is 
+
+release data would be nice
+but there are 20 of those
+want to get first
+but some just have year
+if youngest is just a year and i set that to year-12-31
+i can get spike at new years
+
+# need to check for how many that's the case
+
+
+rls_lst = x['recording']['release-list']
+
+def date_prcsr(rls_lst):
+
+    rlss_long=[]
+    rlss_medm=[]
+    rlss_shrt=[]
+
+    for i in rls_lst:
+
+        try:
+            dt = i['date']
+
+            if len(dt) == 10:
+                dt2 = [int(i) for i in dt.split('-')]
+                dttm = datetime.datetime(dt2[0], dt2[1], dt2[2])
+                rlss_long.append(dttm)
+
+            if len(dt) == 7:
+                dt2 = [int(i) for i in dt.split('-')]
+                dttm = datetime.datetime(dt2[0], dt2[1], 31)
+                rlss_medm.append(dttm)
+
+            if len(dt) == 4:
+                dttm = datetime.datetime(int(dt), 12, 31)
+                rlss_shrt.append(dttm)
+        except:
+            pass
+
+    ttl_mins = []
+
+    if len(rlss_long) > 0:
+        min_rlss_long = min(rlss_long)
+        ttl_mins.append(min_rlss_long)
+    else:
+        ttl_mins.append(datetime.datetime(3000,1,1))
+
+    if len(rlss_medm) > 0:
+        min_rlss_medm = min(rlss_medm)
+        ttl_mins.append(min_rlss_medm)
+    else:
+        ttl_mins.append(datetime.datetime(3000,1,1))
+
+
+    if len(rlss_shrt) > 0:
+        min_rlss_shrt = min(rlss_shrt)
+        ttl_mins.append(min_rlss_shrt)
+    else:
+        ttl_mins.append(datetime.datetime(3000,1,1))
+
+
+    ttl_min = min(ttl_mins)
+
+    # pointless, can't think of it anymore, needs to be something more elegant to test whether time issue is present 
+
+    cntr =0
+    ttl_min_indx = []
+    for i in ttl_mins:
+        if i == ttl_min:
+            ttl_min_indxs.append(cntr)
+        cntr +=1
+
+    # min_ttl = min(min(rlss_long), min(rlss_shrt))
+    all_dts = rlss_long + rlss_medm + rlss_shrt
+
+    if len(all_dts) > 0:
+        min_ttl = min(all_dts)
+    else:
+        min_ttl = 'no date'
+        # if min_ttl < min(rlss_long):
+    #     print("time issue")
+
+    return(min_ttl)
+
+
+
+
+def get_tags(mbid):
+    
+    str1="http://ws.audioscrobbler.com/2.0/?method="
+    str2='track' + ".getInfo&mbid="    
+    str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
     
     
     qry = str1 + str2 + mbid + str4
@@ -164,7 +324,9 @@ if __name__ == '__main__':
 # probably have to clean up logs..
 # can make dict with original as key and mb mbid as value
 # dicts are quite cheap so might not be an issue
-# but means I need to 
+# but means I need to really check all files to be sure there are no duplicates
+# need to get extent
+
 
 
 ###############
