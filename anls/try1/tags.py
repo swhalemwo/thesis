@@ -3,6 +3,8 @@ import requests
 import argparse
 import sqlite3
 
+dd
+
 def check_existing(c):
     q=[i[0] for i in c.execute('SELECT DISTINCT mbid from tags').fetchall()]
     f=[i[0] for i in c.execute('SELECT mbid from failed').fetchall()]
