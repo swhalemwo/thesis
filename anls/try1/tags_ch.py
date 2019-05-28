@@ -4,6 +4,7 @@ import argparse
 # from clickhouse_driver import Client
 import os
 import re
+from calendar import monthrange
 
 # mbid = '94a2a5ba-390d-4dd9-9f69-3e314f8b9d98'
 # mbid= '0e37764b-0726-4a15-8c16-abc07c4ea033'
@@ -14,48 +15,97 @@ mbid = failed[300]
 mbid2 = musicbrainzngs.get_recording_by_id(failed[300])['recording']['id']
 mbid = mbid2
 
-for i in dones[:50]:
+# for i in dones[:50]:
+for i in failed[:50]:    
     # print(i)
     mb_inf = musicbrainzngs.get_recording_by_id(i, includes=['releases', 'artists'])
-    rls_date1 = date_prcsr(mb_inf['recording']['release-list'])
+    rls_dt = date_prcsr(mb_inf['recording']['release-list'])
     mb_mbid = mb_inf['recording']['id']
 
     mb_title = mb_inf['recording']['title']
     mb_artst_name = mb_inf['recording']['artist-credit'][0]['artist']['name']
 
-    # print(len(mb_inf['recording']['artist-credit']))
-    # now there can be multiple artists as well WTFFFF
-    # seems to be mostly one tho
-    str1="http://ws.audioscrobbler.com/2.0/?method="
-    str2='track' + ".getInfo&mbid="    
-    str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
+    lfm_qry_mlhd_id = str1 + str2 + i + str4
 
-    qry = str1 + str2 + mb_mbid + str4
-    qry = str1 + str2 + i + str4
-
-    resp_raw = requests.get(qry)
+    resp_raw = requests.get(lfm_qry_mlhd_id)
     resp_dict = resp_raw.json()
 
-    lfm_artst_name = resp_dict['track']['artist']['name']
-    lfm_title = resp_dict['track']['name']
-    lfm_mbid = resp_dict['track']['mbid']
+    try: 
+        lfm_artst_name = resp_dict['track']['artist']['name']
+        lfm_title = resp_dict['track']['name']
+        lfm_mbid = resp_dict['track']['mbid']
+    except:
+        lfm_artst_name = 'mlhd id no work'
+        lfm_title = 'mlhd id no work'
+        lfm_mbid = 'mlhd id no work'
+
+    lfm_qry_mb_mbid = str1 + str2 + mb_mbid + str4
+    
+    resp_raw = requests.get(lfm_qry_mb_mbid)
+    resp_dict = resp_raw.json()
+    
+    try:
+        mb_lfm_artst_name = resp_dict['track']['artist']['name']
+        mb_lfm_title = resp_dict['track']['name']
+        mb_lfm_mbid = resp_dict['track']['mbid']
+
+    except:
+        mb_lfm_artst_name = 'mb id no work for lfm'
+        mb_lfm_title = 'mb id no work for lfm'
+        mb_lfm_mbid = 'mb id no work for lfm'
+        
 
     ################# printing #################
     print(i)
     print(mb_mbid)
     print(lfm_mbid)
+    print(mb_lfm_mbid)
+    print('------------')
+    print(rls_dt)
     print('------------')
     print(mb_title)
     print(lfm_title)
+    print(mb_lfm_title)
     print('------------')
     print(mb_artst_name)
     print(lfm_artst_name)
+    print(mb_lfm_artst_name)
     print('===============')
     
     
+
+# print(len(mb_inf['recording']['artist-credit']))
+
+# now there can be multiple artists as well WTFFFF
+# seems to be mostly one tho
+
 # issue: sometimes the mb_mbid can't be used, have to then use the original mlhd_mbid (i)
 # -> need to run both then
 # not too difficult tho
+
+differences in mbids mostly between (1,2) and (3,4)
+
+exception for dones
+36e59810-b023-4cd7-ac63-ec4efda7db0c
+656bc0a1-4506-4a4a-bc1b-924311bd8e1e
+07457bc3-c8fe-442e-98e5-3e6cae9b7f5b
+07457bc3-c8fe-442e-98e5-3e6cae9b7f5b
+
+
+need to improve for failed
+can happen that neither mlhd nor mb works
+crash when mb mbid not even found
+-> need to be flexible
+
+need to see in how many cases mb mbid works but mlhd does not
+
+
+
+
+
+str1="http://ws.audioscrobbler.com/2.0/?method="
+str2='track' + ".getInfo&mbid="    
+str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
 
 
 
@@ -104,6 +154,10 @@ i can get spike at new years
 
 
 rls_lst = x['recording']['release-list']
+rls_lst = mb_inf['recording']['release-list']
+
+
+date_prcsr(rls_lst)
 
 def date_prcsr(rls_lst):
 
@@ -122,8 +176,12 @@ def date_prcsr(rls_lst):
                 rlss_long.append(dttm)
 
             if len(dt) == 7:
+
+                
                 dt2 = [int(i) for i in dt.split('-')]
-                dttm = datetime.datetime(dt2[0], dt2[1], 31)
+                max_days = monthrange(dt2[0], dt2[1])[1]
+                
+                dttm = datetime.datetime(dt2[0], dt2[1], max_days)
                 rlss_medm.append(dttm)
 
             if len(dt) == 4:
@@ -132,51 +190,78 @@ def date_prcsr(rls_lst):
         except:
             pass
 
-    ttl_mins = []
+    lowest_lvl = 0
+    if len(rlss_shrt) > 0: lowest_lvl=1
+    if len(rlss_medm) > 0: lowest_lvl=2
+    if len(rlss_long) > 0: lowest_lvl=3
 
-    if len(rlss_long) > 0:
-        min_rlss_long = min(rlss_long)
-        ttl_mins.append(min_rlss_long)
-    else:
-        ttl_mins.append(datetime.datetime(3000,1,1))
-
-    if len(rlss_medm) > 0:
-        min_rlss_medm = min(rlss_medm)
-        ttl_mins.append(min_rlss_medm)
-    else:
-        ttl_mins.append(datetime.datetime(3000,1,1))
-
-
-    if len(rlss_shrt) > 0:
-        min_rlss_shrt = min(rlss_shrt)
-        ttl_mins.append(min_rlss_shrt)
-    else:
-        ttl_mins.append(datetime.datetime(3000,1,1))
-
-
-    ttl_min = min(ttl_mins)
-
-    # pointless, can't think of it anymore, needs to be something more elegant to test whether time issue is present 
-
-    cntr =0
-    ttl_min_indx = []
-    for i in ttl_mins:
-        if i == ttl_min:
-            ttl_min_indxs.append(cntr)
-        cntr +=1
-
-    # min_ttl = min(min(rlss_long), min(rlss_shrt))
-    all_dts = rlss_long + rlss_medm + rlss_shrt
-
-    if len(all_dts) > 0:
-        min_ttl = min(all_dts)
-    else:
+    if lowest_lvl ==0:
         min_ttl = 'no date'
-        # if min_ttl < min(rlss_long):
-    #     print("time issue")
+    else:
+        all_dts = rlss_long + rlss_medm + rlss_shrt
+
+        min_ttl = min(all_dts)
+
+        ttl_mins = []
+
+        if len(rlss_long) > 0:
+            min_rlss_long = min(rlss_long)
+            ttl_mins.append(min_rlss_long)
+        else:
+            ttl_mins.append(datetime.datetime(3000,1,1))
+
+        if len(rlss_medm) > 0:
+            min_rlss_medm = min(rlss_medm)
+            ttl_mins.append(min_rlss_medm)
+        else:
+            ttl_mins.append(datetime.datetime(3000,1,1))
+
+        if len(rlss_shrt) > 0:
+            min_rlss_shrt = min(rlss_shrt)
+            ttl_mins.append(min_rlss_shrt)
+        else:
+            ttl_mins.append(datetime.datetime(3000,1,1))
+
+        ttl_min = min(ttl_mins)
+
+        buckets = [rlss_shrt, rlss_medm, rlss_long]
+
+        ttl_min_mbrshps = []
+        cntr = 1
+        for i in buckets:
+            if ttl_min in i:
+                ttl_min_mbrshps.append(cntr)
+
+            cntr +=1
+
+        if max(ttl_min_mbrshps) > lowest_lvl:
+            print("DATE ISSUE")
+            # maybe add some return thing
 
     return(min_ttl)
 
+    # cntr =0
+    # ttl_min_indxs = []
+    # for i in ttl_mins:
+    #     if i == ttl_min:
+    #         ttl_min_indxs.append(cntr)
+    #     cntr +=1
+
+    # min_ttl = min(min(rlss_long), min(rlss_shrt))
+
+
+
+
+
+    # pointless, can't think of it anymore,
+    # needs to be something more elegant to test whether time issue is present
+
+    # tadaa
+    # level of min > highest level -> problem!
+    # need to make it clear which level date comes from
+
+    # check all buckets in which ttl_min is in
+    # 
 
 
 
@@ -197,9 +282,7 @@ def get_tags(mbid):
         
         artst_name = resp_dict['track']['artist']['name']
         
-        # str22 = 'track' + ".getTopTags&artist=" + "'" + artst_name + "'" + '&track=' + mbid_name
         str22 = 'track' + ".getTopTags&artist=" + artst_name + '&track=' + mbid_name
-
         qry = str1 + str22 + str4
 
         resp_raw = requests.get(qry)
