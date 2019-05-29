@@ -101,19 +101,6 @@ need to see in how many cases mb mbid works but mlhd does not
 
 
 
-ll1=["07b81a14-106d-4dbe-b27d-2545a0d17268","07b2a832-05f3-45b9-a497-55bcdbd1b4e8","466e5582-6f79-4acd-91f0-c39f0bd46bf6","876058ae-8354-4492-a237-9ef9f0b3e6b7","0a392f1f-61b7-43bd-81f1-de7789d1d26c","2b783759-4cf1-462c-8810-312e04276533","73be27de-1be1-4f16-850e-a8ec35d9a1e1","09b40797-8c14-4867-a59d-1495655685ab","036cb655-c6d6-4dc0-8b98-1cd45cd9cee2","d57d9536-a186-413d-9df4-6723ee5577a6","c2bdabae-8f35-456b-bf9b-68e861da7988"]
-
-ll2=["s141","s145","s146","s181","s194","s219","s232","s244","s245","s259","s266"]
-
-
-ll1_long = []
-ll2_long = []
-
-for i in range(1000):
-    nbr = random.sample(range(11),1)[0]
-
-    ll1_long.append(ll1[nbr])
-    ll2_long.append(ll2[nbr])
 
 
 str1="http://ws.audioscrobbler.com/2.0/?method="
@@ -538,7 +525,37 @@ def total_size(o, handlers={}, verbose=False):
 #     print(total_size(d, verbose=True))
 
 
+print(total_size(ll1_long[0:499]))
+print(total_size(ll1_long[500:999]))
 print(total_size(ll1_long))
 print(total_size(ll2_long))
 
     
+
+ll1=["07b81a14-106d-4dbe-b27d-2545a0d17268","07b2a832-05f3-45b9-a497-55bcdbd1b4e8","466e5582-6f79-4acd-91f0-c39f0bd46bf6","876058ae-8354-4492-a237-9ef9f0b3e6b7","0a392f1f-61b7-43bd-81f1-de7789d1d26c","2b783759-4cf1-462c-8810-312e04276533","73be27de-1be1-4f16-850e-a8ec35d9a1e1","09b40797-8c14-4867-a59d-1495655685ab","036cb655-c6d6-4dc0-8b98-1cd45cd9cee2","d57d9536-a186-413d-9df4-6723ee5577a6","c2bdabae-8f35-456b-bf9b-68e861da7988"]
+
+ll2=["s141","s145","s146","s181","s194","s219","s232","s244","s245","s259","s266"]
+
+
+ll1_long = []
+ll2_long = []
+
+for i in range(1000):
+    nbr = random.sample(range(11),1)[0]
+
+    ll1_long.append(ll1[nbr])
+    ll2_long.append(ll2[nbr])
+
+
+ll3 = []
+ll4 = []
+
+for i in range(1000):
+    nbr1 = random.sample(range(11),1)[0]
+    nbr2 = random.sample(range(11),1)[0]
+    ll3.append([ll1[nbr1], ll1[nbr2]])
+    ll4.append([ll2[nbr1], ll2[nbr2]])
+
+
+print(total_size(ll3))
+print(total_size(ll4))
