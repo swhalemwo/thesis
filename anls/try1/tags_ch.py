@@ -101,6 +101,19 @@ need to see in how many cases mb mbid works but mlhd does not
 
 
 
+ll1=["07b81a14-106d-4dbe-b27d-2545a0d17268","07b2a832-05f3-45b9-a497-55bcdbd1b4e8","466e5582-6f79-4acd-91f0-c39f0bd46bf6","876058ae-8354-4492-a237-9ef9f0b3e6b7","0a392f1f-61b7-43bd-81f1-de7789d1d26c","2b783759-4cf1-462c-8810-312e04276533","73be27de-1be1-4f16-850e-a8ec35d9a1e1","09b40797-8c14-4867-a59d-1495655685ab","036cb655-c6d6-4dc0-8b98-1cd45cd9cee2","d57d9536-a186-413d-9df4-6723ee5577a6","c2bdabae-8f35-456b-bf9b-68e861da7988"]
+
+ll2=["s141","s145","s146","s181","s194","s219","s232","s244","s245","s259","s266"]
+
+
+ll1_long = []
+ll2_long = []
+
+for i in range(1000):
+    nbr = random.sample(range(11),1)[0]
+
+    ll1_long.append(ll1[nbr])
+    ll2_long.append(ll2[nbr])
 
 
 str1="http://ws.audioscrobbler.com/2.0/?method="
@@ -454,3 +467,78 @@ if __name__ == '__main__':
 # with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/' + str(chunk_cntr), 'w') as fo:
 #             wr = csv.writer(fo)
 #             wr.writerows(chunk)
+
+
+
+
+
+
+
+
+
+
+
+
+
+from __future__ import print_function
+from sys import getsizeof, stderr
+from itertools import chain
+from collections import deque
+try:
+    from reprlib import repr
+except ImportError:
+    pass
+
+
+def total_size(o, handlers={}, verbose=False):
+    """ Returns the approximate memory footprint an object and all of its contents.
+
+    Automatically finds the contents of the following builtin containers and
+    their subclasses:  tuple, list, deque, dict, set and frozenset.
+    To search other containers, add handlers to iterate over their contents:
+
+        handlers = {SomeContainerClass: iter,
+                    OtherContainerClass: OtherContainerClass.get_elements}
+
+    """
+    dict_handler = lambda d: chain.from_iterable(d.items())
+    all_handlers = {tuple: iter,
+                    list: iter,
+                    deque: iter,
+                    dict: dict_handler,
+                    set: iter,
+                    frozenset: iter,
+                   }
+    all_handlers.update(handlers)     # user handlers take precedence
+    seen = set()                      # track which object id's have already been seen
+    default_size = getsizeof(0)       # estimate sizeof object without __sizeof__
+
+    def sizeof(o):
+        if id(o) in seen:       # do not double count the same object
+            return 0
+        seen.add(id(o))
+        s = getsizeof(o, default_size)
+
+        if verbose:
+            print(s, type(o), repr(o), file=stderr)
+
+        for typ, handler in all_handlers.items():
+            if isinstance(o, typ):
+                s += sum(map(sizeof, handler(o)))
+                break
+        return s
+
+    return sizeof(o)
+
+
+##### Example call #####
+
+# if __name__ == '__main__':
+#     d = dict(a=1, b=2, c=3, d=[4,5,6,7], e='a string of chars')
+#     print(total_size(d, verbose=True))
+
+
+print(total_size(ll1_long))
+print(total_size(ll2_long))
+
+    
