@@ -2,8 +2,8 @@ import csv
 import requests
 import argparse
 import sqlite3
+from clickhouse_driver import Client
 
-dd
 
 def check_existing(c):
     q=[i[0] for i in c.execute('SELECT DISTINCT mbid from tags').fetchall()]
@@ -125,7 +125,6 @@ def proc_tags(resp_dict, mbid, mbid_type, c):
     c.executemany("INSERT OR IGNORE INTO tags (link, mbid, tag, weight, mbid_type) VALUES (?, ?, ?, ?, ?)", tags)
     
 
-
 if __name__ == '__main__':
     # given a list of mbids and type, the script first checks for which tags are already downloaded, then downloads tags for the rest
 
@@ -182,3 +181,8 @@ conn.commit()
 # could add a class to configure mbid type etc just once, but i don't think it wastes much resources to assign them again
 
 # maybe add list of failed ones
+
+
+# environment has influence on genre prevalence:
+# might be that people have to get used to last.fm tags, and only over time fully learn possibilities of fine-grained distinction
+

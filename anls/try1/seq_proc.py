@@ -25,10 +25,6 @@ for i in stage_files:
 
     # need to set limits
     # should be rather low: want to focus on new ones
-    # can't help but think i'm not focusing on what's important here: nobody cares about super small genres
-    # -> large forms should get the focus
-    # absence of change, stability, locked in place
-    # big ones can matter for legitimation?
 
     # genres are not equals
 

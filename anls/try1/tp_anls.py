@@ -70,10 +70,8 @@ def sqlite_setup():
 # stags = c.execute(sql, rel_mbids_sub).fetchall()
 
 def get_unq_tags(rel_mbids, min_weight, min_cnt):
-
     sql2 = "select distinct tag from tags where weight > " + str(min_weight) + " and mbid in ({seq})".format(
         seq=','.join(['?']*len(rel_mbids)))
-    
     sql2 = sql2 + " group by tag having count (*) > " + str(min_cnt)
 
     unq_tags = c.execute(sql2, rel_mbids).fetchall()
@@ -211,5 +209,6 @@ for i in gt_files:
 
 
 # ## need other way you moron
+
 
 

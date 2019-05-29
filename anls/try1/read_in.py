@@ -97,6 +97,7 @@ stage_cmnds =['cat ' + daet_dir + i + '/read_in.xxx >> '+ daet_dir + 'stage/stag
 [os.system(i) for i in stage_cmnds]
 
 
+
 # proc_str = 'cd ' + daet_dir + ' && ./args2.sh'
 
 
