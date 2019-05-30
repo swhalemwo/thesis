@@ -218,6 +218,41 @@ def check_present(usr):
     return(status)
 
 
+def bucketer(all_logs, min_dts, max_dts):
+    min_dt = min(min_dts)
+    max_dt = max(max_dts)
+
+    delta = max_dt - min_dt
+
+    bucket_dict = {}        
+    bkt_cntr = 0
+    bkt_size = 95
+    
+    for i in range(0, delta.days+1, 1):
+        bkt_size -=1
+
+        dtx = min_dt + timedelta(days=i)
+
+        bucket_dict[dtx]=bkt_cntr
+        
+        if bkt_size ==0:
+            bkt_cntr+=1
+            bkt_size = 95
+            
+    buckets={}
+    for i in range(0, bkt_cntr+1, 1):
+        buckets[i] = []
+
+    for i in all_logs:
+        bktx = bucket_dict[i[0]]
+        buckets[bktx].append(i)
+
+    return(buckets)
+
+
+
+
+
 if __name__ == '__main__':
     # reads all the logs
     parser = argparse.ArgumentParser()
@@ -301,8 +336,8 @@ if __name__ == '__main__':
 # bucket insertion #
 ####################
 
-client.execute('drop table tests')
-client.execute('create table tests (tx Date, usr String, song String) engine=MergeTree(tx, tx, 8192)')
+client.execute('drop table tests2')
+client.execute('create table tests2 (tx Date, usr String, song String) engine=MergeTree(tx, tx, 8192)')
 
 log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/00/'
 client = Client(host='localhost', password='anudora', database='frrl')
@@ -312,13 +347,13 @@ log_files = [i for i in files1 if i.endswith('.txt')]
 chunk_size = 10
 
 chunks = [log_files[x:x+chunk_size] for x in range(0, len(log_files), chunk_size)]
-c=chunks[3]
+# c=chunks[3]
 
 mbid_abbrv_dict=get_db_songs()
 
 mbid_abbrv_dict = {}
 
-for c in chunks:
+for c in chunks[0:30]:
     print('new chunk')
     # bulk dict construction
 
@@ -328,6 +363,7 @@ for c in chunks:
     max_dts=[]
 
     for l in c:
+        pass
         
         f=log_dir + l
         uuid=l[0:36]
@@ -339,7 +375,7 @@ for c in chunks:
             logx = get_log_clean(f)
 
             logx2 = [(
-                datetime.date(datetime.utcfromtimestamp(int(i[0]))),
+                datetime.datetime.date(datetime.datetime.utcfromtimestamp(int(i[0]))),
                 ab_uid,
                 i[1]) for i in logx]
             
@@ -351,6 +387,7 @@ for c in chunks:
         except:
             # print('user not in usr_info')
             # need to log to error file
+            print('someting wong with', ab_uid)
             continue
 
     new_addgs = unq_proc_bulk(all_logs, mbid_abbrv_dict)
@@ -362,48 +399,123 @@ for c in chunks:
     # min/max dt, bkt size has no point to be known
     # bckt dict neither
     # but insertion should always be own function
-
-def bucketer(all_logs, min_dts, max_dts):
-    min_dt = min(min_dts)
-    max_dt = max(max_dts)
-
-    delta = max_dt - min_dt
-
-    bucket_dict = {}        
-    bkt_cntr = 0
-    bkt_size = 95
-    
-    for i in range(0, delta.days+1, 1):
-        bkt_size -=1
-
-        dtx = min_dt + timedelta(days=i)
-
-        bucket_dict[dtx]=bkt_cntr
-        
-        if bkt_size ==0:
-            bkt_cntr+=1
-            bkt_size = 95
-            
-    buckets={}
-    for i in range(0, bkt_cntr+1, 1):
-        buckets[i] = []
-
-    for i in all_logs2:
-        bktx = bucket_dict[i[0]]
-        buckets[bktx].append(i)
-
-    return(buckets)
-
-buckets = bucketer(all_logs, min_dts, max_dts)
-
     # needs rewriting with result of buckets
-    for i in range(0, bkt_cntr+1, 1):
-        client.execute('insert into tests values', buckets[i])
-    t2 = time.time()
+
+    buckets = bucketer(all_logs2, min_dts, max_dts)
+    
+    for i in buckets.keys():
+        client.execute('insert into tests2 values', buckets[i])
+
 
     # could do also bulk insertion for usr_info: new additions to mbid_abbrv_dict take time due to set command
     
     # 
+
+##########################################################
+# enter data without conversion: impact on database size #
+##########################################################
+
+client.execute('drop table tests')
+client.execute('create table tests (tx Date, usr String, song String) engine=MergeTree(tx, tx, 8192)')
+
+
+for c in chunks[0:30]:
+    print('new chunk')
+    # bulk dict construction
+
+    valid_uuids = []
+    all_logs = []
+    min_dts=[]
+    max_dts=[]
+
+    for l in c:
+        pass
+        
+        f=log_dir + l
+        uuid=l[0:36]
+
+        try:
+            ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
+
+            valid_uuids.append(uuid)
+            logx = get_log_clean(f)
+
+            logx2 = [(
+                datetime.datetime.date(datetime.datetime.utcfromtimestamp(int(i[0]))),
+                uuid,
+                i[1]) for i in logx]
+            
+            min_dts.append(logx2[0][0])
+            max_dts.append(logx2[-1][0])
+            
+            all_logs = all_logs + logx2
+
+        except:
+            # print('user not in usr_info')
+            # need to log to error file
+            continue
+        
+    buckets = bucketer(all_logs, min_dts, max_dts)
+
+    for i in buckets.keys():
+        client.execute('insert into tests values', buckets[i])
+
+chunks:
+- 10: 106 vs 22: 4.81
+- 30: 343 vs 82
+
+hm see effect of duplication: throw a lot of duplicate data in there?
+- 0-30 read in twice:
+  - tests2 down to 89?? maybe wasnt finished compressing before
+  - tests: 657
+-> use abbreviated
+
+
+fake dataset: random combinations of 11 strings (long vs abbrvs), 1.1m rows:
+- 95MB vs 112 MB
+
+
+100k rows per unique entry
+real data: 5-10b rows, at least 3-5m unique entries:
+average number of some thousands per song, at most
+is highly skewed tho
+but idk if that makes much difference: means less information needed for top songs, but still has to store the 5m strings somewhere
+although, song_info not that big (3m, 134mb)
+
+abbrvs makes it also easier to id type
+
+that has much higher duplicity than i can expect (
+
+id say even 10% space savings are worth it
+
+
+##############################
+# impact of conversion on GT #
+##############################
+
+edge_list_long = client.execute('select usr, song from tests limit 5000000')
+edge_list_shrt = client.execute('select usr, song from tests2 limit 5000000')
+
+
+from graph_tool.all import *
+from graph_tool import *  
+
+
+g1 = Graph()
+ids_long = g1.add_edge_list(edge_list_long, hashed=True, string_vals=True)
+
+g1.vp.idx = ids_long
+g1.save('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/' + 'el_long.gt')
+
+
+g2 = Graph()
+ids_shrt = g2.add_edge_list(edge_list_shrt, hashed=True, string_vals=True)
+g2.vp.idx = ids_shrt
+g2.save('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/' + 'el_short.gt')
+
+- 1m: 9.3 vs 16.3 MB with 
+- 5m: 31 vs 46.3 
+
 
 
 ######################
