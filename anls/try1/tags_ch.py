@@ -547,15 +547,30 @@ for i in range(1000):
     ll2_long.append(ll2[nbr])
 
 
-ll3 = []
-ll4 = []
+client.execute('drop table tests3')
+client.execute('drop table tests4')
 
-for i in range(1000):
-    nbr1 = random.sample(range(11),1)[0]
-    nbr2 = random.sample(range(11),1)[0]
-    ll3.append([ll1[nbr1], ll1[nbr2]])
-    ll4.append([ll2[nbr1], ll2[nbr2]])
+client.execute('create table tests3 (usr String, song String, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
+
+client.execute('create table tests4 (usr String, song String, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
+
+
+for k in range(100):
+    print(k)
+    ll3 = []
+    ll4 = []
+
+    for i in range(10000):
+        nbr1 = random.sample(range(11),1)[0]
+        nbr2 = random.sample(range(11),1)[0]
+        ll3.append([ll1[nbr1], ll1[nbr2], nbr1])
+        ll4.append([ll2[nbr1], ll2[nbr2], nbr1])
+
+    client.execute('insert into tests3 values', ll3)
+    client.execute('insert into tests4 values', ll4)
 
 
 print(total_size(ll3))
 print(total_size(ll4))
+
+
