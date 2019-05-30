@@ -5,6 +5,10 @@ import argparse
 import os
 import re
 from calendar import monthrange
+import pylast
+import musicbrainzngs
+musicbrainzngs.set_useragent('tagler', 0.1, 'lel')
+
 
 # mbid = '94a2a5ba-390d-4dd9-9f69-3e314f8b9d98'
 # mbid= '0e37764b-0726-4a15-8c16-abc07c4ea033'
@@ -16,7 +20,96 @@ mbid2 = musicbrainzngs.get_recording_by_id(failed[300])['recording']['id']
 mbid = mbid2
 
 # for i in dones[:50]:
-for i in failed[:50]:    
+
+
+def get_lfm_fulls_from_mlhd(idx):
+# fulls: opposite to mbid
+    str1="http://ws.audioscrobbler.com/2.0/?method="
+    str2='track' + ".getInfo&mbid="    
+    str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
+
+    qry = str1 + str2 + idx + str4
+
+    resp_raw = requests.get(qry)
+    resp_dict = resp_raw.json()
+
+    return(resp_dict)
+
+
+def get_mb_inf(idx):
+    mb_inf = musicbrainzngs.get_recording_by_id(idx, includes=['releases', 'artists'])
+    return(mb_inf)
+
+API_KEY = "6ff51b99224a1726d47f686d7fcc8083"
+API_SECRET="1ba59bdc2b860b8c9f52ac650e3cb6ab"
+network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
+
+song = network.get_track_by_mbid(i)
+song.get_top_tags()
+
+# also two steps, but less danger of interfereence?
+# need to tests with failed
+# -> can't find failed ones either
+# is there a difference between using MB mbid and mb name/title?
+
+
+for i in dones[20:80]:
+    try:
+        
+        # song= network.get_track_by_mbid(i)
+        mb_inf = get_mb_inf(i)
+        idx = mb_inf['recording']['id']
+        mb_title = mb_inf['recording']['title']
+        mb_artst = mb_inf['recording']['artist-credit'][0]['artist']['name']
+
+        song= network.get_track_by_mbid(idx)
+        song2 = network.get_track_by_mbid(i)
+        # song2 = network.get_track(mb_artst, mb_title)
+        print(i==idx, song==song2)
+
+        # should i just focus on getting corrected mbid
+        # or also consider MB name/title? 
+
+        # print(song.titlen)
+    except:
+        print('song not found')
+        pass
+# see if mlhd id and mb id lead to same snog even if not identical
+# so far looks like it
+
+# if so: can go with MB by default?
+# idk: what if lfm has it but MB not
+# also the way still needs two requests for tags
+# -> use lfm when possible, MB if lfm breaks, "no song" else
+
+# WRONG: always have to call MB to get release date
+# lfm only useful if MB no work
+# then i have incomplete information (no release date)
+# gonna have incomplete information sometimes anyways (no release dates)
+
+# first MB: has to return MBID and date 
+# if fails: date = 'no date'
+# try lfm: 
+
+def first(flist, default=None):
+    for f in flist:
+            try:
+                return f()
+            except:
+                continue
+        else:
+            return 'song not found'
+
+
+
+def check_lfm(mbid):
+    song = network.get_track_by_mbid(mbid)
+    return(song)
+
+def check_mbz(mbid):
+    
+
+for i in dones[:50]:    
     # print(i)
     mb_inf = musicbrainzngs.get_recording_by_id(i, includes=['releases', 'artists'])
     rls_dt = date_prcsr(mb_inf['recording']['release-list'])
@@ -30,14 +123,28 @@ for i in failed[:50]:
     resp_raw = requests.get(lfm_qry_mlhd_id)
     resp_dict = resp_raw.json()
 
+    iss.append(i)
+
     try: 
         lfm_artst_name = resp_dict['track']['artist']['name']
         lfm_title = resp_dict['track']['name']
         lfm_mbid = resp_dict['track']['mbid']
+
+        lfm_mbids.append(lfm_mbid)
+
+        lfm_qry = str1 + str2 + i + str4
+        resp_raw = requests.get(lfm_qry)
+        resp_dict = resp_raw.json()
+
+        lfm_id2 = resp_dict['track']['mbid']
+        lfm_mbids2.append(lfm_id2)
+
+        
     except:
         lfm_artst_name = 'mlhd id no work'
         lfm_title = 'mlhd id no work'
         lfm_mbid = 'mlhd id no work'
+        lfm_mbids.append('mlhd id no work')
 
     lfm_qry_mb_mbid = str1 + str2 + mb_mbid + str4
     
@@ -71,7 +178,9 @@ for i in failed[:50]:
     print(lfm_artst_name)
     print(mb_lfm_artst_name)
     print('===============')
-    
+
+# are there differences between i and lfm_mbid if i works?
+# yup
     
 
 # print(len(mb_inf['recording']['artist-credit']))
@@ -83,54 +192,43 @@ for i in failed[:50]:
 # -> need to run both then
 # not too difficult tho
 
-differences in mbids mostly between (1,2) and (3,4)
+# differences in mbids mostly between (1,2) and (3,4)
 
-exception for dones
-36e59810-b023-4cd7-ac63-ec4efda7db0c
-656bc0a1-4506-4a4a-bc1b-924311bd8e1e
-07457bc3-c8fe-442e-98e5-3e6cae9b7f5b
-07457bc3-c8fe-442e-98e5-3e6cae9b7f5b
-
-
-need to improve for failed
-can happen that neither mlhd nor mb works
-crash when mb mbid not even found
--> need to be flexible
-
-need to see in how many cases mb mbid works but mlhd does not
+# exception for dones
+# 36e59810-b023-4cd7-ac63-ec4efda7db0c
+# 656bc0a1-4506-4a4a-bc1b-924311bd8e1e
+# 07457bc3-c8fe-442e-98e5-3e6cae9b7f5b
+# 07457bc3-c8fe-442e-98e5-3e6cae9b7f5b
 
 
+# need to improve for failed
+# can happen that neither mlhd nor mb works
+# crash when mb mbid not even found
+# -> need to be flexible
 
+# need to see in how many cases mb mbid works but mlhd does not
 
-
-str1="http://ws.audioscrobbler.com/2.0/?method="
-str2='track' + ".getInfo&mbid="    
-str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
-
-
-
-
-print('----------------------------------------------')
+# print('----------------------------------------------')
     
-musicbrainzngs.get_recording_by_id(mbid2)['recording']['id']
+# musicbrainzngs.get_recording_by_id(mbid2)['recording']['id']
 
-musicbrainzngs.get_recording_by_id('8fed0a52-988a-4701-8219-ca395400caae')
+# musicbrainzngs.get_recording_by_id('8fed0a52-988a-4701-8219-ca395400caae')
 
 
-mbid='27608c0c-a89b-402d-a809-5748e72a5e82'
-mbid='82a07882-13cf-4ea3-9d6c-6dd66e87fe63'
-----------------------------------------------
-mbid='36e59810-b023-4cd7-ac63-ec4efda7db0c'
-mbid='656bc0a1-4506-4a4a-bc1b-924311bd8e1e'
-mbid='07457bc3-c8fe-442e-98e5-3e6cae9b7f5b'
-----------------------------------------------
-457d0b8d-7970-4783-a480-6fea64596502
-ec9ad7d2-a12d-4e33-9404-55eae3e9b619
+# mbid='27608c0c-a89b-402d-a809-5748e72a5e82'
+# mbid='82a07882-13cf-4ea3-9d6c-6dd66e87fe63'
+# ----------------------------------------------
+# mbid='36e59810-b023-4cd7-ac63-ec4efda7db0c'
+# mbid='656bc0a1-4506-4a4a-bc1b-924311bd8e1e'
+# mbid='07457bc3-c8fe-442e-98e5-3e6cae9b7f5b'
+# ----------------------------------------------
+# 457d0b8d-7970-4783-a480-6fea64596502
+# ec9ad7d2-a12d-4e33-9404-55eae3e9b619
 
-i think i need more song information
-mbid mlhd
-mbid mb
-mbid lfm
+# i think i need more song information
+# mbid mlhd
+# mbid mb
+# mbid lfm
 
 # name mb
 # name lfm
@@ -464,113 +562,16 @@ if __name__ == '__main__':
 
 
 
+iss = []
+lfm_mbids = []
+lfm_mbids2 = []
 
 
+for i in zip(iss, lfm_mbids, lfm_mbids2):
+    print(i[0])
+    print(i[1])
+    print(i[2])    
+    print('--------')
 
-from __future__ import print_function
-from sys import getsizeof, stderr
-from itertools import chain
-from collections import deque
-try:
-    from reprlib import repr
-except ImportError:
-    pass
-
-
-def total_size(o, handlers={}, verbose=False):
-    """ Returns the approximate memory footprint an object and all of its contents.
-
-    Automatically finds the contents of the following builtin containers and
-    their subclasses:  tuple, list, deque, dict, set and frozenset.
-    To search other containers, add handlers to iterate over their contents:
-
-        handlers = {SomeContainerClass: iter,
-                    OtherContainerClass: OtherContainerClass.get_elements}
-
-    """
-    dict_handler = lambda d: chain.from_iterable(d.items())
-    all_handlers = {tuple: iter,
-                    list: iter,
-                    deque: iter,
-                    dict: dict_handler,
-                    set: iter,
-                    frozenset: iter,
-                   }
-    all_handlers.update(handlers)     # user handlers take precedence
-    seen = set()                      # track which object id's have already been seen
-    default_size = getsizeof(0)       # estimate sizeof object without __sizeof__
-
-    def sizeof(o):
-        if id(o) in seen:       # do not double count the same object
-            return 0
-        seen.add(id(o))
-        s = getsizeof(o, default_size)
-
-        if verbose:
-            print(s, type(o), repr(o), file=stderr)
-
-        for typ, handler in all_handlers.items():
-            if isinstance(o, typ):
-                s += sum(map(sizeof, handler(o)))
-                break
-        return s
-
-    return sizeof(o)
-
-
-##### Example call #####
-
-# if __name__ == '__main__':
-#     d = dict(a=1, b=2, c=3, d=[4,5,6,7], e='a string of chars')
-#     print(total_size(d, verbose=True))
-
-
-print(total_size(ll1_long[0:499]))
-print(total_size(ll1_long[500:999]))
-print(total_size(ll1_long))
-print(total_size(ll2_long))
-
-    
-
-ll1=["07b81a14-106d-4dbe-b27d-2545a0d17268","07b2a832-05f3-45b9-a497-55bcdbd1b4e8","466e5582-6f79-4acd-91f0-c39f0bd46bf6","876058ae-8354-4492-a237-9ef9f0b3e6b7","0a392f1f-61b7-43bd-81f1-de7789d1d26c","2b783759-4cf1-462c-8810-312e04276533","73be27de-1be1-4f16-850e-a8ec35d9a1e1","09b40797-8c14-4867-a59d-1495655685ab","036cb655-c6d6-4dc0-8b98-1cd45cd9cee2","d57d9536-a186-413d-9df4-6723ee5577a6","c2bdabae-8f35-456b-bf9b-68e861da7988"]
-
-ll2=["s141","s145","s146","s181","s194","s219","s232","s244","s245","s259","s266"]
-
-
-ll1_long = []
-ll2_long = []
-
-for i in range(1000):
-    nbr = random.sample(range(11),1)[0]
-
-    ll1_long.append(ll1[nbr])
-    ll2_long.append(ll2[nbr])
-
-
-client.execute('drop table tests3')
-client.execute('drop table tests4')
-
-client.execute('create table tests3 (usr String, song String, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
-
-client.execute('create table tests4 (usr String, song String, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
-
-
-for k in range(100):
-    print(k)
-    ll3 = []
-    ll4 = []
-
-    for i in range(10000):
-        nbr1 = random.sample(range(11),1)[0]
-        nbr2 = random.sample(range(11),1)[0]
-        ll3.append([ll1[nbr1], ll1[nbr2], nbr1])
-        ll4.append([ll2[nbr1], ll2[nbr2], nbr1])
-
-    client.execute('insert into tests3 values', ll3)
-    client.execute('insert into tests4 values', ll4)
-
-
-print(total_size(ll3))
-print(total_size(ll4))
-
-
+[print(i[0]==i[1]) for i in zip(lfm_mbids, lfm_mbids2)]
+# -> no need to check mbid that lfm produces back in, those always point to themselves
