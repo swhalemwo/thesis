@@ -4,6 +4,8 @@ import argparse
 # from clickhouse_driver import Client
 import os
 import re
+import datetime
+from datetime import timedelta
 from calendar import monthrange
 import pylast
 import musicbrainzngs
@@ -45,7 +47,14 @@ API_SECRET="1ba59bdc2b860b8c9f52ac650e3cb6ab"
 network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
 
 song = network.get_track_by_mbid(i)
-song.get_top_tags()
+song_tags = song.get_top_tags()
+
+def tptg_prcs(song_tags, mbid):
+    # not clear what
+    tag_list = []
+    for k in song_tags:
+        tag_list.append([mbid, k.item.name, int(k.weight)])
+            
 
 # also two steps, but less danger of interfereence?
 # need to tests with failed
@@ -89,7 +98,9 @@ for i in dones[20:80]:
 
 # first MB: has to return MBID and date 
 # if fails: date = 'no date'
-# try lfm: 
+# try lfm:
+
+
 
 def first(flist, default=None):
     for f in flist:
@@ -111,8 +122,11 @@ def check_mbz(mbid):
 
 for i in dones[:50]:    
     # print(i)
+    # i=dones[47]
     mb_inf = musicbrainzngs.get_recording_by_id(i, includes=['releases', 'artists'])
     rls_dt = date_prcsr(mb_inf['recording']['release-list'])
+    print(rls_dt)
+
     mb_mbid = mb_inf['recording']['id']
 
     mb_title = mb_inf['recording']['title']
@@ -236,35 +250,48 @@ for i in dones[:50]:
 # artist name mb
 # artist name lfm
 
-album
-- name mb
-- 
-album is 
+# album
+# - name mb
+# - 
+# album is 
 
-release data would be nice
-but there are 20 of those
-want to get first
-but some just have year
-if youngest is just a year and i set that to year-12-31
-i can get spike at new years
+# release data would be nice
+# but there are 20 of those
+# want to get first
+# but some just have year
+# if youngest is just a year and i set that to year-12-31
+# i can get spike at new years
+# add resolution of date, allows to filter more 
 
 # need to check for how many that's the case
 
 
-rls_lst = x['recording']['release-list']
-rls_lst = mb_inf['recording']['release-list']
+
+# rls_lst = x['recording']['release-list']
+rls_lst = mb_inf['recording']['release-list']7
+# time difference between min_ttl and min of highest res? 
 
 
 date_prcsr(rls_lst)
 
 def date_prcsr(rls_lst):
-
+    """Takes list of releases, returns 
+    - earliest date (9999-9-9 if no date)
+    - level with highest resolution (0 if no date)
+    - highest resolution of earliest date (-1 if no date)
+    - if earliest date earlier than higher resolved date: time difference between earliest and highest resolved date (0 if no date or if highest resolved date is earliest)
+    - length of release list
+    - length of release list with dates
+    """
+    
+    # add number of releases? 
     rlss_long=[]
     rlss_medm=[]
     rlss_shrt=[]
 
+    len_rls_lst_ttl = len(rls_lst)
+    
     for i in rls_lst:
-
         try:
             dt = i['date']
 
@@ -274,8 +301,6 @@ def date_prcsr(rls_lst):
                 rlss_long.append(dttm)
 
             if len(dt) == 7:
-
-                
                 dt2 = [int(i) for i in dt.split('-')]
                 max_days = monthrange(dt2[0], dt2[1])[1]
                 
@@ -294,72 +319,38 @@ def date_prcsr(rls_lst):
     if len(rlss_long) > 0: lowest_lvl=3
 
     if lowest_lvl ==0:
-        min_ttl = 'no date'
+        min_ttl = datetime.datetime(9999,9,9)
+        max_mbrshp = -1
+        len_rls_dts = 0
+        tdiff = 0
+        # not sure what best default value is: could be e.g. -1, 0, 99
     else:
         all_dts = rlss_long + rlss_medm + rlss_shrt
-
         min_ttl = min(all_dts)
 
-        ttl_mins = []
-
-        if len(rlss_long) > 0:
-            min_rlss_long = min(rlss_long)
-            ttl_mins.append(min_rlss_long)
-        else:
-            ttl_mins.append(datetime.datetime(3000,1,1))
-
-        if len(rlss_medm) > 0:
-            min_rlss_medm = min(rlss_medm)
-            ttl_mins.append(min_rlss_medm)
-        else:
-            ttl_mins.append(datetime.datetime(3000,1,1))
-
-        if len(rlss_shrt) > 0:
-            min_rlss_shrt = min(rlss_shrt)
-            ttl_mins.append(min_rlss_shrt)
-        else:
-            ttl_mins.append(datetime.datetime(3000,1,1))
-
-        ttl_min = min(ttl_mins)
+        len_rls_dts = len(all_dts)
 
         buckets = [rlss_shrt, rlss_medm, rlss_long]
 
-        ttl_min_mbrshps = []
+        min_ttl_mbrshps = []
         cntr = 1
         for i in buckets:
-            if ttl_min in i:
-                ttl_min_mbrshps.append(cntr)
-
+            if min_ttl in i:
+                min_ttl_mbrshps.append(cntr)
             cntr +=1
 
-        if max(ttl_min_mbrshps) > lowest_lvl:
+        tdiff = 0 
+
+        max_mbrshp = max(min_ttl_mbrshps)
+
+        if max_mbrshp < lowest_lvl:
+            tdiff = min_ttl - min(buckets[lowest_lvl-1])
+            tdiff=tdiff.days
+
             print("DATE ISSUE")
-            # maybe add some return thing
-
-    return(min_ttl)
-
-    # cntr =0
-    # ttl_min_indxs = []
-    # for i in ttl_mins:
-    #     if i == ttl_min:
-    #         ttl_min_indxs.append(cntr)
-    #     cntr +=1
-
-    # min_ttl = min(min(rlss_long), min(rlss_shrt))
-
-
-
-
-
-    # pointless, can't think of it anymore,
-    # needs to be something more elegant to test whether time issue is present
-
-    # tadaa
-    # level of min > highest level -> problem!
-    # need to make it clear which level date comes from
-
-    # check all buckets in which ttl_min is in
-    # 
+            # maybe add some return thing: return both max(min_ttl_mbrshps) and lowest level
+            
+    return([min_ttl, lowest_lvl, max_mbrshp, tdiff, len_rls_dts, len_rls_lst_ttl])
 
 
 
@@ -392,6 +383,10 @@ def get_tags(mbid):
 
     return(rtrn)
 
+
+
+
+
 def proc_tags(resp_dict, mbid):
     # mbid_name = resp_dict['toptags']['@attr'][mbid_type]
     # name = resp_dict['toptags']['@attr']['artist']
@@ -413,38 +408,46 @@ def proc_tags(resp_dict, mbid):
 
 
 def check_resp(resp_dict, mbid):
-        if list(resp_dict.keys())[0] == 'error':
-            print('oopsie woopsie! ' + str(resp_dict['error']), resp_dict['message'], mbid)
+    """Checks a song resp dict from lfm API for all kinds of errors:
+    - song not found
+    - no tags
+    - & in artist or song name """
+    
+    if list(resp_dict.keys())[0] == 'error':
+        print('oopsie woopsie! ' + str(resp_dict['error']), resp_dict['message'], mbid)
 
-            # c.execute('INSERT OR IGNORE INTO failed (mbid) VALUES (?)', (mbid,))
-            insert_failed(mbid)
-            good=0
-            # conn.commit()
+        # c.execute('INSERT OR IGNORE INTO failed (mbid) VALUES (?)', (mbid,))
+        insert_failed(mbid)
+        good=0
+        # conn.commit()
 
-        elif list(resp_dict.keys())[0]== 'toptags' and len(resp_dict['toptags']['tag']) ==0:
-            print('oopsie woopsie! no tags!', mbid)
-            insert_failed(mbid)
-            # c.execute('INSERT OR IGNORE INTO failed (mbid) VALUES (?)', (mbid,))
-            good=0
+    elif list(resp_dict.keys())[0]== 'toptags' and len(resp_dict['toptags']['tag']) ==0:
+        print('oopsie woopsie! no tags!', mbid)
+        insert_failed(mbid)
+        # c.execute('INSERT OR IGNORE INTO failed (mbid) VALUES (?)', (mbid,))
+        good=0
 
-        elif re.search('&', resp_dict['track']['artist']['name']) is not None:
-            good = 0
+    elif re.search('&', resp_dict['track']['artist']['name']) is not None:
+        good = 0
 
-        elif re.search('&', resp_dict['track']['name']) is not None:
-            good = 0
-            
-        else:
-            good=1
-        return(good)
+    elif re.search('&', resp_dict['track']['name']) is not None:
+        good = 0
+
+    else:
+        good=1
+    return(good)
+
 
 def insert_failed(mbid):
+    "Inserts failed mbids into failed file"
+    
     with open(FAILED_FILE, 'a') as fo:
         wr = csv.writer(fo)
         wr.writerow([mbid])
 
 
 def get_todos(chunk_nbr, xisting):
-
+    "Get mbids for which to get tags"
     with open(chunk_dir + chunk_nbr) as fi:
         rdr = csv.reader(fi)
         tags_todo = [i[0] for i in rdr]
@@ -454,6 +457,7 @@ def get_todos(chunk_nbr, xisting):
     return(tags_todo2)
 
 def get_xisting(chunk_nbr):
+    "Gets mbids that have been checked alread (either done or failed)"
     with open(chunk_dir + chunk_nbr + '_failed.csv', 'r') as fi:
         rdr = csv.reader(fi)
         failed = [i[0] for i in rdr]
@@ -467,8 +471,6 @@ def get_xisting(chunk_nbr):
         return(xisting)
 
 # SETUP on runtime
-
-
 # chunk_nbr = '1'
 
 
@@ -557,11 +559,6 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-
 iss = []
 lfm_mbids = []
 lfm_mbids2 = []
@@ -575,3 +572,54 @@ for i in zip(iss, lfm_mbids, lfm_mbids2):
 
 [print(i[0]==i[1]) for i in zip(lfm_mbids, lfm_mbids2)]
 # -> no need to check mbid that lfm produces back in, those always point to themselves
+
+
+###################################
+# some stuff from date processing #
+###################################
+# ttl_mins = []
+
+# if len(rlss_long) > 0:
+#     min_rlss_long = min(rlss_long)
+#     ttl_mins.append(min_rlss_long)
+# else:
+#     ttl_mins.append(datetime.datetime(3000,1,1))
+
+# if len(rlss_medm) > 0:
+#     min_rlss_medm = min(rlss_medm)
+#     ttl_mins.append(min_rlss_medm)
+# else:
+#     ttl_mins.append(datetime.datetime(3000,1,1))
+
+# if len(rlss_shrt) > 0:
+#     min_rlss_shrt = min(rlss_shrt)
+#     ttl_mins.append(min_rlss_shrt)
+# else:
+#     ttl_mins.append(datetime.datetime(3000,1,1))
+
+# ttl_min = min(ttl_mins)
+
+
+# NOTES FROM DATE PROCESSING
+# cntr =0
+# ttl_min_indxs = []
+# for i in ttl_mins:
+#     if i == ttl_min:
+#         ttl_min_indxs.append(cntr)
+#     cntr +=1
+
+# min_ttl = min(min(rlss_long), min(rlss_shrt))
+
+
+
+
+# pointless, can't think of it anymore,
+# needs to be something more elegant to test whether time issue is present
+
+# tadaa
+# level of min > highest level -> problem!
+# need to make it clear which level date comes from
+
+# check all buckets in which ttl_min is in
+# 
+
