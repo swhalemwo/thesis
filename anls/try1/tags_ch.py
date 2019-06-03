@@ -158,11 +158,17 @@ def get_mb_inf(idx):
 
 def tptg_prcs(song, mbid):
     """filters tags and weights out of song object"""
-    song_tags = song.get_top_tags()
-    tag_list = []
-    for k in song_tags:
-        tag_list.append([mbid, k.item.name, int(k.weight)])
-    return(tag_list)
+    try:
+        song_tags = song.get_top_tags()
+        tag_list = []
+        for k in song_tags:
+            tag_list.append([mbid, k.item.name, int(k.weight)])
+        return(tag_list)
+
+    except:
+        print(mbid, "SUPER WRONG")
+        return([])
+        
 # could partition tags table with weight, that will be a primary thing to sort on 
 
 
@@ -236,8 +242,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     chunk_nbr = str(args.chunk_nbr)
-    # client = Client(host='localhost', password='anudora', database='frrl')
-    # mbid_abbrv_dict=get_db_songs()    
+    # chunk_nbr = '1'
+    client = Client(host='localhost', password='anudora', database='frrl')
+    mbid_abbrv_dict=get_db_songs()
 
     chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/'
     FAILED_FILE = chunk_dir + chunk_nbr + '_failed.csv'
@@ -254,7 +261,6 @@ if __name__ == '__main__':
 
     xisting = get_xisting(chunk_nbr)
     todos = get_todos(chunk_nbr, xisting)
-
 
     for i in todos:
     # for i in failed:
@@ -836,3 +842,11 @@ if __name__ == '__main__':
 
 #         xisting = dones + failed
 #         return(xisting)
+
+# import json
+# with open("/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/mbid_abbrv_dict.json", 'r') as fo:
+#     xxx = json.load(fo)
+    
+#     json.dump(mbid_abbrv_dict, fo)
+
+
