@@ -8,6 +8,10 @@ from datetime import timedelta
 from calendar import monthrange
 import musicbrainzngs
 musicbrainzngs.set_useragent('mbid_correcter', 0.1, 'johannes.aengenheyster@student.uva.nl')
+import pylast
+API_KEY = "6ff51b99224a1726d47f686d7fcc8083"
+API_SECRET="1ba59bdc2b860b8c9f52ac650e3cb6ab"
+network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
 
 
 def date_prcsr(rls_lst):
@@ -111,7 +115,7 @@ def get_xisting(chunk_nbr):
     return(xisting)    
         
 
-def save_dones(mbid):
+def insert_dones(mbid):
     with open (DONES_FILE, 'a') as fo:
         wr = csv.writer(fo)
         wr.writerow([mbid])
@@ -132,6 +136,43 @@ def insert_failed(mbid):
         wr.writerow([mbid])
 
 
+def save_xpgs(prntrow):
+    with open(XPGS, 'a') as fo:
+        wr = csv.writer(fo)
+        wr.writerow(prntrow)
+
+def mb_fail_handle(i):
+    try:
+        song = network.get_track_by_mbid(i)
+        # don't want to have second entries that are not callable by MB
+
+        try:
+            # try to process back in with MB
+            i2 = song.get_mbid()
+            mb_inf2 = get_mb_inf(i2)
+            idx = mb_inf2['recording']['id']
+            a = mb_inf2['recording']['artist-credit'][0]['artist']['name']
+            t = mb_inf2['recording']['title']
+
+            rls_info = date_prcsr(mb_inf2['recording']['release-list'])
+            rls_info[0] = rls_info[0].strftime('%Y-%m-%d')
+
+            prntrow = [i, idx, a, t] + rls_info
+            save_addgs(prntrow)
+            insert_dones(i)
+
+        except:
+            # if lfm song obj can be retrieved, but mbid not workings for MB: save as exception in separate file
+            t=song.title
+            a=song.artist.name
+
+            prntrow = [i, a, t]
+            save_xpgs(prntrow)
+            insert_dones(i)
+
+    except:
+        insert_failed(i)
+        insert_dones(i)
 
 
 if __name__ == '__main__':
@@ -147,21 +188,24 @@ if __name__ == '__main__':
     FAILED_FILE = chunk_dir + chunk_nbr + '_failed.csv'
     ADDGS = chunk_dir + chunk_nbr + '_addgs.csv'
     DONES_FILE = chunk_dir + chunk_nbr + '_dones.csv'
-
+    XPGS = chunk_dir + chunk_nbr + '_xpgs.csv'
 
     open(FAILED_FILE, 'a')
     open(ADDGS, 'a')
+    open(DONES_FILE, 'a')
+    open(XPGS, 'a')
 
     xisting = get_xisting(chunk_nbr)
     todos = get_todos(chunk_nbr, xisting)
 
     for i in todos:
+    # for i in super_failed:
         try:
             mb_inf = get_mb_inf(i)
+            # print('suddenly werks??')
         except:
-            save_addgs(i, ['mb retrieval failed'], None, 0)
-            insert_failed(i)
-            continue
+            mb_fail_handle(i)
+
 
         idx = mb_inf['recording']['id']
         a = mb_inf['recording']['artist-credit'][0]['artist']['name']
@@ -170,15 +214,55 @@ if __name__ == '__main__':
         rls_info = date_prcsr(mb_inf['recording']['release-list'])
         rls_info[0] = rls_info[0].strftime('%Y-%m-%d')
 
-        a = 'billy & the news'
-
         prntrow = [i, idx, a, t] + rls_info
         save_addgs(prntrow)
+        insert_dones(i)
 
 
-with open(ADDGS, 'r') as fi:
-    rdr =csv.reader(fi)
-    res = [row for row in rdr]
-        
-        
+# hm wonder if those where retrieval failed should be in addgs
+# check for them using lfm api 
+# those that fail that get into failed, those that don't into addgs
 
+# with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/1_failed.csv', 'r') as fi:
+#     rdr = csv.reader(fi)
+#     super_failed = [row[0] for row in rdr]
+
+# sp_fail_skes = []
+
+# for i in super_failed:
+#     try:
+#         network.get_track_by_mbid(i)
+#         print('success')
+#         sp_fail_skes.append(i)
+#     except:
+#         print('fail')
+#         pass
+
+# hm maybe 20-33% of songs that don't exist in MB exist in LFM
+# could pass all the default values from date_prcsr (9999)
+
+
+# for i in sp_fail_skes:
+#     sx = network.get_track_by_mbid(i)
+#     i2 = sx.get_mbid()
+#     try:
+#         get_mb_inf(i2)
+#         print('work')
+#     except:
+#         print('fail')
+#         pass
+
+
+
+###############################################
+# some testing with results of error_handling #
+###############################################
+# work
+# https://musicbrainz.org/ws/2/recording/144133c0-dd21-4cba-9946-d735dee5b473?inc=artists+releases&fmt=json
+# # no work
+# https://musicbrainz.org/ws/2/recording/042ad6f4-4ac6-4b3a-894f-a55459438157?inc=artists+releases&fmt=json
+
+# # work
+# https://acousticbrainz.org/api/v1/low-level?recording_ids=144133c0-dd21-4cba-9946-d735dee5b473
+# # no work
+# https://acousticbrainz.org/api/v1/low-level?recording_ids=042ad6f4-4ac6-4b3a-894f-a55459438157
