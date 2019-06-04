@@ -96,7 +96,8 @@ with urllib.request.urlopen(url) as url2:
 
 
 def batch_prepper(batch):
-    base_str = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='
+    # base_str = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='
+    base_str = 'https://acousticbrainz.org/api/v1/low-level?recording_ids='
     cntr = 0
     batch_str = ""
     for i in batch:
@@ -132,12 +133,23 @@ for i in some_mbids:
     if len(batch) > 40:
         break
         batch_str=batch_prepper(batch)
-        
+
         # put into own function later
-        with urllib.request.urlopen(batch_str) as url2:
+
+    # t1 = time.time()
+    # for p in range(200):
+        with urllib.request.urlopen(batch_str2) as url2:
             data2 = json.loads(url2.read().decode())
 
+    #     print(len(data2))
+    # t2 = time.time()
 
+
+# maximum torture, but seems to be working?
+# even with low -level still only needs ~2 sec for 31
+# much faster with high level
+
+    
 indirects=[]
 skes = []
 fails =[]
@@ -198,6 +210,12 @@ def fail_proc(j):
 # data[i]['0']['highlevel'].keys()
 # data[i]['0']['highlevel']['timbre']['all']['bright']
 
+url = 'https://acousticbrainz.org/api/v1/low-level?recording_ids=' +i
+with urllib.request.urlopen(url) as url2:
+    ll_data = json.loads(url2.read().decode())
+
+
+
 ####### high level stuff
 # https://acousticbrainz.org/datasets/accuracy#genre_dortmund
 danceability: 0-1 (probability same)
@@ -218,6 +236,148 @@ moods_mirex: 5 clusters (passionate, cheerful, literate, humerous, aggressive)
 timbre:  0-1
 tonal_atonal: 0-1
 voice_instrumental: 0-1
+
+
+####### lowlevel stuff
+# lowlevel:
+
+# average_loudness
+# barkbands
+# barkbands_crest
+# barkbands_flatness_db
+# barkbands_kurtosis
+# barkbands_skewness
+# barkbands_spread
+# dissonance
+# dynamic_complexity
+# erbbands
+# erbbands_crest
+# erbbands_flatness_db
+# erbbands_kurtosis
+# erbbands_skewness
+# erbbands_spread
+# gfcc
+# hfc
+# melbands
+# melbands_crest
+# melbands_flatness_db
+# melbands_kurtosis
+# melbands_skewness
+# melbands_spread
+# mfcc
+# pitch_salience
+# silence_rate_20dB
+# silence_rate_30dB
+# silence_rate_60dB
+# spectral_centroid
+# spectral_complexity
+# spectral_contrast_coeffs
+# spectral_contrast_valleys
+# spectral_decrease
+# spectral_energy
+# spectral_energyband_high
+# spectral_energyband_low
+# spectral_energyband_middle_high
+# spectral_energyband_middle_low
+# spectral_entropy
+# spectral_flux
+# spectral_kurtosis
+# spectral_rms
+# spectral_rolloff
+# spectral_skewness
+# spectral_spread
+# spectral_strongpeak
+# zerocrossingrate
+
+relevant: average loudness?
+
+
+###### metadata
+### audio_properties
+
+# analysis_sample_rate
+# bit_rate
+# codec
+# downmix
+# equal_loudness
+# length
+# lossless
+# md5_encoded
+# replay_gain
+dont think much good for anything
+
+#### tags
+# album
+# albumartistsort
+# artist
+# artistsort
+# asin
+# barcode
+# catalognumber
+# date
+# discnumber
+# encodedby
+# file_name
+# label
+# musicbrainz_albumartistid
+# musicbrainz_albumid
+# musicbrainz_artistid
+# musicbrainz_recordingid
+# title
+# tracknumber
+# also kinda useless
+# can't use it as a name api because too much missing
+
+### version
+# so useless it's not worth printing
+
+###### rhythm
+beats_count
+beats_loudness
+beats_loudness_band_ratio
+beats_position
+bpm
+bpm_histogram_first_peak_bpm
+bpm_histogram_first_peak_spread
+bpm_histogram_first_peak_weight
+bpm_histogram_second_peak_bpm
+bpm_histogram_second_peak_spread
+bpm_histogram_second_peak_weight
+danceability
+onset_rate
+
+relevant:
+- beats count
+- bpm
+- danceability: atm greater than 1
+
+
+#### tonal
+chords_changes_rate
+chords_histogram
+chords_key
+chords_number_rate
+chords_scale
+chords_strength
+hpcp
+hpcp_entropy
+key_key
+key_scale
+key_strength
+thpcp
+tuning_diatonic_strength
+tuning_equal_tempered_deviation
+tuning_frequency
+tuning_nontempered_energy_ratio
+
+relevant:
+- chords_changes_rate
+- chords_key
+- chords_number_rate ??
+
+# no idea what any of this shit means?
+# maybe i should just save the dicts entirely and try to make sense of them later?
+
 
 
 
