@@ -37,7 +37,7 @@ url="https://acousticbrainz.org/api/v1/high-level?recording_ids=c69310f9-e2e5-4f
 # had to rewrite tag retrieval script: split, also store mbid
 
 
-with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split/4_addgs.csv', 'r') as fi:
+with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_addgs.csv', 'r') as fi:
     rdr = csv.reader(fi)
     some_mbids = [i[0:2] for i in rdr]
 
@@ -110,25 +110,12 @@ def batch_prepper(batch):
 
 
 
-# calling with 9: return5, seemingly random order (1,3,4,6,9)
-# could just be those that work?
-# yup
-# seems possible to get input of 48 max
-# yup: 49 breaks it even when all valid -> batches of 48
-
-# that poor api omg
-
-# if i[0] != i[1]: send both
-
-# need way to manage mlhd ids
-
 batch = []
 mlhd_ids = []
 
 pointers = {}
 
 for i in some_mbids:
-
     
     if i[0] == i[1]:
         batch.append(i[0])
@@ -140,91 +127,99 @@ for i in some_mbids:
         mlhd_ids.append(i[0])
 
         pointers[i[0]] = i[1]
-        pointers[i[1]] = i[0]
+        # pointers[i[1]] = i[0]
 
     if len(batch) > 40:
+        break
         batch_str=batch_prepper(batch)
         
         # put into own function later
         with urllib.request.urlopen(batch_str) as url2:
             data2 = json.loads(url2.read().decode())
 
-        for i in mlhd_ids:
 
-            # first easy case: i not in pointers
-            if i not in pointers.keys():
-            
-                if i in data2.keys():
-                    print('gotcha')
+indirects=[]
+skes = []
+fails =[]
 
-                else:
-                    print('fail')
+def batch_procr(data2, mlhd_ids, pointers):
+    for i in mlhd_ids:
 
-            # more difficult cases: uneqs -> 4 cases: both, neither, 01, 10
-            # i = list(pointers.keys())[2]
-            if i in pointers.keys():
-                k = pointers[i]
+        # first easy case: i not in pointers
+        if i not in pointers.keys():
 
-                i_stat = i in data2.keys()
-                k_stat = k in data2.keys()
+            if i in data2.keys():
+                print('gotcha')
+                skes_proc(i, None)
 
-                if i_stat = True and k_stat = True:
-                if i_stat = True and k_stat = False:
-                if i_stat = False and k_stat = True:
-                if i_stat = False and k_stat = False:
-                # idk if that's efficient, i'm getting tired
-                
-                
-                
-            if i in mlhd
+            else:
+                fail_proc(i)
+                print('fail')
 
-        # break
+        # more difficult cases: uneqs -> 4 cases: both, neither, 01, 10
+        # i = list(pointers.keys())[2]
+        # if i in pointers.keys():
+        else:
+            v = pointers[i]
+
+            i_stat = i in data2.keys()
+            v_stat = v in data2.keys()
+
+            if i_stat == True and v_stat == True: skes_proc(i, None)
+            if i_stat == True and v_stat == False: skes_proc(i, None)
+            if i_stat == False and v_stat == True:
+                print(i, v)
+                indirects.append(i)
+                skes_proc(i,v)
+            if i_stat == False and v_stat == False: fail_proc(v)
+            # idk if that's efficient, i'm getting tired
 
 
-
-
-        process_batch(batch, mlhd_ids, pointers)
-
-    # need to recover 
+def skes_proc(j, v):
+    """If j in mlhd_ids and datat2"""
     
+    if v is not None:
+        # add all the other data here
+        svl = data2[v]['0']['highlevel']['danceability']['all']['danceable']
+
+    else:
+        svl = data2[j]['0']['highlevel']['danceability']['all']['danceable']
+
+    skes.append([j, svl])
+
+
+def fail_proc(j):
+    fails.append(j)
 
 
 
 
+# data[i]['0']['metadata']['audio_properties']['length']
+# data[i]['0']['highlevel'].keys()
+# data[i]['0']['highlevel']['timbre']['all']['bright']
 
-    resp_raw = requests.get(url)
-    resp_dict = resp_raw.json()
+####### high level stuff
+# https://acousticbrainz.org/datasets/accuracy#genre_dortmund
+danceability: 0-1 (probability same)
+gender: female 0-1, male 0-1 (probability is of higher entry)
+genre_dortmund: amount of genres (alternative, blues, electronic, folk-country, funksoulrnb, jazz, etc) -> pointless
+genre_electronic: amount of 5 electronic genres
+genre_rosamerica: other genre classification
+genre_tzanetakis: other genre classification
+ismir04_rhythm: dance style
+mood_acoustic: 0-1
+mood_aggressive: 0-1
+mood_electronic: 0-1
+mood_happy: 0-1
+mood_party: 0-1
+mood_relaxed: 0-1
+mood_sad: 0-1
+moods_mirex: 5 clusters (passionate, cheerful, literate, humerous, aggressive)
+timbre:  0-1
+tonal_atonal: 0-1
+voice_instrumental: 0-1
 
-data[i]['0']['metadata']['audio_properties']['length']
 
-
-
-data[i]['0']['highlevel'].keys()
-data[i]['0']['highlevel']['timbre']['all']['bright']
-
-
-6a95c356-2287-417f-a2a7-99bfb3730321
-
-
-
-danceability
-gender
-genre_dortmund
-genre_electronic
-genre_rosamerica
-genre_tzanetakis
-ismir04_rhythm
-mood_acoustic
-mood_aggressive
-mood_electronic
-mood_happy
-mood_party
-mood_relaxed
-mood_sad
-moods_mirex
-timbre
-tonal_atonal
-voice_instrumental
 
 Piazzai:
 length,
@@ -358,3 +353,45 @@ client.execute("""insert into song_info3 select * from song_info join
 # python api adheres to 1 request/second rule
 
 # mb_inf = musicbrainzngs.get_recording_by_id(tops2, includes=['releases', 'artists'])
+
+
+####################### figuring out API
+
+# calling with 9: return5, seemingly random order (1,3,4,6,9)
+# could just be those that work?
+# yup
+# seems possible to get input of 48 max
+# yup: 49 breaks it even when all valid -> batches of 48
+
+# that poor api omg
+
+# if i[0] != i[1]: send both
+
+# need way to manage mlhd ids
+
+
+
+################################################
+# testing if things work, not that big concern #
+################################################
+    
+# for i in indirects:
+#     # print(i in list(data2.keys()))
+#     # print(pointers[i] in list(data2.keys()))
+    
+#     # print(i in [k[0] for k in skes])
+#     print(pointers[i] in [k[0] for k in skes])
+    
+
+# NEED TO WRITE EXCEPTION WHEN YOU HAVE 2 different mlhd ids point to the same mbid (which is different from both)
+# currently would overwrite dicts
+
+# probably same in other direction too?
+# NOPE: all items in first row unique
+
+# are reverse pointers ever needed?
+# maybe not because i'm looping over mlhd ids which are unique?
+# i think actually not: not asked ever anyways? 
+# final attribution is to original unique mlhd_id anyways
+
+
