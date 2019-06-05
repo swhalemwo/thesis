@@ -69,15 +69,98 @@ For example, while there are features which we strongly associate with the conce
 Such lack of logical clarity and hence debate over terminologies regarding membership criteria are present in virtually every context, including highly technical ones such as astronomy (whether Pluto is a planet) or mathematics (classification of polyhedras, cite:Lakatos_2015_proofs)
 
 
+~need to account for partial membership because data (tag weights)~
+use fruits; tomato as illustrations
+
+
+
 # 
 The abandonment of crisp boundaries does not entail the adoption of (caricature of) an arbitrary 'postmodern' 'anything-goes' approach. 
 # 
 Instead, cite:Hannan_2019_concepts invoke the notion of "probability densities" to capture the variation of the probability of an objects to belong to concept based on their position in a feature space. 
 # 
+The relations between concepts can hence be inferred by the relations of their respective probability densities. 
+#
+Concepts that occupy similar regions of the feature space (such as ~sociologist~ and ~anthropologist~) are ~closer together~ than concepts that reside in different regions (such as ~sociologist~ and ~lumberjack~). 
+# this is relevant how? 
+
+
+
+
+
+*** hierarchy
+A key issue concerns the hierarchy of concepts. 
+#
+As concepts vary in their degree of abstraction (e.g vehicle -> car -> pickup truck), different approaches exist to account for these different levels. 
+#
+The ~classical view (is it really the classical view?)~ sees concepts stored in an hierarchical network, where at each level only the relevant features are stored. 
+#
+For example in the case of vehicles, the property of being a mechanical device to transport things is seen as associated with the most general ~vehicle~ level, the feature of having wheels and driving on roads to the intermediate and the feature of having an open cargo area associated with the most specific level. 
+#
+Within such a (crisp) hierarchy, features are inherited from higher levels. 
+# 
+Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks are cars as well as vehicles. 
+
+
+# feature spaces need to be linked: 
+# need to be able to ask: what is the difference between an economist and a sociologist
+# can't be that each has its own separate feature space
+Hannan: differences between concepts really explicitly specified
+more elegant: differences between concepts in terms of features -> two mode network? 
+
+average informativeness?
+
+need way to formalize informativeness from asymmetric competition coefs
+
+
+
+zG&}/Pv8w@^BPRiq"w9[
+
+zG&}/Pv8w@^BPRiq"w9[
+
+
+
+
+
+
+
+cite:Hannan_2019_concepts follow cite:Collins_1969_retrieval,Quillian_1988_memory in conceptualizing concepts stored explicitly in a hierarchical network. 
+#
+They differ however by allowing 'multiple parents
+
+This so-called semi-lattice builds on 
+
+~is quillian part of the classical model?~
+
+ ~explicitly~ stored
+
+
+To describe the relation of concepts to other concepts, the authors employ the notion of a conceptual space. 
+#
+They argue that concepts are hierarchically structured based on their level of abstraction , 
+just not mention informativeness in main part, just in discussion
+do i even need conceptual space then? 
+
+
+
+cite:Murphy_2004_concepts however rejects Q.'s approach and argues that hierarchies are imputed based on typicality values: 
+- faster that dog is animal than dog is mammal: dog is more typical animal than mammal
+- furniture; chair: car seat, : transitivity violation: features that car seat shares with chair are different from those that chair shares with furniture
+
+
+
+# difference between concept and feature space? 
+# - feature space: UoA: objects, dimensions: features
+# - conceptual space: UoA: concepts, no dimensions, but distances/is-a relations to other concepts
+
+
 The variation in the probabilities of category membership are described with typicality (or its reverse, atypicality). 
 #
 While robins are highly typical members of the bird category, penguins are atypical birds as they lack a feature that we see as important of birds, namely the ability to fly. 
-#
+# but are still birds -> binary membership? 
+# 
+While penguins are considered birds (and hence display discrete membership status in the institutionalized taxonoy), atypicality effects are nonetheless present and influence e.g. the speed ~and accuracy?~ of logical inferences. 
+
 
 
 
@@ -96,9 +179,15 @@ While robins are highly typical members of the bird category, penguins are atypi
 can i test prototype vs exemplar model? 
 do they imply different mechanisms for survival? 
 
+
 Piazzai doesn't even use word
-- exemplar
-- atypicality
+- exemplar/prototype view
+- *atypicality*
+  Hannan: equivalent to informativeness
+  is about relation between object and concept
+  idc much about that relation
+  
+
 
 fix refs
 - Hannan 2019: add authors
