@@ -1,0 +1,106 @@
+* theory/IRC final: noexport:
+
+** notes alex
+DV: survival or abandonment of cognitive labels used by audiences. 
+
+Mechanisms: 
+- Conceptual informativeness or distinctiveness. -> using the musicological features of songs.  
+- Distinctiveness: Piazzai approach. MDS of features. Songs. Spherical space. 
+- Informativeness: hierarchical concept. nature of the relations among concepts. 
+- Audience niche size. 
+- Audience composition: avant-garde or mainstream. 
+- Status: average Billboard. Label could be more widely applied in aesthetic and social space. Expansion of use of genre labels due to increased popularity.
+- Density measures. 
+- Legitimation= same as status. 
+- Rapid adoption could lead to abandonment. 
+
+Methodological:
+- assymmetry: 
+- identification of genre-labels
+- nature of the relations among concepts. 
+- how tightly connceted the audiences are? two-mode not well connected individual listeners. 
+- length of the time period. 
+- Billboard. 
+
+
+** own notes
+unit of analysis is concept -> start with concepts
+
+ecological 
+
+* text
+** introduction
+#
+
+** concepts
+# 
+With genres as the unit of analysis, ~it is necessary~ to expand on general features of these mental blueprints.
+#
+textcite:Hannan_2019_concepts provide a summary of the recent concept literature and highlight a number of key properties. 
+#
+~Categories~
+
+Concepts are fuzzy: 
+
+Given
+- logocentrism (Derrida)
+- bureaucratization/iron cage 
+  - narrow down to institutional logic? 
+
+
+It may seem intuitive to think that concepts can clearly described with a precise definition of features. 
+
+textcite:Murphy_2004_concepts argues that the "classical view" in the psychology of concepts constituted such a praradigm  until the 1970s considered concepts as definitions with necessary and jointly sufficient attributes. 
+# 
+While there have always been philosophical criticisms of the non-universality of rationality 
+- Wittgenstein
+- Habermas
+a paradigm shift took place in psychology only with 
+- ~experiments~.
+
+
+textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. 
+# 
+Consequentely no clear defining list of necessary and/or sufficient features can exist for a concept. 
+# 
+For example, while there are features which we strongly associate with the concept of a ~dog~  such as fur, barking, or four legs, we can well imagine animals that do not fulfill all of these attributes but that we would nevertheless call dogs. 
+# ~Wittgenstein game example?~
+# 
+Such lack of logical clarity and hence debate over terminologies regarding membership criteria are present in virtually every context, including highly technical ones such as astronomy (whether Pluto is a planet) or mathematics (classification of polyhedras, cite:Lakatos_2015_proofs)
+
+
+# 
+The abandonment of crisp boundaries does not entail the adoption of (caricature of) an arbitrary 'postmodern' 'anything-goes' approach. 
+# 
+Instead, cite:Hannan_2019_concepts invoke the notion of "probability densities" to capture the variation of the probability of an objects to belong to concept based on their position in a feature space. 
+# 
+The variation in the probabilities of category membership are described with typicality (or its reverse, atypicality). 
+#
+While robins are highly typical members of the bird category, penguins are atypical birds as they lack a feature that we see as important of birds, namely the ability to fly. 
+#
+
+
+
+
+# relationship between: 
+# - concepts
+# - objects
+# - features
+
+# objects fit into concepts/categories with varying fit due to varying fit of their features to the concept prototypes
+
+
+
+
+* questions
+can i test prototype vs exemplar model? 
+do they imply different mechanisms for survival? 
+
+Piazzai doesn't even use word
+- exemplar
+- atypicality
+
+fix refs
+- Hannan 2019: add authors
+
+fix ref style
