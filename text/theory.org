@@ -28,6 +28,41 @@ unit of analysis is concept -> start with concepts
 
 ecological 
 
+add stuff about partiality 
+- mean
+  - high: salient
+  - low: peripheral
+- skew:
+  - high: concentration
+  - low: equality
+
+can there be low mean but high skew? 
+
+theoretical implications: 
+
+*** fuzziness
+concept (fruit) is fuzzy if there are objects (olive) of which it is not clear whether it belongs or not
+
+classical category: just 100s (rest 0s)
+somewhat fuzzy: many 100s, some non 100s
+
+very fuzzy: many non 100s
+
+the lower the average weight, the fuzzier the category? 
+
+electronic: will be more fuzzy than syncwave-electrofunk
+but that's accurate isn't it? 
+people who use a very specific label know it well, have clearer criteria -> can make membership more binary
+
+*** informativeness
+needs hierarchy!!!
+
+average informativeness?
+
+need way to formalize informativeness from asymmetric competition coefs
+
+
+
 * text
 ** introduction
 #
@@ -108,9 +143,6 @@ Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks a
 Hannan: differences between concepts really explicitly specified
 more elegant: differences between concepts in terms of features -> two mode network? 
 
-average informativeness?
-
-need way to formalize informativeness from asymmetric competition coefs
 
 
 
