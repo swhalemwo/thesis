@@ -61,7 +61,14 @@ average informativeness?
 
 need way to formalize informativeness from asymmetric competition coefs
 
+hierarchy is a way to deal with asymmetry
 
+make the use more the improvisations (Bourdieu) -> stresses flexibility
+
+*** other areas of concepts: 
+- psychology
+- neurophysiology
+- information science
 
 * text
 ** introduction
@@ -71,6 +78,8 @@ need way to formalize informativeness from asymmetric competition coefs
 # 
 With genres as the unit of analysis, ~it is necessary~ to expand on general features of these mental blueprints.
 #
+
+*** fuzziness/partial membership
 textcite:Hannan_2019_concepts provide a summary of the recent concept literature and highlight a number of key properties. 
 #
 ~Categories~
@@ -81,7 +90,6 @@ Given
 - logocentrism (Derrida)
 - bureaucratization/iron cage 
   - narrow down to institutional logic? 
-
 
 It may seem intuitive to think that concepts can clearly described with a precise definition of features. 
 
@@ -135,6 +143,77 @@ For example in the case of vehicles, the property of being a mechanical device t
 Within such a (crisp) hierarchy, features are inherited from higher levels. 
 # 
 Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks are cars as well as vehicles. 
+# 
+
+
+
+
+cite:Hannan_2019_concepts to a large extent follow cite:Collins_1969_retrieval,Quillian_1988_memory in conceptualizing concepts as stored explicitly in a hierarchical network. 
+#
+They conceptualize the resulting conceptual space as a semi-lattice, a nested tree built from sub-concept relations. 
+# 
+In this directed tree, conceptual /roots/ (e.g. vehicles) spawn /cohorts/ of concepts (e.g. car, ship, plane); groups of concepts at the same level of abstraction. 
+#
+They nevertheless diverge from the classical to some extent. 
+# 
+First, they consider feature inheritance as probabilistic, as more typical subconcepts inherit more features ~and feature dimensions~ from their roots than atypical ones. 
+#
+Second, they explicitly allow inheritance from multiple parents, which takes into accounts 'hybrids' such as romantic comedy or ~flying cars~. 
+
+
+
+However, it seems to me that despite these additions the assumption of explicitly stored hierarchical links is not consistent with theoretical considerations and empirical evidence. 
+#
+Instead, I find more convincing the argument of textcite:Murphy_2004_concepts that hierarchical links are not explicitly stored, but computed based on similarity values. 
+#
+One reason is transitivity of membership. 
+#
+Murphy (refering to ~source~) argues that when subjects agree that chairs are a type of furniture, and car seats are a type of chairs, they nevertheless do not consider car seats a type of furniture. 
+#
+He argues that the features that car seat shares with chair are different from those that chair shares with furniture, which leads to refusal of membership even if it would follow on logical grounds. 
+#
+A further argument against explicitly stored hierarchical links are response times. 
+#
+If features are only stored at one level, inferences would take the longer the more hierarchical links they have to travel through. 
+# 
+While this holds in some cases ~page~, it can also be violated: 
+# 
+cite:Murphy_2004_concepts, ~other source~ find that verifying the statement 'a dog is an animal' is faster than the verifying the statement 'a dog is a mammal'. 
+# 
+If hierarchical links were explicitly stored, the latter statement would be faster as the mammal concept would be closer to the dog concept than the animal concept of which it is a subconcept of. 
+# 
+Murphy explains this with dogs being more typical animals than mammals. 
+# wouldn't it need to be: dogs are more typical of animals than they are of mammals? 
+
+inclusion fallacy? 
+# robin have X -> all birds have X more believable than ostrichs have X -> all birds have X
+# can't see how that supports computed
+# is typicality effect, but typicality can be considered in hierarchy
+# maybe murphy didn't consider Hannan's view yet (argues against "logical reasoning")
+
+
+cite:Hannan_2019_concepts are aware of the latter argument, and in response argue that features duplicated at lower levels. 
+# 
+I however do not find this satisfactory: 
+# 
+It breaks with the parsimony
+
+# therefore argues against a hierarchical taxonomy 
+
+are features inherited or root concepts? 
+if i want to know whether pick up is a vehicle: 
+do i need to get both pick up and vehicle and see how well features of pick up fit into vehicle? 
+or can I just have a look at pick up which has also inherited the root concept of being a vehicle?
+
+
+
+
+cite:Murphy_2004_concepts however rejects Q.'s approach and argues that hierarchies are imputed based on typicality values: 
+- faster that dog is animal than dog is mammal: dog is more typical animal than mammal
+- furniture; chair: car seat, : transitivity violation: features that car seat shares with chair are different from those that chair shares with furniture
+
+
+
 
 
 # feature spaces need to be linked: 
@@ -146,27 +225,6 @@ more elegant: differences between concepts in terms of features -> two mode netw
 
 
 
-zG&}/Pv8w@^BPRiq"w9[
-
-zG&}/Pv8w@^BPRiq"w9[
-
-
-
-
-
-
-
-cite:Hannan_2019_concepts follow cite:Collins_1969_retrieval,Quillian_1988_memory in conceptualizing concepts stored explicitly in a hierarchical network. 
-#
-They differ however by allowing 'multiple parents
-
-This so-called semi-lattice builds on 
-
-~is quillian part of the classical model?~
-
- ~explicitly~ stored
-
-
 To describe the relation of concepts to other concepts, the authors employ the notion of a conceptual space. 
 #
 They argue that concepts are hierarchically structured based on their level of abstraction , 
@@ -175,9 +233,7 @@ do i even need conceptual space then?
 
 
 
-cite:Murphy_2004_concepts however rejects Q.'s approach and argues that hierarchies are imputed based on typicality values: 
-- faster that dog is animal than dog is mammal: dog is more typical animal than mammal
-- furniture; chair: car seat, : transitivity violation: features that car seat shares with chair are different from those that chair shares with furniture
+
 
 
 
@@ -219,9 +275,18 @@ Piazzai doesn't even use word
   is about relation between object and concept
   idc much about that relation
   
-
-
 fix refs
 - Hannan 2019: add authors
 
 fix ref style
+
+reflection (Lizardo)
+if i make for each genre a "spread-score": how big the tension between genres is (low for heavy metal and black metal, higher for black metal and opera) -> can average that to the genre level
+
+
+
+zG&}/Pv8w@^BPRiq"w9[
+
+zG&}/Pv8w@^BPRiq"w9[
+
+~is quillian part of the classical model?~
