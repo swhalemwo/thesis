@@ -62,6 +62,7 @@ average informativeness?
 need way to formalize informativeness from asymmetric competition coefs
 
 hierarchy is a way to deal with asymmetry
+Tversky thinks so too: [[cite:Smith_1981_categories][p.118]]
 
 make the use more the improvisations (Bourdieu) -> stresses flexibility
 
@@ -174,43 +175,98 @@ He argues that the features that car seat shares with chair are different from t
 #
 A further argument against explicitly stored hierarchical links are response times. 
 #
-If features are only stored at one level, inferences would take the longer the more hierarchical links they have to travel through. 
+If features are only stored at one level, inferences would take the longer the more hierarchical links they have to traverse through. 
 # 
 While this holds in some cases ~page~, it can also be violated: 
 # 
-cite:Murphy_2004_concepts, ~other source~ find that verifying the statement 'a dog is an animal' is faster than the verifying the statement 'a dog is a mammal'. 
+cite:Murphy_2004_concepts, ~other source (Rips et al)~ find that verifying the statement 'a dog is an animal' is faster than the verifying the statement 'a dog is a mammal'. 
 # 
 If hierarchical links were explicitly stored, the latter statement would be faster as the mammal concept would be closer to the dog concept than the animal concept of which it is a subconcept of. 
 # 
 Murphy explains this with dogs being more typical animals than mammals. 
 # wouldn't it need to be: dogs are more typical of animals than they are of mammals? 
 
-inclusion fallacy? 
-# robin have X -> all birds have X more believable than ostrichs have X -> all birds have X
-# can't see how that supports computed
-# is typicality effect, but typicality can be considered in hierarchy
-# maybe murphy didn't consider Hannan's view yet (argues against "logical reasoning")
+
+distance in conceptual space: smart and pickup truck are further apart (have to link through car) than each with car
+
+
 
 
 cite:Hannan_2019_concepts are aware of the latter argument, and in response argue that features duplicated at lower levels. 
 # 
+As this feature replication is based on typicality and therefore probabilistical it is compatible with variation in inference time based on typicality. 
+#
 I however do not find this satisfactory: 
 # 
-It breaks with the parsimony
+It breaks with the idea of cognitive economy ~Rosch~ of hierarchies as an efficient storage of conceptual information. 
+#
+It also renders the hierarchical links ineffective: 
+# 
+Since ~Hannan~ argue that features are passed down (not conceptual memberships; i.e. a dog has animal and mammal features, but not the concept labels), it turns questions of membership effectively into computation: 
+# 
+- Since the goal of feature replication is to avoid having to travers the hierarchical pathways, 
+- Rather than traversing the hierarchical paths, 
+the question of whether a dog is a an animal would then be solved by comparing the features of a dog (which now includes those of mammals and animals) with that of an animal. 
+#
+
+
+
+
+Suppose for simplicity that the concept c1 at highest level in the branch of a tree has a very high likelihood for possessing the property (a value of a binary feature) A, that its direct descendant c2 adds a high likelihood for the property B and therefore has high likelihoods for the properties {A, B}, and that a still-lower level concept c3 adds high likelihood for the property C, which means that it has high likelihood for the properties {A, B, C}. Now suppose that (for some reason) we have not been able to observe for instances of c3 whether or not they possess the property A. [...] We could have observed all of the properties of (prototypical) instances of c2 and learned that they possess A (as is highly likely in this example). The inference can stop there, there is no need to go higher.
+
+However, if we assume we have instances c3, we already know that (with high certainty) that they have property A simply by the fact that we know them as instances of c3. 
+#
+For example, if we have a Pickup truck (of which we know that it is an actual pickup truck and not a museum piece the engine of which been removed) and assume that properties are replicated, we do not need to make inferences to the car level, but can /per definition/ assume that the the pickup truck can move things or people. 
+
+
+
 
 # therefore argues against a hierarchical taxonomy 
-
-are features inherited or root concepts? 
-if i want to know whether pick up is a vehicle: 
-do i need to get both pick up and vehicle and see how well features of pick up fit into vehicle? 
-or can I just have a look at pick up which has also inherited the root concept of being a vehicle?
-
-
 
 
 cite:Murphy_2004_concepts however rejects Q.'s approach and argues that hierarchies are imputed based on typicality values: 
 - faster that dog is animal than dog is mammal: dog is more typical animal than mammal
 - furniture; chair: car seat, : transitivity violation: features that car seat shares with chair are different from those that chair shares with furniture
+
+
+
+# dog-> animal is FASTER than dog -> mammal, not just equal 
+# Even if animal features are completely replicated, inference should at most be same speed
+# dog could get animal features from somehwere else: multiple parents
+# pets: pets are very typical animals
+# what is the relation between pets and mammals? 
+
+# hmm: 
+# dogs are very typical pets
+# but not every dog is a pet -> statement: 'a dog is a pet' is ambiguous, would need to be more specific (all dogs -> false, some dogs -> true)
+
+# i think this is the case that Murphy doesn't cover: focuses on hierarchies, not possible ways
+# pets contrast with farm animals and wild animals
+# mammals contrast with reptiles, bird, fish
+# mammal features not passed down as much as animal features
+# one might assume that inferences from lowest to general (dog -> animal) could not be faster than from lowest to medium (dog -> mammal). 
+
+But even if features are replicated at lower levels, 
+- I cannot think of a reason why
+- it might seem implausible that
+inferences from lower to general (dog -> animal) could be /faster/ than from low to medium (dog -> mammal).
+#
+Two different explanations might be possible: 
+#
+Mammal features might not be passed on as much as animal features, which might be accurate as dogs are not typical mammals (most of interaction with and/or public imagination of dogs is unrelated to mammal characteristics).
+# 
+Alternatively, animal features might be passed down from a different category, for example ~pets~ (which, as they are no subcategory of mammals, do not pass down mammal features. 
+#
+This would require further specification on the relationship between the concepts mammals and pets. 
+#
+While both are sub-concepts of animals, they do not seem to be part of the same cohort: 
+# 
+Mammals as a term for taxonomic classification would be in a cohort with concepts such as fish and reptiles, while pets, which specifies the relation to humans, would be in the same cohort as farm animals and wild animals. 
+#
+As such a dog is not a hybrid in the same sense as a romantic comedy is as the concepts belong to different "visions of division" cite:Bourdieu_1989_space (~different things at stake~).
+# 
+These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannan_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
+
 
 
 
@@ -284,9 +340,68 @@ reflection (Lizardo)
 if i make for each genre a "spread-score": how big the tension between genres is (low for heavy metal and black metal, higher for black metal and opera) -> can average that to the genre level
 
 
+~is quillian part of the classical model?~ -> look up the source that Murphy cites, duh
+
+*inclusion fallacy* against explicitly stored hierarchies (used by Murphy):  
+- robin have X -> all birds have X more believable than robins have X -> ostriches have X
+- can't see how that supports computed
+- is typicality effect, but typicality can be considered in hierarchy
+- maybe murphy didn't consider Hannan's view yet (argues against "logical reasoning")
+
+Murphy sees typicality effects (birds have X -> robins/ostriches have X stronger for robins) as "greatest problem for pre-stored view"
+
+"Findings of typicality effects, intransitivity of class inclusion, and evidence from RT experiments all pose problems for the stored hierarchy view" (p.209)
+
+*** Hannan not that bad
+
+concepts as probability distributions instead of points
+
+concepts have spatial extent
+
+*** Hannan bad
+cite:Smith_1981_categories metric spaces bad (p.116)
+
+Hannan: are subconcepts transitive? yup: p.55
+
+c.) transitive: sub(c, c') \wedge sub(c' , c'') -> sub(c, c'').
+that doesn't hold with furniture, chairs, car seats
+
+fruit counterexample: 
+fruit closest to item for 17/20 -> at least 8 dimensions needed (was actually re-analysis by Tversky)
+
+
+
+*** is classical view part of Habermaasian colonization? 
+
+
+*** cite:Steyvers_2005_structure: The Large‐Scale Structure of Semantic Networks: Statistical Analyses and a Model of Semantic Growth
+
+models of semantic organization (hierarchies, high-dimensional vector spaces, arbitrarily structured networks) incompatible with small world structure (log distribution, scale-free) of semantic networks
+
+omfg i'm so out of my area omfg
+would have to read so much more cognitive science stuff -> i'm f.u.c.k.e.d
+
+good insofar: against Quillian
+also LSA bad
+
+-> do i really want reduction to metric space?
+
+~search for asymmetry~ -> Tversky 1977
 
 zG&}/Pv8w@^BPRiq"w9[
 
-zG&}/Pv8w@^BPRiq"w9[
+Smith, E. E. and Medin, D. L. (1981). Categories and Concepts. Cambridge, MA: Harvard
+University Press.
 
-~is quillian part of the classical model?~
+also already have the chicken -> bird -> animal 
+
+
+
+
+
+*** luke smith
+https://youtu.be/PnCXJn2cRf4?t=2120
+
+
+
+
