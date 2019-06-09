@@ -7,28 +7,13 @@ import json
 import urllib.request
 import requests
 import time
-# client = Client(host='localhost', password='anudora', database='frrl')
+# import musicbrainzngs
+
 # top_mbids=client.execute('select mbid from song_info3 order by cnt desc limit 20')
-
-
-
-
 
 ##########################
 # retrieving information #
 ##########################
-
-url = "https://acousticbrainz.org/api/v1/04fa3746-035a-48f1-86b2-3514940c7aaf/high-level"
-
-
-url="https://acousticbrainz.org/api/v1/high-level?recording_ids=96685213-a25c-4678-9a13-abd9ec81cf35"
-url="https://acousticbrainz.org/api/v1/low-level?recording_ids=96685213-a25c-4678-9a13-abd9ec81cf35"
-url="https://acousticbrainz.org/api/v1/low-level?recording_ids=2ee68ec3-d85b-4bc9-8f65-3a109af26b5a"
-
-url="https://acousticbrainz.org/api/v1/high-level?recording_ids=c69310f9-e2e5-4fb2-ac26-836913c478d4"
-
-
-
 
 # hm how should i handle mibd insufifficiencies (mlhd id differeing from mbid)
 # get mb mbid first?
@@ -37,67 +22,15 @@ url="https://acousticbrainz.org/api/v1/high-level?recording_ids=c69310f9-e2e5-4f
 # had to rewrite tag retrieval script: split, also store mbid
 
 
-with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_addgs.csv', 'r') as fi:
-    rdr = csv.reader(fi)
-    some_mbids = [i[0:2] for i in rdr]
 
+# i = some_mbids[9]
 
-i = some_mbids[9]
-
-uneqs = [i for i in some_mbids if i[0]!=i[1]]
-
-vlds = []
-## testing which mbid to use
-for i in some_mbids:
-# for i in uneqs:           
-    # url = 'https://acousticbrainz.org/api/v1/' + i[0] + '/low-level/'
-    # url = 'https://acousticbrainz.org/api/v1/' + i + '/low-level/'
-    url = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='+ i[1]
-       
-    with urllib.request.urlopen(url) as url2:
-        data = json.loads(url2.read().decode())
-
-    url = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='+ i[0]
-    with urllib.request.urlopen(url) as url2:
-        data2 = json.loads(url2.read().decode())
-
-    print(len(data), len(data2))
-
-    if len(data)==1:
-        vlds.append(i[1])
-    # all patterns can exist: most likely that none, than 1 1, than 1 0; 0, 1 very rarely
-    # hm not clear how to batch process them
-    # if same (85% of cases: i can just take one)
-    # is batch processing substantially faster?
-    if len(vlds)==60:
-        break
     
 # batch processing testing
-basestr = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='
-k = some_mbids[0]
-
-X = 49
-
-
-teststr = ""
-cntr = 0
-# for i in some_mbids[0:X]:
-for i in vlds[0:X]:    
-    teststr = teststr + i
-
-    cntr +=1
-    if cntr < X:
-        teststr = teststr + ';'
-    
-
-url = basestr + teststr
-with urllib.request.urlopen(url) as url2:
-    data2 = json.loads(url2.read().decode())
-
 
 def batch_prepper(batch):
-    # base_str = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='
-    base_str = 'https://acousticbrainz.org/api/v1/low-level?recording_ids='
+    base_str = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='
+    # base_str = 'https://acousticbrainz.org/api/v1/low-level?recording_ids='
     cntr = 0
     batch_str = ""
     for i in batch:
@@ -111,48 +44,12 @@ def batch_prepper(batch):
 
 
 
-batch = []
-mlhd_ids = []
-
-pointers = {}
-
-for i in some_mbids:
-    
-    if i[0] == i[1]:
-        batch.append(i[0])
-        mlhd_ids.append(i[0])
-    else:
-        batch.append(i[0])
-        batch.append(i[1])
-
-        mlhd_ids.append(i[0])
-
-        pointers[i[0]] = i[1]
-        # pointers[i[1]] = i[0]
-
-    if len(batch) > 40:
-        break
-        batch_str=batch_prepper(batch)
-
-        # put into own function later
-
-    # t1 = time.time()
-    # for p in range(200):
-        with urllib.request.urlopen(batch_str2) as url2:
-            data2 = json.loads(url2.read().decode())
-
-    #     print(len(data2))
-    # t2 = time.time()
-
 
 # maximum torture, but seems to be working?
 # even with low -level still only needs ~2 sec for 31
 # much faster with high level
 
     
-indirects=[]
-skes = []
-fails =[]
 
 def batch_procr(data2, mlhd_ids, pointers):
     for i in mlhd_ids:
@@ -161,12 +58,12 @@ def batch_procr(data2, mlhd_ids, pointers):
         if i not in pointers.keys():
 
             if i in data2.keys():
-                print('gotcha')
+                # print('gotcha')
                 skes_proc(i, None)
 
             else:
                 fail_proc(i)
-                print('fail')
+                # print('fail')
 
         # more difficult cases: uneqs -> 4 cases: both, neither, 01, 10
         # i = list(pointers.keys())[2]
@@ -184,7 +81,6 @@ def batch_procr(data2, mlhd_ids, pointers):
                 indirects.append(i)
                 skes_proc(i,v)
             if i_stat == False and v_stat == False: fail_proc(v)
-            # idk if that's efficient, i'm getting tired
 
 
 def skes_proc(j, v):
@@ -192,285 +88,260 @@ def skes_proc(j, v):
     
     if v is not None:
         # add all the other data here
-        svl = data2[v]['0']['highlevel']['danceability']['all']['danceable']
+        # svl = data2[v]['0']['highlevel']['danceability']['all']['danceable']
+        mus_dt = data_proc(data2[v]['0']['highlevel'])
+        meta_dt = metadata_proc(data2[v]['0']['metadata'])
 
     else:
-        svl = data2[j]['0']['highlevel']['danceability']['all']['danceable']
+        # svl = data2[j]['0']['highlevel']['danceability']['all']['danceable']
+        mus_dt = data_proc(data2[j]['0']['highlevel'])
+        meta_dt = metadata_proc(data2[j]['0']['metadata'])
 
-    skes.append([j, svl])
-
+    skes.append([j] + mus_dt + meta_dt)
 
 def fail_proc(j):
-    fails.append(j)
+    fails.append([j])
+
+def writer_res(skes, fails):
+    with open(ACST_FILE, 'a') as fo:
+        wr = csv.writer(fo)
+        wr.writerows(skes)
+        
+    with open(FAIL_FILE, 'a') as fo:
+        wr = csv.writer(fo)
+        wr.writerows(fails)
+        
+
+# are they measuring distinct things? 
+
+def data_proc(inf_dict):
+    dncblt = inf_dict['danceability']['all']['danceable']
+    gender = inf_dict['gender']['all']['female']
+    timb_brt = inf_dict['timbre']['all']['bright']
+    tonal = inf_dict['tonal_atonal']['all']['tonal']
+    voice = inf_dict['voice_instrumental']['all']['voice']
+
+    moods = [inf_dict["mood_" + i]['all'][i] for i in mood_keys]
+
+    mus_inf = [dncblt, gender, timb_brt, tonal, voice] + moods
+    
+
+    gnrs_drtmnd = [inf_dict['genre_dortmund']['all'][i] for i in gnr_drtmnd_keys]
+    gnrs_rosemern = [inf_dict['genre_rosamerica']['all'][i] for i in gnr_rosmern_keys]
+    gnrs_tzan = [inf_dict['genre_tzanetakis']['all'][i] for i in gnr_tzan_keys]
+    moods_mirex = [inf_dict['moods_mirex']['all'][i] for i in moods_mirex_keys]
+
+    gnr_inf = gnrs_drtmnd + gnrs_rosemern + gnrs_tzan + moods_mirex
+
+    inf_row = mus_inf + gnr_inf
+    return(inf_row)
 
 
+
+def nested_get(input_dict, nested_key, deflt):
+    internal_dict_value = input_dict
+    for k in nested_key:
+        internal_dict_value = internal_dict_value.get(k, None)
+        if internal_dict_value is None:
+            return deflt
+    return internal_dict_value
+
+
+def metadata_proc(md_dict):
+    """gets some metadata"""
+    lang = nested_get(md_dict, ['tags', 'language'], ['NOLANG'])[0]
+    # print(len(nested_get(md_dict, ['tags', 'language'], ['NOLANG'])))
+    
+    length = nested_get(md_dict, ['audio_properties','length'], -1)
+    label = nested_get(md_dict, ['tags','label'], ["NOLABEL"])[0]
+    # print(len(nested_get(md_dict, ['tags','label'], ["NOLABEL"])))
+    
+    rl_type = nested_get(md_dict, ['tags','release type'], ["NORLTYPE"])[0]
+    rls_cri = nested_get(md_dict, ['tags','musicbrainz album release country'], ["NORLSCRI"])[0]
+    # print(len(nested_get(md_dict, ['tags','musicbrainz album release country'], ["NORLSCRI"])))
+
+    md_row = [length, label, lang, rl_type, rls_cri]
+    return(md_row)
+
+# md_dict = data2['fb47ca87-499e-4c49-b8a1-3f784d1daa1b']['0']['metadata']
+
+
+# i = 'fb47ca87-499e-4c49-b8a1-3f784d1daa1b'
+# inf_dict = data2['fb47ca87-499e-4c49-b8a1-3f784d1daa1b']['0']['highlevel']
+
+
+# for i in list(data2.keys()):
+#     md_dict = data2[i]['0']['metadata']
+#     x = metadata_proc(md_dict)
+
+gnr_drtmnd_keys = ['alternative', 'blues', 'electronic', 'folkcountry', 'funksoulrnb', 'jazz', 'pop', 'raphiphop', 'rock']
+gnr_rosmern_keys = ['cla', 'dan', 'hip', 'jaz', 'pop', 'rhy', 'roc', 'spe']
+gnr_tzan_keys = ['blu', 'cla', 'cou', 'dis', 'hip', 'jaz', 'met', 'pop', 'reg', 'roc']
+moods_mirex_keys = ['Cluster1', 'Cluster2', 'Cluster3', 'Cluster4', 'Cluster5']
+mood_keys = ['acoustic', 'aggressive', 'electronic', 'happy', 'party', 'relaxed', 'sad']
+
+
+
+
+
+if __name__ == '__main__':
+
+    with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_addgs.csv', 'r') as fi:
+        rdr = csv.reader(fi)
+        some_mbids = [i[0:2] for i in rdr]
+
+    ACST_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv'
+    FAIL_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acst_fails.csv'
+
+    batch = []
+    mlhd_ids = []
+    pointers = {}
+
+    indirects=[]
+    skes = []
+    fails =[]
+
+for i in some_mbids[0:1000]:
+    if i[0] == i[1]:
+        batch.append(i[0])
+        mlhd_ids.append(i[0])
+    else:
+        batch.append(i[0])
+        batch.append(i[1])
+
+        mlhd_ids.append(i[0])
+
+        pointers[i[0]] = i[1]
+        # pointers[i[1]] = i[0]
+
+    if len(batch) > 40:
+        print('process batch')
+        # break
+        batch_str=batch_prepper(batch)
+        # t1 = time.time()
+        # for p in range(200):
+        with urllib.request.urlopen(batch_str) as url2:
+            data2 = json.loads(url2.read().decode())
+
+        batch_procr(data2, mlhd_ids, pointers)
+        writer_res(skes, fails)
+
+        batch = []
+        mlhd_ids = []
+        pointers = {}
+
+        indirects=[]
+        skes = []
+        fails =[]
+
+        
+
+    #     print(len(data2))
+    # t2 = time.time()
+
+
+###################################
+# make colnames for R or whatever #
+###################################
+    
+colx1 = ['dncblt', 'gender', 'timb_brt', 'tonal', 'voice'] +  ['mood_' + i for i in mood_keys]
+
+col_names1 = ['gnr_dm_' + i for i in gnr_drtmnd_keys]
+col_names2 = ['gnr_rm_' + i for i in gnr_rosmern_keys]
+col_names3 = ['gnr_tza_' + i for i in gnr_tzan_keys]
+col_names4 = ['mirex_' + i for i in moods_mirex_keys]
+
+colx2 = col_names1 + col_names2 + col_names3 + col_names4
+
+colx3 = ['length', 'label', 'lang', 'rl_type', 'rls_cri']
+
+colnames = ['id'] + colx1 + colx2 + colx3
+
+
+
+# hmm not sure if i should use offiical genres
+# do they add something?
+# are so general -> will not die out: will be not that many (maybe some hundred)
+# would have to be split up with quite some work
+# if lfm genre dies out, look up what happens here? -> see how much agreement there was in terms of official genres?
+# should really see if i can get official genre information from MB: more complete: nope not available?? at least not through api, 
+# don't know where the 
+# would be nice to get interaction between informal and "official" classification systesm
+# also way of control: do users just parrot officials?
+# but MBID genre information is also user-provided
+# discogs?
+# allmusic seems pretty good (https://labs.acousticbrainz.org/dlfm2016/)
+# based on tivo, is on album level?
+# there is something on song level, but not that much apparently?
+# could also use moods/themes
+# but in either case it's separately from acst_brainz
+
+
+
+
+
+    # with open(ACST_FILE, 'a') as fo:
+    #     wr = csv.writer(fo)
+    #     wr.writerow(prntrow)
 
 
 # data[i]['0']['metadata']['audio_properties']['length']
 # data[i]['0']['highlevel'].keys()
 # data[i]['0']['highlevel']['timbre']['all']['bright']
 
-url = 'https://acousticbrainz.org/api/v1/low-level?recording_ids=' +i
-with urllib.request.urlopen(url) as url2:
-    ll_data = json.loads(url2.read().decode())
-
 
 
 ####### high level stuff
 # https://acousticbrainz.org/datasets/accuracy#genre_dortmund
-danceability: 0-1 (probability same)
-gender: female 0-1, male 0-1 (probability is of higher entry)
-genre_dortmund: amount of genres (alternative, blues, electronic, folk-country, funksoulrnb, jazz, etc) -> pointless
-genre_electronic: amount of 5 electronic genres
-genre_rosamerica: other genre classification
-genre_tzanetakis: other genre classification
-ismir04_rhythm: dance style
-mood_acoustic: 0-1
-mood_aggressive: 0-1
-mood_electronic: 0-1
-mood_happy: 0-1
-mood_party: 0-1
-mood_relaxed: 0-1
-mood_sad: 0-1
-moods_mirex: 5 clusters (passionate, cheerful, literate, humerous, aggressive)
-timbre:  0-1
-tonal_atonal: 0-1
-voice_instrumental: 0-1
+# danceability: 0-1 (probability same)
+# gender: female 0-1, male 0-1 (probability is of higher entry)
+# genre_dortmund: amount of genres (alternative, blues, electronic, folk-country, funksoulrnb, jazz, etc) -> pointless
+# genre_electronic: amount of 5 electronic genres
+# genre_rosamerica: other genre classification
+# genre_tzanetakis: other genre classification
+# ismir04_rhythm: dance style
+# mood_acoustic: 0-1
+# mood_aggressive: 0-1
+# mood_electronic: 0-1
+# mood_happy: 0-1
+# mood_party: 0-1
+# mood_relaxed: 0-1
+# mood_sad: 0-1
+# moods_mirex: 5 clusters (passionate, cheerful, literate, humerous, aggressive)
+# timbre:  0-1
+# tonal_atonal: 0-1
+# voice_instrumental: 0-1
 
 
-####### lowlevel stuff
-# lowlevel:
+# useful:
+# - danceability
+# - gender
+# - moods
+# - timbre
+# - tonal_atonal
+# - voice_instrumental
 
-# average_loudness
-# barkbands
-# barkbands_crest
-# barkbands_flatness_db
-# barkbands_kurtosis
-# barkbands_skewness
-# barkbands_spread
-# dissonance
-# dynamic_complexity
-# erbbands
-# erbbands_crest
-# erbbands_flatness_db
-# erbbands_kurtosis
-# erbbands_skewness
-# erbbands_spread
-# gfcc
-# hfc
-# melbands
-# melbands_crest
-# melbands_flatness_db
-# melbands_kurtosis
-# melbands_skewness
-# melbands_spread
-# mfcc
-# pitch_salience
-# silence_rate_20dB
-# silence_rate_30dB
-# silence_rate_60dB
-# spectral_centroid
-# spectral_complexity
-# spectral_contrast_coeffs
-# spectral_contrast_valleys
-# spectral_decrease
-# spectral_energy
-# spectral_energyband_high
-# spectral_energyband_low
-# spectral_energyband_middle_high
-# spectral_energyband_middle_low
-# spectral_entropy
-# spectral_flux
-# spectral_kurtosis
-# spectral_rms
-# spectral_rolloff
-# spectral_skewness
-# spectral_spread
-# spectral_strongpeak
-# zerocrossingrate
+# groups for genre spanning (which songs span genres)? 
+# - maybe moods_mirex: just save them: might also be useful for genre-spanning?
+ 
 
-relevant: average loudness?
+# Piazzai:
+# length,
+# danceability
+# main key
+# scale
+# frequency of main key
+# chord progression
+# scale of chord key
+# bpm
+# total count of beats
 
-
-###### metadata
-### audio_properties
-
-# analysis_sample_rate
-# bit_rate
-# codec
-# downmix
-# equal_loudness
-# length
-# lossless
-# md5_encoded
-# replay_gain
-dont think much good for anything
-
-#### tags
-# album
-# albumartistsort
-# artist
-# artistsort
-# asin
-# barcode
-# catalognumber
-# date
-# discnumber
-# encodedby
-# file_name
-# label
-# musicbrainz_albumartistid
-# musicbrainz_albumid
-# musicbrainz_artistid
-# musicbrainz_recordingid
-# title
-# tracknumber
-# also kinda useless
-# can't use it as a name api because too much missing
-
-### version
-# so useless it's not worth printing
-
-###### rhythm
-beats_count
-beats_loudness
-beats_loudness_band_ratio
-beats_position
-bpm
-bpm_histogram_first_peak_bpm
-bpm_histogram_first_peak_spread
-bpm_histogram_first_peak_weight
-bpm_histogram_second_peak_bpm
-bpm_histogram_second_peak_spread
-bpm_histogram_second_peak_weight
-danceability
-onset_rate
-
-relevant:
-- beats count
-- bpm
-- danceability: atm greater than 1
-
-
-#### tonal
-chords_changes_rate
-chords_histogram
-chords_key
-chords_number_rate
-chords_scale
-chords_strength
-hpcp
-hpcp_entropy
-key_key
-key_scale
-key_strength
-thpcp
-tuning_diatonic_strength
-tuning_equal_tempered_deviation
-tuning_frequency
-tuning_nontempered_energy_ratio
-
-relevant:
-- chords_changes_rate
-- chords_key
-- chords_number_rate ??
-
-# no idea what any of this shit means?
-# maybe i should just save the dicts entirely and try to make sense of them later?
-
-
-
-
-Piazzai:
-length,
-danceability
-main key
-scale
-frequency of main key
-chord progression
-scale of chord key
-bpm
-total count of beats
-
-could make separate tables with song - album - artist
-if i want to use some more industry-level explanatory mechanisms
+# could make separate tables with song - album - artist
+# if i want to use some more industry-level explanatory mechanisms
 
 # -> uses high level data, but IS SUBJECT TO RECALCULATION
 
 
-#####################
-# playcount testing #
-#####################
-
-# need to get frequency for all the songs
-# similar to counter
-# might actually just use counter,
-
-client = Client(host='localhost', password='anudora', database='frrl')
-client.execute('show tables')
-
-select song, count(song) as Frequency from logs group by song
-
-client.execute('drop table tests')
-client.execute('create table tests (xx String) engine=MergeTree() partition by xx order by tuple()')
-
-client.execute('drop table tests2')
-client.execute('create table tests2 (xx String) engine=MergeTree() partition by xx order by tuple()')
-
-
-testl=[]
-for i in range(1000):
-    testl.append(random.choice(string.ascii_letters).lower())
-
-client.execute('insert into tests values', testl)
-client.execute('insert into tests2 values', list(set(testl)))
-
-
-
-client.execute('select xx, count(xx) as Frequency from tests group by xx')
-
-client.execute('select xx, count(xx) as Frequency from tests group by xx join tests2 on tests.xx=tests.xx')
-
-client.execute('drop table tests3')
-client.execute('create table tests3 (xx String, yy Int32) engine=MergeTree() partition by xx order by tuple()')
-
-client.execute('insert into tests3 select xx, count(xx) as Frequency from tests group by xx')
-client.execute("drop column tests2.xx")
-
-
-client.execute('create table tests4 (xx String, yy Int32, xx2 String) engine=MergeTree() partition by xx order by tuple()')
-client.execute('insert into tests4 select * from tests3 join tests2 on tests3.xx=tests2.xx')
-
-client.execute('alter table tests4 drop column xx2')
-
-client.execute('drop table tests3')
-
-
-
-################################
-# actual playcount calculation #
-################################
-
-client.execute('drop table song_info2')
-client.execute('create table song_info2 (song String, cnt Int32, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
-
-# song_infoer(dd)
-
-# client.execute('select song, count(*), count(*) % 30 from logs group by song limit 3')
-
-# add random shit
-client.execute("""insert into song_info2 
-select song, count(*), count(*) % 30 from logs group by song""")
-# could probably also just select 1 or any number
-
-
-client.execute('drop table song_info3')
-
-client.execute('create table song_info3 (mbid String, abbrv String, rndm Int32, cnt Int32) engine=MergeTree() partition by rndm order by tuple()')
-
-
-client.execute("""insert into song_info3 select * from song_info join
-(select song as abbrv, cnt from song_info2) using (abbrv)""")
 
 
 ##################
@@ -512,7 +383,48 @@ client.execute("""insert into song_info3 select * from song_info join
 
 # python api adheres to 1 request/second rule
 
-# mb_inf = musicbrainzngs.get_recording_by_id(tops2, includes=['releases', 'artists'])
+###############################################
+# trying to get genres from MBU, doesn't work #
+###############################################
+
+# mb_inf = musicbrainzngs.get_recording_by_id(i, includes=['releases', 'artists'])
+# mb_inf = musicbrainzngs.get_recording_by_id(i, includes=['genres'])
+
+# musicbrainzngs.get_release_group_by_id
+
+# for i in some_mbids[0:10]:
+#     url = "https://musicbrainz.org/ws/2/recording/" + i[1] + "?inc=genres&fmt=json"
+#     try:
+#         resp_raw = requests.get(url)
+#         resp_dict = resp_raw.json()
+#         print('works')
+#         try:
+#             print(resp_dict['genres'])
+#         except:
+#             pass
+#     except:
+#         print('fail')
+#         pass
+
+#     time.sleep(0.9)
+
+# https://musicbrainz.org/ws/2/release/517ed123-f71d-4320-b27e-d235fec80dcd?inc=genres
+
+
+# https://musicbrainz.org/ws/2/recording/c69310f9-e2e5-4fb2-ac26-836913c478d4?inc=genres
+
+# https://musicbrainz.org/ws/2/recording/2ee68ec3-d85b-4bc9-8f65-3a109af26b5a?inc=user-genres
+
+# https://musicbrainz.org/ws/2/recording/778850f8-b9b9-475b-900f-1c0114ca729f?inc=genres+artists
+
+# for i in list(data2.keys()):
+#     try:
+#         print(data2[i]['0']['metadata']['tags']['genre'])
+#     except:
+#         print('lol')
+#         pass
+#         print(i)
+
 
 
 ####################### figuring out API
@@ -555,3 +467,20 @@ client.execute("""insert into song_info3 select * from song_info join
 # final attribution is to original unique mlhd_id anyways
 
 
+###########################
+# old method for metadata #
+###########################
+
+    # length = -1
+    # label = 'NOTTHERE'
+    # lang = 'NOLANG'
+    # rl_type = "NORLTYPE"
+    # rls_cri = "NORLSCRI"
+
+    # length = md_dict['audio_properties']['length']
+    # label = md_dict['tags']['label'][0]
+    # lang = md_dict['tags']['language']
+    # rl_type = md_dict['tags']['release type']
+    # rls_cri = md_dict['tags']['musicbrainz album release country']
+
+        
