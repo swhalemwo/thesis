@@ -242,4 +242,63 @@ with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test
 
             # rows.append(r)
 
+            
+# ** acousticbrainz
+
+# there are some ugly duplicates in lfm_ids in addgs, around 176
+# no idea where they come from
+# point to completely different things
+# skip them for now
+
+# maybe something not working with the splits?
+# maybe i didn't delete something properly, at the start? 
+# or maybe when restarting split scripts with C-c? 
+
+client.execute('drop table acstb')
+
+client.execute("""create table acstb (
+lfm_id String,
+dncblt Float32,
+gender Float32,
+timb_brt Float32,
+tonal Float32,
+voice Float32,
+mood_acoustic Float32,
+mood_aggressive Float32,
+mood_electronic Float32,
+mood_happy Float32,
+mood_party Float32,
+mood_relaxed Float32,
+mood_sad Float32,
+len Float32,
+rndm Int8)
+
+engine=MergeTree() partition by rndm order by tuple()""")
+
+avbl_vars = ['id', 'dncblt', 'gender', 'timb_brt', 'tonal', 'voice', 'mood_acoustic', 'mood_aggressive', 'mood_electronic', 'mood_happy', 'mood_party', 'mood_relaxed', 'mood_sad', 'gnr_dm_alternative', 'gnr_dm_blues', 'gnr_dm_electronic', 'gnr_dm_folkcountry', 'gnr_dm_funksoulrnb', 'gnr_dm_jazz', 'gnr_dm_pop', 'gnr_dm_raphiphop', 'gnr_dm_rock', 'gnr_rm_cla', 'gnr_rm_dan', 'gnr_rm_hip', 'gnr_rm_jaz', 'gnr_rm_pop', 'gnr_rm_rhy', 'gnr_rm_roc', 'gnr_rm_spe', 'gnr_tza_blu', 'gnr_tza_cla', 'gnr_tza_cou', 'gnr_tza_dis', 'gnr_tza_hip', 'gnr_tza_jaz', 'gnr_tza_met', 'gnr_tza_pop', 'gnr_tza_reg', 'gnr_tza_roc', 'mirex_Cluster1', 'mirex_Cluster2', 'mirex_Cluster3', 'mirex_Cluster4', 'mirex_Cluster5', 'length', 'label', 'lang', 'rl_type', 'rls_cri']
+
+chsn_vars = ['dncblt', 'gender', 'timb_brt', 'tonal', 'voice', 'mood_acoustic', 'mood_aggressive', 'mood_electronic', 'mood_happy', 'mood_party', 'mood_relaxed', 'mood_sad', 'length']
+
+ids = [avbl_vars.index(i) for i in chsn_vars]
+
+c = 0
+batch = []
+with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/mb_bu/acstbrnz.csv', 'r') as fi:
+    rdr = csv.reader(fi)
+    for r in rdr:
+        c+=1
+            
+        rp = [r[0]] + [round(float(r[k]),5) for k in ids] + random.sample(range(80),1)
+        batch.append(rp)
+
+        if c % 5000 == 0:
+            client.execute('insert into acstb values', batch)
+            batch=[]
+            
+    client.execute('insert into acstb values', batch)
+
+    # ids = [r[0] for r in rdr]
+
+
+
 
