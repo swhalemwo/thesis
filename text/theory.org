@@ -1,4 +1,18 @@
-* theory/IRC final: noexport:
+#+latex_class: article_usual2
+# erases make title
+#+BIND: org-export-latex-title-command ""
+
+# fucks all the maketitlestuff just to be sure
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+# #+OPTIONS: toc:nil#+TITLE: #+AUTHOR: #+DATE: 
+#+OPTIONS: h:5
+
+# -*- org-export-babel-evaluate: nil -*-
+
+
+
+* theory/IRC final
 
 ** notes alex
 DV: survival or abandonment of cognitive labels used by audiences. 
@@ -131,7 +145,6 @@ Concepts that occupy similar regions of the feature space (such as ~sociologist~
 
 
 
-
 *** hierarchy
 A key issue concerns the hierarchy of concepts. 
 #
@@ -179,7 +192,7 @@ If features are only stored at one level, inferences would take the longer the m
 # 
 While this holds in some cases ~page~, it can also be violated: 
 # 
-cite:Murphy_2004_concepts, ~other source (Rips et al)~ find that verifying the statement 'a dog is an animal' is faster than the verifying the statement 'a dog is a mammal'. 
+cite:Murphy_2004_concepts and ~other source (Rips et al)~ find that verifying the statement 'a dog is an animal' is faster than the verifying the statement 'a dog is a mammal'. 
 # 
 If hierarchical links were explicitly stored, the latter statement would be faster as the mammal concept would be closer to the dog concept than the animal concept of which it is a subconcept of. 
 # 
@@ -187,7 +200,7 @@ Murphy explains this with dogs being more typical animals than mammals.
 # wouldn't it need to be: dogs are more typical of animals than they are of mammals? 
 
 
-distance in conceptual space: smart and pickup truck are further apart (have to link through car) than each with car
+# distance in conceptual space: smart and pickup truck are further apart (have to link through car) than each with car
 
 
 
@@ -198,7 +211,7 @@ As this feature replication is based on typicality and therefore probabilistical
 #
 I however do not find this satisfactory: 
 # 
-It breaks with the idea of cognitive economy ~Rosch~ of hierarchies as an efficient storage of conceptual information. 
+It breaks with the idea of cognitive economy (~Rosch~) of hierarchies as an efficient storage of conceptual information. 
 #
 It also renders the hierarchical links ineffective: 
 # 
@@ -208,17 +221,15 @@ Since ~Hannan~ argue that features are passed down (not conceptual memberships; 
 - Rather than traversing the hierarchical paths, 
 the question of whether a dog is a an animal would then be solved by comparing the features of a dog (which now includes those of mammals and animals) with that of an animal. 
 #
+It also appears to me to be an add-hoc addition to explain empirical observations rather than being the result of theoretical necessity. 
 
-
-
+Hannan quote: 
 
 Suppose for simplicity that the concept c1 at highest level in the branch of a tree has a very high likelihood for possessing the property (a value of a binary feature) A, that its direct descendant c2 adds a high likelihood for the property B and therefore has high likelihoods for the properties {A, B}, and that a still-lower level concept c3 adds high likelihood for the property C, which means that it has high likelihood for the properties {A, B, C}. Now suppose that (for some reason) we have not been able to observe for instances of c3 whether or not they possess the property A. [...] We could have observed all of the properties of (prototypical) instances of c2 and learned that they possess A (as is highly likely in this example). The inference can stop there, there is no need to go higher.
 
 However, if we assume we have instances c3, we already know that (with high certainty) that they have property A simply by the fact that we know them as instances of c3. 
 #
 For example, if we have a Pickup truck (of which we know that it is an actual pickup truck and not a museum piece the engine of which been removed) and assume that properties are replicated, we do not need to make inferences to the car level, but can /per definition/ assume that the the pickup truck can move things or people. 
-
-
 
 
 # therefore argues against a hierarchical taxonomy 
@@ -269,6 +280,7 @@ These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions
 
 
 
+*** pieces
 
 
 
@@ -291,8 +303,6 @@ do i even need conceptual space then?
 
 
 
-
-
 # difference between concept and feature space? 
 # - feature space: UoA: objects, dimensions: features
 # - conceptual space: UoA: concepts, no dimensions, but distances/is-a relations to other concepts
@@ -307,8 +317,6 @@ While penguins are considered birds (and hence display discrete membership statu
 
 
 
-
-
 # relationship between: 
 # - concepts
 # - objects
@@ -317,12 +325,55 @@ While penguins are considered birds (and hence display discrete membership statu
 # objects fit into concepts/categories with varying fit due to varying fit of their features to the concept prototypes
 
 
+**** hierarchy
+# 
+If concepts are conceptualized as probability distributions within a feature space, the relations are not explicitly stored, but computed on the spot. 
+# 
+While it may seem straightforward to assess the similarity (or distance) between two concepts by the proximity of the centers (or borders) of their probability distribution, ~such as Hannan proposes~,  it seems to me that this conceptualization cannot take into account 
+- empirical findings
+- theoretical considerations
+- recent insights 
+regarding the nature of concepts. 
+# 
+Imagining for example the distance between two concepts as the distance of their centers would result in symmetric distances. 
+# 
+~While distances from the center of one concept to a region of a particular density of the other concept might~
+~problem: asymetric distances work with distances as actual distances between concepts in feature space~
+~triangle inequality can be explained: cuba basically is 'conductive': space it occupies doesn't have to be crossed completely by sum of paths (JC, CR), but by JR path~
+
+can i make the argument that conceptual spaces are not real?
+spaces are our explanation of explaining, but not what's actually going on in people's head: networks much better for high dimensionality
+
+-> similarity as distance reifies an abstraction? 
+maintaining high dimensional space is expensive
+
+if you ask: why are NK and CH similar, you don't get they are similar in high-dimensional space, but that they are countries, Asian, commies, non-democratic, bad
+
+high dimensional space could also be a metaphor for the functional mapping of PDP
+but feature links are more realistic/better me thinks
+
+~look up what hannan says about dimensionality of sub-spaces~
+
+kullback-leibler divergence: is basically measure of overlap: 
+doesn't allow any 0s tho
 
 
-* questions
+if geometric distance: 
+probability distribution has no impact on similarity judgments
+but that's just a theory
+test: 
+bunch of concepts, need independently : 
+- features listing 
+- similarity judgements
+
+
+Instead, it seems 
+
+
+* questions (list of ideas with more or less relevance)
+
 can i test prototype vs exemplar model? 
 do they imply different mechanisms for survival? 
-
 
 Piazzai doesn't even use word
 - exemplar/prototype view
@@ -330,12 +381,8 @@ Piazzai doesn't even use word
   Hannan: equivalent to informativeness
   is about relation between object and concept
   idc much about that relation
+
   
-fix refs
-- Hannan 2019: add authors
-
-fix ref style
-
 reflection (Lizardo)
 if i make for each genre a "spread-score": how big the tension between genres is (low for heavy metal and black metal, higher for black metal and opera) -> can average that to the genre level
 
@@ -370,16 +417,21 @@ fruit counterexample:
 fruit closest to item for 17/20 -> at least 8 dimensions needed (was actually re-analysis by Tversky)
 
 
+*** is classical view case of Habermaasian colonization? 
 
-*** is classical view part of Habermaasian colonization? 
+
+*** omnivores are genre police
+cite:Goldberg_2016_span: genres less likely to die when they are liked by people who like many works, but don't like genre spanning? 
 
 
-*** cite:Steyvers_2005_structure: The Large‐Scale Structure of Semantic Networks: Statistical Analyses and a Model of Semantic Growth
+*** cite:Steyvers_2005_structure
+
+# The Large‐Scale Structure of Semantic Networks: Statistical Analyses and a Model of Semantic Growth
 
 models of semantic organization (hierarchies, high-dimensional vector spaces, arbitrarily structured networks) incompatible with small world structure (log distribution, scale-free) of semantic networks
 
 omfg i'm so out of my area omfg
-would have to read so much more cognitive science stuff -> i'm f.u.c.k.e.d
+would have to read so much more cognitive science stuff fuuuuu
 
 good insofar: against Quillian
 also LSA bad
@@ -388,20 +440,37 @@ also LSA bad
 
 ~search for asymmetry~ -> Tversky 1977
 
-zG&}/Pv8w@^BPRiq"w9[
-
 Smith, E. E. and Medin, D. L. (1981). Categories and Concepts. Cambridge, MA: Harvard
 University Press.
 
 also already have the chicken -> bird -> animal 
 
 
-
-
-
 *** luke smith
 https://youtu.be/PnCXJn2cRf4?t=2120
 
+* refs :ignhead:
+#+Latex: \begin{sloppypar}
+#+Latex: \printbibliography
+#+Latex: \end{sloppypar}
+
+** export :noexport:
+#+BEGIN_SRC emacs-lisp
+  (org-babel-tangle)
+  (defun delete-org-comments (backend)
+    (loop for comment in (reverse (org-element-map (org-element-parse-buffer)
+                      'comment 'identity))
+      do
+      (setf (buffer-substring (org-element-property :begin comment)
+                  (org-element-property :end comment))
+            "")))
+
+  (let ((org-export-before-processing-hook '(delete-org-comments)))
+    (switch-to-buffer (org-latex-export-to-pdf)))
+#+END_SRC
+
+#+RESULTS:
+: #<buffer /home/johannes/Dropbox/gsss/thesis/text/theory.pdf>
 
 
 
