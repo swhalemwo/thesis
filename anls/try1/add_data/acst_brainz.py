@@ -7,6 +7,9 @@ import json
 import urllib.request
 import requests
 import time
+from clickhouse_driver import Client
+client = Client(host='localhost', password='anudora', database='frrl')
+
 # import musicbrainzngs
 
 # top_mbids=client.execute('select mbid from song_info3 order by cnt desc limit 20')
@@ -29,6 +32,7 @@ import time
 # batch processing testing
 
 def batch_prepper(batch):
+    """preps url for api from batch"""
     base_str = 'https://acousticbrainz.org/api/v1/high-level?recording_ids='
     # base_str = 'https://acousticbrainz.org/api/v1/low-level?recording_ids='
     cntr = 0
@@ -43,15 +47,12 @@ def batch_prepper(batch):
     return(url)
 
 
-
-
 # maximum torture, but seems to be working?
 # even with low -level still only needs ~2 sec for 31
 # much faster with high level
 
-    
-
 def batch_procr(data2, mlhd_ids, pointers):
+    """loop over input list, process based on what wored (lfmid, mbid) """
     for i in mlhd_ids:
 
         # first easy case: i not in pointers
@@ -84,7 +85,7 @@ def batch_procr(data2, mlhd_ids, pointers):
 
 
 def skes_proc(j, v):
-    """If j in mlhd_ids and datat2"""
+    """If j in mlhd_ids and datat2; dict used depends on which dict works"""
     
     if v is not None:
         # add all the other data here
@@ -115,6 +116,7 @@ def writer_res(skes, fails):
 # are they measuring distinct things? 
 
 def data_proc(inf_dict):
+    """gets musicological information out of information dict, puts in inf_row list"""
     dncblt = inf_dict['danceability']['all']['danceable']
     gender = inf_dict['gender']['all']['female']
     timb_brt = inf_dict['timbre']['all']['bright']
@@ -139,6 +141,7 @@ def data_proc(inf_dict):
 
 
 def nested_get(input_dict, nested_key, deflt):
+    """general fun from SO to get nested entries from dicts"""
     internal_dict_value = input_dict
     for k in nested_key:
         internal_dict_value = internal_dict_value.get(k, None)
@@ -174,6 +177,7 @@ def metadata_proc(md_dict):
 #     md_dict = data2[i]['0']['metadata']
 #     x = metadata_proc(md_dict)
 
+# define general keys genres and moods
 gnr_drtmnd_keys = ['alternative', 'blues', 'electronic', 'folkcountry', 'funksoulrnb', 'jazz', 'pop', 'raphiphop', 'rock']
 gnr_rosmern_keys = ['cla', 'dan', 'hip', 'jaz', 'pop', 'rhy', 'roc', 'spe']
 gnr_tzan_keys = ['blu', 'cla', 'cou', 'dis', 'hip', 'jaz', 'met', 'pop', 'reg', 'roc']
@@ -181,14 +185,15 @@ moods_mirex_keys = ['Cluster1', 'Cluster2', 'Cluster3', 'Cluster4', 'Cluster5']
 mood_keys = ['acoustic', 'aggressive', 'electronic', 'happy', 'party', 'relaxed', 'sad']
 
 
-
-
-
 if __name__ == '__main__':
 
-    with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_addgs.csv', 'r') as fi:
-        rdr = csv.reader(fi)
-        some_mbids = [i[0:2] for i in rdr]
+    # with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_addgs.csv', 'r') as fi:
+    #     rdr = csv.reader(fi)
+    #     some_mbids = [i[0:2] for i in rdr]
+
+    some_mbids = client.execute("""select lfm_id, mbid from addgs join 
+                                (select lfm_id, count(lfm_id) as cnt from addgs group by lfm_id having cnt =1) 
+                                using (lfm_id)""")
 
     ACST_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv'
     FAIL_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acst_fails.csv'
@@ -201,7 +206,7 @@ if __name__ == '__main__':
     skes = []
     fails =[]
 
-for i in some_mbids[0:1000]:
+for i in some_mbids:
     if i[0] == i[1]:
         batch.append(i[0])
         mlhd_ids.append(i[0])
@@ -216,6 +221,8 @@ for i in some_mbids[0:1000]:
 
     if len(batch) > 40:
         print('process batch')
+        print(some_mbids.index(i))
+        
         # break
         batch_str=batch_prepper(batch)
         # t1 = time.time()
