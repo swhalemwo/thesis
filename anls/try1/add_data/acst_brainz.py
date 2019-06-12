@@ -166,6 +166,19 @@ def metadata_proc(md_dict):
     md_row = [length, label, lang, rl_type, rls_cri]
     return(md_row)
 
+
+def get_dones():
+    with open(ACST_FILE) as fi:
+        rdr = csv.reader(fi)
+        skes = [r[0] for r in rdr]
+
+    with open(FAIL_FILE) as fi:
+        rdr = csv.reader(fi)
+        failed = [r[0] for r in rdr]
+
+        dones = skes + failed
+        return(dones)
+        
 # md_dict = data2['fb47ca87-499e-4c49-b8a1-3f784d1daa1b']['0']['metadata']
 
 
@@ -198,6 +211,28 @@ if __name__ == '__main__':
     ACST_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv'
     FAIL_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acst_fails.csv'
 
+    dones = get_dones()
+
+    smids = [i[0] for i in some_mbids]
+
+    stpd_dict = {}
+    for i in some_mbids:
+        stpd_dict[i[0]] = i[1]
+    
+    for i in dones:
+        try:
+            x = stpd_dict.pop(i)
+        except:
+            pass
+
+    # some_mbids2 = [[k,v]
+
+    some_mbids2 = []
+    for k in list(stpd_dict.keys()):
+        some_mbids2.append([k, stpd_dict[k]])
+
+    some_mbids = some_mbids2
+
     batch = []
     mlhd_ids = []
     pointers = {}
@@ -206,40 +241,42 @@ if __name__ == '__main__':
     skes = []
     fails =[]
 
-for i in some_mbids:
-    if i[0] == i[1]:
-        batch.append(i[0])
-        mlhd_ids.append(i[0])
-    else:
-        batch.append(i[0])
-        batch.append(i[1])
+    
 
-        mlhd_ids.append(i[0])
+    for i in some_mbids:
+        if i[0] == i[1]:
+            batch.append(i[0])
+            mlhd_ids.append(i[0])
+        else:
+            batch.append(i[0])
+            batch.append(i[1])
 
-        pointers[i[0]] = i[1]
-        # pointers[i[1]] = i[0]
+            mlhd_ids.append(i[0])
 
-    if len(batch) > 40:
-        print('process batch')
-        print(some_mbids.index(i))
-        
-        # break
-        batch_str=batch_prepper(batch)
-        # t1 = time.time()
-        # for p in range(200):
-        with urllib.request.urlopen(batch_str) as url2:
-            data2 = json.loads(url2.read().decode())
+            pointers[i[0]] = i[1]
+            # pointers[i[1]] = i[0]
 
-        batch_procr(data2, mlhd_ids, pointers)
-        writer_res(skes, fails)
+        if len(batch) > 40:
+            print('process batch')
+            print(some_mbids.index(i))
 
-        batch = []
-        mlhd_ids = []
-        pointers = {}
+            # break
+            batch_str=batch_prepper(batch)
+            # t1 = time.time()
+            # for p in range(200):
+            with urllib.request.urlopen(batch_str) as url2:
+                data2 = json.loads(url2.read().decode())
 
-        indirects=[]
-        skes = []
-        fails =[]
+            batch_procr(data2, mlhd_ids, pointers)
+            writer_res(skes, fails)
+
+            batch = []
+            mlhd_ids = []
+            pointers = {}
+
+            indirects=[]
+            skes = []
+            fails =[]
 
         
 
