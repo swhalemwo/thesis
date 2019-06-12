@@ -182,8 +182,13 @@ with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test
     for r in rdr:
         if r[4] == '9999-09-09':
             r[4] = '2099-09-09'
+
         
         dt = datetime.date(datetime.strptime(r[4], '%Y-%m-%d'))
+        
+        # CH for now only supports dates since start of unix epoch,
+        # requiring shenangians (int days since start) to store it
+        
         dt_int = (dt - datetime.date(datetime(1970, 1, 1))).days
 
         rp = r[0:4] + [dt_int] + [int(i) for i in r[5:]] + random.sample(range(80),1)
@@ -198,5 +203,43 @@ with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test
 
     client.execute('insert into addgs values', batch)
 
+
+
+
+# ** X_dones_tags
+client.execute('drop table dones_tags')
+
+client.execute("""create table dones_tags (
+lfm_id String,
+orgn String,
+len_tag_lst Int8,
+lsnrs Int32,
+plcnt Int32,
+rndm Int8)
+engine = MergeTree() partition by rndm order by tuple()""")
+
+# lens = []
+# rows = []
+
+batch = []
+c = 0
+with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_dones_tags.csv', 'r') as fi:
+    rdr = csv.reader(fi)
+
+    for r in rdr:
+        if r[1] == 'fail':
+            pass
+        else:
+            # lens.append(int(r[2]))
+            rp = r[0:2] + [int(i) for i in r[2:]] + random.sample(range(80),1)
+            batch.append(rp)
+
+            c+=1
+            if c % 5000 == 0:
+                client.execute('insert into dones_tags values', batch)
+                batch =[]
+    client.execute('insert into dones_tags values', batch)
+
+            # rows.append(r)
 
 
