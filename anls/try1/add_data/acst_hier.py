@@ -46,9 +46,9 @@ rows_tags = client.execute("""select mbid, tag, rel_weight, cnt from
 join (select mbid, cnt from song_info3 where cnt > 400 ) using mbid  
 where weight > 10 and rel_weight > 0.05""")
 
-df_tags = pd.DataFrame(rows_tags, columns=['mbid', 'tag', 'rel_weight', 'cnt'])
+df_tags = pd.DataFrame(rows_tags, columns=['lfm_id', 'tag', 'rel_weight', 'cnt'])
 
-songs_tags = df_tags['mbid']
+songs_tags = df_tags['lfm_id']
 len(np.unique(songs_tags))
 
 # select songs that have to be deleted
@@ -73,7 +73,73 @@ df_acst2 = df_acst.drop(rstp)
 # finally works
 
 
+# make dicts because dicts good
+
+
+gnr_song_dict = {}
+for r in df_tags.itertuples():
+    gnr = r.tag
     
+    if gnr in gnr_song_dict.keys():
+        gnr_song_dict[gnr].append(r.mbid)
+    else:
+        gnr_song_dict[gnr] = [r.mbid]
+        
+acst_pos_dict = {}
+for r in df_acst2.itertuples():
+    acst_pos_dict[r.lfm_id] = r.Index
+
+pop_rock_ids = [acst_pos_dict[i] for i in gnr_song_dict['pop rock']]
+
+
+
+
+unq_tags = list(np.unique(df_tags['tag']))
+
+# for i unq_tags:
+
+i = 'pop rock'
+
+i_ids = df_tags.loc['tag', i]
+
+df_gnr_tags = df_tags[df_tags['tag']==i]
+df_gnr_acst = df_acst.loc[pop_rock_ids]
+
+df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
+
+
+
+
+weighted_avg_and_std(df_gnr_cbmd['dncblt'], df_gnr_cbmd['cnt'])
+
+
+
+def weighted_avg_and_std(values, weights):
+    """
+    Return the weighted average and standard deviation.
+
+    values, weights -- Numpy ndarrays with the same shape.
+    """
+    average = np.average(values, weights=weights)
+    # Fast and numerically precise:
+    variance = np.average((values-average)**2, weights=weights)
+    return (average, math.sqrt(variance))
+
+
+# df_gnr_acst = df_acst[
+#     df_acst['lfm_id'] in df_gnr_tags['mbid']
+
+# dicts are cheap
+# should i do some dict shenangians to
+# could loop fo r
+
+# wish i could do that in ch, but then i'd have to it for every genrexs
+
+# make a bunch of dicts
+# dicts fast lel
+
+
+
 
 
 
