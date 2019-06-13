@@ -1,8 +1,10 @@
 from datetime import datetime
 import random
 
+
 from clickhouse_driver import Client
 client = Client(host='localhost', password='anudora', database='frrl')
+
 
 
 # * playcount testing #
@@ -283,7 +285,7 @@ ids = [avbl_vars.index(i) for i in chsn_vars]
 
 c = 0
 batch = []
-with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/mb_bu/acstbrnz.csv', 'r') as fi:
+with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv', 'r') as fi:
     rdr = csv.reader(fi)
     for r in rdr:
         c+=1
