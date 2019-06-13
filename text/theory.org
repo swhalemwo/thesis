@@ -352,10 +352,12 @@ if you ask: why are NK and CH similar, you don't get they are similar in high-di
 high dimensional space could also be a metaphor for the functional mapping of PDP
 but feature links are more realistic/better me thinks
 
-~look up what hannan says about dimensionality of sub-spaces~
+~look up what hannan says about dimensionality of sub-spaces~: 
+concepts have different dimensions
+for comparisons, the root concept is expanded into the conceptual space of the subconcept
 
 kullback-leibler divergence: is basically measure of overlap: 
-doesn't allow any 0s tho
+doesn't allow any 0s tho -> is not really measure of overlap? 
 
 
 if geometric distance: 
@@ -365,9 +367,110 @@ test:
 bunch of concepts, need independently : 
 - features listing 
 - similarity judgements
-
+NOPE: KL divergence takes into account distributions 
 
 Instead, it seems 
+
+**** hierarchy relations
+# 
+Hanna et al use the Kullback-Leibler divergence (KDV) to measure distance between concepts (p.75), which is calculated as 
+#
+\begin{equation*}
+D_{KL}(P_1||P_2) = \sum\limits_{x \in \mathbb{G}} P_1(x)  \log \left( \frac{P_1(x)}{P_2(x)} \right)
+\end{equation*}
+#
+They however do not mention that KDV is only defined under absolute continuity, which requires that for all x where P_2(x) is zero, P_1(x) likewise has to be zero (~better source than wikipedia~). 
+# 
+Failure of this restriction would result the fraction to be undefined. 
+# 
+The opposite case, (P_1 being zero at an x where P_2 is non-zero) does pose less of a problem: 
+# 
+While log(0) is negative infinite, for the entire expression applies: 
+
+\begin{equation*}
+\lim \limits_{x \rightarrow 0^{+}} x \log(x) = 0
+\end{equation*}
+# 
+~test with zeroes in x1~
+As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
+# 
+For example, the divergence of the concept of a ~swimmer~ from its root concept ~athlete~ can be meaningfully calculated in this fashion. 
+#
+~Here, a swimmer has non-zero values on all attributes of the ~athlete~ category~. 
+# 
+This is not the case for assessing the similarity between ~swimmer~ and ~weightlifter~, as the probability distributions in the dimensions that define each category (training (primarily) in pool, training (primarily) with weights) are non-overlapping. 
+
+#
+It is unclear if  textcite:Hannan_2019_concepts are aware of this limitation. 
+# 
+When measuring the distance between concepts on the same level in the case of a cohort, they claim to "also use the Kullbach-Leibler divergence to express the degree to which a concept stands out from its cohort" (p.81). 
+#
+However, when they do so in practice, they use cosine similarities converted into distances using an exponential function (and then average them for each concept as a measure of its distinctiveness vis-a-vis its cohort comembers). 
+# 
+However, using cosine similarities of (the centers of) the feature space dimensions does not take information of the probability distribution into account. 
+# 
+It would for example imply that two concepts are equally similar if their centers are at the same distance, regardless of the extent to which their probability distributions overlap (~figure X~), which strikes me as unintuitive. 
+
+It is also a symmetric distance. 
+# 
+One might argue that in the case of cohorts it is more justifiable to assume equal sizes, the very notion of variation in typicality seems to counteract this idea.
+~are penguins more similar to robins than robins to penguins~? 
+
+
+Using different measurements for these two cases, typicality of ~sub-conceptuality~ and distance between concepts, does not strike me as a bad idea. 
+#
+The question "how similar are swimmers to athletes" seems to me to be a qualitatively different one than the question "how similar are swimmers to sociologists". 
+# 
+
+
+
+**** metric spaces bad
+One might also ask generally in how far metric spaces are a adequate model for representing the relations between concepts. 
+# 
+dimensions expensive 
+
+textcite:Steyvers_2005_structure argue that natural association patterns of words exhibit small world structure and power-law degree distributions, which are better represented by a network than by inheritance hierarchies parencite:Quillian_1988_memory or high dimensional vector spaces such as those produced by LSA. 
+# 
+~textcite:Martin_2010_ant argues that the mental capacities of the human brain are severly limited.~
+# 
+It also seems to me that high dimensional vector spaces are cognitively expensive. 
+# 
+Working with high dimensional data for this project, which encompasses millions of songs, hundreds of thousands of users, and tens of thousands of genres, I also realized that the traditional ~cultural matrix~ (poetics source) model is very expensive and highly ineffective in storing such high-dimensional data. 
+# 
+While of course no single human brain has to deal with such a number of particular objects, the complexity arises by having to deal with a much higher amount of domains. 
+
+~source that only relevant information is given when asked~
+
+A network model of semantic space thus seems to provide a much more
+- realistic (need quote for that)
+model as it also provides a model of cognitive economy. 
+
+~OVERLAP~
+~triangle inequality~
+
+
+**** metric spaces reifications
+It as such seems to me that conceptual metric spaces are an analytic abstraction. 
+# 
+Often these are constructed from similarity jugements (~fruits example~)
+# 
+While they can provide insights, it seems that to varying degrees these notions have become reified. 
+# 
+It follows that if concepts are considered probability distribution in these feature spaces, similarity between these cannot be assessed based on metric distances, but on *feature overlap*. 
+# 
+Feature overlap does not treat the metric space as a space itself, but as defined by underlying attributes, the overlap of which is what leads to similarity judgements. 
+# 
+It is thus able to asymmetric similarity judgments (~figure Y~) as well as variation in similarity judgements given same metric distance (~figure X~). 
+# 
+Intransitivity can be accounted for by the fuzziness inherent in probability distributions. 
+
+
+
+
+
+
+
+
 
 
 * questions (list of ideas with more or less relevance)
