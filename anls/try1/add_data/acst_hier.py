@@ -4,7 +4,7 @@ from clickhouse_driver import Client
 import pandas as pd
 import numpy as np
 import math
-
+import time
 
 from scipy.stats import entropy
 from sklearn import preprocessing
@@ -54,6 +54,7 @@ len(np.unique(songs_tags))
 # select songs that have to be deleted
 songs_tbp = list(set(songs_acst) - set(songs_tags))
 
+# make lfm_id, row_id dict
 df_acst_dict = {}
 c = 0
 for r in df_acst.itertuples():
@@ -72,8 +73,7 @@ for i in songs_tbp:
 df_acst2 = df_acst.drop(rstp)
 # finally works
 
-
-# make dicts because dicts good
+# make position dicts because dicts good
 
 
 gnr_song_dict = {}
@@ -81,36 +81,85 @@ for r in df_tags.itertuples():
     gnr = r.tag
     
     if gnr in gnr_song_dict.keys():
-        gnr_song_dict[gnr].append(r.mbid)
+        gnr_song_dict[gnr].append(r.lfm_id)
     else:
-        gnr_song_dict[gnr] = [r.mbid]
+        gnr_song_dict[gnr] = [r.lfm_id]
         
 acst_pos_dict = {}
 for r in df_acst2.itertuples():
     acst_pos_dict[r.lfm_id] = r.Index
 
-pop_rock_ids = [acst_pos_dict[i] for i in gnr_song_dict['pop rock']]
 
 
 
 
 unq_tags = list(np.unique(df_tags['tag']))
-
 # for i unq_tags:
 
-i = 'pop rock'
+gnr = 'black metal'
+gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
 
-i_ids = df_tags.loc['tag', i]
-
-df_gnr_tags = df_tags[df_tags['tag']==i]
-df_gnr_acst = df_acst.loc[pop_rock_ids]
+df_gnr_tags = df_tags[df_tags['tag']==gnr]
+df_gnr_acst = df_acst.loc[gnr_acst_ids]
 
 df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
 
-
-
-
 weighted_avg_and_std(df_gnr_cbmd['dncblt'], df_gnr_cbmd['cnt'])
+
+g1 = 'black metal'
+g2 = 'metal'
+
+
+def gnr_sub(g1, g2):
+
+    t1 = time.time()
+    g1_ids = gnr_song_dict[g1]
+    t2 = time.time()
+
+    g2_ids = gnr_song_dict[g2]
+    t3 = time.time()
+    lack_overlap = set(g1_ids) - set(g2_ids)
+    t4 = time.time()
+    ovlp_prop = 1-(len(lack_overlap)/len(g1_ids))
+    t5 = time.time()
+    return(ovlp_prop)
+
+t1 = time.time()
+for i in range(1000):
+    gnr_sub('dubstep', 'electronic')
+t2 = time.time()
+
+# 371 comparisons in per sec
+# 16 mil is gonna take like 12 hours
+# and it's not even weighted yet
+# 
+
+
+from discodb import DiscoDB, Q
+
+data = {'mammals': ['cow', 'dog', 'cat', 'whale'],
+        'pets': ['dog', 'cat', 'goldfish'],
+        'aquatic': ['goldfish', 'whale']}
+
+db = DiscoDB(data) # create an immutable discodb object
+len(list(db.query(Q.parse('mammals & aquatic'))))
+
+db = DiscoDB(gnr_song_dict)
+
+t1 = time.time()
+for i in range(10000):
+    x = (list(db.query(Q.parse('rock & pop rock'))))
+t2 = time.time()    
+# 806/sec, not bad
+# performance goes a bit down (738-780) when running multiple processes, oh well, NBD
+
+[x for _,x in sorted(zip(Y,X))]
+
+tag_cnts = [len(gnr_song_dict[i]) for i in unq_tags]
+
+tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
+
+
 
 
 
