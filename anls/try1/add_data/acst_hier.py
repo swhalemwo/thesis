@@ -166,20 +166,20 @@ for g1 in tags_srt_sub:
 
     ovlp_res.append(g1_ovlps)
 
-==========
+
 ovlp_ar = np.array(ovlp_res)
 
-a = np.histogram(ovlp_ar, bins=30)
+# a = np.histogram(ovlp_ar, bins=30)
 
-a0 = np.append(np.array([0]), a[0])
-a1 = [i*10 for i in a[1]]
+# a0 = np.append(np.array([0]), a[0])
+# a1 = [i*10 for i in a[1]]
 
-plt.bar(a1, a0)
-plt.show()
+# plt.bar(a1, a0)
+# plt.show()
 
 
-plt.hist(a, bins='auto')
-plt.show()
+# plt.hist(a, bins='auto')
+# plt.show()
 
 subsets = np.where(ovlp_ar > 0.75)
 
@@ -193,10 +193,69 @@ for i in subsets[0]:
         
     c+=1
 
+gnr_edges = []
 for i in subsets_rl:
     print(tags_srt_sub[i[0]], '---', tags_srt_sub[i[1]])
+    gnr_edges.append([tags_srt_sub[i[1]], tags_srt_sub[i[0]]])
+
+from graph_tool.all import *
+g = Graph(directed=True)
+gt_lbls = g.add_edge_list(gnr_edges, hashed=True, string_vals=True)
+
+gt_lbls_plot = g.new_vertex_property('string')
+
+for v in g.vertices():
+    x = gt_lbls[v]
+    
+    gt_lbls_plot[v] = x.replace(" ", "\n")
+    
+
+size = g.degree_property_map('in')
+
+size_scl=graph_tool.draw.prop_to_size(size, mi=6, ma=15, log=False, power=0.5)
+size_scl2=graph_tool.draw.prop_to_size(size, mi=10, ma=100, log=False, power=0.5)
+
+
+graph_draw(g, output_size= (3000,3000),
+           output = 'gnr_space.pdf',
+           vertex_text = gt_lbls_plot,
+           vertex_size = size_scl2,
+           vertex_font_size=size_scl
+)
+
+
+# plot hierarchically 
+gvd = graphviz_draw(g, size = (20,20),
+                    layout = 'dot',
+                    vprops = {'xlabel':gt_lbls_plot, 'fontsize':80, 'height':0.03,
+                              'width':0.03, 'shape':'point'},
+                    # returngv==True,
+                    output = 'gnr_space2.pdf')
+
+
+
+gvd = graphviz_draw(g, size = (20,20),
+                    # layout = 'sfdp',
+                    # overlap = 'scalexy',
+                    overlap = 'false',
+                    vprops = {'xlabel':gt_lbls_plot, 'fontsize':size_scl, 'height':0.03,
+                              'width':0.03, 'shape':'point'},
+                    eprops = {'arrowhead':'vee', 'color':'grey'},
+                    # returngv==True,
+                    output = 'gnr_space3.pdf')
+
+just text no vertex?
+
+
+
+# can add transitivity violations as variable:
+# see if any there are supersets of supersets that are not supersets of X
+    
 # fuck yeah
 # could also be way of filtering: only relevant genres are those that either have subgenres or are subgenres of something
+
+graphviz dot might be good
+
 
 
 
