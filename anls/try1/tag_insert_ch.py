@@ -1,8 +1,8 @@
 import csv
-
 from clickhouse_driver import Client
 
-log_dir ="/home/johannes/Dropbox/gsss/thesis/anls/try1/pre_proc/test/"
+
+
 client = Client(host='localhost', password='anudora', database='frrl')
 
 
@@ -28,6 +28,37 @@ with open(tag_file, 'r') as fi:
             c=0
             batch=[]
             print(c2)
+
+
+# update weights
+
+client.execute("drop table tag_sums")
+
+client.execute("""create table tag_sums (mbid String, tag String, weight Int32, ttl_weight Int32)
+engine=MergeTree() partition by weight order by tuple()""")
+
+client.execute("""insert into tag_sums
+select * from tags 
+join (select mbid, sum(weight) from tags where weight > 10 group by mbid) using (mbid)""")
+
+client.execute("alter table tag_sums add column rel_weight Float32")
+
+client.execute("alter table tag_sums update rel_weight = divide(weight,ttl_weight) where weight > 0")
+
+
+## can play with parameters to get nice number of tags
+select count(*) from (
+    select tag, count(tag) from tags where weight > 10 group by tag having count(tag) > 30 order by count(tag) desc
+
+select count(*) from (
+    select tag, count(tag) from tag_sums where rel_weight > 0.05 group by tag having count(tag) > 30)
+
+
+
+
+
+
+
 
 
 select uniqExact(tag) from tags where weight > 10

@@ -174,6 +174,12 @@ ovlp_ar = np.array(ovlp_res)
 # a0 = np.append(np.array([0]), a[0])
 # a1 = [i*10 for i in a[1]]
 
+
+# artists seem to be between clusters: rammstein, marilyn manson, korn, disturbed, system of a down, linkin park
+# would suck to exclude them, they've basically become a brand now
+# are part of the cognitive web that people use to classify music
+
+
 # plt.bar(a1, a0)
 # plt.show()
 

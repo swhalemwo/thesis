@@ -19,6 +19,6 @@ quantileExact(0.75)(weight) as q75
 from frrl.tags where weight > 10 group by tag having count(tag) > 50 order by avg(weight) desc
 "
 
-ggplot(df, aes(x=avg_weight, y=q50))+
-    geom_point(aes(size=cnt))
+ggplot(df, aes(x=avg_weight, y=log(cnt)))+
+    geom_point(aes(size=q50*0.1))
     ## geom_jitter(aes(size=cnt))

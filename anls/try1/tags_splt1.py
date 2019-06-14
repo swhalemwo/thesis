@@ -9,6 +9,7 @@ from calendar import monthrange
 import musicbrainzngs
 musicbrainzngs.set_useragent('mbid_correcter', 0.1, 'johannes.aengenheyster@student.uva.nl')
 import pylast
+
 API_KEY = "6ff51b99224a1726d47f686d7fcc8083"
 API_SECRET="1ba59bdc2b860b8c9f52ac650e3cb6ab"
 network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
@@ -182,9 +183,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     chunk_nbr = str(args.chunk_nbr)
-    # chunk_nbr = '4'
+    chunk_nbr = '1';
 
-    chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split/'
+    chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/'
     FAILED_FILE = chunk_dir + chunk_nbr + '_failed.csv'
     ADDGS = chunk_dir + chunk_nbr + '_addgs.csv'
     DONES_FILE = chunk_dir + chunk_nbr + '_dones.csv'

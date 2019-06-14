@@ -385,12 +385,13 @@ Failure of this restriction would result the fraction to be undefined.
 # 
 The opposite case, (P_1 being zero at an x where P_2 is non-zero) does pose less of a problem: 
 # 
-While log(0) is negative infinite, for the entire expression applies: 
+While log(0) is negative infinite, the entire expression becomes 0 as the following applies: 
 
 \begin{equation*}
 \lim \limits_{x \rightarrow 0^{+}} x \log(x) = 0
 \end{equation*}
-# 
+# what is 0+?
+
 ~test with zeroes in x1~
 As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
 # 
@@ -431,7 +432,7 @@ dimensions expensive
 
 textcite:Steyvers_2005_structure argue that natural association patterns of words exhibit small world structure and power-law degree distributions, which are better represented by a network than by inheritance hierarchies parencite:Quillian_1988_memory or high dimensional vector spaces such as those produced by LSA. 
 # 
-~textcite:Martin_2010_ant argues that the mental capacities of the human brain are severly limited.~
+textcite:Martin_2010_ant ~argues that the mental capacities of the human brain are severly limited.~
 # 
 It also seems to me that high dimensional vector spaces are cognitively expensive. 
 # 
@@ -466,7 +467,8 @@ Intransitivity can be accounted for by the fuzziness inherent in probability dis
 
 
 
-
+**** focus on one unit's environment: asymmetry is fine: 
+mpcpherson: competition is asymmetric
 
 
 

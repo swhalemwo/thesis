@@ -158,9 +158,25 @@ def get_tag_dones():
     return(dones)
 
 def get_todos(dones):
+    """compares todos with dones, might need some optimization"""
+
     with open(TODO_FILE, 'r') as fi:
         rdr = csv.reader(fi)
+        
         all = [row[0:4] for row in rdr if row[0] not in dones]
+        # all = []
+        # c = 0
+        # for row in rdr:
+        #     if row[0] not in dones:
+        #         all.append(row[0:4])
+                
+
+        #     c+=1
+        #     if c % 50 ==0:
+        #         print(c)                
+
+
+        
     return(all)
 
 def save_tags(tags):
@@ -177,7 +193,7 @@ def insert_dones(dones_obj):
 
 
 def insert_failed_tag(mbid):
-    with open(FAILED_FILE, 'r') as fi:
+    with open(FAILED_FILE, 'a') as fi:
         wr = csv.writer(fi)
         wr.writerow([mbid])
 
@@ -212,6 +228,7 @@ def proc_inf(resp_dict):
 
 
 def get_plcnts(arg_list):
+    """gets playcount"""
     cntr = 1
     for i in arg_list:
 
