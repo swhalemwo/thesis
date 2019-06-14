@@ -5,9 +5,24 @@ import pandas as pd
 import numpy as np
 import math
 import time
+from discodb import DiscoDB, Q
+import matplotlib.pyplot as plt
 
 from scipy.stats import entropy
 from sklearn import preprocessing
+
+def weighted_avg_and_std(values, weights):
+    """
+    Return the weighted average and standard deviation.
+
+    values, weights -- Numpy ndarrays with the same shape.
+    """
+    average = np.average(values, weights=weights)
+    # Fast and numerically precise:
+    variance = np.average((values-average)**2, weights=weights)
+    return (average, math.sqrt(variance))
+
+
 
 
 client = Client(host='localhost', password='anudora', database='frrl')
@@ -110,39 +125,10 @@ g1 = 'black metal'
 g2 = 'metal'
 
 
-def gnr_sub(g1, g2):
-
-    t1 = time.time()
-    g1_ids = gnr_song_dict[g1]
-    t2 = time.time()
-
-    g2_ids = gnr_song_dict[g2]
-    t3 = time.time()
-    lack_overlap = set(g1_ids) - set(g2_ids)
-    t4 = time.time()
-    ovlp_prop = 1-(len(lack_overlap)/len(g1_ids))
-    t5 = time.time()
-    return(ovlp_prop)
-
-t1 = time.time()
-for i in range(1000):
-    gnr_sub('dubstep', 'electronic')
-t2 = time.time()
-
 # 371 comparisons in per sec
 # 16 mil is gonna take like 12 hours
 # and it's not even weighted yet
 # 
-
-
-from discodb import DiscoDB, Q
-
-data = {'mammals': ['cow', 'dog', 'cat', 'whale'],
-        'pets': ['dog', 'cat', 'goldfish'],
-        'aquatic': ['goldfish', 'whale']}
-
-db = DiscoDB(data) # create an immutable discodb object
-len(list(db.query(Q.parse('mammals & aquatic'))))
 
 db = DiscoDB(gnr_song_dict)
 
@@ -153,26 +139,72 @@ t2 = time.time()
 # 806/sec, not bad
 # performance goes a bit down (738-780) when running multiple processes, oh well, NBD
 
-[x for _,x in sorted(zip(Y,X))]
+
+def gnr_sub_disco(g1, g2):
+    qry1 = g1 + " & " + g2
+    ovlp = len(list(db.query(Q.parse(qry1))))
+    ovlp_prop = ovlp/len(gnr_song_dict[g1])
+    return(ovlp_prop)
+
+
+# [x for _,x in sorted(zip(Y,X))]
 
 tag_cnts = [len(gnr_song_dict[i]) for i in unq_tags]
 
+# get tags sorted by playcount or appearance or something
 tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 
+tags_srt_sub = tags_srtd[0:500]
+
+ovlp_res = []
+
+for g1 in tags_srt_sub:
+    g1_ovlps = []
+    for g2 in tags_srt_sub:
+        ovlp = gnr_sub_disco(g1, g2)
+        g1_ovlps.append(ovlp)
+
+    ovlp_res.append(g1_ovlps)
+
+==========
+ovlp_ar = np.array(ovlp_res)
+
+a = np.histogram(ovlp_ar, bins=30)
+
+a0 = np.append(np.array([0]), a[0])
+a1 = [i*10 for i in a[1]]
+
+plt.bar(a1, a0)
+plt.show()
+
+
+plt.hist(a, bins='auto')
+plt.show()
+
+subsets = np.where(ovlp_ar > 0.75)
+
+subsets_rl = []
+c =0
+for i in subsets[0]:
+    i2 = subsets[1][c]
+
+    if i != i2:
+        subsets_rl.append([i,i2])
+        
+    c+=1
+
+for i in subsets_rl:
+    print(tags_srt_sub[i[0]], '---', tags_srt_sub[i[1]])
+# fuck yeah
+# could also be way of filtering: only relevant genres are those that either have subgenres or are subgenres of something
 
 
 
 
-def weighted_avg_and_std(values, weights):
-    """
-    Return the weighted average and standard deviation.
+# fo = open('test.disco', 'a')
+#     db.dump(fo)
 
-    values, weights -- Numpy ndarrays with the same shape.
-    """
-    average = np.average(values, weights=weights)
-    # Fast and numerically precise:
-    variance = np.average((values-average)**2, weights=weights)
-    return (average, math.sqrt(variance))
+
 
 
 # df_gnr_acst = df_acst[
@@ -425,7 +457,38 @@ klbk_lblr_dist(x2,x1)
 #     else:
 #         print('lel')
 
+# ** testing of discodb
+# data = {'mammals': ['cow', 'dog', 'cat', 'whale'],
+#         'pets': ['dog', 'cat', 'goldfish'],
+#         'aquatic': ['goldfish', 'whale']}
+
+# db = DiscoDB(data) # create an immutable discodb object
+# len(list(db.query(Q.parse('mammals & aquatic'))))
+
+# ** old comparison function
+# def gnr_sub(g1, g2):
+
+#     t1 = time.time()
+#     g1_ids = gnr_song_dict[g1]
+#     t2 = time.time()
+
+#     g2_ids = gnr_song_dict[g2]
+#     t3 = time.time()
+#     lack_overlap = set(g1_ids) - set(g2_ids)
+#     t4 = time.time()
+#     ovlp_prop = 1-(len(lack_overlap)/len(g1_ids))
+#     t5 = time.time()
+#     return(ovlp_prop)
+
+# t1 = time.time()
+# for i in range(1000):
+#     gnr_sub('dubstep', 'electronic')
+# t2 = time.time()
+
+
 # * older ch queries
 # rows_tags = client.execute("""select mbid, tag, rel_weight, cnt from tag_sums 
 # join (select mbid, cnt from song_info3 where cnt > 400 ) using mbid 
 # where weight > 10 and rel_weight > 0.05""")
+
+
