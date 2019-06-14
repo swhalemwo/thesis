@@ -179,13 +179,17 @@ def mb_fail_handle(i):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('chunk_dir', help = 'working directory, place where all the magic happens')
     parser.add_argument('chunk_nbr', help='chunk number')
+
     args = parser.parse_args()
 
+    chunk_dir = args.chunk_dir
     chunk_nbr = str(args.chunk_nbr)
-    chunk_nbr = '1';
+    # chunk_nbr = '1';
 
-    chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/'
+
+    # chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/'
     FAILED_FILE = chunk_dir + chunk_nbr + '_failed.csv'
     ADDGS = chunk_dir + chunk_nbr + '_addgs.csv'
     DONES_FILE = chunk_dir + chunk_nbr + '_dones.csv'

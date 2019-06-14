@@ -249,13 +249,18 @@ def get_plcnts(arg_list):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('chunk_dir', help = 'working directory, place where all the magic happens')
     parser.add_argument('chunk_nbr', help='chunk number')
     args = parser.parse_args()
 
-    chunk_nbr = str(args.chunk_nbr)
-    # chunk_nbr = '1'
+    end_nigh = 0
 
-    chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/'
+    chunk_dir = args.chunk_dir
+    chunk_nbr = str(args.chunk_nbr)
+    
+    # chunk_nbr = '1'
+    # chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/'
+
     DONES_FILE = chunk_dir + chunk_nbr + '_dones_tags.csv'
     TODO_FILE = chunk_dir + chunk_nbr + '_addgs.csv'
     FAILED_FILE = chunk_dir + chunk_nbr + '_tags_failed.csv'
@@ -302,10 +307,15 @@ if __name__ == '__main__':
         # get new ones
         # might have to fix: when coming to end, it will try to read new ones
         # but there aren't, but still sleep 5 sec each run
-        if len(todos) < 100:
+        
+        if len(todos) < 100 and end_nigh == 0:
+            time.sleep(20)
             tags_done = get_tag_dones()
             todos = get_todos(tags_done)
-            time.sleep(5)
+
+            if len(todos) < 100:
+                end_nigh = 1
+                print("THE END IS NIGH")
 
         
 # quite much faster, can use mb names really in 99 of cases
