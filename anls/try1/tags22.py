@@ -313,10 +313,11 @@ if __name__ == '__main__':
             tags_done = get_tag_dones()
             todos = get_todos(tags_done)
 
+            # if no new ones added (still < 100): stop checking for new ones completely
             if len(todos) < 100:
                 end_nigh = 1
                 print("THE END IS NIGH")
-
+            # could add another check for 10, but see first
         
 # quite much faster, can use mb names really in 99 of cases
 # seems to be at 2/sec 
