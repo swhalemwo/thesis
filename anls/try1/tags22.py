@@ -160,10 +160,26 @@ def get_tag_dones():
 def get_todos(dones):
     """compares todos with dones, might need some optimization"""
 
+
+    addgs_dict = {}
+    
     with open(TODO_FILE, 'r') as fi:
         rdr = csv.reader(fi)
-        
-        all = [row[0:4] for row in rdr if row[0] not in dones]
+    
+        for row in rdr:
+            addgs_dict[row[0]] = row[0:4]
+
+    for i in tags_done:
+        try:
+            addgs_dict.pop(i)
+        except:
+            pass
+
+    all = [addgs_dict[i] for i in list(addgs_dict.keys())]
+    
+
+        # all = [row[0:4] for row in rdr if row[0] not in dones]
+
         # all = []
         # c = 0
         # for row in rdr:
@@ -174,8 +190,6 @@ def get_todos(dones):
         #     c+=1
         #     if c % 50 ==0:
         #         print(c)                
-
-
         
     return(all)
 
@@ -258,8 +272,8 @@ if __name__ == '__main__':
     chunk_dir = args.chunk_dir
     chunk_nbr = str(args.chunk_nbr)
     
-    # chunk_nbr = '1'
-    # chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/'
+    chunk_nbr = '5'
+    chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/chunk5/'
 
     DONES_FILE = chunk_dir + chunk_nbr + '_dones_tags.csv'
     TODO_FILE = chunk_dir + chunk_nbr + '_addgs.csv'
