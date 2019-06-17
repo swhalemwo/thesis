@@ -23,8 +23,6 @@ def weighted_avg_and_std(values, weights):
     return (average, math.sqrt(variance))
 
 
-
-
 client = Client(host='localhost', password='anudora', database='frrl')
 
 avbl_vars = ['id', 'dncblt', 'gender', 'timb_brt', 'tonal', 'voice', 'mood_acoustic', 'mood_aggressive', 'mood_electronic', 'mood_happy', 'mood_party', 'mood_relaxed', 'mood_sad', 'gnr_dm_alternative', 'gnr_dm_blues', 'gnr_dm_electronic', 'gnr_dm_folkcountry', 'gnr_dm_funksoulrnb', 'gnr_dm_jazz', 'gnr_dm_pop', 'gnr_dm_raphiphop', 'gnr_dm_rock', 'gnr_rm_cla', 'gnr_rm_dan', 'gnr_rm_hip', 'gnr_rm_jaz', 'gnr_rm_pop', 'gnr_rm_rhy', 'gnr_rm_roc', 'gnr_rm_spe', 'gnr_tza_blu', 'gnr_tza_cla', 'gnr_tza_cou', 'gnr_tza_dis', 'gnr_tza_hip', 'gnr_tza_jaz', 'gnr_tza_met', 'gnr_tza_pop', 'gnr_tza_reg', 'gnr_tza_roc', 'mirex_Cluster1', 'mirex_Cluster2', 'mirex_Cluster3', 'mirex_Cluster4', 'mirex_Cluster5', 'length', 'label', 'lang', 'rl_type', 'rls_cri']
@@ -90,7 +88,6 @@ df_acst2 = df_acst.drop(rstp)
 
 # make position dicts because dicts good
 
-
 gnr_song_dict = {}
 for r in df_tags.itertuples():
     gnr = r.tag
@@ -100,18 +97,16 @@ for r in df_tags.itertuples():
     else:
         gnr_song_dict[gnr] = [r.lfm_id]
         
+
 acst_pos_dict = {}
 for r in df_acst2.itertuples():
     acst_pos_dict[r.lfm_id] = r.Index
 
 
-
-
-
 unq_tags = list(np.unique(df_tags['tag']))
 # for i unq_tags:
 
-gnr = 'black metal'
+# gnr = 'black metal'
 gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
 
 df_gnr_tags = df_tags[df_tags['tag']==gnr]
@@ -121,8 +116,8 @@ df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
 
 weighted_avg_and_std(df_gnr_cbmd['dncblt'], df_gnr_cbmd['cnt'])
 
-g1 = 'black metal'
-g2 = 'metal'
+# g1 = 'black metal'
+# g2 = 'metal'
 
 
 # 371 comparisons in per sec
@@ -135,28 +130,28 @@ g2 = 'metal'
 
 db = DiscoDB(gnr_song_dict)
 
-t1 = time.time()
-for i in range(100):
-    x = (list(db.query(Q.parse('rock & pop rock'))))
-t2 = time.time()    
+# t1 = time.time()
+# for i in range(100):
+#     x = (list(db.query(Q.parse('rock & pop rock'))))
+# t2 = time.time()    
 # 806/sec, not bad
 # performance goes a bit down (738-780) when running multiple processes, oh well, NBD
 
 
-t1 = time.time()
-for i in range(500):
+# t1 = time.time()
+# for i in range(500):
 
-    g1_entrs = gnr_song_dict[g1]
-    g2_entrs = gnr_song_dict[g2]
+#     g1_entrs = gnr_song_dict[g1]
+#     g2_entrs = gnr_song_dict[g2]
 
-    x = set.intersection(set(g1_entrs), set(g2_entrs))
-    # print(len(x)/len(g1_entrs))
+#     x = set.intersection(set(g1_entrs), set(g2_entrs))
+#     # print(len(x)/len(g1_entrs))
 
-t2 = time.time()
-
-
+# t2 = time.time()
 
 def gnr_sub_disco(g1, g2):
+    """compare overlap between two genres
+    outspeeded by metaqueries"""
     qry1 = g1 + " & " + g2
     ovlp = len(list(db.query(Q.parse(qry1))))
     ovlp_prop = ovlp/len(gnr_song_dict[g1])
@@ -173,22 +168,20 @@ tag_cnts = [len(gnr_song_dict[i]) for i in unq_tags]
 # get tags sorted by playcount or appearance or something
 tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 
-tags_srt_sub = tags_srtd[0:1000]
-
-ovlp_res = []
-
-for g1 in tags_srt_sub:
-    g1_ovlps = []
-    for g2 in tags_srt_sub:
-        ovlp = gnr_sub_disco(g1, g2)
-        g1_ovlps.append(ovlp)
-
-    ovlp_res.append(g1_ovlps)
 
 
-ovlp_ar = np.array(ovlp_res)
+# ovlp_res = []
+
+# for g1 in tags_srt_sub:
+#     g1_ovlps = []
+#     for g2 in tags_srt_sub:
+#         ovlp = gnr_sub_disco(g1, g2)
+#         g1_ovlps.append(ovlp)
+
+#     ovlp_res.append(g1_ovlps)
 
 
+# ovlp_ar = np.array(ovlp_res)
 
 
 # a = np.histogram(ovlp_ar, bins=30)
@@ -203,76 +196,12 @@ ovlp_ar = np.array(ovlp_res)
 
 
 
-
 # plt.bar(a1, a0)
 # plt.show()
 
 
 # plt.hist(a, bins='auto')
 # plt.show()
-
-subsets = np.where(ovlp_ar > 0.75)
-
-subsets_rl = []
-c =0
-for i in subsets[0]:
-    i2 = subsets[1][c]
-
-    if i != i2:
-        subsets_rl.append([i,i2])
-        
-    c+=1
-
-gnr_edges = []
-for i in subsets_rl:
-    print(tags_srt_sub[i[0]], '---', tags_srt_sub[i[1]])
-    gnr_edges.append([tags_srt_sub[i[1]], tags_srt_sub[i[0]]])
-
-from graph_tool.all import *
-g = Graph(directed=True)
-gt_lbls = g.add_edge_list(gnr_edges, hashed=True, string_vals=True)
-
-gt_lbls_plot = g.new_vertex_property('string')
-
-for v in g.vertices():
-    x = gt_lbls[v]
-    
-    gt_lbls_plot[v] = x.replace(" ", "\n")
-    
-
-size = g.degree_property_map('in')
-
-size_scl=graph_tool.draw.prop_to_size(size, mi=6, ma=15, log=False, power=0.5)
-size_scl2=graph_tool.draw.prop_to_size(size, mi=10, ma=100, log=False, power=0.5)
-
-
-graph_draw(g, output_size= (3000,3000),
-           output = 'gnr_space.pdf',
-           vertex_text = gt_lbls_plot,
-           vertex_size = size_scl2,
-           vertex_font_size=size_scl
-)
-
-
-# plot hierarchically 
-gvd = graphviz_draw(g, size = (20,20),
-                    layout = 'dot',
-                    vprops = {'xlabel':gt_lbls_plot, 'fontsize':80, 'height':0.03,
-                              'width':0.03, 'shape':'point'},
-                    # returngv==True,
-                    output = 'gnr_space2.pdf')
-
-
-
-gvd = graphviz_draw(g, size = (20,20),
-                    # layout = 'sfdp',
-                    # overlap = 'scalexy',
-                    overlap = 'false',
-                    vprops = {'xlabel':gt_lbls_plot, 'fontsize':size_scl, 'height':0.03,
-                              'width':0.03, 'shape':'point'},
-                    eprops = {'arrowhead':'vee', 'color':'grey'},
-                    # returngv==True,
-                    output = 'gnr_space3.pdf')
 
 # just text no vertex so much nicer
 # graphviz dot good: can handle linebreaked titles
@@ -557,243 +486,6 @@ klbk_lblr_dist(x2,x1)
 #         print(sub_res)
 #     else:
 #         print('lel')
-
-# * testing of discodb
-data = {'mammals': ['cow', 'dog', 'cat', 'whale'],
-        'pets': ['dog', 'cat', 'goldfish'],
-        'aquatic': ['goldfish', 'whale']}
-
-dbx = DiscoDB(data) # create an immutable discodb object
-x = dbx.query(Q.parse('mammals & aquatic'))
-[print(i) for i in x]
-
-qry = Q.parse('mammals')
-
-qry2 = Q.metaquery(dbx, 'mammals')
-
-x = dbx.metaquery('pets', qry2)
-dbx.
-
-d = DiscoDB({'A': ['B', 'C'], 'B': 'D', 'C': 'E', 'D': 'F', 'E': 'G'})
-sorted(d.query(Q.parse('A')))
-sorted(d.query(Q.parse('B')))
-sorted(d.query(Q.parse('*A')))
-sorted(d.query(Q.parse('A | B')))
-sorted(d.query(Q.parse('*A | B')))
-sorted(d.query(Q.parse('**A | *B')))
-
-mqry = Q.parse('A')
-x =
-for k,vs in d.metaquery('A | B'):
-    print(k, 'wololo', list(vs))
-    print(k,v)
-
-for i in x:
-    print(i)
-
-    d.metaquery(x)
-    
-dbx.metaquery([(Q.parse('A'), ['B', 'C'])])
-
-
-## ** see if metaqueries can be speed up
-# yeeees
-metals = ['metal','true metal', 'speed metal', 'epic metal', 'sludge metal', 'Nu-metal', 'Iron Maiden', 'finnish metal', 'heavy metal', 'metallica', 'death metal', 'viking metal', 'christian metal', 'trash metal']
-
-gnr_song_dict2 = {}
-
-for i in metals:
-    gnr_song_dict2[i] = gnr_song_dict[i]
-
-gnr_song_dict2['metals'] = metals
-
-dbm = DiscoDB(gnr_song_dict2)
-
-m = dbm.metaquery('true metal')
-
-for k,v in dbm.metaquery('true metal & *metals'):
-    # print(len(k))
-    print(len(v))
-
-[print(i) for i in dbm.query(Q.parse('metals'))]
-
-
-# *** time comparison with metaqueries
-
-t1 = time.time()
-lens = []
-for m1 in metals:
-    for m2 in metals:
-        x = dbm.query(Q.parse(m1 + " & " + m2))
-        lens.append(len(x))
-t2 = time.time()
-
-
-t1 = time.time()
-lens2 = []
-for m1 in metals:
-    for k,v in dbm.metaquery(m1 + '& *metals'):
-        x = len(v)
-        lens2.append(x)
-t2 = time.time()
-    
-# time difference seems to get bigger with more comparisons?
-# but not so flexible: have to see in advance that genres have the number of genres i want them to have
-
-# *** try with large dataset
-
-tags_srt_sub = tags_srtd[0:2000]
-
-gnr_dict2 = {}
-for i in tags_srt_sub:
-    print(i)
-
-    gnr_dict2[i] = gnr_song_dict[i]
-
-gnr_dict2['genres'] = tags_srt_sub
-
-db2 = DiscoDB(gnr_dict2)
-
-t1 = time.time()
-lens_ttls = []
-for g in tags_srt_sub:
-    g_lens = []
-    for k,v in db2.metaquery(g + '& *genres'):
-        x = len(v)
-        g_lens.append(x)
-    lens_ttls.append(g_lens)
-
-    print(g)
-    
-t2 = time.time()
-# 500: 28.8 sec: 8.6k/sec
-# 1k: 109 sec: 9.1k/sec
-# 2k: 421: 9.5/sec
-# almost grows? 
-
-#
-
-t1 = time.time()
-lens_ttls = []
-for g1 in tags_srt_sub:
-    g_lens =[]
-    for g2 in tags_srt_sub:
-
-        x = db2.query(Q.parse(g1 + " & " + g2))
-        g_lens.append(len(x))
-    lens_ttls.append(g_lens)
-    print(g1)
-t2 = time.time()
-# 500: 48 sec: 5.2k/sec
-# 1k: 182: 5.5k/sec
-# 2k: 722: 5.5k/sec
-
-
-# ** writing/loading
-
-fo = open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/db.disco', 'a')
-    db.dump(fo)
-    fo.close()
-
-with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/db.disco', 'r') as fi:
-    dbsx = DiscoDB.load(fi)
-
-
-# ** multiprocessing theory
-from multiprocessing import Process
-
-def f(name):
-    print('hello', name)
-    for i in range(5):
-        print(i)
-        time.sleep(1)
-
-if __name__ == '__main__':
-    p = Process(target=f, args=('bob',))
-    p.start()
-    p.join()
-
-names = ['alice', 'bob', 'caitlin']
-
-for n in names:
-    p = Process(target=f, args=(n,))
-    p.start()
-    p.join()
-
-
-from multiprocessing import Pool
-from time import sleep
-
-def job(num):
-    for i in range(1,4):
-        print(num, i)
-        sleep(1)
-    return num * 2
-
-p = Pool(processes=4)
-data = p.map(job, [i for i in range(10)])
-
-
-
-# looks like metaqueries make it consistenly 66-70% faster
-# wonder how it scales with more entries in sets
-
-# ** multiprocessing application
-
-def ovlps_mp(gnrs):
-    """multiprocessed genre overlap"""
-    lens_ttls = []
-    for g in gnrs:
-        g_lens = []
-        # 'genres' has to be set in (disco)db, gnrs is just the subset of genres to be processed by each instance
-        # print('genre below')
-        print(g)
-        # print('genre above')        
-        for k,v in db2.metaquery(g + '& *genres'):
-            x = len(v)
-            g_lens.append(x)
-        lens_ttls.append(g_lens)
-    return(lens_ttls)
-
-
-gnrs1 = tags_srt_sub[0:100]
-gnrs2 = tags_srt_sub[100:200]
-gnrs3 = tags_srt_sub[200:300]
-gnrs4 = tags_srt_sub[300:400]
-
-pool_gnrs = [gnrs1, gnrs2, gnrs3, gnrs4]
-
-p = Pool(processes=4)
-
-t1=time.time()
-data = p.map(ovlps_mp, [i for i in pool_gnrs])
-t2=time.time()
-
-# jfc 20k/sec
-# now i just have to hope that doesn't go down the drain much when increasing sets
-
-
-
-# ** old comparison function
-# def gnr_sub(g1, g2):
-
-#     t1 = time.time()
-#     g1_ids = gnr_song_dict[g1]
-#     t2 = time.time()
-
-#     g2_ids = gnr_song_dict[g2]
-#     t3 = time.time()
-#     lack_overlap = set(g1_ids) - set(g2_ids)
-#     t4 = time.time()
-#     ovlp_prop = 1-(len(lack_overlap)/len(g1_ids))
-#     t5 = time.time()
-#     return(ovlp_prop)
-
-# t1 = time.time()
-# for i in range(1000):
-#     gnr_sub('dubstep', 'electronic')
-# t2 = time.time()
-
 
 # * older ch queries
 # rows_tags = client.execute("""select mbid, tag, rel_weight, cnt from tag_sums 
