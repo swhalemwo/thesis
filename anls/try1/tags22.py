@@ -5,9 +5,6 @@ import os
 import re
 import pylast
 import time
-API_KEY = "6ff51b99224a1726d47f686d7fcc8083"
-API_SECRET="1ba59bdc2b860b8c9f52ac650e3cb6ab"
-network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
 
 
 # mbid='b6ab0f53-9acf-430b-b3d8-8b79b0a28201'
@@ -257,20 +254,33 @@ def get_plcnts(arg_list):
             continue
     else:
         return([0,0])
-            
-        
+
+
+def get_auth(authfile):
+    auths = []
+    with open(authfile, 'r') as fi:
+        rdr = csv.reader(fi)
+        auths = [i for i in rdr]
+    return(auths)
 
     
 if __name__ == '__main__':
+
+    # API_KEY = "6ff51b99224a1726d47f686d7fcc8083"
+    # API_SECRET="1ba59bdc2b860b8c9f52ac650e3cb6ab"
+
+
     parser = argparse.ArgumentParser()
     parser.add_argument('chunk_dir', help = 'working directory, place where all the magic happens')
     parser.add_argument('chunk_nbr', help='chunk number')
+    parser.add_argument('authfile', help='lfm keys and secret')
     args = parser.parse_args()
 
     end_nigh = 0
 
     chunk_dir = args.chunk_dir
     chunk_nbr = str(args.chunk_nbr)
+    authfile = args.authfile
     
     chunk_nbr = '5'
     chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/chunk5/'
@@ -286,6 +296,14 @@ if __name__ == '__main__':
     todos = get_todos(tags_done)
 
     cntr = 0
+
+    # authfile = '/home/johannes/Dropbox/gsss/thesis/anls/try1/authfile.txt'
+    auths = get_auth(authfile)
+    API_KEY = auths[0][0]
+    API_SECRET = auths[1][0]
+    
+    network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
+
 
     while len(todos) > 0:
         i = todos[0]
