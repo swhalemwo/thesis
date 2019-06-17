@@ -130,14 +130,30 @@ g2 = 'metal'
 # and it's not even weighted yet
 # 
 
+
+
+
 db = DiscoDB(gnr_song_dict)
 
 t1 = time.time()
-for i in range(10000):
+for i in range(100):
     x = (list(db.query(Q.parse('rock & pop rock'))))
 t2 = time.time()    
 # 806/sec, not bad
 # performance goes a bit down (738-780) when running multiple processes, oh well, NBD
+
+
+t1 = time.time()
+for i in range(500):
+
+    g1_entrs = gnr_song_dict[g1]
+    g2_entrs = gnr_song_dict[g2]
+
+    x = set.intersection(set(g1_entrs), set(g2_entrs))
+    # print(len(x)/len(g1_entrs))
+
+t2 = time.time()
+
 
 
 def gnr_sub_disco(g1, g2):
@@ -147,6 +163,9 @@ def gnr_sub_disco(g1, g2):
     return(ovlp_prop)
 
 
+
+
+
 # [x for _,x in sorted(zip(Y,X))]
 
 tag_cnts = [len(gnr_song_dict[i]) for i in unq_tags]
@@ -154,7 +173,7 @@ tag_cnts = [len(gnr_song_dict[i]) for i in unq_tags]
 # get tags sorted by playcount or appearance or something
 tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 
-tags_srt_sub = tags_srtd[0:500]
+tags_srt_sub = tags_srtd[0:1000]
 
 ovlp_res = []
 
@@ -168,6 +187,9 @@ for g1 in tags_srt_sub:
 
 
 ovlp_ar = np.array(ovlp_res)
+
+
+
 
 # a = np.histogram(ovlp_ar, bins=30)
 
@@ -252,8 +274,8 @@ gvd = graphviz_draw(g, size = (20,20),
                     # returngv==True,
                     output = 'gnr_space3.pdf')
 
-just text no vertex?
-
+# just text no vertex so much nicer
+# graphviz dot good: can handle linebreaked titles
 
 
 # can add transitivity violations as variable:
@@ -262,12 +284,28 @@ just text no vertex?
 # fuck yeah
 # could also be way of filtering: only relevant genres are those that either have subgenres or are subgenres of something
 
-graphviz dot might be good
+# see if replication of values at lower levels:
 
 
 
 
+# * infering probability distributions from vectors
+v1 = [0,0,0.5, 0.1, 0.18,0.25,0.4,0.5,0.55,0.6]
+v2 = [0.4, 0.4,0.35,0.25,0.15,0.1,0.5,0.25,0,0]
 
+space1 = [i+k for i in [k in v2]]
+
+
+space = []
+for i in v1:
+    v1s = []
+    for k in v2:
+        v1s.append(i+k)
+        if i + k == 0:
+            print(i,k)
+    space.append(v1s)
+
+space_ar = np.array(space)
 # fo = open('test.disco', 'a')
 #     db.dump(fo)
 
@@ -285,10 +323,6 @@ graphviz dot might be good
 
 # make a bunch of dicts
 # dicts fast lel
-
-
-
-
 
 
 
@@ -525,12 +559,139 @@ klbk_lblr_dist(x2,x1)
 #         print('lel')
 
 # ** testing of discodb
-# data = {'mammals': ['cow', 'dog', 'cat', 'whale'],
-#         'pets': ['dog', 'cat', 'goldfish'],
-#         'aquatic': ['goldfish', 'whale']}
+data = {'mammals': ['cow', 'dog', 'cat', 'whale'],
+        'pets': ['dog', 'cat', 'goldfish'],
+        'aquatic': ['goldfish', 'whale']}
 
-# db = DiscoDB(data) # create an immutable discodb object
-# len(list(db.query(Q.parse('mammals & aquatic'))))
+dbx = DiscoDB(data) # create an immutable discodb object
+x = dbx.query(Q.parse('mammals & aquatic'))
+[print(i) for i in x]
+
+qry = Q.parse('mammals')
+
+qry2 = Q.metaquery(dbx, 'mammals')
+
+x = dbx.metaquery('pets', qry2)
+dbx.
+
+d = DiscoDB({'A': ['B', 'C'], 'B': 'D', 'C': 'E', 'D': 'F', 'E': 'G'})
+sorted(d.query(Q.parse('A')))
+sorted(d.query(Q.parse('B')))
+sorted(d.query(Q.parse('*A')))
+sorted(d.query(Q.parse('A | B')))
+sorted(d.query(Q.parse('*A | B')))
+sorted(d.query(Q.parse('**A | *B')))
+
+mqry = Q.parse('A')
+x =
+for k,vs in d.metaquery('A | B'):
+    print(k, 'wololo', list(vs))
+    print(k,v)
+
+for i in x:
+    print(i)
+
+    d.metaquery(x)
+    
+dbx.metaquery([(Q.parse('A'), ['B', 'C'])])
+
+
+## ** see if metaqueries can be speed up
+# yeeees
+metals = ['metal','true metal', 'speed metal', 'epic metal', 'sludge metal', 'Nu-metal', 'Iron Maiden', 'finnish metal', 'heavy metal', 'metallica', 'death metal', 'viking metal', 'christian metal', 'trash metal']
+
+gnr_song_dict2 = {}
+
+for i in metals:
+    gnr_song_dict2[i] = gnr_song_dict[i]
+
+gnr_song_dict2['metals'] = metals
+
+dbm = DiscoDB(gnr_song_dict2)
+
+m = dbm.metaquery('true metal')
+
+for k,v in dbm.metaquery('true metal & *metals'):
+    # print(len(k))
+    print(len(v))
+
+[print(i) for i in dbm.query(Q.parse('metals'))]
+
+
+# *** time comparison with metaqueries
+
+t1 = time.time()
+lens = []
+for m1 in metals:
+    for m2 in metals:
+        x = dbm.query(Q.parse(m1 + " & " + m2))
+        lens.append(len(x))
+t2 = time.time()
+
+
+t1 = time.time()
+lens2 = []
+for m1 in metals:
+    for k,v in dbm.metaquery(m1 + '& *metals'):
+        x = len(v)
+        lens2.append(x)
+t2 = time.time()
+    
+# time difference seems to get bigger with more comparisons?
+# but not so flexible: have to see in advance that genres have the number of genres i want them to have
+
+# *** try with large dataset
+
+tags_srt_sub = tags_srtd[0:2000]
+
+gnr_dict2 = {}
+for i in tags_srt_sub:
+    print(i)
+
+    gnr_dict2[i] = gnr_song_dict[i]
+
+gnr_dict2['genres'] = tags_srt_sub
+
+db2 = DiscoDB(gnr_dict2)
+
+t1 = time.time()
+lens_ttls = []
+for g in tags_srt_sub:
+    g_lens = []
+    for k,v in db2.metaquery(g + '& *genres'):
+        x = len(v)
+        g_lens.append(x)
+    lens_ttls.append(g_lens)
+
+    print(g)
+    
+t2 = time.time()
+# 500: 28.8 sec: 8.6k/sec
+# 1k: 109 sec: 9.1k/sec
+# 2k: 421: 9.5/sec
+# almost grows? 
+
+#
+
+t1 = time.time()
+lens_ttls = []
+for g1 in tags_srt_sub:
+    g_lens =[]
+    for g2 in tags_srt_sub:
+
+        x = db2.query(Q.parse(g1 + " & " + g2))
+        g_lens.append(len(x))
+    lens_ttls.append(g_lens)
+    print(g1)
+t2 = time.time()
+# 500: 48 sec: 5.2k/sec
+# 1k: 182: 5.5k/sec
+# 2k: 722: 5.5k/sec
+
+# looks like metaqueries make it consistenly 66-70% faster
+# wonder how it scales with more entries in sets
+
+
 
 # ** old comparison function
 # def gnr_sub(g1, g2):
