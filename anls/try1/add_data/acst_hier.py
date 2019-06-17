@@ -558,7 +558,7 @@ klbk_lblr_dist(x2,x1)
 #     else:
 #         print('lel')
 
-# ** testing of discodb
+# * testing of discodb
 data = {'mammals': ['cow', 'dog', 'cat', 'whale'],
         'pets': ['dog', 'cat', 'goldfish'],
         'aquatic': ['goldfish', 'whale']}
@@ -688,8 +688,89 @@ t2 = time.time()
 # 1k: 182: 5.5k/sec
 # 2k: 722: 5.5k/sec
 
+
+# ** writing/loading
+
+fo = open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/db.disco', 'a')
+    db.dump(fo)
+    fo.close()
+
+with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/db.disco', 'r') as fi:
+    dbsx = DiscoDB.load(fi)
+
+
+# ** multiprocessing theory
+from multiprocessing import Process
+
+def f(name):
+    print('hello', name)
+    for i in range(5):
+        print(i)
+        time.sleep(1)
+
+if __name__ == '__main__':
+    p = Process(target=f, args=('bob',))
+    p.start()
+    p.join()
+
+names = ['alice', 'bob', 'caitlin']
+
+for n in names:
+    p = Process(target=f, args=(n,))
+    p.start()
+    p.join()
+
+
+from multiprocessing import Pool
+from time import sleep
+
+def job(num):
+    for i in range(1,4):
+        print(num, i)
+        sleep(1)
+    return num * 2
+
+p = Pool(processes=4)
+data = p.map(job, [i for i in range(10)])
+
+
+
 # looks like metaqueries make it consistenly 66-70% faster
 # wonder how it scales with more entries in sets
+
+# ** multiprocessing application
+
+def ovlps_mp(gnrs):
+    """multiprocessed genre overlap"""
+    lens_ttls = []
+    for g in gnrs:
+        g_lens = []
+        # 'genres' has to be set in (disco)db, gnrs is just the subset of genres to be processed by each instance
+        # print('genre below')
+        print(g)
+        # print('genre above')        
+        for k,v in db2.metaquery(g + '& *genres'):
+            x = len(v)
+            g_lens.append(x)
+        lens_ttls.append(g_lens)
+    return(lens_ttls)
+
+
+gnrs1 = tags_srt_sub[0:100]
+gnrs2 = tags_srt_sub[100:200]
+gnrs3 = tags_srt_sub[200:300]
+gnrs4 = tags_srt_sub[300:400]
+
+pool_gnrs = [gnrs1, gnrs2, gnrs3, gnrs4]
+
+p = Pool(processes=4)
+
+t1=time.time()
+data = p.map(ovlps_mp, [i for i in pool_gnrs])
+t2=time.time()
+
+# jfc 20k/sec
+# now i just have to hope that doesn't go down the drain much when increasing sets
 
 
 
