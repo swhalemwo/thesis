@@ -282,8 +282,8 @@ if __name__ == '__main__':
     chunk_nbr = str(args.chunk_nbr)
     authfile = args.authfile
     
-    chunk_nbr = '5'
-    chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/chunk5/'
+    # chunk_nbr = '5'
+    # chunk_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/chunk5/'
 
     DONES_FILE = chunk_dir + chunk_nbr + '_dones_tags.csv'
     TODO_FILE = chunk_dir + chunk_nbr + '_addgs.csv'
