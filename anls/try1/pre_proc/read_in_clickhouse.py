@@ -92,8 +92,8 @@ def proc_log_wrt_unqs(usr_log, mbid_abbrv_dict):
 
 # new_addgs = proc_log_wrt_unqs(usr_log, mbid_abbrv_dict)
 
+# usr_log = all_logs
 
-usr_log = all_logs
 def unq_proc_bulk(usr_log, mbid_abbrv_dict):
     
     usr_all_songs = [i[2] for i in usr_log]
@@ -119,7 +119,6 @@ def unq_proc_bulk(usr_log, mbid_abbrv_dict):
 
     add_kv_songs = [(i) for i in zip(usr_new_unqs, unq_ids, rnd_parts)]
     return(add_kv_songs)
-
 
 
 def update_mbid_abbrv(mbid_abbrv_dict, add_kv_songs):
@@ -252,11 +251,10 @@ def bucketer(all_logs, min_dts, max_dts):
 
 
 
-
 if __name__ == '__main__':
     # reads all the logs
     parser = argparse.ArgumentParser()
-    parser.add_argument('log_dir', help='type of mbid: one of track, album, artist')
+    parser.add_argument('log_dir', help='dir with logs')
 
     args = parser.parse_args()
     log_dir = args.log_dir
@@ -329,8 +327,8 @@ if __name__ == '__main__':
 # client.execute('create table song_info (mbid String, abbrv String, rndm Int) engine=MergeTree() Partition by rndm order by tuple()')
 
 
-# client.execute('drop table logs')
-# client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
+client.execute('drop table logs')
+client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
 
 ####################
 # bucket insertion #
@@ -406,10 +404,9 @@ for c in chunks[0:30]:
     for i in buckets.keys():
         client.execute('insert into tests2 values', buckets[i])
 
-
     # could do also bulk insertion for usr_info: new additions to mbid_abbrv_dict take time due to set command
     
-    # 
+
 
 ##########################################################
 # enter data without conversion: impact on database size #
@@ -460,33 +457,33 @@ for c in chunks[0:30]:
     for i in buckets.keys():
         client.execute('insert into tests values', buckets[i])
 
-chunks:
-- 10: 106 vs 22: 4.81
-- 30: 343 vs 82
+# chunks:
+# - 10: 106 vs 22: 4.81
+# - 30: 343 vs 82
 
-hm see effect of duplication: throw a lot of duplicate data in there?
-- 0-30 read in twice:
-  - tests2 down to 89?? maybe wasnt finished compressing before
-  - tests: 657
--> use abbreviated
-
-
-fake dataset: random combinations of 11 strings (long vs abbrvs), 1.1m rows:
-- 95MB vs 112 MB
+# hm see effect of duplication: throw a lot of duplicate data in there?
+# - 0-30 read in twice:
+#   - tests2 down to 89?? maybe wasnt finished compressing before
+#   - tests: 657
+# -> use abbreviated
 
 
-100k rows per unique entry
-real data: 5-10b rows, at least 3-5m unique entries:
-average number of some thousands per song, at most
-is highly skewed tho
-but idk if that makes much difference: means less information needed for top songs, but still has to store the 5m strings somewhere
-although, song_info not that big (3m, 134mb)
+# fake dataset: random combinations of 11 strings (long vs abbrvs), 1.1m rows:
+# - 95MB vs 112 MB
 
-abbrvs makes it also easier to id type
 
-that has much higher duplicity than i can expect (
+# 100k rows per unique entry
+# real data: 5-10b rows, at least 3-5m unique entries:
+# average number of some thousands per song, at most
+# is highly skewed tho
+# but idk if that makes much difference: means less information needed for top songs, but still has to store the 5m strings somewhere
+# although, song_info not that big (3m, 134mb)
 
-id say even 10% space savings are worth it
+# abbrvs makes it also easier to id type
+
+# that has much higher duplicity than i can expect (
+
+# id say even 10% space savings are worth it
 
 
 ##############################
@@ -737,3 +734,94 @@ for i in log_files:
 
 # 2104947, 1, 2104947-100):
 #     print(i)
+
+
+# * i have ugly duplicates
+# don't think theres a way to get rid of them, people can listen to the same song multiple times a days
+
+
+paths= [
+    '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/00/',
+    '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/01/',
+    '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/02/',
+    '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/03/',
+    '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/04/',
+    '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/05/',
+    '/home/johannes/Downloads/mlhd/06',
+    '/home/johannes/Downloads/mlhd/07',
+    '/home/johannes/Downloads/mlhd/08',
+    '/home/johannes/Downloads/mlhd/09']
+
+
+
+
+uniq_usrs = client.execute('select distinct(usr) from logs')
+uniq_usrs = [i[0] for i in uniq_usrs]
+
+
+usr_abbrvs = client.execute('select uuid, abbrv2 from usr_info')
+
+usr_abbrv_dict = {}
+for i in usr_abbrvs:
+    usr_abbrv_dict[i[0]]=i[1]
+
+abbrvs_ttl = []
+for p in paths:
+    files1=os.listdir(p)
+    log_files = [i for i in files1 if i.endswith('.txt')]
+    
+    abbrvs = []
+    for i in log_files:
+        idx = i[0:36]
+        try:
+            abbrvs.append(usr_abbrv_dict[idx])
+        except:
+            pass
+
+    abbrvs_ttl.append(abbrvs)
+
+    print(len(abbrvs))
+    
+ovlps = []
+for i1 in  abbrvs_ttl:
+    
+    ovlp = []
+    for i2 in abbrvs_ttl:
+        lenx = len(list(set(i1) - set(i2)))
+        ovlp.append(lenx)
+    ovlps.append(ovlp)
+        
+    
+# * trying to purge 07 files
+
+# all have multiple time the number of counts than the number of uniques
+# is around 1.5 for those of non 07 files
+    
+fuck_dir = '/home/johannes/Downloads/mlhd/07/'
+log_files = os.listdir(fuck_dir)
+
+abbrvs = []
+for i in log_files:
+    idx = i[0:36]
+    try:
+        abbrvs.append(usr_abbrv_dict[idx])
+    except:
+        print('k')
+        pass
+
+
+
+for i in abbrvs:
+    str = "alter table logs delete where usr='"+i+ "'"
+    
+    client.execute(str)
+
+    if abbrvs.index(i) % 25 ==0:
+        print(abbrvs.index(i))
+
+# takes forever
+# 352391667 - 352378780]
+
+# at 42:30: 350098982
+# at 47:10: 344820214
+

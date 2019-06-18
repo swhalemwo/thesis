@@ -127,7 +127,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log_dir = args.log_dir
 
-    log_dir = '/home/johannes/Downloads/mlhd/07/'
+
     
     files1=os.listdir(log_dir)
     log_files = [i for i in files1 if i.endswith('.txt')]
@@ -200,5 +200,3 @@ if __name__ == '__main__':
         for i in buckets.keys():
             # client.execute('insert into tests2 values', buckets[i])
             client.execute('insert into logs values', buckets[i])
-
-
