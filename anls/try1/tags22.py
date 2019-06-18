@@ -15,7 +15,8 @@ def get_tag_dict(a,t):
     """downloads a dict of tags from lfm"""
     
     str1="http://ws.audioscrobbler.com/2.0/?method="
-    str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
+    # str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
+    str4="&api_key=" + API_KEY + "&format=json"
 
     str22 = 'track' + ".getTopTags&artist=" + a + '&track=' + t
     qry = str1 + str22 + str4
@@ -56,7 +57,8 @@ def tptg_prcs(song, mbid):
 def get_lfm_a_t(mbid):
     str1="http://ws.audioscrobbler.com/2.0/?method="
     str2='track' + ".getInfo&mbid="    
-    str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
+    # str4="&api_key=607aa0a70e1958439a7de088b66a4561&format=json"
+    str4="&api_key="+ API_KEY + "&format=json"
     
     qry = str1 + str2 + mbid + str4
 
@@ -213,7 +215,9 @@ def get_info_at(a,t):
     str1="http://ws.audioscrobbler.com/2.0/?method="
     str2='track.getInfo&artist=' + a
     str3= '&track='+t
-    str4 = '&api_key=607aa0a70e1958439a7de088b66a4561&format=json'
+    # str4 = '&api_key=607aa0a70e1958439a7de088b66a4561&format=json'
+    str4 = '&api_key=' + API_KEY + '&format=json'
+
 
     qry = str1 + str2 + str3 + str4
 
@@ -224,7 +228,8 @@ def get_info_at(a,t):
 def get_info_id(idx):
     str1="http://ws.audioscrobbler.com/2.0/?method="
     str2='track.getInfo&mbid='
-    str4 = '&api_key=607aa0a70e1958439a7de088b66a4561&format=json'
+    # str4 = '&api_key=607aa0a70e1958439a7de088b66a4561&format=json'
+    str4 = '&api_key=' + API_KEY + '&format=json'
 
     qry = str1 + str2 + idx + str4
     resp_raw = requests.get(qry)
