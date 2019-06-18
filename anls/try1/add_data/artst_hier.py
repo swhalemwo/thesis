@@ -1,6 +1,34 @@
 from clickhouse_driver import Client
 import time
 from discodb import DiscoDB, Q
+import pandas as pd
+import numpy as np
+from multiprocessing import Pool
+from time import sleep
+import itertools
+
+def ovlps_mp(gnrs):
+    """multiprocessed genre overlap"""
+    lens_ttls = []
+    for g in gnrs:
+        g_lens = []
+        # 'genres' has to be set in (disco)db, gnrs is just the subset of genres to be processed by each instance
+        # print('genre below')
+        print(g)
+        # print('genre above')
+        # c = 0
+        for k,v in db.metaquery(g + '& *genres'):
+            # print(k, tags_alf_srt[c])
+            x = len(v)
+            g_lens.append(x)
+            # c+=1
+            
+        lens_ttls.append(g_lens)
+    return(lens_ttls)
+
+
+
+client = Client(host='localhost', password='anudora', database='frrl')
 
 rows_tags = client.execute("""select mbid, tag, rel_weight, cnt from
 (select * from 
@@ -11,6 +39,8 @@ rows_tags = client.execute("""select mbid, tag, rel_weight, cnt from
 join (select mbid, cnt from song_info3 where cnt > 400 ) using mbid  
 where weight > 10 and rel_weight > 0.05""")
 
+# could probably work without pd for just artist hierarchy
+# but it's not the pandas df that is expensive i think
 df_tags = pd.DataFrame(rows_tags, columns=['lfm_id', 'tag', 'rel_weight', 'cnt'])
 
 songs_tags = df_tags['lfm_id']
@@ -35,24 +65,11 @@ db = DiscoDB(gnr_song_dict)
 tag_cnts = [len(gnr_song_dict[i]) for i in unq_tags]
 tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 
-tags_srt_sub = tags_srtd[0:200]
 
-def ovlps_mp(gnrs):
-    """multiprocessed genre overlap"""
-    lens_ttls = []
-    for g in gnrs:
-        g_lens = []
-        # 'genres' has to be set in (disco)db, gnrs is just the subset of genres to be processed by each instance
-        # print('genre below')
-        print(g)
-        # print('genre above')        
-        for k,v in db.metaquery(g + '& *genres'):
-            x = len(v)
-            g_lens.append(x)
-        lens_ttls.append(g_lens)
-    return(lens_ttls)
+# can add restriction here
+tags_srt_sub = tags_srtd
 
-inst_sz = 50
+tags_srtd_alf = sorted(unq_tags)
 
 mp_input = []
 
@@ -61,9 +78,10 @@ for i in range(4):
 
 c = 0
 for i in tags_srt_sub:
-    bin = c % 4
+    binx = c % 4
+    # print(binx)
     c+=1
-    mp_input[bin].append(i)
+    mp_input[binx].append(i)
 
 p = Pool(processes=4)
 
@@ -71,33 +89,51 @@ t1=time.time()
 data = p.map(ovlps_mp, [i for i in mp_input])
 t2=time.time()
 
+# putting results back together
+
+ar_lst = [np.array(i) for i in data]
+ar_cb = np.concatenate(ar_lst, axis=0)
+
+# transposing somehow necessary
+ar_cb_t = ar_cb.transpose()
 
 
+row_names = list(itertools.chain.from_iterable(mp_input))
 
+row_cnts = [len(gnr_song_dict[i]) for i in row_names]
+
+rc = np.array(row_cnts)
+
+ovlp_ar =  ar_cb_t/rc
+
+subsets = np.where(ovlp_ar > 0.95)
+
+# still don't exactly get how row_names work, Nu Metal is somehow 5??
+subsets_rl = []
+c =0
+for i1 in subsets[0]:
+    i1_name = tags_srtd_alf[i1]
+
+    i2 = subsets[1][c]
+    i2_name = row_names[i2]
+
+    c+=1
+
+    if i1_name != i2_name:
+        subsets_rl.append([i1_name,i2_name])
+        # print(i1_name, ' ---> ',  i2_name, ovlp_ar[i,i2], i1, i2)
+        
+
+# gnr_edges = []
+# for i in subsets_rl:
+#     print(tags_srt_sub[i[0]], '---', tags_srt_sub[i[1]])
+#     gnr_edges.append([tags_srt_sub[i[1]], tags_srt_sub[i[0]]])
 
 # * plotting of graph
 
-
-subsets = np.where(ovlp_ar > 0.75)
-
-subsets_rl = []
-c =0
-for i in subsets[0]:
-    i2 = subsets[1][c]
-
-    if i != i2:
-        subsets_rl.append([i,i2])
-        
-    c+=1
-
-gnr_edges = []
-for i in subsets_rl:
-    print(tags_srt_sub[i[0]], '---', tags_srt_sub[i[1]])
-    gnr_edges.append([tags_srt_sub[i[1]], tags_srt_sub[i[0]]])
-
 from graph_tool.all import *
 g = Graph(directed=True)
-gt_lbls = g.add_edge_list(gnr_edges, hashed=True, string_vals=True)
+gt_lbls = g.add_edge_list(subsets_rl, hashed=True, string_vals=True)
 
 gt_lbls_plot = g.new_vertex_property('string')
 
@@ -107,7 +143,7 @@ for v in g.vertices():
     gt_lbls_plot[v] = x.replace(" ", "\n")
     
 
-size = g.degree_property_map('in')
+size = g.degree_property_map('out')
 
 size_scl=graph_tool.draw.prop_to_size(size, mi=6, ma=15, log=False, power=0.5)
 size_scl2=graph_tool.draw.prop_to_size(size, mi=10, ma=100, log=False, power=0.5)
@@ -131,7 +167,7 @@ gvd = graphviz_draw(g, size = (20,20),
 
 
 
-gvd = graphviz_draw(g, size = (20,20),
+gvd = graphviz_draw(g, size = (80,80),
                     # layout = 'sfdp',
                     # overlap = 'scalexy',
                     overlap = 'false',
@@ -139,7 +175,7 @@ gvd = graphviz_draw(g, size = (20,20),
                               'width':0.03, 'shape':'point'},
                     eprops = {'arrowhead':'vee', 'color':'grey'},
                     # returngv==True,
-                    output = 'gnr_space3.pdf')
+                    output = 'gnr_space5.pdf')
 
 
 
@@ -341,8 +377,6 @@ for n in names:
     p.join()
 
 
-from multiprocessing import Pool
-from time import sleep
 
 def job(num):
     for i in range(1,4):
@@ -384,3 +418,34 @@ data = p.map(job, [i for i in range(10)])
 
 
 
+# ** figuring out that discodb sorts strings alphabetically
+# g1 = 'metal'
+# g2 = 'Nu Metal'
+# g1_pos1 = tags_srtd.index(g1)
+# g1_pos2 = row_names.index(g1)
+
+# g2_pos1 = tags_srtd.index(g2)
+# g2_pos2 = row_names.index(g2)
+
+# ar_cb[g2_pos2,g1_pos1]
+
+# ar1 = np.array(data[0])
+# ar1[g2_pos2,g1_pos1]
+
+# len(list(set(gnr_song_dict['Nu Metal']) - set(gnr_song_dict['metal'])))
+# len(list(set(gnr_song_dict['metal']) - set(gnr_song_dict['metal'])))
+# np.where(ar1 == 285)
+
+# really no idea how the ordering is done
+# disco db resorts genres alphabetically
+# x = ovlps_mp(mp_input[0])
+# xp = np.array(x)
+# np.where(xp == 285)
+
+
+# ovlp_ar = (1/rc)*ar_cb
+
+# arx = np.array([[1,2],[3,4],[5,6]])
+# vx = [0.2, 0.5]
+
+# arx/vx
