@@ -219,10 +219,44 @@ tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 
 
 # * infering probability distributions from vectors
-v1 = [0,0,0.5, 0.1, 0.18,0.25,0.4,0.5,0.55,0.6]
-v2 = [0.4, 0.4,0.35,0.25,0.15,0.1,0.5,0.25,0,0]
 
-space1 = [i+k for i in [k in v2]]
+mu, sigma = 5, 1
+s = np.random.normal(mu, sigma, 1000)
+res = 0.1
+
+min_s = min(s)
+max_s = max(s)
+
+sums1 = []
+
+for i1 in np.arange(min_s, max_s, res):
+    i2 = i1 + res
+    buckets = []
+    buckets = [x for x in s if x > i1 and x < i2]
+    sums1.append(len(buckets))
+
+    print(i1)
+
+
+v1 = [0,0,0.05, 0.1, 0.18,0.25,0.4,0.5,0.55,0.6]
+
+v1x = [v1[0]]
+for i in v1[1:len(v1)-1]:
+    
+
+    v1x.append(v1[9])
+
+v2 = [0.4, 0.4,0.35,0.25,0.15,0.1,0.05,0.025,0,0]
+
+x = [i for i in range(10)]
+
+
+ax = plt.axes()
+ax.plot(x, v1)
+ax.plot(x, v2)
+plt.show()
+
+
 
 
 space = []
@@ -234,7 +268,14 @@ for i in v1:
             print(i,k)
     space.append(v1s)
 
-space_ar = np.array(space)
+spc_ar = np.array(space)
+
+plt.imshow(spc_ar)
+, cmap='hot', interpolation='nearest')
+plt.show()
+
+
+
 # fo = open('test.disco', 'a')
 #     db.dump(fo)
 
