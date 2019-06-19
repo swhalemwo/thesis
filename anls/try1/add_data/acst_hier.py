@@ -220,59 +220,175 @@ tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 
 # * infering probability distributions from vectors
 
-mu, sigma = 5, 1
-s = np.random.normal(mu, sigma, 1000)
-res = 0.1
-
-min_s = min(s)
-max_s = max(s)
-
-sums1 = []
-
-for i1 in np.arange(min_s, max_s, res):
-    i2 = i1 + res
-    buckets = []
-    buckets = [x for x in s if x > i1 and x < i2]
-    sums1.append(len(buckets))
-
-    print(i1)
+import matplotlib.pyplot as plt
 
 
-v1 = [0,0,0.05, 0.1, 0.18,0.25,0.4,0.5,0.55,0.6]
 
-v1x = [v1[0]]
-for i in v1[1:len(v1)-1]:
+
+class dist_cpr:
+    def summr(s, min_s, max_s):
+        sums1 = []
+        for i1 in np.arange(min_s, max_s, res):
+            i2 = i1 + res
+            buckets = []
+            buckets = [x for x in s if x > i1 and x < i2]
+            sums1.append(len(buckets))
+
+        return(sums1)        
+
+    def spc_mlt(self, v1,v2):
+        space = []
+        for i in v1:
+            v1s = []
+            for k in v2:
+                v1s.append(i*k)
+            space.append(v1s)
+
+        spc_ar = np.array(space)
+        
+        return(spc_ar)
     
 
-    v1x.append(v1[9])
+    def vx_cructr(self, s1,s2):
+        c = 0
+        vx = []
+        for s1x in s1:
+            s2x = s2[c]
+            vx.append((s1x, s2x))
+            c+=1
+        return(vx)
 
-v2 = [0.4, 0.4,0.35,0.25,0.15,0.1,0.05,0.025,0,0]
+    def spc_cructr(self, min_s, max_s, res):
+        spc = {}
+        for i in np.arange(min_s, max_s, res):
+            i1 = math.ceil(i)
+            # print(i)
+            spc[i1] = {}
 
-x = [i for i in range(10)]
+            for k in np.arange(min_s, max_s, res):
+                k1 = math.ceil(k)
+                spc[i1][k1] = 0
 
+        return(spc)
+
+
+    def spc_flr(self, vx, spc, min_s, max_s, res):
+        # fill space
+        for i in vx:
+            x = math.ceil(i[0])
+            y = math.ceil(i[1])
+            try:
+                spc[x][y]+=1
+            except:
+                pass
+
+        lls = []
+        for i in np.arange(min_s, max_s, res):
+            i1 = math.ceil(i)
+            ll = []
+
+            for k in np.arange(min_s, max_s, res):
+                k1 = math.ceil(k)
+                ll.append(spc[i1][k1])
+
+            lls.append(ll)
+
+        spc_fl = np.array(lls)
+        return(spc_fl)
+
+    
+    def __init__(self, xs, ys, res, min_s, max_s):
+        self.h1 = summr(xs, min_s, max_s)
+        self.h2 = summr(ys, min_s, max_s)
+
+        self.spc_ar = self.spc_mlt(self.h1, self.h2)
+        self.vx = self.vx_cructr(xs, ys)
+        self.spc = self.spc_cructr(min_s, max_s, res)
+
+        self.spc_fl = self.spc_flr(self.vx, self.spc, min_s, max_s, res)
+
+
+
+
+
+mu1, sigma1 = 50, 20
+mu2, sigma2 = 40, 15
+s1 = np.random.normal(mu1, sigma1, 10000)
+s2 = np.random.normal(mu2, sigma2, 10000)
+res = 1
+
+min_s = 0
+max_s = 100
+
+
+c1 = dist_cpr(s1, s2, 1, 0, 100)
+
+xs = [i for i in range(100)]
 
 ax = plt.axes()
-ax.plot(x, v1)
-ax.plot(x, v2)
+ax.plot(xs, c1.h1)
+ax.plot(xs, c1.h2)
+plt.show()
+
+
+plt.imshow(c1.spc_ar, interpolation='nearest')
+plt.show()
+
+
+plt.imshow(c1.spc_fl, interpolation='nearest')
 plt.show()
 
 
 
 
-space = []
-for i in v1:
-    v1s = []
-    for k in v2:
-        v1s.append(i+k)
-        if i + k == 0:
-            print(i,k)
-    space.append(v1s)
 
-spc_ar = np.array(space)
+# plt.scatter(s1,s2)
+# plt.show()
 
-plt.imshow(spc_ar)
-, cmap='hot', interpolation='nearest')
-plt.show()
+    
+# buckets = [x for x in s1 if x > i1 and x ]
+
+#    i2 = i + res
+#     shard = []
+        
+
+
+# fill space
+# for i in vx:
+#     x = math.ceil(i[0])
+#     y = math.ceil(i[1])
+#     try:
+#         spc[x][y]+=1
+#     except:
+#         pass
+# lls = []
+
+# for i in np.arange(min_s-res, max_s, res):
+#     i1 = math.ceil(i)
+#     ll = []
+
+#     for k in np.arange(min_s-res, max_s, res):
+#         k1 = math.ceil(k)
+#         ll.append(spc[i1][k1])
+
+#     lls.append(ll)
+
+# spc_fl = np.array(lls)
+
+
+
+# v1 = [0,0,0.05, 0.1, 0.18,0.25,0.4,0.5,0.55,0.6]
+
+# v1x = [v1[0]]
+# for i in v1[1:len(v1)-1]:
+    
+
+#     v1x.append(v1[9])
+
+# v2 = [0.4, 0.4,0.35,0.25,0.15,0.1,0.05,0.025,0,0]
+
+# x = [i for i in range(10)]
+
 
 
 
