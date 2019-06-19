@@ -761,10 +761,55 @@ uniq_usrs = [i[0] for i in uniq_usrs]
 
 usr_abbrvs = client.execute('select uuid, abbrv2 from usr_info')
 
+usrs_full = [i[0] for i in usr_abbrvs]
+usrs_abrv = [i[1] for i in usr_abbrvs]
+
 usr_abbrv_dict = {}
 for i in usr_abbrvs:
     usr_abbrv_dict[i[0]]=i[1]
 
+# see which dirs didn't read in
+
+cs = []
+for p in paths:
+    files1=os.listdir(p)
+    log_files = [i for i in files1 if i.endswith('.txt')]
+
+    cx = 0
+    dir_abbrvs = []
+    
+    for f in log_files:
+        try:
+            fx = f[0:36]
+            ix = usr_abbrv_dict[fx]
+            dir_abbrvs.append(ix)
+        except:
+            pass
+
+    cx = len(list(set(dir_abbrvs) - set(uniq_usrs)))
+    cs.append(cx)
+# 02 and all in downloads
+
+# some from 02 still got in
+# also error not clear
+
+not_in = set(dir_abbrvs) - set(uniq_usrs)
+got_in = set(dir_abbrvs) - not_in
+
+from collections import Counter
+cntr = Counter(dir_abbrvs)
+
+# also some duplicates????
+
+u72552
+u124614
+u113890
+
+
+
+
+
+# see how many are where? 
 abbrvs_ttl = []
 for p in paths:
     files1=os.listdir(p)
@@ -825,3 +870,4 @@ for i in abbrvs:
 # at 42:30: 350098982
 # at 47:10: 344820214
 
+# -> faster to re-read stuff in over night
