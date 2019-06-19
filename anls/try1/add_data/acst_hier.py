@@ -222,11 +222,11 @@ tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 
 import matplotlib.pyplot as plt
 
-
-
-
 class dist_cpr:
+    """generates 2D probability distribution given raw data (set has separate parameter for each dimension)"""
+    
     def summr(s, min_s, max_s):
+        """creates hists of the distributions"""
         sums1 = []
         for i1 in np.arange(min_s, max_s, res):
             i2 = i1 + res
@@ -237,6 +237,7 @@ class dist_cpr:
         return(sums1)        
 
     def spc_mlt(self, v1,v2):
+        """re-calculate (multiply) 2d space from histogram info"""
         space = []
         for i in v1:
             v1s = []
@@ -250,6 +251,7 @@ class dist_cpr:
     
 
     def vx_cructr(self, s1,s2):
+        """combines input to get single vector for easier processing"""
         c = 0
         vx = []
         for s1x in s1:
@@ -259,6 +261,7 @@ class dist_cpr:
         return(vx)
 
     def spc_cructr(self, min_s, max_s, res):
+        """constructs the space for prob dist, dict is faster for now (than looping over each entry)"""
         spc = {}
         for i in np.arange(min_s, max_s, res):
             i1 = math.ceil(i)
@@ -273,14 +276,18 @@ class dist_cpr:
 
 
     def spc_flr(self, vx, spc, min_s, max_s, res):
+        """fill up the dict space, convert it into list of lists and then np array"""
         # fill space
+        fails = 0
         for i in vx:
-            x = math.ceil(i[0])
-            y = math.ceil(i[1])
+            x = math.floor(i[0]/res)*res
+            y = math.floor(i[1]/res)*res
             try:
                 spc[x][y]+=1
             except:
+                fails+=1
                 pass
+        print(fails)
 
         lls = []
         for i in np.arange(min_s, max_s, res):
@@ -303,41 +310,135 @@ class dist_cpr:
 
         self.spc_ar = self.spc_mlt(self.h1, self.h2)
         self.vx = self.vx_cructr(xs, ys)
+        print(len(self.vx))
         self.spc = self.spc_cructr(min_s, max_s, res)
+        print(len(self.spc))
 
         self.spc_fl = self.spc_flr(self.vx, self.spc, min_s, max_s, res)
 
 
 
 
-
 mu1, sigma1 = 50, 20
 mu2, sigma2 = 40, 15
-s1 = np.random.normal(mu1, sigma1, 10000)
-s2 = np.random.normal(mu2, sigma2, 10000)
-res = 1
+s1 = np.random.normal(mu1, sigma1, 40000)
+s2 = np.random.normal(mu2, sigma2, 40000)
+res = 5
 
 min_s = 0
 max_s = 100
 
+c1 = dist_cpr(s1, s2, res, min_s, max_s)
 
-c1 = dist_cpr(s1, s2, 1, 0, 100)
-
-xs = [i for i in range(100)]
-
-ax = plt.axes()
-ax.plot(xs, c1.h1)
-ax.plot(xs, c1.h2)
-plt.show()
+xs = [i for i in np.arange(max_s/res)]
 
 
 plt.imshow(c1.spc_ar, interpolation='nearest')
 plt.show()
 
-
 plt.imshow(c1.spc_fl, interpolation='nearest')
 plt.show()
 
+
+s3 = np.random.normal(30, 8, 10000)
+s4 = np.random.normal(25, 5, 10000) 
+
+c2 = dist_cpr(s3, s4, res, min_s, max_s)
+
+cmb_ar = c1.spc_fl + c2.spc_fl
+
+# plt.imshow(c1.spc_fl, interpolation='nearest')
+plt.imshow(cmb_ar, interpolation='nearest')
+plt.show()
+
+ax = plt.axes()
+ax.plot(xs, c1.h1)
+ax.plot(xs, c1.h2)
+
+ax.plot(xs, c2.h1)
+ax.plot(xs, c2.h2)
+
+plt.show()
+
+# * calculating overlap/divergence
+
+# need to find cells where c2 is nonzero and c1 is zero
+
+emp_cells = np.logical_and(c2.spc_fl > 0, c1.spc_fl== 0).nonzero()
+
+emp_rows = [[0 for i in range(100)] for i in range(100)]
+emp_spc = np.array(emp_rows)
+
+for i in range(len(emp_cells[1])):
+    emp_spc[emp_cells[0][i],emp_cells[1][i]]=c2.spc_fl[emp_cells[0][i],emp_cells[1][i]]
+
+plt.imshow(emp_spc, interpolation='nearest')
+plt.show()
+
+pct_ncvrd = sum(sum(emp_spc))/sum(sum(c2.spc_fl))
+
+c2_spc = c2.spc_fl
+
+for i in range(len(emp_cells[1])):
+    c2_spc[emp_cells[0][i], emp_cells[1][i]] = 0
+
+
+xx = list(itertools.chain.from_iterable(c2_spc))
+yy = list(itertools.chain.from_iterable(c1.spc_fl))
+
+entropy(xx, yy)
+
+yy2 = c1.h1 + c1.h2
+xx2 = c2.h1 + c2.h2
+
+entropy(xx2, yy2)
+
+
+xs2 = [i for i in range(len(yy2))]
+ax = plt.axes()
+ax.plot(xs2, xx2)
+ax.plot(xs2, yy2)
+plt.show()
+
+
+
+# * 3d graph
+from mpl_toolkits.mplot3d import axes3d
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def get_test_data(delta=0.05):
+
+    from matplotlib.mlab import  bivariate_normal
+    # x = y = np.arange(-3.0, 3.0, delta)
+
+    Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z = Z2 - Z1
+
+    X = X * 10
+    Y = Y * 10
+    Z = Z * 500
+    return X, Y, Z
+
+
+
+x = y = np.arange(0, 100, res)
+X, Y = np.meshgrid(x, y)
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# x, y, z = axes3d.get_test_data(0.05)
+# ax.plot_wireframe(x,y,z, rstride=10, cstride=10)
+ax.plot_wireframe(X,Y,c1.spc_fl, rstride=1, cstride=1, color='red')
+ax.plot_wireframe(X,Y,c2.spc_fl, rstride=1, cstride=1, color='blue')
+
+plt.show()
+
+   
 
 
 
@@ -424,7 +525,6 @@ df = pd.DataFrame(row_list)
 # ask marieke
     
 
-    
 
 # * kullback-Leibler divergence
 
