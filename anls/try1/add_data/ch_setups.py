@@ -5,6 +5,37 @@ import random
 from clickhouse_driver import Client
 client = Client(host='localhost', password='anudora', database='frrl')
 
+# * logs
+client.execute('drop table logs')
+client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
+
+# * usr info
+client.execute("""
+create table usr_info
+(uuid String,
+age String,
+country String,
+gender String,
+playcount Int32,
+age_scrobbles Int32,
+user_type String,
+registered Int32,
+firstscrobble Int32,
+lastscrobble Int32)
+engine=MergeTree()
+PARTITION BY gender
+ORDER BY tuple()""")
+
+alter table usr_info drop column abbrv 
+alter table usr_info drop column abbrv2
+
+alter table usr_info add column abbrv String
+alter table usr_info add column abbrv2 String
+
+alter table usr_info update abbrv=toString(rowNumberInAllBlocks()) where playcount > 0
+alter table usr_info update abbrv2=concat(gender, abbrv) where playcount > 0
+
+# abbrv2 has to be based on gender (since usr_info is partitioned by it
 
 
 # * playcount testing #
