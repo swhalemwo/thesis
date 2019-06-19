@@ -116,8 +116,8 @@ def bucketer(all_logs, min_dts, max_dts):
 
 
 client = Client(host='localhost', password='anudora', database='frrl')
-client.execute('drop table tests2')
-client.execute('create table tests2 (tx Date, usr String, song String) engine=MergeTree(tx, tx, 8192)')
+# client.execute('drop table tests2')
+# client.execute('create table tests2 (tx Date, usr String, song String) engine=MergeTree(tx, tx, 8192)')
 
 if __name__ == '__main__':
     # reads all the logs
@@ -127,7 +127,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log_dir = args.log_dir
 
-
+    # log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/02/'
+    # log_dir = '/home/johannes/Downloads/mlhd/06/'
     
     files1=os.listdir(log_dir)
     log_files = [i for i in files1 if i.endswith('.txt')]
@@ -135,7 +136,7 @@ if __name__ == '__main__':
     chunk_size = 10
 
     chunks = [log_files[x:x+chunk_size] for x in range(0, len(log_files), chunk_size)]
-    # c=chunks[3]
+    # c=chunks[0]
 
     print('creating mbid abbrv dict')
     mbid_abbrv_dict=get_db_songs()
@@ -151,15 +152,13 @@ if __name__ == '__main__':
         max_dts=[]
 
         for l in c:
-            pass
-
+            
             f=log_dir + l
             uuid=l[0:36]
 
             try:
                 ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
 
-                valid_uuids.append(ab_uid)
                 logx = get_log_clean(f)
 
                 logx2 = [(
@@ -167,10 +166,20 @@ if __name__ == '__main__':
                     ab_uid,
                     i[1]) for i in logx]
 
-                min_dts.append(logx2[0][0])
-                max_dts.append(logx2[-1][0])
+                # some logs are reverse: earliest first
+                if int(logx[0][0]) > int(logx[-1][0]):
+
+                    min_dts.append(logx2[-1][0])
+                    max_dts.append(logx2[0][0])
+                    
+                    logx2.reverse()
+
+                else:
+                    min_dts.append(logx2[0][0])
+                    max_dts.append(logx2[-1][0])
 
                 all_logs = all_logs + logx2
+                valid_uuids.append(ab_uid)
 
             except:
                 # print('user not in usr_info')
