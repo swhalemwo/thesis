@@ -389,6 +389,63 @@ data = p.map(job, [i for i in range(10)])
 
 
 
+# * graph tool
+from graph_tool.all import *
+g = Graph()
+
+ids= df_tags['lfm_id']
+tags = df_tags['tag']
+
+elx = []
+c = 0
+for i in range(len(ids)):
+    elx.append([ids[c], tags[c]])
+    c+=1
+
+id_map = g.add_edge_list(elx, string_vals=True, hashed=True)
+
+tag_v_id_dict = {}
+v_id_tag_dict = {}
+
+for i in np.unique(tags):
+    vx = int(find_vertex(g, id_map, i)[0])
+
+    tag_v_id_dict[i] = vx
+    v_id_tag_dict[vx] = i
+    
+
+base_v = 8
+comp_pairs = []
+
+for i in np.unique(tags):
+
+    c_v = tag_v_id_dict[i]
+    comp_pairs.append((8, c_v))
+
+n = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = [(g.vertex(8),g.vertex(25))])
+n = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = [(8,25)])
+
+t1 = time.time()
+n = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = comp_pairs)
+t2 = time.time()
+
+# TF
+# might well be possible to speed it up even more with GT
+
+len(list( set(g.vertex(8).in_neighbors()) & set(g.vertex(25).in_neighbors())))
+
+
+
+* (u.out_degree() + v.out_degree()) / 2
+
+# could only calculate weighted subset for only those > 0.7 or so
+# maybe even better if GT is much faster
+
+
+
+
+
+
 # looks like metaqueries make it consistenly 66-70% faster
 # wonder how it scales with more entries in sets
 
