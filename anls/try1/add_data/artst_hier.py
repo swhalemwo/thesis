@@ -6,6 +6,8 @@ import numpy as np
 from multiprocessing import Pool
 from time import sleep
 import itertools
+from graph_tool.all import *
+
 
 def ovlps_mp(gnrs):
     """multiprocessed genre overlap"""
@@ -390,53 +392,145 @@ data = p.map(job, [i for i in range(10)])
 
 
 # * graph tool
-from graph_tool.all import *
-g = Graph()
 
-ids= df_tags['lfm_id']
-tags = df_tags['tag']
+def prepper(df_tags):
+    """prepares bunch of objects: graph, id map for graph, list of unq tags, tag_v_id_dict"""
 
-elx = []
-c = 0
-for i in range(len(ids)):
-    elx.append([ids[c], tags[c]])
-    c+=1
 
-id_map = g.add_edge_list(elx, string_vals=True, hashed=True)
+    ids= df_tags['lfm_id']
+    tags = df_tags['tag']
+    unq_tags = np.unique(df_tags['tag'])
 
-tag_v_id_dict = {}
-v_id_tag_dict = {}
+    zippo = zip(ids, tags)
+    elx = [i for i in zippo]
 
-for i in np.unique(tags):
-    vx = int(find_vertex(g, id_map, i)[0])
 
-    tag_v_id_dict[i] = vx
-    v_id_tag_dict[vx] = i
+    g = Graph()
+    id_map = g.add_edge_list(elx, string_vals=True, hashed=True)
+
+    tag_v_id_dict = {}
+
+
+    c = 0
+    for i in g.vertices():
+        lbl = id_map[i]
+        tag_v_id_dict[lbl] = int(i)
+
+
+
+    tag_v_id_dict2 = {}
+    for i in unq_tags:
+        
+        tag_v_id_dict2[i] = tag_v_id_dict[i]
+
+    return(g, id_map, unq_tags, tag_v_id_dict2)
+
+
+def all_prer(unq_tags, tag_v_id_dict):
+    """returns all possible comparison pairs"""
+    comp_pairs = []
+    for i in unq_tags:
+        for k in unq_tags:
+            cv1 = tag_v_id_dict[i]
+            cv2 = tag_v_id_dict[k]
+            comp_pairs.append((cv1, cv2))
+    return(comp_pairs)
+
+# n = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = [(8,25)])
+
+
+
+
+def compr(comp_pairs, amt_base):
+    """calculates dice similarity of pairs, splits into chunks"""
+    # amb_base: how many vertices are in base
+    # might be used when splitting up
+    # although not clear if i have to, gt seems to handle multiple cores just fine
+
+    t1 = time.time()
+    sims_dice = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = comp_pairs)
+    t2 = time.time()
+
+    sims_dice_splt = np.split(sims_dice, amt_base)
+    sim_ar = np.array(sims_dice_splt)
+
+    return(sim_ar)
+
     
+def ovlpr(unq_tags, sim_ar):
+    """gets the relative overlaps, just intended to be run once"""
+    
+    deg_vec = [g.vertex(tag_v_id_dict[i]).in_degree() for i in unq_tags]
 
-base_v = 8
-comp_pairs = []
+    deg_lists = []
 
-for i in np.unique(tags):
+    for i in deg_vec:
+        mod_vec = np.array(deg_vec) + i
+        deg_lists.append(mod_vec)
 
-    c_v = tag_v_id_dict[i]
-    comp_pairs.append((8, c_v))
+    deg_ar = np.array(deg_lists)
+    # deg_ar = np.outer(np.array(deg_vec), np.array(deg_vec))
 
-n = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = [(g.vertex(8),g.vertex(25))])
-n = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = [(8,25)])
+    ovlp_ar = sim_ar * deg_ar/2
+
+    # subsetting extent
+    sbst_ar = ovlp_ar/deg_vec
+    return(sbst_ar)
+
+
+
+def el_getter(sbst_ar, unq_tags, thrshld):
+    """gets the edgelist out of subset relations array"""
+
+    subsets = np.where(sbst_ar > thrshld)
+
+    subsets_rl = []
+    c =0
+    # filter out identity cases (each tag is complete subset of itself)
+    for i1 in subsets[0]:
+        i1_name = unq_tags[i1]
+
+        i2 = subsets[1][c]
+        i2_name = unq_tags[i2]
+
+        c+=1
+
+        if i1_name != i2_name:
+            subsets_rl.append([i1_name,i2_name])
+            # print(i1_name, ' ---> ',  i2_name, ovlp_ar[i,i2], i1, i2)
+
+    return(subsets_rl)
+
+
+amt_base = len(unq_tags)
+
+prep1 = prepper(df_tags)
+
+g = prep1[0]
+id_map = prep1[1]
+unq_tags = prep1[2]
+tag_v_id_dict = prep1[3]
+
+comp_pairs = all_prer(unq_tags, tag_v_id_dict)
+
+sim_ar = compr(comp_pairs, amt_base)
+sbst_ar = ovlpr(unq_tags, sim_ar)
+
+elx = el_getter(sbst_ar, unq_tags, 0.9)
+
 
 t1 = time.time()
-n = vertex_similarity(GraphView(g, reversed=True), "dice", vertex_pairs = comp_pairs)
+for i in range(50000000):
+    x = vd['s1']
 t2 = time.time()
 
-# TF
+# dicts support 5m look ups per second, not bad 
+# can probably be multi-processed -> 20m
+
+# WTF
 # might well be possible to speed it up even more with GT
 
-len(list( set(g.vertex(8).in_neighbors()) & set(g.vertex(25).in_neighbors())))
 
-
-
-* (u.out_degree() + v.out_degree()) / 2
 
 # could only calculate weighted subset for only those > 0.7 or so
 # maybe even better if GT is much faster
