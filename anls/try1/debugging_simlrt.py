@@ -214,8 +214,6 @@ in which case do they matter
 -> how are multiple edges considered in dice similarity
 
 
-
-
 xs = [['s1', 'rock'],
       ['s1', 'metal'],
       ['s1', 'metal'],
@@ -417,9 +415,6 @@ vertex_similarity(gx, 'inv-log-weight', [(vd['s4'],vd['s9'])])
 
 # * bugreport
 
-
-
-
 # el = [[0,2],
 #       [0,2],
 #       [1,2],
@@ -448,9 +443,6 @@ vertex_similarity(gx, 'dice', [(0,1)])
 vertex_similarity(gx, 'dice', [(2,0)])
 
 
-graph_draw(gx,output_size = (100, 100), output = 'debug.pdf', vertex_text=id_mp)
-
-
 
 el2 = [['A', 'v1'],
        ['A', 'v1'],
@@ -466,6 +458,169 @@ gx2 = Graph(directed=False)
 id_mp = gx2.add_edge_list(el2, hashed=True, string_vals=True)
 
 vertex_similarity(gx2, 'dice', [(1,3)])
+graph_draw(gx2,output_size = (100, 100), output = 'debug.pdf', vertex_text=id_mp)
+
+# * node split to deal with weighted similarity
+
+# might actually work?
+
+el3 = [['A_1', 'v1'],
+       ['A_2', 'v1'],
+       ['A_3', 'v1'],
+       ['B_1', 'v1'],
+       ['A_1', 'v2'],
+       ['B_1', 'v2'],
+       ['B_2', 'v2'],
+       ['B_3', 'v2']]
+
+gx3 = Graph(directed=False)
+id_mp = gx3.add_edge_list(el3, hashed=True, string_vals=True)
+
+graphviz_draw(gx3,size = (10, 10), output = 'debug.pdf',
+              vprops = {'xlabel': id_mp})
+
+vertex_similarity(gx3, 'dice', [(1,5)])
+
+# need count:
+
+el4 = [['A', 'v1', 3],
+       ['A', 'v2', 4],
+       ['B', 'v1', 2],
+       ['B', 'v2', 1]]
+
+# doesn't even need to know how many versions exist LEL
+el4_1 = []
+for i in el4:
+    xpnd = []
+    for k in range(i[2]):
+        itx = [i[0] + "_" +str(k), i[1]]
+        xpnd.append(itx)
+    el4_1.append(xpnd)
+
+
+el_42 = list(itertools.chain.from_iterable(el4_1))
+
+gx4 = Graph(directed=False)
+id_mp = gx4.add_edge_list(el_42, hashed=True, string_vals=True)
+
+graphviz_draw(gx4,size = (5, 5), output = 'debug.pdf',
+              vprops = {'xlabel': id_mp})
+
+vd = {}
+           
+for i in gx4.vertices():
+    vd[id_mp[i]] = int(i)
+
+vertex_similarity(gx4, 'dice', [(vd['v1'],vd['v2'])])
+
+vertex_similarity(gx4, 'dice', [(vd['v1'],vd['v2'])]) * ( gx4.vertex(vd['v1']).out_degree() + gx4.vertex(vd['v2']).out_degree())/2
+# returns correct 0.8 (numerator 2(A3 + B)/5+5
+
+# FUCK YEAH
+# how could it not be enough:
+# if i need similarity scores of multiple modes at same time
+# but then can always generate them separately
+
+# KLD: need to summarize weights to same node?
+# but should be doable: can keep index of highest, and then do some adding/slicing shenanigans i guess
+
+# in some way it's also maybe more to find out subsets, actual comparisons i could probably also do in pandas
+# just have to figure which comparisons of the billions to do
+
+
+
+# ** need comparison with normal/what to expect
+
+el4_3 = []
+for i in el4:
+    xpnd = []
+    for k in range(i[2]):
+        itx = [i[0], i[1]]
+        xpnd.append(itx)
+    el4_3.append(xpnd)
+
+
+el44 = list(itertools.chain.from_iterable(el4_3))
+
+gx4_1 = Graph(directed=False)
+id_mp = gx4_1.add_edge_list(el44, hashed=True, string_vals=True)
+
+graphviz_draw(gx4_1,size = (5, 5), output = 'debug.pdf',
+              vprops = {'xlabel': id_mp})
+
+vd = {}
+           
+for i in gx4_1.vertices():
+    vd[id_mp[i]] = int(i)
+
+vertex_similarity(gx4_1, 'dice', [(vd['v1'],vd['v2'])])
+# as expected return wrong one (1)
+
+
+
+
+
+
+
+
+# ** test on previous data
+
+from graph_tool.all import *
+import itertools
+
+xs = [['s1', 'rock', 1],
+      ['s1', 'metal', 3],
+      ['s1', 'funk', 1],
+      ['s2', 'funk', 1],
+      ['s2', 'rock', 1],
+      ['s3', 'rock', 1],
+      ['s3', 'metal', 1],
+      ['s4', 'metal', 3],
+      ['s4', 'funk', 1],
+      ['s5', 'metal', 1],
+      ['s6', 'funk', 1],
+      ['s7', 'rock', 1],
+      ['s8', 'metal', 1],
+      ['s8', 'funk', 1],
+      ['s9', 'metal', 2],
+      ['s9', 'funk', 1],
+      ['s10', 'metal', 1],      
+      ['s10', 'funk', 3],
+      ['s11', 'funk', 2],
+      ['s11', 'metal', 2]]
+
+xs_xpd = []
+for i in xs:
+    xpnd = []
+    for k in range(i[2]):
+        itx = [i[0], i[1]+ "_" +str(k)]
+        xpnd.append(itx)
+    xs_xpd.append(xpnd)
+
+
+xs_xpd2 = list(itertools.chain.from_iterable(xs_xpd))
+
+gxx = Graph(directed=False)
+id_mp = gxx.add_edge_list(xs_xpd2, hashed=True, string_vals=True)
+
+graphviz_draw(gxx,size = (5, 5), output = 'debug.pdf',
+              vprops = {'xlabel': id_mp})
+
+vd = {}
+           
+for i in gxx.vertices():
+    vd[id_mp[i]] = int(i)
+
+
+vertex_similarity(gxx, 'dice', [(vd['s3'],vd['s4'])])
+vertex_similarity(gxx, 'dice', [(vd['s3'],vd['s9'])])
+
+vertex_similarity(gxx, 'dice', [(vd['s4'],vd['s10'])])
+# whoop whoop it's 0.5
+vertex_similarity(gxx, 'dice', [(vd['s1'],vd['s10'])])
+# yup is 0.44; 4/9 exactly how it's supposed to :))))
+
+vertex_similarity(gxx, 'dice', [(vd['s1'],vd['s10'])])
 
 
 
