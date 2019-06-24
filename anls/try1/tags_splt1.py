@@ -114,7 +114,7 @@ def get_xisting(chunk_nbr):
     #     xisting = [i[0] for i in rdr]
 
     xist1 = open(op_str).read()
-    xisting = xxx.split('\n')
+    xisting = xist1.split('\n')
 
     # reader = csv.reader(x.replace('\0', '') for x in op_str)
     # xisting = [r[0] for r in reader]
