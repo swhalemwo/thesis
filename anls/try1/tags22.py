@@ -165,7 +165,6 @@ def get_tag_dones():
 def get_todos(dones):
     """compares todos with dones, might need some optimization"""
 
-
     addgs_dict = {}
     
     x1 = open(TODO_FILE).read()
