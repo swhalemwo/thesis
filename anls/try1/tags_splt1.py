@@ -105,11 +105,21 @@ def get_todos(chunk_nbr, xisting):
     
     return(tags_todo2)
 
+import codecs
+
 def get_xisting(chunk_nbr):
     "Gets mbids that have been checked alread (either done or failed)"
-    with open(chunk_dir + chunk_nbr + '_dones.csv', 'r') as fi:
-        rdr = csv.reader(fi)
-        xisting = [i[0] for i in rdr]
+    op_str = chunk_dir + chunk_nbr + '_dones.csv'
+
+    # with open(chunk_dir + chunk_nbr + '_dones.csv', 'r') as fi:
+    #     rdr = csv.reader(fi)
+    #     xisting = [i[0] for i in rdr]
+
+    xist1 = open(op_str).read()
+    xisting = xxx.split('\n')
+
+    # reader = csv.reader(x.replace('\0', '') for x in op_str)
+    # xisting = [r[0] for r in reader]
     return(xisting)    
         
 
@@ -192,7 +202,13 @@ if __name__ == '__main__':
     chunk_dir = args.chunk_dir
     chunk_nbr = str(args.chunk_nbr)
     authfile = args.authfile
-    # chunk_nbr = '1';
+
+
+    # !!!!!!!!!!!!!!!!!!!!! THIS IS A DRILL !!!!!!!!!!!!!!!!!!!!!!!!!!
+    chunk_nbr = '10'
+    chunk_dir = '/home/johannes/mega/gsss/thesis/remotes/chunk10/chunk10/'
+    authfile = '/home/johannes/Dropbox/gsss/thesis/anls/try1/authfile.txt'
+    # !!!!!!!!!!!!!!!!!!!!! THIS IS A DRILL !!!!!!!!!!!!!!!!!!!!!!!!!!
 
     auths = get_auth(authfile)
     API_KEY = auths[0][0]
