@@ -150,9 +150,15 @@ def get_tag_wrpr(arg_list):
 
             
 def get_tag_dones():
-    with open(DONES_FILE, 'r') as fi:
-        rdr = csv.reader(fi)
-        dones = [row[0] for row in rdr]
+
+    dones1 = open(DONES_FILE).read()
+    dones2 = dones1.split('\n')
+    dones3 = [i.split(',') for i in dones2]
+    dones = [i[0] for i in dones3]
+
+    # with open(DONES_FILE, 'r') as fi:
+    #     rdr = csv.reader(fi)
+    #     dones = [row[0] for row in rdr]
 
     return(dones)
 
@@ -162,11 +168,18 @@ def get_todos(dones):
 
     addgs_dict = {}
     
-    with open(TODO_FILE, 'r') as fi:
-        rdr = csv.reader(fi)
+    x1 = open(TODO_FILE).read()
+    x2 = x1.split('\n')
+    x3 = [i.split(',') for i in x2]
+
+    for row in x3:
+        addgs_dict[row[0]] = row[0:4]
+
+    # with open(TODO_FILE, 'r') as fi:
+    #     rdr = csv.reader(fi)
     
-        for row in rdr:
-            addgs_dict[row[0]] = row[0:4]
+    #     for row in rdr:
+    #         addgs_dict[row[0]] = row[0:4]
 
     for i in tags_done:
         try:
@@ -174,7 +187,8 @@ def get_todos(dones):
         except:
             pass
 
-    all = [addgs_dict[i] for i in list(addgs_dict.keys())]
+
+    all = [addgs_dict[i] for i in list(addgs_dict.keys()) if len(i) == 36]
     
 
         # all = [row[0:4] for row in rdr if row[0] not in dones]
@@ -281,6 +295,13 @@ if __name__ == '__main__':
     parser.add_argument('authfile', help='lfm keys and secret')
     args = parser.parse_args()
 
+    # !!!!!!!!!!!!!!!!!!!!! THIS IS A DRILL !!!!!!!!!!!!!!!!!!!!!!!!!!
+    # chunk_nbr = '10'
+    # chunk_dir = '/home/johannes/mega/gsss/thesis/remotes/chunk10/chunk10/'
+    # authfile = '/home/johannes/Dropbox/gsss/thesis/anls/try1/authfile.txt'
+    # !!!!!!!!!!!!!!!!!!!!! THIS IS A DRILL !!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
     end_nigh = 0
 
     chunk_dir = args.chunk_dir
@@ -308,6 +329,8 @@ if __name__ == '__main__':
     API_SECRET = auths[1][0]
     
     network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
+
+
 
 
     while len(todos) > 0:
