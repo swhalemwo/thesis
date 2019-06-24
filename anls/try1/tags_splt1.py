@@ -105,8 +105,6 @@ def get_todos(chunk_nbr, xisting):
     
     return(tags_todo2)
 
-import codecs
-
 def get_xisting(chunk_nbr):
     "Gets mbids that have been checked alread (either done or failed)"
     op_str = chunk_dir + chunk_nbr + '_dones.csv'
@@ -205,9 +203,9 @@ if __name__ == '__main__':
 
 
     # !!!!!!!!!!!!!!!!!!!!! THIS IS A DRILL !!!!!!!!!!!!!!!!!!!!!!!!!!
-    chunk_nbr = '10'
-    chunk_dir = '/home/johannes/mega/gsss/thesis/remotes/chunk10/chunk10/'
-    authfile = '/home/johannes/Dropbox/gsss/thesis/anls/try1/authfile.txt'
+    # chunk_nbr = '10'
+    # chunk_dir = '/home/johannes/mega/gsss/thesis/remotes/chunk10/chunk10/'
+    # authfile = '/home/johannes/Dropbox/gsss/thesis/anls/try1/authfile.txt'
     # !!!!!!!!!!!!!!!!!!!!! THIS IS A DRILL !!!!!!!!!!!!!!!!!!!!!!!!!!
 
     auths = get_auth(authfile)
