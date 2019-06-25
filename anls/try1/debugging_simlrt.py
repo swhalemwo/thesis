@@ -726,3 +726,114 @@ for i in range(lenx):
         # looking good
 
         
+
+
+# * testing with new version
+some_edges = [('A','B', 1),
+              ('A','C', 4),
+              ('D','B', 4),
+              ('D','C', 1)
+]
+
+gx = Graph()
+gx.set_directed(False)
+
+wts = gx.new_edge_property('int16_t')
+
+ids = gx.add_edge_list(some_edges, hashed=True, string_vals=True, eprops=[wts])
+
+
+
+graph_draw(gx, vertex_font_size=30, output=base_dir + 'new_ver1.pdf', vertex_text = ids, edge_pen_width=wts)
+
+vertex_similarity(gx, 'dice', vertex_pairs = [(0,3)], eweight=wts)
+vertex_similarity(gx, 'dice', vertex_pairs = [(3,0)], eweight=wts)
+vertex_similarity(gx, 'dice', vertex_pairs = [(1,2)], eweight=wts)
+vertex_similarity(gx, 'dice', vertex_pairs = [(2,1)], eweight=wts)
+
+[print(wts[i]) for i in gx.edges()]
+
+# fuck yeah seems to be working exactly as it should
+
+el = []
+for i in range(10):
+    v1 = max(-(i-3)**4 + 5,0)
+    v2 = max(-(i-5)**2 + 10,0)
+
+    e1 = ('x', 'c'+str(i), v1)
+    e2 = ('y', 'c'+str(i), v2)
+
+    if v1 > 0:
+        el.append(e1)
+    if v2 > 0: 
+        el.append(e2)
+    print(v1)
+
+    
+gx = Graph()
+gx.set_directed(False)
+
+wts = gx.new_edge_property('int16_t')
+
+ids = gx.add_edge_list(el, hashed=True, string_vals=True, eprops=[wts])
+
+base_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/nw_test/'
+
+graph_draw(gx, vertex_font_size=30, output=base_dir + 'new_ver1.pdf', vertex_text = ids, edge_pen_width=wts)
+
+vd = {}
+           
+for i in gx.vertices():
+    vd[ids[i]] = int(i)
+
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['x'],vd['y'])], eweight=wts) * (gx.vertex(vd['x']).out_degree() + gx.vertex(vd['y']).out_degree())/2
+
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['x'],vd['y'])]) * (gx.vertex(vd['x']).out_degree() + gx.vertex(vd['y']).out_degree())/2
+
+
+x_o_ttl = sum([wts[i] for i in gx.vertex(vd['x']).out_edges()])
+y_o_ttl = sum([wts[i] for i in gx.vertex(vd['y']).out_edges()])
+
+ttl_dict = {'x':x_o_ttl, 'y':y_o_ttl}
+
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['x'],vd['y'])], eweight=wts) * (x_o_ttl + y_o_ttl)/2
+
+# overlap 10: would be 0.76: x is kinda subgenre of y
+
+# lets bring wts to ttl 1
+
+
+wts2 = gx.new_edge_property('double')
+
+for i in ['x', 'y']:
+    v = gx.vertex(vd[i])
+
+    v_od = [e for e in v.out_edges()]
+
+    for e in v_od:
+        print(wts[e])
+        wts2[e] = wts[e]/ttl_dict[i]
+
+    
+wts2_2 = prop_to_size(wts2, mi=1, ma=5, log=False, power=1)
+
+graph_draw(gx, vertex_font_size=30, output=base_dir + 'new_ver1.pdf', vertex_text = ids, edge_pen_width=wts2_2)
+
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['x'],vd['y'])], eweight=wts) * (x_o_ttl + y_o_ttl)/2
+
+# this is actually final, no difference for adding (1+1/2) at the end
+# outdegree of nodes is now also one, so it's effectivelyl dividing by one
+# means it's symmetrical now huh
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['x'],vd['y'])], eweight=wts2)
+
+
+# i don't like probability dists
+# i think they implicitly mean that all outcomes are equally likely if you look up the entire space
+
+# they go like probabiliyt of position x given Dist X,
+# not probability that pos x is in Dist x
+
+
+
+
+
