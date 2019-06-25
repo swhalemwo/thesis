@@ -221,11 +221,12 @@ tags_srtd=[x for _,x in sorted(zip(tag_cnts, unq_tags), reverse=True)]
 # * infering probability distributions from vectors
 
 import matplotlib.pyplot as plt
+import math
 
 class dist_cpr:
     """generates 2D probability distribution given raw data (set has separate parameter for each dimension)"""
     
-    def summr(s, min_s, max_s):
+    def summr(self, s, min_s, max_s):
         """creates hists of the distributions"""
         sums1 = []
         for i1 in np.arange(min_s, max_s, res):
@@ -305,8 +306,8 @@ class dist_cpr:
 
     
     def __init__(self, xs, ys, res, min_s, max_s):
-        self.h1 = summr(xs, min_s, max_s)
-        self.h2 = summr(ys, min_s, max_s)
+        self.h1 = self.summr(xs, min_s, max_s)
+        self.h2 = self.summr(ys, min_s, max_s)
 
         self.spc_ar = self.spc_mlt(self.h1, self.h2)
         self.vx = self.vx_cructr(xs, ys)
@@ -427,15 +428,14 @@ def get_test_data(delta=0.05):
 x = y = np.arange(0, 100, res)
 X, Y = np.meshgrid(x, y)
 
-
+                
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 # x, y, z = axes3d.get_test_data(0.05)
 # ax.plot_wireframe(x,y,z, rstride=10, cstride=10)
-ax.plot_wireframe(X,Y,c1.spc_fl, rstride=1, cstride=1, color='red')
-ax.plot_wireframe(X,Y,c2.spc_fl, rstride=1, cstride=1, color='blue')
-
+ax.plot_wireframe(X,Y,c2.spc_fl, rstride=1, cstride=1, color='grey')
+ax.plot_wireframe(X,Y,c1.spc_fl, rstride=1, cstride=1, color='black')
 plt.show()
 
    
