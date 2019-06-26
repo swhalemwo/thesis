@@ -11,7 +11,6 @@
 # -*- org-export-babel-evaluate: nil -*-
 
 
-
 * theory/IRC final
 
 ** notes alex
@@ -85,30 +84,68 @@ make the use more the improvisations (Bourdieu) -> stresses flexibility
 - neurophysiology
 - information science
 
+*** how to frame contribution
+- more complete view of concepts
+- different mechanisms (conceptual, audience, status)
+
+
 * text
 ** introduction
 #
 
 ** concepts
-# 
-With genres as the unit of analysis, ~it is necessary~ to expand on general features of these mental blueprints.
 #
+
+*** location of concepts
+It is certainly relevant to consider whether concepts reside in a public domain, an individual's mind, or both parencite:Lizardo_2016_improving. 
+# 
+
+- cite:Martin_2010_ant emphasizes the cognitive limitations, and therefore similarly argues to conceptualize culture as a network of concepts
+  stresses interaction with environment for sensemaking: availability heuristic, representativeness heuristic, anchoring-and-adjustment
+  *ecologically rational*: good decision making if high quality information is accessible
+
+- [[textcite:Steyvers_2005_structure][p.44]] argue that same developmental mechanisms shape semantic association networks, whether they are personal, (language acquisition)  or public (language evolution). 
+- cite:Strauss_1997_cognitive: the meaning we will give to "meaning" here is the interpretation evoked /in a person/ by an object or event at a given time" (emphasis added). (p.6)
+
+# hmm no single person knows all the entire classification system -> public? 
+# is tagging system an institution? 
+idea of explicit  hierarchies seems like an imposition of public culture/order (bureaucracy) into minds
+
+
+ 
 
 *** fuzziness/partial membership
-textcite:Hannan_2019_concepts provide a summary of the recent concept literature and highlight a number of key properties. 
-#
-~Categories~
+# 
+With genres as the unit of analysis, ~it is necessary~ to expand on general features of these mental blueprints.
+# is bluerprint actually a good metaphor? quite technical/precise/exact, qute unlike fuzzy probability distributions
+# alternatives: template, matrix (too technical), schema/scheme? 
+# feature is that it is used to produce things; is abstraction
+# 
 
-Concepts are fuzzy: 
-
+*** classical view
 Given
 - logocentrism (Derrida)
 - bureaucratization/iron cage 
   - narrow down to institutional logic? 
 
-It may seem intuitive to think that concepts can clearly described with a precise definition of features. 
+It may seem intuitive to think that concepts can clearly defined with a precise elaboration of necessary and/or jointly sufficient features. 
+# 
+textcite:Murphy_2004_concepts calls this the "classical view" in the psychology of concepts, and argues that it constituted a paradigm until the 1970s considered concepts as definitions with necessary. 
+# 
+In this worldview, concepts are logically ordered, membership of an object is clear-cut, and hence consequently all members of a category are equal members (p.15).
+#
+Concepts at different levels of abstraction (such as animals, mammals and dogs) are consequently seen as forming a strict hierarchy cite:Quillian_1988_memory.
+# 
+Given the strictly logical structure, membership is considered transitive: 
+# 
+All objects of a category are also members of the categories the (first) category is a sub-concept of. 
+# 
 
-textcite:Murphy_2004_concepts argues that the "classical view" in the psychology of concepts constituted such a praradigm  until the 1970s considered concepts as definitions with necessary and jointly sufficient attributes. 
+
+
+
+*** probl
+
 # 
 While there have always been philosophical criticisms of the non-universality of rationality 
 - Wittgenstein
@@ -157,6 +194,12 @@ For example in the case of vehicles, the property of being a mechanical device t
 Within such a (crisp) hierarchy, features are inherited from higher levels. 
 # 
 Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks are cars as well as vehicles. 
+# 
+
+
+# framing: put Hannan into classical view? 
+# nope: but Quillian
+# place of concepts: public or private
 # 
 
 
