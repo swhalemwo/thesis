@@ -40,7 +40,6 @@ df_acst = pd.DataFrame(rows_acst, columns = ['lfm_id', 'dncblt','gender', 'timb_
 songs_acst = df_acst['lfm_id']
 
 
-
 # can make the query longer to select only genres which occur at least X times
 # join statements have to be on different levels i think, that's why i have to make three new lines to take into account the tag appearnace (tag_ap )
 
@@ -106,7 +105,7 @@ for r in df_acst2.itertuples():
 unq_tags = list(np.unique(df_tags['tag']))
 # for i unq_tags:
 
-# gnr = 'black metal'
+gnr = 'black metal'
 gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
 
 df_gnr_tags = df_tags[df_tags['tag']==gnr]
@@ -115,6 +114,73 @@ df_gnr_acst = df_acst.loc[gnr_acst_ids]
 df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
 
 weighted_avg_and_std(df_gnr_cbmd['dncblt'], df_gnr_cbmd['cnt'])
+
+bins = np.arange(0, 1, 0.1)
+a1, a0 = np.histogram(df_gnr_cbmd['dncblt'], bins=bins)
+
+fig, ax = plt.subplots()
+# ax.bar(a0[:-1], a1)
+
+ax.plot(a1)
+plt.show()
+
+ax_lbl = []
+for i in range(len(a1)):
+    print(i)
+    ax_lbl.append(str(round(a0[i],2)) + "-" + str(round(a0[i+1],2)))
+
+plt.bar(ax_lbl, a1)
+plt.show()
+
+
+x1 = np.linspace(0.0, 5.0)
+x2 = np.linspace(0.0, 2.0)
+
+
+y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
+y2 = np.cos(2 * np.pi * x2)
+
+plt.subplot(3, 1, 1)
+plt.plot(x1, y1, 'o-')
+plt.title('A tale of 2 subplots')
+plt.ylabel('Damped oscillation')
+
+plt.subplot(3, 1, 2)
+plt.plot(x2, y2, '.-')
+plt.xlabel('time (s)')
+plt.ylabel('Undamped')
+
+plt.subplot(3, 1, 3)
+plt.plot(x2, y2, '.-')
+plt.xlabel('time (s)')
+plt.ylabel('Undamped')
+
+
+def sb_pltr(ttl, row, nbr, xs, ys, xlbl, ylbl):
+    plt.subplot(ttl, row, nbr)
+    plt.plot(xs, ys, '.-')
+    plt.xlabel(xlbl)
+    plt.ylabel(ylbl)
+
+c = 0
+for v in chsn_vars:
+
+    # wrap into genre function
+    gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
+
+    df_gnr_tags = df_tags[df_tags['tag']==gnr]
+    df_gnr_acst = df_acst.loc[gnr_acst_ids]
+
+    df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
+    bins = np.arange(0, 1, 0.1)
+    a1, a0 = np.histogram(df_gnr_cbmd[v], bins=bins)
+
+    ttl = 5
+    c +=1
+    sb_pltr(ttl, 1, c, ax_lbl, a1, 'freq', v)
+
+plt.show()
+
 
 # g1 = 'black metal'
 # g2 = 'metal'
@@ -402,128 +468,6 @@ ax.plot(xs2, yy2)
 plt.show()
 
 
-
-# * 3d graph
-from mpl_toolkits.mplot3d import axes3d
-import matplotlib.pyplot as plt
-import numpy as np
-
-
-def get_test_data(delta=0.05):
-
-    from matplotlib.mlab import  bivariate_normal
-    # x = y = np.arange(-3.0, 3.0, delta)
-
-    Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-    Z = Z2 - Z1
-
-    X = X * 10
-    Y = Y * 10
-    Z = Z * 500
-    return X, Y, Z
-
-
-
-x = y = np.arange(0, 100, res)
-X, Y = np.meshgrid(x, y)
-
-                
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-# x, y, z = axes3d.get_test_data(0.05)
-# ax.plot_wireframe(x,y,z, rstride=10, cstride=10)
-ax.plot_wireframe(X,Y,c2.spc_fl, rstride=1, cstride=1, color='grey')
-ax.plot_wireframe(X,Y,c1.spc_fl, rstride=1, cstride=1, color='black')
-plt.show()
-
-   
-
-
-
-
-# plt.scatter(s1,s2)
-# plt.show()
-
-    
-# buckets = [x for x in s1 if x > i1 and x ]
-
-#    i2 = i + res
-#     shard = []
-        
-
-
-# fill space
-# for i in vx:
-#     x = math.ceil(i[0])
-#     y = math.ceil(i[1])
-#     try:
-#         spc[x][y]+=1
-#     except:
-#         pass
-# lls = []
-
-# for i in np.arange(min_s-res, max_s, res):
-#     i1 = math.ceil(i)
-#     ll = []
-
-#     for k in np.arange(min_s-res, max_s, res):
-#         k1 = math.ceil(k)
-#         ll.append(spc[i1][k1])
-
-#     lls.append(ll)
-
-# spc_fl = np.array(lls)
-
-
-
-# v1 = [0,0,0.05, 0.1, 0.18,0.25,0.4,0.5,0.55,0.6]
-
-# v1x = [v1[0]]
-# for i in v1[1:len(v1)-1]:
-    
-
-#     v1x.append(v1[9])
-
-# v2 = [0.4, 0.4,0.35,0.25,0.15,0.1,0.05,0.025,0,0]
-
-# x = [i for i in range(10)]
-
-
-
-
-# fo = open('test.disco', 'a')
-#     db.dump(fo)
-
-
-
-
-# df_gnr_acst = df_acst[
-#     df_acst['lfm_id'] in df_gnr_tags['mbid']
-
-# dicts are cheap
-# should i do some dict shenangians to
-# could loop fo r
-
-# wish i could do that in ch, but then i'd have to it for every genrexs
-
-# make a bunch of dicts
-# dicts fast lel
-
-
-
-# tags = tag_df['tag']
-# len(np.unique(tags))
-
-# doesn't seem to make such a difference to include songs cnt > 400: 484k vs 453k 
-# presumably because most songs that fulfill the tag requirements (also fulfil the song requirements?)
-
-
-df = pd.DataFrame(row_list)
-# jfc so much faster
-# ask marieke
-    
 
 
 # * kullback-Leibler divergence
