@@ -1,3 +1,5 @@
+# * libs
+
 import csv
 import json
 from clickhouse_driver import Client
@@ -7,6 +9,8 @@ import math
 import time
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import mahalanobis
+
+# * funcs
 
 def weighted_avg_and_std(values, weights):
     """
@@ -151,56 +155,65 @@ def dict_gnrgs(df_acst, df_tags):
 gnr_song_dict, acst_pos_dict = dict_gnrgs(df_acst, df_tags)
 
 
-unq_tags = list(np.unique(df_tags['tag']))
 
-gnr = 'rap'
-gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
-df_gnr_tags = df_tags[df_tags['tag']==gnr]
-df_gnr_acst = df_acst.loc[gnr_acst_ids]
+def get_inv_mat(df_gnr_cmbd, vrbls):
+    """calculates the inverse covariance matrix used for mahalanobis distance, weighted by counts"""
+    mat = df_gnr_cbmd[vrbls]
 
-df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
+    aweits = df_gnr_cbmd['rel_weight']
+
+    cov_mat = np.cov(mat, rowvar=0, aweights=aweits)
+    cov_mat_inv = np.linalg.inv(cov_mat)
+    return(cov_mat_inv)
+
+def get_df_cbmd(gnr):
+    """constructs combined df out of acoustic and tag df"""
+    # gnr = 'rap'
+    gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
+    df_gnr_tags = df_tags[df_tags['tag']==gnr]
+    df_gnr_acst = df_acst.loc[gnr_acst_ids]
+
+    df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
+    return(df_gnr_cbmd)
+
+# * playground
+
+dfc = get_df_cbmd('rap')
 
 tx = '047a94b1-c42e-4867-8aa5-36d8c1f57d00'
-tx_loc = list(df_gnr_cbmd['lfm_id']).index(trackx)
+tx_loc = list(dfc['lfm_id']).index(trackx)
 
 vrbls = ['dncblt','gender', 'timb_brt','tonal', 'voice']
 
+## ** mahalanobis dist
 
 # still not clear about how to weigh, whether to use weight or count arrrrr
 # hmm original idea was to use cnts and use batches based on weights
 
 slx, ovrl = [], []
 
-
 for i in vrbls:
     print(i)
-    slx.append(float(df_gnr_cbmd[df_gnr_cbmd['lfm_id'] == trackx][i]))
-    ovrl.append(float(weighted_avg_and_std(df_gnr_cbmd[i], df_gnr_cbmd['cnt'])[0]))
+    slx.append(float(dfc[dfc['lfm_id'] == trackx][i]))
+    ovrl.append(float(weighted_avg_and_std(dfc[i], dfc['cnt'])[0]))
 
-
-mat = df_gnr_cbmd[vrbls]
-
-aweits = df_gnr_cbmd['cnt']
-
-cov_mat = np.cov(mat, rowvar=0, aweights=aweits)
-cov_mat_inv = np.linalg.inv(cov_mat)
+cov_mat_inv = get_inv_mat(dfc, vrbls)
 
 mahalanobis(slx, ovrl, cov_mat_inv)
 
-df_gnr_cbmd['mah_dist']=0.0
+dfc['mah_dist']=0.0
 
-unq_trks = list(df_gnr_cbmd['lfm_id'])
-
+unq_trks = list(dfc['lfm_id'])
 
 c = 0
 for tx in unq_trks:
-    tx_vls = df_gnr_cbmd[df_gnr_cbmd['lfm_id'] == tx][vrbls]
+    tx_vls = dfc[dfc['lfm_id'] == tx][vrbls]
     mah_dist = mahalanobis(tx_vls, ovrl, cov_mat_inv)
 
-    df_gnr_cbmd.at[c, 'mah_dist'] = mah_dist
+    dfc.at[c, 'mah_dist'] = mah_dist
     c+=1
 
-m_dists = df_gnr_cbmd['mah_dist']
+m_dists = dfc['mah_dist']
 plt.hist(m_dists, bins='auto')
 plt.show()
 
@@ -229,7 +242,19 @@ for i in range(1000):
 # hm still not many at 0, but much closer (min 0.1 vs ~0.8)
 
 
-## ** test with entire data as basis for cov mat
+# ** data exploration
+for v in vrbls:
+    plt.subplot(5, 1, vrbls.index(v)+1)
+    plt.hist(df_acst[v], bins='auto')
+
+plt.show()
+# fuck, basically bimodals
+# not really sure if it makes sense to calculate mean of those
+
+
+vrbls2 = ["mood_acoustic","mood_aggressive","mood_electronic","mood_happy","mood_party","mood_relaxed","mood_sad"]
+
+# ** test with entire data as basis for cov mat
 
 mat = df_acst[vrbls]
 
@@ -245,18 +270,50 @@ for tx in unq_trks:
     df_gnr_cbmd.at[c, 'mah_dist'] = mah_dist
     c+=1
 
-    # need to get playcount into weights 
+    
+# need to get playcount into weights 
+# i'm not sure if using the entire data set is the right thing to do:
+# importance of dimensions can differ between genres
+# i think covariance has to be estimated for each genre
+# if there's no difference it doesn't harm splitting anyways
+
+# ** genre variation in mean/sds
+
+# not actually sure what i need merge for? 
+# dfc2 = pd.merge(df_tags[['lfm_id', 'cnt']], df_acst , on ='lfm_id')
+# dfc3 = dfc2.drop_duplicates()
+
+gnr_sds = {}
+gnr_mns = {}
+for v in vrbls:
+    gnr_sds[v] = []
+    gnr_mns[v] = []
+    
+for tgx in unq_tags[0:100]:
+
+    dfcx = get_df_cbmd(tgx)
+
+    for v in vrbls: 
+        mnx, sdx = weighted_avg_and_std(dfcx[v], dfcx['cnt'])
+        gnr_sds[v].append(sdx)
+        gnr_mns[v].append(mnx)
+
+
+plt.scatter(gnr_mns[v], gnr_sds[v])
+plt.show()
 
 
 
+# quite some parabolical relationships
+# but definitely a lot of range
 
 
-# have to scale it somewhow: the variance matters in the assessment of typicality
-# average z score?
-# multidimensional z score? -> Mahalanobis distance
+# cov mats are not that expensive to calculate at start me thinks
+# also super cheap to store and access (dict)
 
-## * scrap
-## ** figuring out CH queries
+
+# * scrap
+# ** figuring out CH queries
 
 # SELECT lfm_id as mbid, gender
 # FROM acstb
