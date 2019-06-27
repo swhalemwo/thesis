@@ -107,10 +107,9 @@ It is certainly relevant to consider whether concepts reside in a public domain,
 - [[textcite:Steyvers_2005_structure][p.44]] argue that same developmental mechanisms shape semantic association networks, whether they are personal, (language acquisition)  or public (language evolution). 
 - cite:Strauss_1997_cognitive: the meaning we will give to "meaning" here is the interpretation evoked /in a person/ by an object or event at a given time" (emphasis added). (p.6)
 
-# hmm no single person knows all the entire classification system -> public? 
-# is tagging system an institution? 
-idea of explicit  hierarchies seems like an imposition of public culture/order (bureaucracy) into minds
-
+# hmm no sin-gle person knows all the entire classification system -> public? 
+# is tagging system an institution? kinda.. has a place, material reality, interface
+idea of explicit hierarchies seems like an imposition of public culture/order (bureaucracy) into minds
 
  
 
@@ -521,6 +520,72 @@ mpcpherson: competition is asymmetric
 
 
 
+
+
+** duality, audience
+While concepts for analytical purposes can be considered as entities on their own, they do not exist only in feature or conceptual spaces. 
+# 
+Instead, drawing on a tradition of mutual constitutiveness parencite:Breiger_1974_duality,Mohr_1997_duality,Mohr_2010_niche genres need to be considered as "partially constituted by the audiences that support them" [[parencite:dimaggio1987classification][p.441]]. 
+#
+DiMaggio further elaborates that "genres represent socially constructed organizing principles that imbue artworks with significance /beyond their thematic content/ and are in turn, responsive to structurally generated demand for cultural information and affiliation" (ibid., emphasis added). 
+#
+It is therefore crucial to not only consider the conceptual features and the relations between genres based on them, but furthermore go beyond the thematic content and focus on the social motivations for genre support. 
+#
+The prime example is again by ~dimaggio~, who argues in ~X~ that the creation/emergence/institutionalization of ~classical music/theater/fine arts~ did not follow on grounds of ~conceptual unclarity~, but was driven by the increasing demand of the ~emerging upper/middle/upper middle classes~ to ~distinguish themselves/claim status~. 
+# 
+
+*** conceptualizing omnivorousness
+What mechanism of cultural information and affiliation can we expect to be present in early 21st century music consumption? 
+# 
+Certainly boundaries over genres in the informal, ~detached/autonomous~ realm of last.fm are not limited to the (~reified~) distinctions of highbrow and lowbrow. 
+# 
+The notion of omnivorism cite:peterson1996changing might get closer to the ~matter at hand~ as it associates higher social strata with omnivorous cultural consumption and lower with univorous tastes. 
+# 
+However, omnivorousness is a rather blurry concept itself:
+# 
+textcite:Sonnett_2016_ambivalence notes that next to the original conceptualization of volume of cultural consumption, it can refer to a range of concepts such as eclecticism, expertise, voraciousness and cosmopolitanism (p.39). 
+#
+one might also add the conceptualization of omnivorousness as openness parencite:van_Eijck_2005
+# 
+Despite (or perhaps due to) its ambiguity, omnivorism has remained a key concept in characterizing cultural consumption, which I argue has been worth the price as its continued use has allowed theoretical advancements (lizardo, goldberg) that capture much of the underlying ideas without requiring the introduction of new typologies. 
+#
+textcite:Warde_2008_omnivorous argue a key feature of an omnivorous orientation to be composed of diverse tastes. 
+# 
+Such an 'omnivorousness by composition' is also what cite:Lizardo_2014_holes incorporates in his operationalization of omnivorousness as the bridging of cultural holes
+# 
+Using network measures, he characterizes omnivorism as the "extent to which a person's cultural choices allow her to bridge across cultural worlds that are only weakly connected to one other or constrain her in a cultural network composed of redundant attachment to cultural forms with overlapping audiences" (p. 396). 
+
+
+*** mechanism of influence
+Even with omnivorousness conceptualized, one needs to formulate mechanisms through which it influences genre survival. 
+# 
+textcite:Goldberg_2016_span 
+- combine organizational/conceptual approaches 
+- argue that omnivores/poly-purists (characterized by high variety and high typicality) "play a distinct, boundary-policing role" (p.233)
+#
+One could therefore expect that genres increase their survival chances if they are consumed by such an audience. 
+# 
+On the other hand, 
+
+~is the real thing the purists~? low taste for atypicality -> higher survival? 
+i could just reflect parencite:Lizardo_2018_centralities item typicality on users
+needs measure for item typicality but that's doable me thinks
+
+is dimaggio's cultural hole spanning poly-mixing? 
+it's not based on graded membership/typicality but on co-occurrence
+lizardo needs what all other people listen to see how omnivorous individual is
+
+Goldberg: can derive taste for typicality/atypicality from feature space
+others still matter a bit in that the taggings are made by people -> which items are grouped together is social, but once feature space positions are given data about others not needed
+
+
+
+
+
+
+
+
+taste for popularity? ahh so much stuff
 
 
 * questions (list of ideas with more or less relevance)
