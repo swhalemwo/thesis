@@ -133,27 +133,27 @@ plt.bar(ax_lbl, a1)
 plt.show()
 
 
-x1 = np.linspace(0.0, 5.0)
-x2 = np.linspace(0.0, 2.0)
+# x1 = np.linspace(0.0, 5.0)
+# x2 = np.linspace(0.0, 2.0)
 
 
-y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
-y2 = np.cos(2 * np.pi * x2)
+# y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
+# y2 = np.cos(2 * np.pi * x2)
 
-plt.subplot(3, 1, 1)
-plt.plot(x1, y1, 'o-')
-plt.title('A tale of 2 subplots')
-plt.ylabel('Damped oscillation')
+# plt.subplot(3, 1, 1)
+# plt.plot(x1, y1, 'o-')
+# plt.title('A tale of 2 subplots')
+# plt.ylabel('Damped oscillation')
 
-plt.subplot(3, 1, 2)
-plt.plot(x2, y2, '.-')
-plt.xlabel('time (s)')
-plt.ylabel('Undamped')
+# plt.subplot(3, 1, 2)
+# plt.plot(x2, y2, '.-')
+# plt.xlabel('time (s)')
+# plt.ylabel('Undamped')
 
-plt.subplot(3, 1, 3)
-plt.plot(x2, y2, '.-')
-plt.xlabel('time (s)')
-plt.ylabel('Undamped')
+# plt.subplot(3, 1, 3)
+# plt.plot(x2, y2, '.-')
+# plt.xlabel('time (s)')
+# plt.ylabel('Undamped')
 
 
 def sb_pltr(ttl, row, nbr, xs, ys, xlbl, ylbl):
@@ -162,26 +162,42 @@ def sb_pltr(ttl, row, nbr, xs, ys, xlbl, ylbl):
     plt.xlabel(xlbl)
     plt.ylabel(ylbl)
 
-c = 0
-for v in chsn_vars:
 
-    # wrap into genre function
-    gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
 
-    df_gnr_tags = df_tags[df_tags['tag']==gnr]
-    df_gnr_acst = df_acst.loc[gnr_acst_ids]
+gnrs = ['rap', 'metal', 'ambient', 'hard rock', 'pop', 'punk', 'ska']
 
-    df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
-    bins = np.arange(0, 1, 0.1)
-    a1, a0 = np.histogram(df_gnr_cbmd[v], bins=bins)
 
-    ttl = 5
-    c +=1
-    sb_pltr(ttl, 1, c, ax_lbl, a1, 'freq', v)
+for gnr in gnrs: 
+    c = 0
+    for v in vrbls:
+
+        # wrap into genre function
+        gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
+
+        df_gnr_tags = df_tags[df_tags['tag']==gnr]
+        df_gnr_acst = df_acst.loc[gnr_acst_ids]
+
+        df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
+        bins = np.arange(0, 1, 0.1)
+        a1, a0 = np.histogram(df_gnr_cbmd[v], bins=bins, weights=df_gnr_cbmd['rel_weight'])
+
+        ttl = 5
+        c +=1
+        sb_pltr(ttl, 1, c, ax_lbl, a1, 'freq', v)
 
 plt.show()
+# i don't like this at all
+# maybe i shouldn't treat variables as continuous
+# rather binary and weigh?
+# idk.. would mean separate weights for each cell
+
+# think i should functionify the df creation
+# use item_tpclt_for it
 
 
+# multiple lines: i guess i should pass dimensions there earlier
+
+ 
 # g1 = 'black metal'
 # g2 = 'metal'
 
