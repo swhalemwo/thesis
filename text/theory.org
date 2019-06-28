@@ -330,7 +330,6 @@ These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions
 *** pieces
 
 
-
 # feature spaces need to be linked: 
 # need to be able to ask: what is the difference between an economist and a sociologist
 # can't be that each has its own separate feature space
@@ -522,6 +521,24 @@ mpcpherson: competition is asymmetric
 
 
 
+** conceptual ecology
+# 
+The original formulation of textcite:hannan89_organ,Hannan_1992_dynamics rests on an in interpretation of density dependence that emphasizes the role of legitimation and competition. 
+# 
+
+industries with little data available besides count -> different roots describe different industries (somewhat independent)
+
+
+If cohort size is a measure of density, one would expect a cohort nonmonontic relation between cohort size and survival chances: 
+# 
+At first, an established, but rarely imitated genre provides much potential for legitimating sub-genres. 
+# 
+However, the more sub-genres are formed, the higher the competition for the region of the musical space spanned by the superordinate genre. 
+# 
+
+
+
+
 ** duality, audience
 While concepts for analytical purposes can be considered as entities on their own, they do not exist only in feature or conceptual spaces. 
 # 
@@ -534,58 +551,98 @@ It is therefore crucial to not only consider the conceptual features and the rel
 The prime example is again by ~dimaggio~, who argues in ~X~ that the creation/emergence/institutionalization of ~classical music/theater/fine arts~ did not follow on grounds of ~conceptual unclarity~, but was driven by the increasing demand of the ~emerging upper/middle/upper middle classes~ to ~distinguish themselves/claim status~. 
 # 
 
+*** consumption styles (omnivorism, purism) beyond thematic content? 
+# 
+Next to fundamental social boundaries such as class that are clear 'beyond thematic content' of genres, what other audience characteristics might play a role in genre survival? 
+# 
+It seems to me that consumption styles are certainly worthy of consideration. 
+#
+These are 
+- omnivorism cite:Lizardo_2014_holes
+- taste for atypicality cite:Goldberg_2016_span
+- taste for popularity cite:Lieberson_2003_popularity,Kovacs_2014_paradox 
+# 
+These consumption styles are in one way or another based on overall consumption pattern as well as item properties. 
+#
+Nevertheless, I argue that they constitute "transposable form of the aesthetic disposition" [[textcite:Lizardo_2012_reconcept][p.263, for omnivorism]] and can therefore reasonably assumed to influence genre survival chances. 
+
+# am i doing circular argument with popularity? 
+# DV will be based on playcounts
+# think not: taste for popularity is reflection in similar way as atypicality thing
+
 *** conceptualizing omnivorousness
-What mechanism of cultural information and affiliation can we expect to be present in early 21st century music consumption? 
+# What mechanism of cultural information and affiliation can we expect to be present in early 21st century music consumption? 
 # 
-Certainly boundaries over genres in the informal, ~detached/autonomous~ realm of last.fm are not limited to the (~reified~) distinctions of highbrow and lowbrow. 
+# Certainly boundaries over genres in the informal, ~detached/autonomous~ realm of last.fm are not limited to the (~reified~) distinctions of highbrow and lowbrow. 
 # 
-The notion of omnivorism cite:peterson1996changing might get closer to the ~matter at hand~ as it associates higher social strata with omnivorous cultural consumption and lower with univorous tastes. 
+The notion of omnivorism has been an influential concept in the research on cultural consumption. 
 # 
-However, omnivorousness is a rather blurry concept itself:
+The original study by textcite:peterson1996changing posits a relation between socioeconomic status and breadth of cultural tastes - or more precisely, openness to variety (p.904). 
 # 
-textcite:Sonnett_2016_ambivalence notes that next to the original conceptualization of volume of cultural consumption, it can refer to a range of concepts such as eclecticism, expertise, voraciousness and cosmopolitanism (p.39). 
+However, omnivorousness has become a rather blurry concept in itself:
+# 
+textcite:Sonnett_2016_ambivalence notes that next to the of volume of cultural consumption, it can refer to a range of concepts such as eclecticism, expertise, voraciousness and cosmopolitanism (p.39). 
 #
-one might also add the conceptualization of omnivorousness as openness parencite:van_Eijck_2005
+Despite (or perhaps due to) its ambiguity, omnivorism has remained a key concept in characterizing cultural consumption. 
 # 
-Despite (or perhaps due to) its ambiguity, omnivorism has remained a key concept in characterizing cultural consumption, which I argue has been worth the price as its continued use has allowed theoretical advancements (lizardo, goldberg) that capture much of the underlying ideas without requiring the introduction of new typologies. 
+While subjected to substantial criticism, parencite:coulangeon2007distinction,Warde_2008_omnivorous,Savage_2011_unravelling, this continued use has allowed theoretical advancements parencite:Warde_2008_omnivorous,Lizardo_2012_reconcept  without requiring the introduction of new typologies.  
+# 
+Particularly noteworthy is the notion of capturing the diversity of taste profile through an composition rather than an exclusive focus on the mere volume. 
+# 
+textcite:Lizardo_2014_holes therefore argues for a measure of "effective omnivorousness" that captures the "extent to which a person's cultural choices allow her to bridge across cultural worlds that are only weakly connected to one other or constrain her in a cultural network composed of redundant attachment to cultural forms with overlapping audiences" (p. 396). 
+# 
+Given the omnivorism of omnivorism with socio-economic status, it seems reasonable that genres that can attract omnivores fare better as the status of omnivores reflects back onto them. 
+# 
+*H_A1*: The more omnivorous a genre's audience is, the greater are its survival chances. 
 #
-textcite:Warde_2008_omnivorous argue a key feature of an omnivorous orientation to be composed of diverse tastes. 
-# 
-Such an 'omnivorousness by composition' is also what cite:Lizardo_2014_holes incorporates in his operationalization of omnivorousness as the bridging of cultural holes
-# 
-Using network measures, he characterizes omnivorism as the "extent to which a person's cultural choices allow her to bridge across cultural worlds that are only weakly connected to one other or constrain her in a cultural network composed of redundant attachment to cultural forms with overlapping audiences" (p. 396). 
+# While omnivores do not have a strict ~dedication~ to any particular genre, they are reliant on the existence of genre boundaries which they can then span across. 
 
 
-*** mechanism of influence
-Even with omnivorousness conceptualized, one needs to formulate mechanisms through which it influences genre survival. 
+*** Taste for typicality
 # 
-textcite:Goldberg_2016_span 
-- combine organizational/conceptual approaches 
-- argue that omnivores/poly-purists (characterized by high variety and high typicality) "play a distinct, boundary-policing role" (p.233)
+textcite:Goldberg_2016_span integrate approaches from organizational and cultural and therefore take the properties of items into account (they employ much of the same terminology that has been used to elaborate concepts).[fn::This constitutes a key distinction from the conceptualization of omnivorism, which requires the choices by other audience members to estimate a individuals omnivorousness, whereas the taste for typicality can be deduced from chosen items' position in the feature space]
+# 
+Specifically they distinguish boundary /spanning/ (which is captured by the here employed notion of omnivorousness) from boundary /blurring/, which describes the extent to which objects adhere to established classification frameworks. 
+# 
+Audiences with a  preference for typical objects, the so-called purists, are argued to "play a boundary-policing role" (p.233). 
+# 
+It therefore seems reasonably to argue that genres increase their survival chances by the extent to which they can attract such a purist audience. 
 #
-One could therefore expect that genres increase their survival chances if they are consumed by such an audience. 
+*H_A2*: The more purist a genre's audience is, the greater are its survival chances. 
+
+
+*** taste for popularity: still elaboration needed
+
+  # implication: a genre is more likely to survive if it has an audience that likes popular stuff
+  # but isn't it the other way around? a person that likes popular stuff is not going to listen to things that have a chance of dying out
+  # could you say that if a genre manages to attract/capture people who only like popular stuff it is more likely to survive? 
+  # hmm popularity -> survivavl definitely holds
+  # but survival  -> popularity not necessarily: there are many things that exist that are not popular
+
 # 
-On the other hand, 
+Audiences furthermore vary in the degree to which they value popularity parencite:Lieberson_2003_popularity,Kovacs_2014_paradox. 
+# 
+Such variation in second-order preferences parencite:Vaisey_2018_decision has been found to influence first names parencite:Lieberson_2003_popularity, song cite:Salganik_2008_herd and book ratings cite:Kovacs_2014_paradox. 
+# 
+Variation in taste for popularity has been found to produce fashion dynamics parencite:Zuckerman_2012_valuations
+# 
+[...]
+# 
+*H_A3*: The higher the taste for popularity of a genre's audiences, the higher are its chances of survival. 
+# 
 
-~is the real thing the purists~? low taste for atypicality -> higher survival? 
-i could just reflect parencite:Lizardo_2018_centralities item typicality on users
-needs measure for item typicality but that's doable me thinks
+high TfP are ~conservative~: want general validation
 
-is dimaggio's cultural hole spanning poly-mixing? 
-it's not based on graded membership/typicality but on co-occurrence
-lizardo needs what all other people listen to see how omnivorous individual is
+It might be argued that the causal path runs in the other direction, as genres with a high taste for popularity only chose items of genres that are already established. 
+# 
+It is certainly true in a trivial sense as genres that have not survived are also not popular. 
 
-Goldberg: can derive taste for typicality/atypicality from feature space
-others still matter a bit in that the taggings are made by people -> which items are grouped together is social, but once feature space positions are given data about others not needed
+However, numerous obscure genres exist which are unlikely to have an audience with a high taste for popularity, which seems to indicate that survival does not necessarily result in popularity. 
 
 
 
 
 
-
-
-
-taste for popularity? ahh so much stuff
 
 
 * questions (list of ideas with more or less relevance)
