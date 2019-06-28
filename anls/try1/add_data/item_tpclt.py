@@ -254,6 +254,120 @@ plt.show()
 
 vrbls2 = ["mood_acoustic","mood_aggressive","mood_electronic","mood_happy","mood_party","mood_relaxed","mood_sad"]
 
+# *** biased cov mat estimation
+# see if i can make columns/observations less important 
+
+
+
+rnd1 = np.random.normal(loc=0, scale=0.5, size = 1000)
+rnd2 = np.random.normal(loc=0, scale=2, size = 1000)
+rnd3 = np.random.normal(loc=0, scale=1, size = 1000)
+
+rnd_ar = np.array([rnd1, rnd2, rnd3]).transpose()
+
+row_weits = choices([i for i in range(10)], k=1000)
+
+cov_mat_bs = np.cov(rnd_ar, rowvar = 0)
+cov_mat_bs2 = np.cov(rnd_ar, rowvar = 0, aweights = row_weits)
+
+W_rows = [[1,0.5,0.1]]*1000
+W = np.array(W_rows)
+Q = rnd_ar
+
+QW = Q*W
+C = QW.T.dot(QW)/W.T.dot(W)
+
+
+Q[:,0].dot(Q[:,1])
+
+# need zero mean? np my dude
+# still not good: if i weigh entire column, it gets equalized because weights are in both parts of the equation
+
+# just multiply column (by degree of normality violation) to change its SD? 
+rnd_ar2 = rnd_ar*W
+
+C3 = np.cov(rnd_ar2, rowvar=0)
+# there's certainly a difference now LEL
+# not so sure if i really want that tho
+# but i might
+# basically shrinks the variation in the dimensions i don't like
+
+# *** measure extent of bimodality
+def get_bmdl_dist(sd):
+    v1_1 = np.random.normal(loc=1, scale = sd, size = 10000)
+    v1_11 = [i for i in v1_1 if i < 1 and i > 0]
+    v1_2 = np.random.normal(loc=0, scale = sd, size = 10000)
+    v1_21 = [i for i in v1_2 if i > 0 and i < 1]
+
+    v1 = random.sample(v1_11, 500) + random.sample(v1_21, 500)
+    return(v1)
+
+v1 = get_bmdl_dist(0.01)
+
+plt.hist(v1, bins=30)
+plt.show()
+
+from scipy.stats import kurtosis
+
+kurtosis(get_bmdl_dist(0.01))
+kurtosis(get_bmdl_dist(1))
+kurtosis(get_bmdl_dist(2))
+kurtosis(np.random.normal(loc=1, scale=1, size=10000))
+
+# seems reasonably to weight by kurtosis as measure of bimodality
+# \cite{Darlington_1970_kurtosis}
+
+import diptest
+
+
+x2 = [float(i) for i in x]
+x3 = np.array(x2)
+diptest.dip(np.array(get_bmdl_dist(1)))
+diptest.dip(np.array(get_bmdl_dist(0.1)))
+diptest.dip(np.array(get_bmdl_dist(0.01)))
+
+diptest.dip(np.random.normal(loc=1, scale=1, size=10000))
+
+# i hope the dip statistic is not some kind of pvalue, but not clera
+
+
+
+
+
+# idk if that's producing what i want
+
+A = np.einsum('ki,kj->ij', Q*W, Q*W)
+B = np.einsum('ki,kj->ij', W, W)
+C = A/B
+
+
+C2 = np.array([[ 1.  ,  0.1 ,  0.2 ], # set this beforehand, to test whether 
+           [ 0.1 ,  0.5 ,  0.15], # we get the correct result
+           [ 0.2 ,  0.15,  0.75]])
+
+Q = np.array([[-0.6084634 ,  0.16656143, -1.04490324],
+           [-1.51164337, -0.96403094, -2.37051952],
+           [-0.32781346, -0.19616374, -1.32591578],
+           [-0.88371729,  0.20877833, -0.52074272],
+           [-0.67987913, -0.84458226,  0.02897935],
+           [-2.01924756, -0.51877396, -0.68483981],
+           [ 1.64600477,  0.67620595,  1.24559591],
+           [ 0.82554885,  0.14884613, -0.15211434],
+           [-0.88119527,  0.11663335, -0.31522598],
+           [-0.14830668,  1.26906561, -0.49686309]])
+
+W = np.array([[ 1.01133857,  0.91962164,  1.01897898],
+           [ 1.09467975,  0.91191381,  0.90150961],
+           [ 0.96334661,  1.00759046,  1.01638749],
+           [ 1.04827001,  0.95861001,  1.01248969],
+           [ 0.91572506,  1.09388218,  1.03616461],
+           [ 0.9418178 ,  1.07210878,  0.90431879],
+           [ 1.0093642 ,  1.00408472,  1.07570172],
+           [ 0.92203074,  1.00022631,  1.09705542],
+           [ 0.99775598,  0.01000000,  0.94996408],
+           [ 1.02996389,  1.01224303,  1.00331465]])
+
+
 # ** test with entire data as basis for cov mat
 
 mat = df_acst[vrbls]
