@@ -113,9 +113,9 @@ idea of explicit hierarchies seems like an imposition of public culture/order (b
 
  
 
-*** fuzziness/partial membership
+# *** fuzziness/partial membership
 # 
-With genres as the unit of analysis, ~it is necessary~ to expand on general features of these mental blueprints.
+# With genres as the unit of analysis, ~it is necessary~ to expand on general features of these mental blueprints.
 # is bluerprint actually a good metaphor? quite technical/precise/exact, qute unlike fuzzy probability distributions
 # alternatives: template, matrix (too technical), schema/scheme? 
 # feature is that it is used to produce things; is abstraction
@@ -127,21 +127,34 @@ Given
 - bureaucratization/iron cage 
   - narrow down to institutional logic? 
 
-It may seem intuitive to think that concepts can clearly defined with a precise elaboration of necessary and/or jointly sufficient features. 
+It may seem intuitive to think that concepts adhere to a unambiguous and internally coherent structure 
+# (~it certainly seems to an extent be the prevailing worldview in formal education systems~) . 
 # 
-textcite:Murphy_2004_concepts calls this the "classical view" in the psychology of concepts, and argues that it constituted a paradigm until the 1970s considered concepts as definitions with necessary. 
+This general idea of well-orderedness is what textcite:Murphy_2004_concepts calls the "classical view", and argues that it not only constitutes a lay understanding of concepts, but was the established paradigm in the psychology of concepts until the 1970s. 
 # 
-In this worldview, concepts are logically ordered, membership of an object is clear-cut, and hence consequently all members of a category are equal members (p.15).
-#
-Concepts at different levels of abstraction (such as animals, mammals and dogs) are consequently seen as forming a strict hierarchy cite:Quillian_1988_memory.
+The classical view makes a number of assumptions. 
 # 
-Given the strictly logical structure, membership is considered transitive: 
+First, it argues that concepts are definitions which can be clearly defined with a list of necessary and/or jointly sufficient features. 
 # 
-All objects of a category are also members of the categories the (first) category is a sub-concept of. 
+Inspired by set theory, a necessary consequence of this assumption is to view category membership as clear cut (objects are either complete members of categories, or they are not members at all) and view each object that fulfills these exact criteria as an equal member (p.15).  
 # 
-A further assumption is that features are only saved at the corresponding level of abstraction: 
+Second, concepts at different levels of abstraction are seen as forming a logically ordered and explicitly stored hierarchy. 
 # 
-~Animal~ features (such as movement, metabolism) are seen as stored at the most general level which the more specific class inherits and adds to it more specific ~mammal~ features (life birth, lactation) which in turn are passed down to the even more specific ~dog~ level where only features are stored that distinguish dogs from other mammals. 
+If a concept is a sub-concept of another concept, all members of the sub-concept are also members of the super ordinate concept, resulting in membership being transitive. 
+# 
+For example, if one considers dogs as a sub-concept of mammals, than every member that is a member of the set of dogs is also a member of the set of mammals. 
+# 
+Third, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
+# 
+While 'barking' is a feature that is relevant to define a dog, more general features that dogs share with other mammals (for example, lactation), are stored only at the more general mammal concept and can be retrieved by traversing up the explicitly stored hierarchical link between the concept of dog and mammal. 
+# 
+This distributed storage is argued to be more efficient, as it greatly reduces the need to define all properties especially at more specific lower levels, which instead receive most defining properties from superordinate concepts. 
+
+# All objects of a category are also members of the categories the (first) category is a sub-concept of. 
+# # 
+# A further assumption is that features are only saved at the corresponding level of abstraction: 
+# # 
+# ~Animal~ features (such as movement, metabolism) eare seen as stored at the most general level which the more specific class inherits and adds to it more specific ~mammal~ features (life birth, lactation) which in turn are passed down to the even more specific ~dog~ level where only features are stored that distinguish dogs from other mammals. 
 
 # The ~classical view (is it really the classical view?)~ sees concepts stored in an hierarchical network, where at each level only the relevant features are stored. 
 #
@@ -151,55 +164,92 @@ A further assumption is that features are only saved at the corresponding level 
 # 
 # Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks are cars as well as vehicles. 
 
-
-
-*** probabilistic 
-
+*** new view
+cite:Murphy_2004_concepts argues that each of these points has received criticisms to an extent that they have been abandoned or heavily reformulated. 
 # 
-While there have always been philosophical criticisms of the non-universality of rationality 
-- Wittgenstein
+I will start with the notion of concepts as definitions. 
 
-Consider for example the proceedings that we call "games". I mean board-games, card-games, ball-games, Olympic games, and so on. What is common to them all? - Don't say: "There must be something common, or they would not be called 'games' " - but look and see whether there is anything common to all. For if you look at them you will not see something that is common to all, but similarities, relationships, and a whole series of them at that. To repeat: don't think, but look! - Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail.
+**** probabilistic 
+[[textcite:Wittgenstein_1968_investigations][p.31] argues that while we have an understanding of what a game entails, there is no precise definition of them: 
 
-- Habermas
-a paradigm shift took place in psychology only with 
-- ~experiments~.
+If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail.
 
-
-textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. 
+Due to this inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. 
 # 
-Consequentely no clear defining list of necessary and/or sufficient features can exist for a concept. 
+It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms of human action. 
 # 
-For example, while there are features which we strongly associate with the concept of a ~dog~  such as fur, barking, or four legs, we can well imagine animals that do not fulfill all of these attributes but that we would nevertheless call dogs. 
-# ~Wittgenstein game example?~
+As these blurry boundaries are a feature of all classification systems, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras, parencite:Lakatos_2015_proofs. 
+ 
+**** probabilistic 2 WORK WORK
+The abandonment of crisp boundaries does not entail the adoption of an arbitrary 'postmodern' 'anything-goes' approach, or more precisely a caricature thereof. 
 # 
-Such lack of logical clarity and hence debate over terminologies regarding membership criteria are present in virtually every context, including highly technical ones such as astronomy (whether Pluto is a planet) or mathematics (classification of polyhedras, cite:Lakatos_2015_proofs)
-
-
-~need to account for partial membership because data (tag weights)~
-use fruits; tomato as illustrations
-
-
-
+The ~opposite/proper elaboration~ to crisp boundaries is rather a probabilistic notion of features co-occurring. 
+# idk if fruit doesn't work better here
+To identify a usually furry, generally four-legged animal that sometimes barks and occasionally likes to fetch sticks as a dog without much doubt one does need a precise definition; the combination of probabilistic features suffices. 
 # 
-The abandonment of crisp boundaries does not entail the adoption of (caricature of) an arbitrary 'postmodern' 'anything-goes' approach. 
+If one conceptualizes features as dimensions in a geometric space, a concept can then be spatially located. [fn::Nevertheless, the idea of feature values as geometric spaces has limitations, I will elaborate below]
 # 
-Instead, cite:Hannan_2019_concepts invoke the notion of "probability densities" to capture the variation of the probability of an objects to belong to concept based on their position in a feature space. 
-# 
-The relations between concepts can hence be inferred by the relations of their respective probability densities. 
+A concept does then however not constitute a point or a clear-cut area (which would be the classical view of concept defined by precise feature values), but rather a blurry region without clear-cut borders. 
 #
+To characterize this region, textcite:Hannan_2019_concepts invoke the notion of "probability densities" which describe the probability of each point to be a member of the concept. 
+
+
+???????????
+
+If a concept is concpetualized as a probability density, it follows that membership is not binary, but rather a gradient. 
+# 
+textcite:Rosch_1975_family show that objects vary in typicality. 
+# 
+While apples and oranges are very typical members of the category fruit, blueberries and lemons are rated as less typical, while tomatoes and olives are given the lowest typicality ratings. 
+# 
+
+The relations between concepts can hence be inferred by the relations of their respective probability densities. 
+
+
 Concepts that occupy similar regions of the feature space (such as ~sociologist~ and ~anthropologist~) are ~closer together~ than concepts that reside in different regions (such as ~sociologist~ and ~lumberjack~). 
 # this is relevant how? 
 
+**** probability 3
+#
+The conceptualization of concepts as probability densities has further implications for the relationship between concepts. 
+# 
+One concerns similarity judgments. 
+# 
+Since the feature space can be a conventional geometric space, it seems straightforward to measure distances (or dissimilarities) between concept in some form as a Euclidean distance - such as between the centers or the borders. 
+# 
+This would then result in a symmetric distance, as the distance from concept A to concept B would be the same as from concept B to concept A. 
+# 
+However, textcite:Tversky_1977_similarity finds that similarity judgments can differ depending on the order in which two items are to be compared. 
+# 
+Specifically, he finds that North Korea is judged to be more similar to China than China is judged to be similar to North Korea. 
+# 
+Rather than Euclidean distance, these similarities judgments are based on feature overlap of the probability densities. 
+#
 
+
+
+can also account for
+- asymmetric distances
+- triangle inequality violations
+
+McPherson: percentage of overlap
+
+# It follows that if concepts are considered probability distribution in these feature spaces, similarity between these cannot be assessed based on metric distances, but on *feature overlap*. 
+# 
+# Feature overlap does not treat the metric space as a space itself, but as defined by underlying attributes, the overlap of which is what leads to similarity judgements. 
+# 
+It is thus able to asymmetric similarity judgments (~figure Y~) as well as variation in similarity judgements given same metric distance (~figure X~). 
+
+~need to clarify when it is spoken of items/objects (points) and when of concepts (densities)~
 
 
 *** hierarchy
-A key issue concerns the hierarchy of concepts. 
-#
-As concepts vary in their degree of abstraction (e.g vehicle -> car -> pickup truck), different approaches exist to account for these different levels. 
-#
+# 
+To recapture, the classical views argues that concepts at different levels of abstraction are stored within a chain of logical subset and superset relations. 
 
+
+#
+# As concepts vary in their degree of abstraction (e.g vehicle -> car -> pickup truck), different approaches exist to account for these different levels. 
 
 # framing: put Hannan into classical view? 
 # nope: but Quillian
@@ -503,11 +553,6 @@ Often these are constructed from similarity jugements (~fruits example~)
 # 
 While they can provide insights, it seems that to varying degrees these notions have become reified. 
 # 
-It follows that if concepts are considered probability distribution in these feature spaces, similarity between these cannot be assessed based on metric distances, but on *feature overlap*. 
-# 
-Feature overlap does not treat the metric space as a space itself, but as defined by underlying attributes, the overlap of which is what leads to similarity judgements. 
-# 
-It is thus able to asymmetric similarity judgments (~figure Y~) as well as variation in similarity judgements given same metric distance (~figure X~). 
 # 
 Intransitivity can be accounted for by the fuzziness inherent in probability distributions. 
 
