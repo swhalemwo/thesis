@@ -144,7 +144,7 @@ If a concept is a sub-concept of another concept, all members of the sub-concept
 # 
 For example, if one considers dogs as a sub-concept of mammals, than every member that is a member of the set of dogs is also a member of the set of mammals. 
 # 
-Third, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
+~Third~, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
 # 
 While 'barking' is a feature that is relevant to define a dog, more general features that dogs share with other mammals (for example, lactation), are stored only at the more general mammal concept and can be retrieved by traversing up the explicitly stored hierarchical link between the concept of dog and mammal. 
 # 
@@ -209,7 +209,8 @@ The relations between concepts can hence be inferred by the relations of their r
 Concepts that occupy similar regions of the feature space (such as ~sociologist~ and ~anthropologist~) are ~closer together~ than concepts that reside in different regions (such as ~sociologist~ and ~lumberjack~). 
 # this is relevant how? 
 
-**** probability 3
+**** asymmetric distances
+
 #
 The conceptualization of concepts as probability densities has further implications for the relationship between concepts. 
 # 
@@ -221,32 +222,59 @@ This would then result in a symmetric distance, as the distance from concept A t
 # 
 However, textcite:Tversky_1977_similarity finds that similarity judgments can differ depending on the order in which two items are to be compared. 
 # 
-Specifically, he finds that North Korea is judged to be more similar to China than China is judged to be similar to North Korea. 
+Specifically, he finds that North Korea is judged to be more similar to China than China is judged to be similar to North Korea (Figure [[fig1]], left). 
 # 
-Rather than Euclidean distance, these similarities judgments are based on feature overlap of the probability densities. 
+Rather than Euclidean distance, these similarities judgments are based on feature overlap of the probability densities cite:Murphy_2004_concepts. 
 #
-
-
-
-can also account for
-- asymmetric distances
-- triangle inequality violations
-
-McPherson: percentage of overlap
-
-# It follows that if concepts are considered probability distribution in these feature spaces, similarity between these cannot be assessed based on metric distances, but on *feature overlap*. 
+While the overlap is the same for each concept, its proportion of the entire probability distribution can vary if the size of the probability distributions of the concepts differ. 
 # 
+textcite:McPherson_1983_affiliation describes the same phenomenon is described in an ecological study of the relations between organizational forms based on their niches in socio-demographic space. 
+# 
+While he focuses on competition rather than similarity, he employs a approach based on (socio-demographic feature) overlap as he argues for asymmetric competition coefficients (p.526) based on "the ratio of the volume of overlap between two types of organizations and the volume of the niche base for the type under examination" (p. 528).
+# 
+Another implication of using distance between centers would be that the extent of the probability density would not effect similarity judgments. 
+# 
+However, in figure [[fig1]] (middle and right), the same distances can result in different overlaps, which seems likely to lead to different similarity judgments. 
+
+#+caption: fig1
+#+label: properties of concepts as probability densities
+[[file:fig1.png]]
+
+**** triangle inequality violations
+# 
+Similarity values based on feature overlap can also explain another finding that poses question for the view of concepts residing in a conventional geometric space, namely triangle inequality violations. 
+# 
+For any triangle, each side must be larger or equal to the sum of the other sides. 
+# 
+If similarity judgments were point distances, this would imply that concept A would need to be at least as similar to concept C as the sum of the similarity of A to B and B to C. 
+# 
+However, textcite:Tversky_1977_similarity finds this geometrical property violated in the case of Jamaica, Cuba and Russia. 
+# 
+Jamaica and Cuba are judged fairly similar, and so are Cuba and Russia, but Jamaica is seen as very unsimillar to Russia, and particularly more so than would be expected based on the previous judgments. 
+# 
+Again, feature overlap provides a sufficient explanation: 
+# 
+While Jamaica and Cuba share the feature of being in located the Caribbean, and Cuba and Russia were both seen as socialist countries, neither of these two features are shared between Jamaica and Russia, resulting in a low similarity rating. 
+# 
+This even questions the possibility to depict concepts (in this case, countries) as probability distributions within a feature space, as Jamaica is not just not-socialist, but as its popular imagination is not characterized by its political system, it simply has no value on a political dimension. 
+# 
+Geometric spaces thus function as an adequate visualization of features only to the extent to which all items or concepts in question can be assumed to have values for all feature dimensions. 
+
+# does this kill geometric spaces 
+# not necessarily, but the J, C, R example does
+
 # Feature overlap does not treat the metric space as a space itself, but as defined by underlying attributes, the overlap of which is what leads to similarity judgements. 
 # 
-It is thus able to asymmetric similarity judgments (~figure Y~) as well as variation in similarity judgements given same metric distance (~figure X~). 
+# It is thus able to asymmetric similarity judgments (~figure Y~) as well as variation in similarity judgements given same metric distance (~figure X~). 
 
-~need to clarify when it is spoken of items/objects (points) and when of concepts (densities)~
+# ~need to clarify when it is spoken of items/objects (points) and when of concepts (densities)~
+# what are the fruits? is apple an object or a subconcept? 
+# according to Rosch they're items
+# items (e.g. pen in front of me) always get described in terms of concepts, which are blurry
+
 
 
 *** hierarchy
-# 
-To recapture, the classical views argues that concepts at different levels of abstraction are stored within a chain of logical subset and superset relations. 
-
 
 #
 # As concepts vary in their degree of abstraction (e.g vehicle -> car -> pickup truck), different approaches exist to account for these different levels. 
@@ -257,9 +285,8 @@ To recapture, the classical views argues that concepts at different levels of ab
 # 
 
 
-
-
-cite:Hannan_2019_concepts to a large extent follow cite:Collins_1969_retrieval,Quillian_1988_memory in conceptualizing concepts as stored explicitly in a hierarchical network. 
+# 
+To recapture, the classical views argues that concepts at different levels of abstraction are stored within a chain of logical subset and superset relations; textcite:Hannan_2019_concepts to a large extent follow textcite:Collins_1969_retrieval in conceptualizing concepts as stored explicitly in a hierarchical network. 
 #
 They conceptualize the resulting conceptual space as a semi-lattice, a nested tree built from sub-concept relations. 
 # 
@@ -269,7 +296,7 @@ They nevertheless diverge from the classical to some extent.
 # 
 First, they consider feature inheritance as probabilistic, as more typical subconcepts inherit more features ~and feature dimensions~ from their roots than atypical ones. 
 #
-Second, they explicitly allow inheritance from multiple parents, which takes into accounts 'hybrids' such as romantic comedy or ~flying cars~. 
+Second, they explicitly allow inheritance from multiple parents, which takes into accounts 'hybrids' such as romantic comedies. 
 
 
 
@@ -376,6 +403,33 @@ As such a dog is not a hybrid in the same sense as a romantic comedy is as the c
 These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannan_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
 
 
+*** caveat classical view
+# would need to read Smith/Medin 1981? 
+
+One might argue that what textcite:Murphy_2004_concepts and cite:Hannan_2019_concepts present as the classical view is not as clearly defined as it is made to appear. 
+#
+For example, the research of textcite:Collins_1969_retrieval is often referred to as proposing a transitive hierarchical structure of concepts parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts,Hannan_2019_concepts. 
+# 
+However, textcite:Collins_1969_retrieval explicitly warn against taking the hierarchical structure with inherited properties as a general model of conceptual structure: 
+
+#+begin_quote
+A caution is in order here: Dictionary definitions are not very orderly and we doubt that human memory, which is far richer, is even as orderly as a dictionary. One difficulty is that hierarchies are not always clearly ordered, exemplified by dog, mammal and animal. Subjects tend to categorize a dog as an animal, even though a stricter classification would impose the category mammal between the two. (p.242)
+#+end_quote
+
+# 
+In other words, the fact that some classification systems are characterized by a strict hierarchical structure does not merit generalization to all conceptual structures. 
+# 
+textcite:Quillian_1966_memory also shows that he is clearly aware of the limitations of hierarchical and has adopted his model accordingly: 
+
+#+begin_quote
+Programs by Green (1961), and by Lindsay (1961), explored the idea of using a memory organized as a single predefined hierarchy. Green's program showed that such a memory can be interrogated with natural language questions, and Lindsay's demonstrated that this kind of memory organization can provide certain inference-making properties, as long as information is confined to a single subject like a family tree. However, this kind of organization becomes uncomfortably rigid as larger amounts of material are considered, and is clearly not a general enough organization for the diverse knowledge people know and utilize. (p.6)
+#+end_quote
+
+In a later version of the same research parencite:Quillian_1988_memory, he notes: 
+
+#+begin_quote
+[A dictionary-like] outline organization is only adequate for one hierarchical grouping, when in fact the common elements existing between various meanings of a word call for a complex cross classification. In other words, the common elements within and between various meanings of a word are many, and any one outline designed to get some of these together under common headings must at the same time necessarily separate other common elements, equally valid from some other point of view. Making the present memory network a /general graph rather than a tree/ (the network equivalent of an outline) [...] makes it possible to [...] show any and every common element within and between the meanings of a word. (p.88, emphasis added)
+#+end_quote
 
 *** pieces
 
@@ -387,8 +441,6 @@ Hannan: differences between concepts really explicitly specified
 more elegant: differences between concepts in terms of features -> two mode network? 
 
 
-
-
 To describe the relation of concepts to other concepts, the authors employ the notion of a conceptual space. 
 #
 They argue that concepts are hierarchically structured based on their level of abstraction , 
@@ -396,13 +448,9 @@ just not mention informativeness in main part, just in discussion
 do i even need conceptual space then? 
 
 
-
-
-
 # difference between concept and feature space? 
 # - feature space: UoA: objects, dimensions: features
 # - conceptual space: UoA: concepts, no dimensions, but distances/is-a relations to other concepts
-
 
 The variation in the probabilities of category membership are described with typicality (or its reverse, atypicality). 
 #
@@ -410,8 +458,6 @@ While robins are highly typical members of the bird category, penguins are atypi
 # but are still birds -> binary membership? 
 # 
 While penguins are considered birds (and hence display discrete membership status in the institutionalized taxonoy), atypicality effects are nonetheless present and influence e.g. the speed ~and accuracy?~ of logical inferences. 
-
-
 
 # relationship between: 
 # - concepts
@@ -486,9 +532,8 @@ While log(0) is negative infinite, the entire expression becomes 0 as the follow
 \begin{equation*}
 \lim \limits_{x \rightarrow 0^{+}} x \log(x) = 0
 \end{equation*}
-# what is 0+?
 
-~test with zeroes in x1~
+
 As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
 # 
 For example, the divergence of the concept of a ~swimmer~ from its root concept ~athlete~ can be meaningfully calculated in this fashion. 
