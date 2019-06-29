@@ -144,7 +144,7 @@ If a concept is a sub-concept of another concept, all members of the sub-concept
 # 
 For example, if one considers dogs as a sub-concept of mammals, than every member that is a member of the set of dogs is also a member of the set of mammals. 
 # 
-~Third~, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
+~Third??~, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
 # 
 While 'barking' is a feature that is relevant to define a dog, more general features that dogs share with other mammals (for example, lactation), are stored only at the more general mammal concept and can be retrieved by traversing up the explicitly stored hierarchical link between the concept of dog and mammal. 
 # 
@@ -178,39 +178,59 @@ Due to this inability to clearly define a game in terms of necessary and suffici
 # 
 It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms of human action. 
 # 
-As these blurry boundaries are a feature of all classification systems, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras, parencite:Lakatos_2015_proofs. 
+As these blurry boundaries are a feature of all classification systems, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs. 
  
 **** probabilistic 2 WORK WORK
+
 The abandonment of crisp boundaries does not entail the adoption of an arbitrary 'postmodern' 'anything-goes' approach, or more precisely a caricature thereof. 
 # 
-The ~opposite/proper elaboration~ to crisp boundaries is rather a probabilistic notion of features co-occurring. 
-# idk if fruit doesn't work better here
-To identify a usually furry, generally four-legged animal that sometimes barks and occasionally likes to fetch sticks as a dog without much doubt one does need a precise definition; the combination of probabilistic features suffices. 
+Rather, the proper reformulation of crisp boundaries is through a probabilistic notion of features co-occurence. 
 # 
+A clear implication of a probabilistic formulation is variation in typicality instead of clear-cut membership, which textcite:Rosch_1975_family show in the case of fruits. 
+# 
+While apples and oranges are very typical members of the category fruit, blueberries and lemons are rated as less typical, while tomatoes and olives are given the lowest typicality ratings. 
+
+# expand on features leading to high typicality judgement
+# could use Smith/Medin (all items similar to ~fruit~ category) -> lead into network as model: this raises the so-far overlooked question how concept storage is structured
+
+
+# network structure here? 
+# network as general structure, metric space as exception that still fulfills all conditions? 
+# fits better with idea of feature overlap
+
+***** network structure???
+What might a proper structure of concepts then look like? 
+# 
+textcite:Steyvers_2005_structure argue that a networks provide a number of advantages over alternative models of conceptual structure. 
+# not clear how to elaborate without much technical details 
+
+
+Concepts can be modeled as probability distribution over features. 
+#  
+If a feature is typical for a concept, it would have a strong connection with this feature, whereas ties would be weaker or nonexistant for peripheral and irrelevant features, respectively. 
+# 
+However, in practice no qualitative distinction can be made whether something constitutes a concept, an item, or a feature. 
+# 
+Furthermore, concepts are often defined recursively by other concepts. 
+# 
+
+ 
+***** metric space ???????????
+
 If one conceptualizes features as dimensions in a geometric space, a concept can then be spatially located. [fn::Nevertheless, the idea of feature values as geometric spaces has limitations, I will elaborate below]
-# 
+problem with network is that it makes concept node
+
 A concept does then however not constitute a point or a clear-cut area (which would be the classical view of concept defined by precise feature values), but rather a blurry region without clear-cut borders. 
 #
 To characterize this region, textcite:Hannan_2019_concepts invoke the notion of "probability densities" which describe the probability of each point to be a member of the concept. 
 
 
-???????????
-
-If a concept is concpetualized as a probability density, it follows that membership is not binary, but rather a gradient. 
-# 
-textcite:Rosch_1975_family show that objects vary in typicality. 
-# 
-While apples and oranges are very typical members of the category fruit, blueberries and lemons are rated as less typical, while tomatoes and olives are given the lowest typicality ratings. 
-# 
 
 The relations between concepts can hence be inferred by the relations of their respective probability densities. 
 
 
-Concepts that occupy similar regions of the feature space (such as ~sociologist~ and ~anthropologist~) are ~closer together~ than concepts that reside in different regions (such as ~sociologist~ and ~lumberjack~). 
-# this is relevant how? 
-
 **** asymmetric distances
-
+# """ argues that asymmetric distances can be explained by feature overlap"""
 #
 The conceptualization of concepts as probability densities has further implications for the relationship between concepts. 
 # 
@@ -240,7 +260,9 @@ However, in figure [[fig1]] (middle and right), the same distances can result in
 #+label: properties of concepts as probability densities
 [[file:fig1.png]]
 
+
 **** triangle inequality violations
+# """ argues that metric feature overlap can capture triangle inequality"""
 # 
 Similarity values based on feature overlap can also explain another finding that poses question for the view of concepts residing in a conventional geometric space, namely triangle inequality violations. 
 # 
@@ -276,16 +298,9 @@ Geometric spaces thus function as an adequate visualization of features only to 
 
 *** hierarchy
 
-#
-# As concepts vary in their degree of abstraction (e.g vehicle -> car -> pickup truck), different approaches exist to account for these different levels. 
 
-# framing: put Hannan into classical view? 
-# nope: but Quillian
-# place of concepts: public or private
-# 
-
-
-# 
+**** Hannan conceptual space
+# """summarizes Hannan's hierarchical structure, contrast changes from classical view"""
 To recapture, the classical views argues that concepts at different levels of abstraction are stored within a chain of logical subset and superset relations; textcite:Hannan_2019_concepts to a large extent follow textcite:Collins_1969_retrieval in conceptualizing concepts as stored explicitly in a hierarchical network. 
 #
 They conceptualize the resulting conceptual space as a semi-lattice, a nested tree built from sub-concept relations. 
@@ -298,7 +313,8 @@ First, they consider feature inheritance as probabilistic, as more typical subco
 #
 Second, they explicitly allow inheritance from multiple parents, which takes into accounts 'hybrids' such as romantic comedies. 
 
-
+**** Hannan bad
+# """explictly stored hierarchical links bad because of transitivity violations, response times"""
 
 However, it seems to me that despite these additions the assumption of explicitly stored hierarchical links is not consistent with theoretical considerations and empirical evidence. 
 #
@@ -327,19 +343,19 @@ Murphy explains this with dogs being more typical animals than mammals.
 # distance in conceptual space: smart and pickup truck are further apart (have to link through car) than each with car
 
 
-
-
-cite:Hannan_2019_concepts are aware of the latter argument, and in response argue that features duplicated at lower levels. 
-# 
+**** Hannan feature duplication
+# """Hannan features duplication, unconvincing: expensive, hierarchical links ineffective -> computation"""
+textcite:Hannan_2019_concepts are aware of the latter argument of response times, and therefore argue that features duplicated at lower levels. 
+#
 As this feature replication is based on typicality and therefore probabilistical it is compatible with variation in inference time based on typicality. 
 #
 I however do not find this satisfactory: 
 # 
-It breaks with the idea of cognitive economy (~Rosch~) of hierarchies as an efficient storage of conceptual information. 
-#
+It breaks with the idea of cognitive economy parencite:Collins_1969_retrieval of hierarchies as an efficient storage of conceptual information. 
+# 
 It also renders the hierarchical links ineffective: 
 # 
-Since ~Hannan~ argue that features are passed down (not conceptual memberships; i.e. a dog has animal and mammal features, but not the concept labels), it turns questions of membership effectively into computation: 
+Since textcite:Hannan_2019_concepts argue that features are passed down (not conceptual memberships; i.e. a dog has animal and mammal features, but not the concept labels), it turns questions of membership effectively into computation: 
 # 
 - Since the goal of feature replication is to avoid having to travers the hierarchical pathways, 
 - Rather than traversing the hierarchical paths, 
@@ -347,43 +363,11 @@ the question of whether a dog is a an animal would then be solved by comparing t
 #
 It also appears to me to be an add-hoc addition to explain empirical observations rather than being the result of theoretical necessity. 
 
-Hannan quote: 
 
-Suppose for simplicity that the concept c1 at highest level in the branch of a tree has a very high likelihood for possessing the property (a value of a binary feature) A, that its direct descendant c2 adds a high likelihood for the property B and therefore has high likelihoods for the properties {A, B}, and that a still-lower level concept c3 adds high likelihood for the property C, which means that it has high likelihood for the properties {A, B, C}. Now suppose that (for some reason) we have not been able to observe for instances of c3 whether or not they possess the property A. [...] We could have observed all of the properties of (prototypical) instances of c2 and learned that they possess A (as is highly likely in this example). The inference can stop there, there is no need to go higher.
+**** Hannan feature duplication2
+# """still unconvincing: not clear why speed differs: would require addtitional categories/worldviews, but not discussed"""
 
-However, if we assume we have instances c3, we already know that (with high certainty) that they have property A simply by the fact that we know them as instances of c3. 
-#
-For example, if we have a Pickup truck (of which we know that it is an actual pickup truck and not a museum piece the engine of which been removed) and assume that properties are replicated, we do not need to make inferences to the car level, but can /per definition/ assume that the the pickup truck can move things or people. 
-
-
-# therefore argues against a hierarchical taxonomy 
-
-
-cite:Murphy_2004_concepts however rejects Q.'s approach and argues that hierarchies are imputed based on typicality values: 
-- faster that dog is animal than dog is mammal: dog is more typical animal than mammal
-- furniture; chair: car seat, : transitivity violation: features that car seat shares with chair are different from those that chair shares with furniture
-
-
-
-# dog-> animal is FASTER than dog -> mammal, not just equal 
-# Even if animal features are completely replicated, inference should at most be same speed
-# dog could get animal features from somehwere else: multiple parents
-# pets: pets are very typical animals
-# what is the relation between pets and mammals? 
-
-# hmm: 
-# dogs are very typical pets
-# but not every dog is a pet -> statement: 'a dog is a pet' is ambiguous, would need to be more specific (all dogs -> false, some dogs -> true)
-
-# i think this is the case that Murphy doesn't cover: focuses on hierarchies, not possible ways
-# pets contrast with farm animals and wild animals
-# mammals contrast with reptiles, bird, fish
-# mammal features not passed down as much as animal features
-# one might assume that inferences from lowest to general (dog -> animal) could not be faster than from lowest to medium (dog -> mammal). 
-
-But even if features are replicated at lower levels, 
-- I cannot think of a reason why
-- it might seem implausible that
+But even if features are replicated at lower levels, it seems implausible that
 inferences from lower to general (dog -> animal) could be /faster/ than from low to medium (dog -> mammal).
 #
 Two different explanations might be possible: 
@@ -398,12 +382,14 @@ While both are sub-concepts of animals, they do not seem to be part of the same 
 # 
 Mammals as a term for taxonomic classification would be in a cohort with concepts such as fish and reptiles, while pets, which specifies the relation to humans, would be in the same cohort as farm animals and wild animals. 
 #
-As such a dog is not a hybrid in the same sense as a romantic comedy is as the concepts belong to different "visions of division" cite:Bourdieu_1989_space (~different things at stake~).
+As such a dog is not a hybrid in the same sense as a romantic comedy is as the concepts belong to different "visions of division" [[parencite:Bourdieu_1989_space][p.17]] where different things are at stake [[parencite:Fligstein_2015_fields][p.27]]. 
 # 
 These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannan_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
 
 
 *** caveat classical view
+# """argues that classical gets bad rep by ignoring caveats/overgeneralizing clear hierarchies to universal conceptual structure"""
+
 # would need to read Smith/Medin 1981? 
 
 One might argue that what textcite:Murphy_2004_concepts and cite:Hannan_2019_concepts present as the classical view is not as clearly defined as it is made to appear. 
@@ -431,91 +417,13 @@ In a later version of the same research parencite:Quillian_1988_memory, he notes
 [A dictionary-like] outline organization is only adequate for one hierarchical grouping, when in fact the common elements existing between various meanings of a word call for a complex cross classification. In other words, the common elements within and between various meanings of a word are many, and any one outline designed to get some of these together under common headings must at the same time necessarily separate other common elements, equally valid from some other point of view. Making the present memory network a /general graph rather than a tree/ (the network equivalent of an outline) [...] makes it possible to [...] show any and every common element within and between the meanings of a word. (p.88, emphasis added)
 #+end_quote
 
-*** pieces
 
 
-# feature spaces need to be linked: 
-# need to be able to ask: what is the difference between an economist and a sociologist
-# can't be that each has its own separate feature space
-Hannan: differences between concepts really explicitly specified
-more elegant: differences between concepts in terms of features -> two mode network? 
-
-
-To describe the relation of concepts to other concepts, the authors employ the notion of a conceptual space. 
-#
-They argue that concepts are hierarchically structured based on their level of abstraction , 
-just not mention informativeness in main part, just in discussion
-do i even need conceptual space then? 
-
-
-# difference between concept and feature space? 
-# - feature space: UoA: objects, dimensions: features
-# - conceptual space: UoA: concepts, no dimensions, but distances/is-a relations to other concepts
-
-The variation in the probabilities of category membership are described with typicality (or its reverse, atypicality). 
-#
-While robins are highly typical members of the bird category, penguins are atypical birds as they lack a feature that we see as important of birds, namely the ability to fly. 
-# but are still birds -> binary membership? 
+*** measurement?
+**** Hannan hierarchy relations
+# """KVD only works for informativeness"""
 # 
-While penguins are considered birds (and hence display discrete membership status in the institutionalized taxonoy), atypicality effects are nonetheless present and influence e.g. the speed ~and accuracy?~ of logical inferences. 
-
-# relationship between: 
-# - concepts
-# - objects
-# - features
-
-# objects fit into concepts/categories with varying fit due to varying fit of their features to the concept prototypes
-
-
-**** hierarchy
-# 
-If concepts are conceptualized as probability distributions within a feature space, the relations are not explicitly stored, but computed on the spot. 
-# 
-While it may seem straightforward to assess the similarity (or distance) between two concepts by the proximity of the centers (or borders) of their probability distribution, ~such as Hannan proposes~,  it seems to me that this conceptualization cannot take into account 
-- empirical findings
-- theoretical considerations
-- recent insights 
-regarding the nature of concepts. 
-# 
-Imagining for example the distance between two concepts as the distance of their centers would result in symmetric distances. 
-# 
-~While distances from the center of one concept to a region of a particular density of the other concept might~
-~problem: asymetric distances work with distances as actual distances between concepts in feature space~
-~triangle inequality can be explained: cuba basically is 'conductive': space it occupies doesn't have to be crossed completely by sum of paths (JC, CR), but by JR path~
-
-can i make the argument that conceptual spaces are not real?
-spaces are our explanation of explaining, but not what's actually going on in people's head: networks much better for high dimensionality
-
--> similarity as distance reifies an abstraction? 
-maintaining high dimensional space is expensive
-
-if you ask: why are NK and CH similar, you don't get they are similar in high-dimensional space, but that they are countries, Asian, commies, non-democratic, bad
-
-high dimensional space could also be a metaphor for the functional mapping of PDP
-but feature links are more realistic/better me thinks
-
-~look up what hannan says about dimensionality of sub-spaces~: 
-concepts have different dimensions
-for comparisons, the root concept is expanded into the conceptual space of the subconcept
-
-kullback-leibler divergence: is basically measure of overlap: 
-doesn't allow any 0s tho -> is not really measure of overlap? 
-
-
-if geometric distance: 
-probability distribution has no impact on similarity judgments
-but that's just a theory
-test: 
-bunch of concepts, need independently : 
-- features listing 
-- similarity judgements
-NOPE: KL divergence takes into account distributions 
-
-Instead, it seems 
-
-**** hierarchy relations
-# 
-Hanna et al use the Kullback-Leibler divergence (KDV) to measure distance between concepts (p.75), which is calculated as 
+textcite:Hannan_2019_concepts use the Kullback-Leibler divergence (KDV) to measure distance between concepts (p.75), which is calculated as 
 #
 \begin{equation*}
 D_{KL}(P_1||P_2) = \sum\limits_{x \in \mathbb{G}} P_1(x)  \log \left( \frac{P_1(x)}{P_2(x)} \right)
@@ -534,15 +442,20 @@ While log(0) is negative infinite, the entire expression becomes 0 as the follow
 \end{equation*}
 
 
+**** Hannan informativeness 2 elaboration
+# """dimensions of P2 have to be non-zero in P1 example"""
+# 
 As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
 # 
 For example, the divergence of the concept of a ~swimmer~ from its root concept ~athlete~ can be meaningfully calculated in this fashion. 
 #
-~Here, a swimmer has non-zero values on all attributes of the ~athlete~ category~. 
+Here, a swimmer has non-zero values on all attributes of the ~athlete~ category. 
 # 
 This is not the case for assessing the similarity between ~swimmer~ and ~weightlifter~, as the probability distributions in the dimensions that define each category (training (primarily) in pool, training (primarily) with weights) are non-overlapping. 
 
-#
+**** Hannan KDV fails for distinctiveness
+# """KDV not defined for comparing cohort, cos_sim is symmetric and don't account for probability density"""
+# 
 It is unclear if  textcite:Hannan_2019_concepts are aware of this limitation. 
 # 
 When measuring the distance between concepts on the same level in the case of a cohort, they claim to "also use the Kullbach-Leibler divergence to express the degree to which a concept stands out from its cohort" (p.81). 
@@ -551,18 +464,17 @@ However, when they do so in practice, they use cosine similarities converted int
 # 
 However, using cosine similarities of (the centers of) the feature space dimensions does not take information of the probability distribution into account. 
 # 
-It would for example imply that two concepts are equally similar if their centers are at the same distance, regardless of the extent to which their probability distributions overlap (~figure X~), which strikes me as unintuitive. 
+It would for example imply that two concepts are equally similar if their centers are at the same distance, regardless of the extent to which their probability distributions overlap (figure [[fig1]]), which strikes me as unintuitive. 
 
 It is also a symmetric distance. 
 # 
-One might argue that in the case of cohorts it is more justifiable to assume equal sizes, the very notion of variation in typicality seems to counteract this idea.
-~are penguins more similar to robins than robins to penguins~? 
+One might argue that in the case of cohorts, which are situated on the same level of abstraction, it is justifiable to assume equally sized probability distributions. 
 
-
-Using different measurements for these two cases, typicality of ~sub-conceptuality~ and distance between concepts, does not strike me as a bad idea. 
-#
-The question "how similar are swimmers to athletes" seems to me to be a qualitatively different one than the question "how similar are swimmers to sociologists". 
+Yet the very notion of variation in typicality (e.g. the fruit example textcite:Rosch_1975_family discusses) counteracts ~this~ idea, and  will likely result in asymmetric similarity judgments as discussed by textcite:Tversky_1977_similarity in terms of China and North Korea. 
 # 
+Overall, using different measurements for ~these~ two cases, typicality of ~sub-conceptuality~ and distance between concepts, does not strike me as a bad idea. 
+#
+The question "how similar are swimmers to athletes" seems to me to be a qualitatively different one than the question "how similar are swimmers to sociologists" and therefore warranting a separate methodological approach. 
 
 
 
