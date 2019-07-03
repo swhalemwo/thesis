@@ -11,7 +11,7 @@
 # -*- org-export-babel-evaluate: nil -*-
 
 
-* theory/IRC final
+* theory/IRC final :noexport:
 
 ** notes alex
 DV: survival or abandonment of cognitive labels used by audiences. 
@@ -91,12 +91,89 @@ make the use more the improvisations (Bourdieu) -> stresses flexibility
 
 * text
 ** introduction
+*** meaning important for social order/action :ignhead:
+# """classification systems (sensemaking) are crucial for social order, action"""
+
+# namedrop meaning, interpretation, framing
+
+Classification systems are essential for social life parencite:Durkheim_2019_primitive. 
+# 
+Without conceptual systems to aid in our sense-making, no order could be imposed on a chaotic world ~Kant?~. 
+# 
+The ways in which the world is symbolic divided up can facilitate understanding and coordination if agreement over them is obtained, be it through cooperation or imposition parencite:diMaggio_1983_iron. 
+# 
+Visions of division can compete [[parencite:Bourdieu_1989_space][p.17]], yet competition can also occur in the case of shared classification systems where agreement exists over what is at stake [[parencite:Fligstein_2015_fields][p.27]].
+
+The importance of categories for social action can hardly be understated. 
+expand on enabling, shaping, constraining
+action in 
+- economy
+  - cite:Zuckerman_1999_illegitimacy
+  - cite:Hsu_2006_jacks
+- ~politics?~
+- individual decision making? Coleman boat
+- valuation?  cite:Lamont_2012_comparative
+
+  
+*** origin, change of classification systems
+# """necessary to investiagate classification system itself"""
+
+# 
+Yet it is equally important to take a step back and investigate the processes and dynamics that in turn shape  classification systems. 
+# 
+A symbolic order cannot simply be treated as stable, for granted, or inevitable:
+# 
+As it as much relies on social processes as the action and sensemaking it enables and constrains, one  has to trace its development, institutionalization and/or abandonment based on general processes and mechanism as well as particular contingencies. 
+
+~Bourdieu: Kantian aesthetic vs aesthetic of neccessity~
+
+- cite:Ruef_2000_emergence
+- cite:Ruef_2004_demise
+
+introduce basic lfm
+
+*** combine different schools
 #
+Given the importance of classification systems, hardly any subdiscipline (~or even discipline~) has been able to mark it as an exclusively field of study. 
+# 
+I therefore combine insights from neoinstitutionalism, organizational sociology and the psychology of concepts to 
+# 
+Each of these areas contributes complementary insights. 
+- Neoinstitutionalism: 
+  - practical action? 
+  - legitimacy? 
+  - audience? 
+- organizational sociology
+  - ecology/community/
+
+- psychology of concept 
+  - 
+The contribution of the latter one can maybe be defined most clearly due to
+- their dogmatism, normal science (Kuhn)
+- sharp boundaries: only focus on concepts internal or in relation to others, not much wider array of social influences
+- exclusive focus 
+- bracketing out of social questions
+Such paradigm, while obviously limited to investigate social impact, has nevertheless provided elaborate ~meat and bones~ models on 
+- concept structure, 
+- information processing, 
+- similarity judgments
+- typicality ratings
+- feature ~something~
+
+
+Meanwhile, the much less clearly defined neoinstitutionalism and organizational school provide the correspondingly more diverse social influences. 
+# 
+audience
+# that's literally the only thing for now
+
 
 ** concepts
 #
 
 *** location of concepts
+# """debates the location of concepts, not clear if needed"""
+# underlying motivation is to integrate lizardo 2016, and don't treat concepts as free floating, or arbitrary switch locations
+
 It is certainly relevant to consider whether concepts reside in a public domain, an individual's mind, or both parencite:Lizardo_2016_improving. 
 # 
 
@@ -113,15 +190,16 @@ idea of explicit hierarchies seems like an imposition of public culture/order (b
 
  
 
-# *** fuzziness/partial membership
-# 
-# With genres as the unit of analysis, ~it is necessary~ to expand on general features of these mental blueprints.
-# is bluerprint actually a good metaphor? quite technical/precise/exact, qute unlike fuzzy probability distributions
-# alternatives: template, matrix (too technical), schema/scheme? 
-# feature is that it is used to produce things; is abstraction
+
 # 
 
 *** classical view
+# """introduces classical view: definitions, hierarchy, feature storage at relevant level"""
+
+# is bluerprint actually a good metaphor? quite technical/precise/exact, qute unlike fuzzy probability distributions
+# alternatives: template, matrix (too technical), schema/scheme? 
+# feature is that it is used to produce things; is abstraction
+
 Given
 - logocentrism (Derrida)
 - bureaucratization/iron cage 
@@ -150,14 +228,9 @@ While 'barking' is a feature that is relevant to define a dog, more general feat
 # 
 This distributed storage is argued to be more efficient, as it greatly reduces the need to define all properties especially at more specific lower levels, which instead receive most defining properties from superordinate concepts. 
 
-# All objects of a category are also members of the categories the (first) category is a sub-concept of. 
-# # 
-# A further assumption is that features are only saved at the corresponding level of abstraction: 
-# # 
-# ~Animal~ features (such as movement, metabolism) eare seen as stored at the most general level which the more specific class inherits and adds to it more specific ~mammal~ features (life birth, lactation) which in turn are passed down to the even more specific ~dog~ level where only features are stored that distinguish dogs from other mammals. 
 
-# The ~classical view (is it really the classical view?)~ sees concepts stored in an hierarchical network, where at each level only the relevant features are stored. 
-#
+# A further assumption is that features are only saved at the corresponding level of abstraction: 
+# 
 # For example in the case of vehicles, the property of being a mechanical device to transport things is seen as associated with the most general ~vehicle~ level, the feature of having wheels and driving on roads to the intermediate and the feature of having an open cargo area associated with the most specific level. 
 #
 # Within such a (crisp) hierarchy, features are inherited from higher levels. 
@@ -170,18 +243,18 @@ cite:Murphy_2004_concepts argues that each of these points has received criticis
 I will start with the notion of concepts as definitions. 
 
 **** probabilistic 
-[[textcite:Wittgenstein_1968_investigations][p.31] argues that while we have an understanding of what a game entails, there is no precise definition of them: 
+# """Wittgenstein quote: no clear definitions possible"""
+textcite:Wittgenstein_1968_investigations argues that while we have an understanding of what a game entails, there is no precise definition of them: 
 
-If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail.
+#+begin_quote
+If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail. (p.31)
+#+end_quote
 
-Due to this inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. 
-# 
-It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms of human action. 
-# 
-As these blurry boundaries are a feature of all classification systems, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs. 
+Following Wittgenstein's argument in regard to inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. [fn::It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms that attempt to make sense of social action. As these blurry boundaries are a feature of classification systems generally, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs.]
  
 **** probabilistic 2 WORK WORK
-
+# """typicality, graded membership, MODEL??"""
+# 
 The abandonment of crisp boundaries does not entail the adoption of an arbitrary 'postmodern' 'anything-goes' approach, or more precisely a caricature thereof. 
 # 
 Rather, the proper reformulation of crisp boundaries is through a probabilistic notion of features co-occurence. 
@@ -190,15 +263,18 @@ A clear implication of a probabilistic formulation is variation in typicality in
 # 
 While apples and oranges are very typical members of the category fruit, blueberries and lemons are rated as less typical, while tomatoes and olives are given the lowest typicality ratings. 
 
-# expand on features leading to high typicality judgement
+# expand on FEATURES leading to high typicality judgement
 # could use Smith/Medin (all items similar to ~fruit~ category) -> lead into network as model: this raises the so-far overlooked question how concept storage is structured
-
 
 # network structure here? 
 # network as general structure, metric space as exception that still fulfills all conditions? 
 # fits better with idea of feature overlap
 
 ***** network structure???
+# """arguing that network is good model: features as nodes, tie strength as probability densities"""
+
+# directed? 
+
 What might a proper structure of concepts then look like? 
 # 
 textcite:Steyvers_2005_structure argue that a networks provide a number of advantages over alternative models of conceptual structure. 
@@ -216,6 +292,11 @@ Furthermore, concepts are often defined recursively by other concepts.
 
  
 ***** metric space ???????????
+# """concepts in metric space, blurry region -> probability density"""
+
+# it just sounds a bit more intuitive
+# does it? features are binary, using metric dimension is not that catchy
+# using features (of fruit, of dog is quite intuitive)
 
 If one conceptualizes features as dimensions in a geometric space, a concept can then be spatially located. [fn::Nevertheless, the idea of feature values as geometric spaces has limitations, I will elaborate below]
 problem with network is that it makes concept node
@@ -256,8 +337,8 @@ Another implication of using distance between centers would be that the extent o
 # 
 However, in figure [[fig1]] (middle and right), the same distances can result in different overlaps, which seems likely to lead to different similarity judgments. 
 
-#+caption: fig1
-#+label: properties of concepts as probability densities
+#+caption: properties of concepts as probability densities
+#+label: fig1
 [[file:fig1.png]]
 
 
@@ -298,9 +379,11 @@ Geometric spaces thus function as an adequate visualization of features only to 
 
 *** hierarchy
 
-
 **** Hannan conceptual space
 # """summarizes Hannan's hierarchical structure, contrast changes from classical view"""
+
+# might want to change Hannan to more general classical view? 
+
 To recapture, the classical views argues that concepts at different levels of abstraction are stored within a chain of logical subset and superset relations; textcite:Hannan_2019_concepts to a large extent follow textcite:Collins_1969_retrieval in conceptualizing concepts as stored explicitly in a hierarchical network. 
 #
 They conceptualize the resulting conceptual space as a semi-lattice, a nested tree built from sub-concept relations. 
@@ -345,6 +428,7 @@ Murphy explains this with dogs being more typical animals than mammals.
 
 **** Hannan feature duplication
 # """Hannan features duplication, unconvincing: expensive, hierarchical links ineffective -> computation"""
+# 
 textcite:Hannan_2019_concepts are aware of the latter argument of response times, and therefore argue that features duplicated at lower levels. 
 #
 As this feature replication is based on typicality and therefore probabilistical it is compatible with variation in inference time based on typicality. 
@@ -391,6 +475,12 @@ These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions
 # """argues that classical gets bad rep by ignoring caveats/overgeneralizing clear hierarchies to universal conceptual structure"""
 
 # would need to read Smith/Medin 1981? 
+# ok done now
+# classical view is not really about multiple levels, more about how single concept is built up
+# doesn't mention transitivity violations
+# but reaction times/similarity judgement in nested triples
+# feature overlap is liked more
+
 
 One might argue that what textcite:Murphy_2004_concepts and cite:Hannan_2019_concepts present as the classical view is not as clearly defined as it is made to appear. 
 #
@@ -422,7 +512,8 @@ In a later version of the same research parencite:Quillian_1988_memory, he notes
 *** measurement?
 **** Hannan hierarchy relations
 # """KVD only works for informativeness"""
-# 
+
+
 textcite:Hannan_2019_concepts use the Kullback-Leibler divergence (KDV) to measure distance between concepts (p.75), which is calculated as 
 #
 \begin{equation*}
@@ -444,7 +535,8 @@ While log(0) is negative infinite, the entire expression becomes 0 as the follow
 
 **** Hannan informativeness 2 elaboration
 # """dimensions of P2 have to be non-zero in P1 example"""
-# 
+
+
 As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
 # 
 For example, the divergence of the concept of a ~swimmer~ from its root concept ~athlete~ can be meaningfully calculated in this fashion. 
@@ -455,7 +547,8 @@ This is not the case for assessing the similarity between ~swimmer~ and ~weightl
 
 **** Hannan KDV fails for distinctiveness
 # """KDV not defined for comparing cohort, cos_sim is symmetric and don't account for probability density"""
-# 
+
+
 It is unclear if  textcite:Hannan_2019_concepts are aware of this limitation. 
 # 
 When measuring the distance between concepts on the same level in the case of a cohort, they claim to "also use the Kullbach-Leibler divergence to express the degree to which a concept stands out from its cohort" (p.81). 
@@ -479,6 +572,8 @@ The question "how similar are swimmers to athletes" seems to me to be a qualitat
 
 
 **** metric spaces bad
+# """general idea about network structure"""
+
 One might also ask generally in how far metric spaces are a adequate model for representing the relations between concepts. 
 # 
 dimensions expensive 
@@ -504,26 +599,15 @@ model as it also provides a model of cognitive economy.
 
 
 **** metric spaces reifications
-It as such seems to me that conceptual metric spaces are an analytic abstraction. 
-# 
-Often these are constructed from similarity jugements (~fruits example~)
-# 
-While they can provide insights, it seems that to varying degrees these notions have become reified. 
-# 
-# 
-Intransitivity can be accounted for by the fuzziness inherent in probability distributions. 
-
-
-
-**** focus on one unit's environment: asymmetry is fine: 
-mpcpherson: competition is asymmetric
-
-
-
-
+# """reflect upon how classical view is reification of bureaucracy"""
+It seems to me that the view of concepts as definitions and of conceptual structure as a logically-ordered hierarchy is a reifications of bureaucratic social organization. 
+#
+As such ideal-typically rational administration has become wide-spread in modern societies, seems likely that it served as the template by which concepts generally were seen to be structured. 
 
 
 ** conceptual ecology
+# """postulates based on ecological framework"""
+
 # 
 The original formulation of textcite:hannan89_organ,Hannan_1992_dynamics rests on an in interpretation of density dependence that emphasizes the role of legitimation and competition. 
 # 
@@ -536,21 +620,25 @@ If cohort size is a measure of density, one would expect a cohort nonmonontic re
 At first, an established, but rarely imitated genre provides much potential for legitimating sub-genres. 
 # 
 However, the more sub-genres are formed, the higher the competition for the region of the musical space spanned by the superordinate genre. 
-# 
 
 
 
 
-** duality, audience
+
+** duality,- audience
+# """audience composition matters"""
+
 While concepts for analytical purposes can be considered as entities on their own, they do not exist only in feature or conceptual spaces. 
 # 
-Instead, drawing on a tradition of mutual constitutiveness parencite:Breiger_1974_duality,Mohr_1997_duality,Mohr_2010_niche genres need to be considered as "partially constituted by the audiences that support them" [[parencite:dimaggio1987classification][p.441]]. 
+Instead, drawing on a tradition of duality which stresses the mutual constitutiveness of for example persons and groups parencite:Breiger_1974_duality, culture and practice parencite:Mohr_1997_duality or niche and organizational form parencite:Mohr_2010_niche, I argue that genres need to be considered as "partially constituted by the audiences that support them" [[parencite:dimaggio1987classification][p.441]]. 
 #
-DiMaggio further elaborates that "genres represent socially constructed organizing principles that imbue artworks with significance /beyond their thematic content/ and are in turn, responsive to structurally generated demand for cultural information and affiliation" (ibid., emphasis added). 
+DiMaggio elaborates that "genres represent socially constructed organizing principles that imbue artworks with significance /beyond their thematic content/ and are in turn, responsive to structurally generated demand for cultural information and affiliation" (ibid., emphasis added). 
 #
 It is therefore crucial to not only consider the conceptual features and the relations between genres based on them, but furthermore go beyond the thematic content and focus on the social motivations for genre support. 
-#
-The prime example is again by ~dimaggio~, who argues in ~X~ that the creation/emergence/institutionalization of ~classical music/theater/fine arts~ did not follow on grounds of ~conceptual unclarity~, but was driven by the increasing demand of the ~emerging upper/middle/upper middle classes~ to ~distinguish themselves/claim status~. 
+# actually is as much about forms of financing, not class determinism
+# maybe bourdieu? 
+The prime example is again by textcite:Dimaggio_1982_entrepreneur, who argues that the institutionalization of fine arts did not follow on grounds of "qualities inherent to the work of art" (p.33), but was driven by the demand of the upper middle classes to isolate and differentiate high from popular culture. 
+
 # 
 
 *** consumption styles (omnivorism, purism) beyond thematic content? 
@@ -666,6 +754,7 @@ if i make for each genre a "spread-score": how big the tension between genres is
 
 ~is quillian part of the classical model?~ -> look up the source that Murphy cites, duh
 
+
 *inclusion fallacy* against explicitly stored hierarchies (used by Murphy):  
 - robin have X -> all birds have X more believable than robins have X -> ostriches have X
 - can't see how that supports computed
@@ -692,13 +781,6 @@ that doesn't hold with furniture, chairs, car seats
 
 fruit counterexample: 
 fruit closest to item for 17/20 -> at least 8 dimensions needed (was actually re-analysis by Tversky)
-
-
-*** is classical view case of Habermaasian colonization? 
-
-
-*** omnivores are genre police
-cite:Goldberg_2016_span: genres less likely to die when they are liked by people who like many works, but don't like genre spanning? 
 
 
 *** cite:Steyvers_2005_structure
