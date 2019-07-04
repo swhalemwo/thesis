@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from scipy.stats import entropy
 from sklearn import preprocessing
 
+from graph_tool.all import *
+from graph_tool import *
+
 # * hierarchical relations based on split dimensions
 # functions defined in item_tpclt
 
@@ -23,20 +26,20 @@ def vd_fer(g, idx):
     return(vd)
 
 
-t1 = time.time()
-
 el_ttl = []
-gnrs = ['metal', 'ambient', 'rock', 'hard rock', 'electronic', 'death metal']
+ts = []
+gnrs = ['metal', 'ambient', 'rock', 'hard rock', 'electronic', 'death metal']*10
 
 for gnr in gnrs:
     # print(gnr)
+    t1 = time.time()
 
-    # gnr = 'rap'
+
     dfc = get_df_cbmd(gnr)
-
     gnr_cnt = len(dfc)
     el_gnr = []
     # print(len(el_gnr))
+    t2 = time.time()
 
     for vrbl in vrbls:
 
@@ -51,11 +54,22 @@ for gnr in gnrs:
         elx = [i for i in zip(nds2, nds1, a1, a_wtd)]
 
         el_gnr = el_gnr + elx
+    t3 = time.time()
 
     el_ttl = el_ttl + el_gnr
+    t4 = time.time()
 
-t2 = time.time()
+    ts.append([t1,t2,t3,t4])
+
 # not that fast, might be optimized
+# atm takes especially long for long genres
+# NOT GOOD
+# can be parallelized but still
+# iloc is some improvement, especially for longer ones? seems so
+# think i can shave off some time by doing an additional dict for gnrs with gnrs as keys and acst_df as values
+# would save queries..
+# but for rock it's currently 0.02 of 0.12
+# more substantial savings by throwing out pandas
 
 # graph acoustic 
 gac = Graph()
@@ -80,12 +94,54 @@ vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])]
 vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['death metal'])], eweight = w_std)
 
 
-
 # [print(w[gac.edge(vd['ambient'], vd['voice' + str(i)])]) for i in range(1,11)]
 # [print(w[gac.edge(vd['electronic'], vd['voice' + str(i)])]) for i in range(1,11)]
 
 
 g.vertex(vd['electronic']).out_neighbors()
+
+# * general comparison function
+
+gnr_ids = [vd[i] for i in gnrs]
+
+# needs size dict for direction
+# might need to integrate some weights
+sz_dict = {}
+for gnr in gnrs:
+    weit_ttl = sum([w[v] for v in gac.vertex(vd[gnr]).out_edges()])/5
+    sz_dict[gnr] = weit_ttl
+
+# order doesn't matter anymore due to standardization
+# do i need a matrix?
+# can read it back in (either lower triangle columnwise or upper rowise)
+# not sure if needed tho
+# can just the positions of those over threshold, get the corresponding original comparisions, get the corresponding genres, and add that to edge list
+
+comps = list(itertools.combinations(gnr_ids, 2))
+
+# nested loops to ensure direction
+# smaller one is now first: relation to be tested is subsetness
+
+cprx = []
+for i in range(lenx):
+    cprx2 = []
+    for k in range(i,lenx):
+        if i==k:
+            next
+        else:
+            v1, v2 = gnrs[i], gnrs[k]
+            v1_sz, v2_sz = sz_dict[v1], sz_dict[v2]
+
+            if v1_sz > v2_sz:
+                cprsn = [v2, v1]
+            else:
+                cprsn = [v1, v2]
+
+            cprx2.append(cprsn)
+    if len(cprx2) > 0:
+        cprx.append(cprx2)
+
+cmps = list(itertools.chain.from_iterable(cprx))
 
 
 # * some old stuff
