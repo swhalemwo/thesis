@@ -862,12 +862,13 @@ gx.set_directed(False)
 
 wts = gx.new_edge_property('double')
 
+
+ids = gx.add_edge_list(el_ttl, hashed=True, string_vals=True, eprops=[wts])
+
 vd = {}
-           
 for i in gx.vertices():
     vd[ids[i]] = int(i)
 
-ids = gx.add_edge_list(el_ttl, hashed=True, string_vals=True, eprops=[wts])
 
 base_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/nw_test/'
 
@@ -876,7 +877,7 @@ graph_draw(gx, vertex_font_size=30, output=base_dir + 'new_ver2.pdf', vertex_tex
 
 
 vertex_similarity(gx, 'dice', vertex_pairs = [(vd['a'],vd['b'])])
-vertex_similarity(gx, 'dice', vertex_pairs = [(vd['a'],vd['b'])], eweight=wts) * 100
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['a'],vd['b'])], eweight=wts)
 
 # well that's what i get for using decimals in my weights
 # works fine with unweighted
@@ -886,11 +887,84 @@ vertex_similarity(gx, 'dice', vertex_pairs = [(vd['a'],vd['b'])]) * (11 + 8)/2
 # basically impossible to see which is subset of which
 
 
-can i just do the traditional niche hypercube?
-i don't like it
-bad for disjointed: will cover the middle valley of bimodal dist
+# can i just do the traditional niche hypercube?
+# i don't like it
+# bad for disjointed: will cover the middle valley of bimodal dist
+# check if Alex considers them in his paper
+
+# also space itself not weighted 
+# maybe not that bad, still have weight due to extent of overlap
+# -> not but useless if entire space covered, and distinction lies in distribution in it
+
+# ** campare neighbors
+
+# *** first make binary fit, weighted non fit
+
+from graph_tool.all import *
+from graph_tool import * 
 
 
-also space itself not weighted 
-maybe not that bad, still have weight due to extent of overlap
--> not but useless if entire space covered, and distinction lies in distribution in it
+a2_el = [['a', 'f' + str(i), 50] for i in range(7,9)]
+
+b2_el = [['b', 'f' + str(i), 10] for i in range(1,11)]
+
+el2_ttl = a2_el + b2_el
+
+gx2 = Graph()
+
+gx2.set_directed(False)
+
+wts2 = gx2.new_edge_property('double')
+
+ids2 = gx2.add_edge_list(el2_ttl, hashed=True, string_vals=True, eprops=[wts2])
+
+vd2 = {}
+for i in gx2.vertices():
+    vd2[ids2[i]] = int(i)
+
+
+vertex_similarity(gx2, 'dice', vertex_pairs = [(vd2['a'],vd2['b'])])
+vertex_similarity(gx2, 'dice', vertex_pairs = [(vd2['a'],vd2['b'])]) * (2+10)/2
+# 2/2 verts in common -> 100% subset
+
+# *** make actual set calculation
+# i want to know if a is subset of b
+# i want sum of weights of a-b
+
+
+vertex_similarity(gx2, 'dice', vertex_pairs = [(vd2['a'],vd2['b'])], eweight=wts2)
+# 20% of links in common -> no subset
+
+
+
+def excs_assmnt(g, v1, v2, vdx, wtx):
+    """calculates the sum of weights of the vertices in {v1 - v2}"""
+    a_b_diff = set(g.vertex(vdx[v1]).out_neighbours()) - set(g.vertex(vdx[v2]).out_neighbours())
+
+    oudz_weighs = sum([wtx[g.edge(vdx[v1], v)] for v in a_b_diff])
+    print(oudz_weighs)
+
+excs_assmnt(gx2, 'b', 'a', vd2, wts2)
+
+# this works as intended: shows that the majority of weights of a are outside b
+excs_assmnt(gx, 'a', 'b', vd, wts)
+
+# reverse Issue??
+
+
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['b'],vd['a'])]) * (8+11)/2
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['b'],vd['a'])], eweight=wts)
+
+excs_assmnt(gx, 'b', 'a', vd, wts) # 0
+
+# could check absolute size first: makes only sense to compare those where unweighted weights of A are larger than unweighted of B
+# does it tho? 
+# what if subgenre becomes more popular than main genre?
+# lets say dubstep grows ginormously big in playcounts and songs and everything
+# if they are still tagged electronic, electronic will grow at least with the same amount -> No problemo
+# if songs are tagged dubset but not electronic -> then dubstep seen as autonomous from electronic
+
+# so i think subgenre relations make only sense if a < b
+# -> sorting by size would work,
+# maybe also reduce the number of comparisons? 
+
