@@ -173,17 +173,18 @@ def get_df_cbmd(gnr):
     """constructs combined df out of acoustic and tag df"""
     # gnr = 'rap'
 
+
     gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
 
-    df_gnr_tags = df_tags[df_tags['tag']==gnr]
+    # df_gnr_tags = df_tags[df_tags['tag']==gnr]
     # df_gnr_tags = df_tags.loc[tag_row_dict[gnr]]
+    df_gnr_tags = df_tags.iloc[tag_row_dict[gnr]]
+
+    df_gnr_acst = df_acst.iloc[gnr_acst_ids]
 
     t1 = time.time()
-    df_gnr_acst = df_acst.loc[gnr_acst_ids]
-    t2 = time.time()
-
     df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
-
+    t2 = time.time()        
 
     return(df_gnr_cbmd)
 
