@@ -800,8 +800,8 @@ vertex_similarity(gx, 'dice', vertex_pairs = [(vd['x'],vd['y'])], eweight=wts) *
 
 # overlap 10: would be 0.76: x is kinda subgenre of y
 
+# ** standardized weights
 # lets bring wts to ttl 1
-
 
 wts2 = gx.new_edge_property('double')
 
@@ -833,7 +833,64 @@ vertex_similarity(gx, 'dice', vertex_pairs = [(vd['x'],vd['y'])], eweight=wts2)
 # they go like probabiliyt of position x given Dist X,
 # not probability that pos x is in Dist x
 
+t1 = time.time()
+for i in range (10000):
+    wt = wts2[e]
+t2 = time.time()    
 
 
 
 
+# ** weird example 2
+# genre a is not sub-genre of b, although binary classification would say so
+
+# genre a 
+a_el = [['a', 'f1', 45], ['a', 'f2', 45]]
+
+a_el = a_el + [['a', 'f' + str(i), 1] for i in range(4,13)]
+
+# genre b
+# b, f5-12, 12.5
+
+b_el = [['b', 'f' + str(i), 12.5] for i in range(5,13)]
+
+# combine, graph 
+el_ttl = a_el + b_el
+
+gx = Graph()
+gx.set_directed(False)
+
+wts = gx.new_edge_property('double')
+
+vd = {}
+           
+for i in gx.vertices():
+    vd[ids[i]] = int(i)
+
+ids = gx.add_edge_list(el_ttl, hashed=True, string_vals=True, eprops=[wts])
+
+base_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/nw_test/'
+
+graph_draw(gx, vertex_font_size=30, output=base_dir + 'new_ver2.pdf', vertex_text = ids, edge_pen_width=wts)
+
+
+
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['a'],vd['b'])])
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['a'],vd['b'])], eweight=wts) * 100
+
+# well that's what i get for using decimals in my weights
+# works fine with unweighted
+vertex_similarity(gx, 'dice', vertex_pairs = [(vd['a'],vd['b'])]) * (11 + 8)/2
+
+# normalization fucks up directionality
+# basically impossible to see which is subset of which
+
+
+can i just do the traditional niche hypercube?
+i don't like it
+bad for disjointed: will cover the middle valley of bimodal dist
+
+
+also space itself not weighted 
+maybe not that bad, still have weight due to extent of overlap
+-> not but useless if entire space covered, and distinction lies in distribution in it
