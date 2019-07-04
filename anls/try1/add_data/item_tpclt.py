@@ -74,7 +74,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
                 FROM song_info3
                 WHERE cnt > """ + str(min_cnt) + """
             ) USING mbid
-            WHERE weight > """ + str(min_weight) + """
+           WHERE weight > """ + str(min_weight) + """
             AND rel_weight > """ + str(min_rel_weight) + """
         ) GROUP BY mbid
     ) USING mbid"""
@@ -134,25 +134,28 @@ df_acst, df_tags = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_a
 # songs_tbp = list(set(songs_acst) - set(songs_tags))
 
 def dict_gnrgs(df_acst, df_tags):
-    """generates genre song dict and acoustic position dict"""
+    """generates genre song dict,  acoustic position dict, tag row dict"""
 # make position dicts because dicts good
 
     gnr_song_dict = {}
+    tag_row_dict = {}
     for r in df_tags.itertuples():
         gnr = r.tag
-
+        
         if gnr in gnr_song_dict.keys():
             gnr_song_dict[gnr].append(r.lfm_id)
+            tag_row_dict[gnr].append(r.Index)
         else:
             gnr_song_dict[gnr] = [r.lfm_id]
+            tag_row_dict[gnr] = [r.Index]
 
     acst_pos_dict = {}
     for r in df_acst.itertuples():
         acst_pos_dict[r.lfm_id] = r.Index
 
-    return(gnr_song_dict, acst_pos_dict)
+    return(gnr_song_dict, acst_pos_dict, tag_row_dict)
 
-gnr_song_dict, acst_pos_dict = dict_gnrgs(df_acst, df_tags)
+gnr_song_dict, acst_pos_dict, tag_row_dict = dict_gnrgs(df_acst, df_tags)
 
 
 
@@ -169,11 +172,19 @@ def get_inv_mat(df_gnr_cmbd, vrbls):
 def get_df_cbmd(gnr):
     """constructs combined df out of acoustic and tag df"""
     # gnr = 'rap'
+
     gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
+
     df_gnr_tags = df_tags[df_tags['tag']==gnr]
+    # df_gnr_tags = df_tags.loc[tag_row_dict[gnr]]
+
+    t1 = time.time()
     df_gnr_acst = df_acst.loc[gnr_acst_ids]
+    t2 = time.time()
 
     df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
+
+
     return(df_gnr_cbmd)
 
 # * playground
@@ -256,7 +267,6 @@ vrbls2 = ["mood_acoustic","mood_aggressive","mood_electronic","mood_happy","mood
 
 # *** biased cov mat estimation
 # see if i can make columns/observations less important 
-
 
 
 rnd1 = np.random.normal(loc=0, scale=0.5, size = 1000)
@@ -384,7 +394,11 @@ for tx in unq_trks:
     df_gnr_cbmd.at[c, 'mah_dist'] = mah_dist
     c+=1
 
-    
+t1 = time.time()
+for i in range(100000):
+    mah_dist = mahalanobis(tx_vls, ovrl, cov_mat_inv)
+t2 = time.time()    
+
 # need to get playcount into weights 
 # i'm not sure if using the entire data set is the right thing to do:
 # importance of dimensions can differ between genres
