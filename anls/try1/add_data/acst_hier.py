@@ -21,21 +21,28 @@ def vd_fer(g, idx):
     """creates vertex index dict from graph and id property map"""
     # vertex_dict
     vd = {}
+    vdrv = {}
     for i in g.vertices():
         vd[idx[i]] = int(i)
-    return(vd)
+        vdrv[int(i)] = idx[i]
+        
+    return(vd, vdrv)
 
 
 el_ttl = []
 ts = []
 gnrs = ['metal', 'ambient', 'rock', 'hard rock', 'electronic', 'death metal']*10
+gnrs = list(acst_gnr_dict.keys())
+
+tt1 = time.time()
 
 for gnr in gnrs:
     # print(gnr)
     t1 = time.time()
 
-
-    dfc = get_df_cbmd(gnr)
+    # dfc = get_df_cbmd(gnr)
+    dfc = acst_gnr_dict[gnr]
+    
     gnr_cnt = len(dfc)
     el_gnr = []
     # print(len(el_gnr))
@@ -59,7 +66,10 @@ for gnr in gnrs:
     el_ttl = el_ttl + el_gnr
     t4 = time.time()
 
-    ts.append([t1,t2,t3,t4])
+    # ts.append([t1,t2,t3,t4])
+
+tt2 = time.time()
+
 
 # not that fast, might be optimized
 # atm takes especially long for long genres
@@ -79,7 +89,7 @@ w_std = gac.new_edge_property('double')
 
 idx = gac.add_edge_list(el_ttl, hashed=True, string_vals=True, eprops = [w, w_std])
 
-vd = vd_fer(gac, idx)
+vd,vdrv = vd_fer(gac, idx)
 
 # needs to be generalized into list for relevant pairs 
 # especially to assess prevalence of non-binary fit and hence possibility of overlap misattribution (lack sub due to area not covered)
@@ -92,6 +102,8 @@ vertex_similarity(gac, 'jaccard', vertex_pairs = [(vd['electronic'],vd['ambient'
 
 vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w_std)
 vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['death metal'])], eweight = w_std)
+
+vertex_similarity(gac, 'dice', vertex_pairs = [(vd['black metal'],vd['metal'])], eweight = w_std)
 
 
 # [print(w[gac.edge(vd['ambient'], vd['voice' + str(i)])]) for i in range(1,11)]
@@ -117,31 +129,116 @@ for gnr in gnrs:
 # not sure if needed tho
 # can just the positions of those over threshold, get the corresponding original comparisions, get the corresponding genres, and add that to edge list
 
-comps = list(itertools.combinations(gnr_ids, 2))
+# comps = list(itertools.combinations(gnr_ids, 2))
 
 # nested loops to ensure direction
 # smaller one is now first: relation to be tested is subsetness
 
+lenx = len(gnrs)
+
 cprx = []
+c = 0
 for i in range(lenx):
+
     cprx2 = []
+    
     for k in range(i,lenx):
+
+        # print(k)
+
         if i==k:
             next
         else:
+            c +=1
+            
             v1, v2 = gnrs[i], gnrs[k]
             v1_sz, v2_sz = sz_dict[v1], sz_dict[v2]
-
+            
             if v1_sz > v2_sz:
-                cprsn = [v2, v1]
+                cprsn = [vd[v2], vd[v1]]
             else:
-                cprsn = [v1, v2]
+                cprsn = [vd[v1], vd[v2]]
 
             cprx2.append(cprsn)
     if len(cprx2) > 0:
         cprx.append(cprx2)
 
 cmps = list(itertools.chain.from_iterable(cprx))
+
+# * actual comparision
+
+gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std)
+
+plt.hist(gt_sims, bins='auto')
+plt.show()
+
+thrshld = 0.88
+
+rel_cmps = np.where(gt_sims > thrshld)
+
+rel_cmps2 = [cmps[i] for i in rel_cmps[0]]
+
+el_acst = []
+for i in rel_cmps2:
+    # direction is now from larger to more general 
+    cmp = [vdrv[i[1]], vdrv[i[0]]]
+    el_acst.append(cmp)
+
+# Graph hierarchy acoustic
+ghrac = Graph()
+
+ghrac_id = ghrac.add_edge_list(el_acst, hashed=True, string_vals=True)
+
+g = ghrac
+ids = ghrac_id
+filename = 'acst_space1.pdf'
+
+graph_pltr(ghrac, ghrac_id, 'acst_spc2.pdf')
+
+def graph_pltr(g, ids, filename):
+    """function for graph plotting, maybe put all the plotting parameters into function too?"""
+
+    gt_lbls_plot = g.new_vertex_property('string')
+
+    for v in g.vertices():
+        x = ids[v]
+
+        gt_lbls_plot[v] = x.replace(" ", "\n")
+
+    size = g.degree_property_map('out')
+
+    size_scl=graph_tool.draw.prop_to_size(size, mi=4, ma=8, log=False, power=0.5)
+    size_scl2=graph_tool.draw.prop_to_size(size, mi=0.025, ma=0.15, log=False, power=1)
+
+
+    gvd = graphviz_draw(g, size = (100,100),
+                        # layout = 'sfdp',
+                        # overlap = 'scalexy',
+                        # overlap = 'false',
+                        vprops = {'xlabel':gt_lbls_plot, 'fontsize':size_scl, 'height':0.03,
+                                  'penwidth':0.001, 'shape':'point', 'fixedsize': True,
+                                  'width':size_scl2, 'height':size_scl2, 'fillcolor':'black'},
+                        eprops = {'arrowhead':'vee', 'color':'grey'},
+                        # returngv==True,
+                        output = filename)
+
+    gt_lbls_plot = 0
+
+# no more artists, i guess that's something
+# but not super happy with the lack of directionality
+
+
+# if i treat the splitted stuff as features, why not cosine similarity?
+# or correlation?
+# if it's standardized it's symmetric now anyways
+# FUUU?
+# could do it all in matrices?
+# Hannan not that bad?
+# substantial differences is to split up into cells, not so much way to calculate then similarity
+# footnote p. 50: are aware of that variance matters -> bring split up as improvement?
+# also difference between measures -> correlation
+
+# how fast is KLD for that many comps? 
 
 
 # * some old stuff
