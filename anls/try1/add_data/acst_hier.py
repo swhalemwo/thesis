@@ -94,23 +94,23 @@ vd,vdrv = vd_fer(gac, idx)
 # needs to be generalized into list for relevant pairs 
 # especially to assess prevalence of non-binary fit and hence possibility of overlap misattribution (lack sub due to area not covered)
 
-vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])])
-# WTF start
-vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w)
-vertex_similarity(gac, 'jaccard', vertex_pairs = [(vd['electronic'],vd['ambient'])], eweight = w)
-# WTFFF end: 
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])])
+# # WTF start
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w)
+# vertex_similarity(gac, 'jaccard', vertex_pairs = [(vd['electronic'],vd['ambient'])], eweight = w)
+# # WTFFF end: 
 
-vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w_std)
-vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['death metal'])], eweight = w_std)
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w_std)
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['death metal'])], eweight = w_std)
 
-vertex_similarity(gac, 'dice', vertex_pairs = [(vd['black metal'],vd['metal'])], eweight = w_std)
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['black metal'],vd['metal'])], eweight = w_std)
 
 
 # [print(w[gac.edge(vd['ambient'], vd['voice' + str(i)])]) for i in range(1,11)]
 # [print(w[gac.edge(vd['electronic'], vd['voice' + str(i)])]) for i in range(1,11)]
 
 
-g.vertex(vd['electronic']).out_neighbors()
+# g.vertex(vd['electronic']).out_neighbors()
 
 # * general comparison function
 
@@ -172,7 +172,7 @@ gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std)
 plt.hist(gt_sims, bins='auto')
 plt.show()
 
-thrshld = 0.88
+thrshld = 0.85
 
 rel_cmps = np.where(gt_sims > thrshld)
 
@@ -193,7 +193,7 @@ g = ghrac
 ids = ghrac_id
 filename = 'acst_space1.pdf'
 
-graph_pltr(ghrac, ghrac_id, 'acst_spc2.pdf')
+graph_pltr(ghrac, ghrac_id, 'acst_spc3.pdf')
 
 def graph_pltr(g, ids, filename):
     """function for graph plotting, maybe put all the plotting parameters into function too?"""
@@ -239,6 +239,101 @@ def graph_pltr(g, ids, filename):
 # also difference between measures -> correlation
 
 # how fast is KLD for that many comps? 
+
+# * other comparisons
+# need to turn el into array/df
+
+x = np.split(el_ttl, 50)
+
+acst_mat = np.empty([len(gnrs), 50])
+
+c = ypos =xpos = 0
+
+for i in el_ttl:
+    itempos = [ypos, xpos]
+    vlu = i[3]
+    # print(vlu)
+    
+    acst_mat[ypos, xpos] = vlu
+    # print(itempos)
+
+    xpos+=1
+
+    if xpos == 50:
+        xpos = 0
+        ypos+=1
+
+    c+=1   
+
+# ** cosine similarity
+# might not even have to normalize for it, but won't really distort much me thinks
+
+
+# 10k comparisons/sec, can be parallelized -> not too bad
+# timeit('entropy(acst_mat[0], acst_mat[1])', globals=globals(), number=100000)
+
+
+# ** KLD
+
+gnr_ind = {}
+for i in gnrs:
+    gnr_ind[i] = gnrs.index(i)
+
+all_ents = []
+all_comps = []
+
+t1 = time.time()
+for i in gnrs:
+    i_id = gnr_ind[i]
+
+    i_ents = []
+    i_comps = []
+    
+    for k in gnrs:
+        k_id = gnr_ind[k]
+        
+        if i==k:
+            next
+        else:
+            i_v = acst_mat[i_id]
+            k_v = acst_mat[k_id]
+            
+            b_zeros = np.where(k_v ==0)
+            a_sum_b_zeros = sum(i_v[b_zeros])
+            prop_missing = a_sum_b_zeros/sum(i_v)
+
+            if prop_missing < 0.05:
+                i_v = np.delete(i_v, b_zeros)
+                k_v = np.delete(k_v, b_zeros)
+            # else:
+            #     continue
+
+                ent = entropy(i_v, k_v)
+                comp = [i,k]
+
+                i_ents.append(ent)
+                i_comps.append(comp)
+
+    all_ents.append(i_ents)
+    all_comps.append(i_comps)
+
+t2 = time.time()
+
+klds = list(itertools.chain.from_iterable(all_ents))
+
+plt.hist(klds, bins='auto')
+plt.show()
+# need to deal with inf values
+# where do they come from? 0s in A i think
+# assess badness of fit: sum of cells of a that are 0 in b should not be above X (0.95)
+
+
+    
+
+
+
+entropy(acst_mat[0], acst_mat[7])
+
 
 
 # * some old stuff
