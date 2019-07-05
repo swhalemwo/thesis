@@ -135,27 +135,54 @@ df_acst, df_tags = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_a
 
 def dict_gnrgs(df_acst, df_tags):
     """generates genre song dict,  acoustic position dict, tag row dict"""
-# make position dicts because dicts good
+    # make position dicts because dicts good
+    # or rather, they would be if pandas subsetting wouldnt be slow AF
+    # solution: make genre dfs only once in initialization
 
-    gnr_song_dict = {}
-    tag_row_dict = {}
+    gnr_song_dict = {} # lfm_ids of songs in genre
+    tag_row_dict = {} # indices of tags in tags_df for each genre
+    # gnr_tags_dict = {} # 
+    
     for r in df_tags.itertuples():
         gnr = r.tag
         
         if gnr in gnr_song_dict.keys():
             gnr_song_dict[gnr].append(r.lfm_id)
             tag_row_dict[gnr].append(r.Index)
+            # gnr_tags_dict[gnr].append(list(r))
+            
         else:
             gnr_song_dict[gnr] = [r.lfm_id]
             tag_row_dict[gnr] = [r.Index]
+            # gnr_tags_dict[gnr] = [list(r)]
 
     acst_pos_dict = {}
+
     for r in df_acst.itertuples():
         acst_pos_dict[r.lfm_id] = r.Index
 
-    return(gnr_song_dict, acst_pos_dict, tag_row_dict)
 
-gnr_song_dict, acst_pos_dict, tag_row_dict = dict_gnrgs(df_acst, df_tags)
+    # merge tag and acst df, distribute those acst into dict with their respective genres
+    df_mrgd = pd.merge(df_tags, df_acst, on='lfm_id')
+
+    acst_gnr_dict = {}
+    for r in df_mrgd.itertuples():
+        gnr = r.tag
+
+        if gnr in acst_gnr_dict.keys():
+            acst_gnr_dict[gnr].append(r)
+        else:
+            acst_gnr_dict[gnr] = [r]
+
+    for gnr in acst_gnr_dict.keys():
+        acst_gnr_dict[gnr] = pd.DataFrame(acst_gnr_dict[gnr])
+
+    # might be that previous dicts have become useless now, gotta clean up
+    # get_df_cbmd is basically useless now
+    return(gnr_song_dict, acst_pos_dict, tag_row_dict, acst_gnr_dict)
+
+
+gnr_song_dict, acst_pos_dict, tag_row_dict, acst_gnr_dict = dict_gnrgs(df_acst, df_tags)
 
 
 
@@ -178,9 +205,25 @@ def get_df_cbmd(gnr):
 
     # df_gnr_tags = df_tags[df_tags['tag']==gnr]
     # df_gnr_tags = df_tags.loc[tag_row_dict[gnr]]
-    df_gnr_tags = df_tags.iloc[tag_row_dict[gnr]]
+    timeit(stmt='df_gnr_tags = df_tags.iloc[tag_row_dict[gnr]]')
+    timeit(stmt='df_tags.iloc[tag_row_dict[gnr]]', globals=globals(), number=10)
 
+    
+    
     df_gnr_acst = df_acst.iloc[gnr_acst_ids]
+
+    df[df.index.isin([1,3])]
+
+    ar_tags = np.array(df_tags)
+    timeit('ar_gnr_tags = ar_tags[tag_row_dict[gnr]]', globals=globals(), number=10)
+
+    import pyximport
+    import importlib
+
+    importlib.reload(artest)
+    artest.ar_test()
+    
+
 
     t1 = time.time()
     df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
