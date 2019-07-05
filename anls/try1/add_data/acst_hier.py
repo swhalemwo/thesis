@@ -105,6 +105,8 @@ vd,vdrv = vd_fer(gac, idx)
 
 # vertex_similarity(gac, 'dice', vertex_pairs = [(vd['black metal'],vd['metal'])], eweight = w_std)
 
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['love song'],vd['rock'])], eweight = w_std)
+
 
 # [print(w[gac.edge(vd['ambient'], vd['voice' + str(i)])]) for i in range(1,11)]
 # [print(w[gac.edge(vd['electronic'], vd['voice' + str(i)])]) for i in range(1,11)]
@@ -221,7 +223,6 @@ def graph_pltr(g, ids, filename):
                         eprops = {'arrowhead':'vee', 'color':'grey'},
                         # returngv==True,
                         output = filename)
-
     gt_lbls_plot = 0
 
 # no more artists, i guess that's something
@@ -265,8 +266,6 @@ for i in el_ttl:
 
     c+=1   
 
-# ** cosine similarity
-# might not even have to normalize for it, but won't really distort much me thinks
 
 
 # 10k comparisons/sec, can be parallelized -> not too bad
@@ -274,7 +273,7 @@ for i in el_ttl:
 
 
 # ** KLD
-
+# needs functionizing and parallel processing 
 gnr_ind = {}
 for i in gnrs:
     gnr_ind[i] = gnrs.index(i)
@@ -320,21 +319,50 @@ for i in gnrs:
 t2 = time.time()
 
 klds = list(itertools.chain.from_iterable(all_ents))
+kld_cmps = list(itertools.chain.from_iterable(all_comps))
 
 plt.hist(klds, bins='auto')
 plt.show()
+
 # need to deal with inf values
 # where do they come from? 0s in A i think
 # assess badness of fit: sum of cells of a that are 0 in b should not be above X (0.95)
 
+kld_rel = np.where(np.array(klds) < 0.05)
+kld_el = np.array(kld_cmps)[kld_rel[0]]
 
-    
+g_kld = Graph()
+g_kld_id = g_kld.add_edge_list(kld_el, hashed=True, string_vals=True)
+
+graph_pltr(g_kld, g_kld_id, 'acst_spc4.pdf')
 
 
 
-entropy(acst_mat[0], acst_mat[7])
+# ** cosine similarity
+# might not even have to normalize for it, but won't really distort much me thinks
+
+from sklearn.metrics.pairwise import cosine_similarity
+
+x= cosine_similarity(acst_mat)
 
 
+plt.hist(x[np.where(0<np.tril(x))], bins='auto')
+plt.show()
+
+
+plt.hist(x[(np.tril(x) > 0) & (np.tril(x) < 1)], bins='auto')
+plt.show()
+
+from scipy.spatial import distance
+distance.euclidean
+
+x2 = sklearn.metrics.pairwise.euclidean_distances(acst_mat)
+plt.hist(x2[np.tril(x2) > 0], bins='auto')
+plt.show()
+
+# what's the point of putting it into network really
+# -> need to functionalize the network generation
+# but more the relevant feature extraction -> straightforward to compare
 
 # * some old stuff
 
