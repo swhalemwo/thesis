@@ -1,4 +1,3 @@
-# from clickhouse_driver import Client
 import csv
 import string
 import random
@@ -78,7 +77,7 @@ def batch_procr(data2, mlhd_ids, pointers):
             if i_stat == True and v_stat == True: skes_proc(i, None)
             if i_stat == True and v_stat == False: skes_proc(i, None)
             if i_stat == False and v_stat == True:
-                print(i, v)
+                # print(i, v)
                 indirects.append(i)
                 skes_proc(i,v)
             if i_stat == False and v_stat == False: fail_proc(v)
@@ -177,6 +176,7 @@ def get_dones():
         failed = [r[0] for r in rdr]
 
         dones = skes + failed
+        print(len(dones))
         return(dones)
         
 # md_dict = data2['fb47ca87-499e-4c49-b8a1-3f784d1daa1b']['0']['metadata']
@@ -204,12 +204,28 @@ if __name__ == '__main__':
     #     rdr = csv.reader(fi)
     #     some_mbids = [i[0:2] for i in rdr]
 
-    some_mbids = client.execute("""select lfm_id, mbid from addgs join 
-                                (select lfm_id, count(lfm_id) as cnt from addgs group by lfm_id having cnt =1) 
-                                using (lfm_id)""")
+    # some_mbids = client.execute("""select lfm_id, mbid from addgs join 
+    #                             (select lfm_id, count(lfm_id) as cnt from addgs group by lfm_id having cnt =1) 
+    #                             using (lfm_id)""")
 
-    ACST_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv'
-    FAIL_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acst_fails.csv'
+    # make sure no duplicates
+    mbid_qry = """SELECT lfm_id, mbid FROM addgs
+    JOIN 
+        (SELECT lfm_id, count(lfm_id) AS cnt FROM addgs 
+        GROUP BY lfm_id
+        HAVING cnt =1) 
+        using (lfm_id)"""
+
+    some_mbids = client.execute(mbid_qry)
+    print(len(some_mbids))
+    # ACST_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv'
+    # FAIL_FILE = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acst_fails.csv'
+
+    ACST_FILE = '/home/johannes/mega/gsss/thesis/acb/acstbrnz.csv'
+    FAIL_FILE = '/home/johannes/mega/gsss/thesis/acb/acst_fails.csv'
+
+    open(ACST_FILE, 'a')
+    open(FAIL_FILE, 'a')
 
     dones = get_dones()
 
@@ -218,10 +234,12 @@ if __name__ == '__main__':
     stpd_dict = {}
     for i in some_mbids:
         stpd_dict[i[0]] = i[1]
-    
+
+        
     for i in dones:
         try:
             x = stpd_dict.pop(i)
+
         except:
             pass
 
@@ -232,6 +250,12 @@ if __name__ == '__main__':
         some_mbids2.append([k, stpd_dict[k]])
 
     some_mbids = some_mbids2
+    print(len(some_mbids))
+
+    time.sleep(10)
+    # fails are quite high, wonder if MB then just returns nothing
+    # but wouldn't that produce a separate error message?
+    # listenbrainz says website would give separate error message
 
     batch = []
     mlhd_ids = []
@@ -240,8 +264,6 @@ if __name__ == '__main__':
     indirects=[]
     skes = []
     fails =[]
-
-    
 
     for i in some_mbids:
         if i[0] == i[1]:
@@ -256,7 +278,8 @@ if __name__ == '__main__':
             pointers[i[0]] = i[1]
             # pointers[i[1]] = i[0]
 
-        if len(batch) > 40:
+        if len(batch) > 22:
+            # break
             print('process batch')
             print(some_mbids.index(i))
 
@@ -278,7 +301,6 @@ if __name__ == '__main__':
             skes = []
             fails =[]
 
-        
 
     #     print(len(data2))
     # t2 = time.time()
