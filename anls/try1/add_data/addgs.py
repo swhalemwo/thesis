@@ -74,19 +74,26 @@ for i in chunk_dirs:
     else:
         addgs_file = base_path + i + i[5:len(i)-1] +'_addgs.csv'
         tag_file = base_path + i + i[5:len(i)-1] +'_tags.csv'
-        addgs_file = base_path + i + i[5:len(i)-1] +'_dones_tags.csv'
+        dones_tags = base_path + i + i[5:len(i)-1] +'_dones_tags.csv'
 
-    print(addgs_file)
-    print(tag_file)
-    print(addgs_file)
+    # print(addgs_file)
+    # print(tag_file)
+    # print(addgs_file)
     
     addgs_str = 'cat ' + addgs_file + ' >> ' + ttl_path + 'ttl_addgs.csv'
     tags_str = 'cat ' + tag_file + ' >> ' + ttl_path + 'ttl_tags.csv'
-    dones_tags_str = 'cat ' + dones_tags + ' >> ' + ttl_path + 'tt_dones_tags.csv'
+    dones_tags_str = 'cat ' + dones_tags + ' >> ' + ttl_path + 'ttl_dones_tags.csv'
     
-    os.system(addgs_str)
-    os.system(tags_str)
+    # os.system(addgs_str)
+    # os.system(tags_str)
     os.system(dones_tags_str)
         
 
 # * read in
+# ** tags:
+# use ~/Dropbox/gsss/thesis/anls/try1/tag_insert_ch.py
+# DONE 
+# ** addgs
+# use ~/Dropbox/gsss/thesis/anls/try1/add_data/ch_setups.py
+
+# ** dones_tags

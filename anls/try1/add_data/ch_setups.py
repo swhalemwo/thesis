@@ -1,6 +1,6 @@
 from datetime import datetime
 import random
-
+import csv
 
 from clickhouse_driver import Client
 client = Client(host='localhost', password='anudora', database='frrl')
@@ -209,30 +209,36 @@ engine=MergeTree() partition by rndm order by tuple()""")
 
 batch = []
 
-with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_addgs.csv', 'r') as fi:
+# tr < ttl_addgs.csv -d '\000' > ttl_addgs2.csv
+addgs_file = '/home/johannes/mega/gsss/thesis/remotes/ttl/ttl_addgs2.csv'
+
+with open(addgs_file, 'r') as fi:
     rdr = csv.reader(fi)
     c = 0
     for r in rdr:
-        if r[4] == '9999-09-09':
-            r[4] = '2099-09-09'
+        try:
+            if r[4] == '9999-09-09':
+                r[4] = '2099-09-09'
 
-        
-        dt = datetime.date(datetime.strptime(r[4], '%Y-%m-%d'))
-        
-        # CH for now only supports dates since start of unix epoch,
-        # requiring shenangians (int days since start) to store it
-        
-        dt_int = (dt - datetime.date(datetime(1970, 1, 1))).days
+            dt = datetime.date(datetime.strptime(r[4], '%Y-%m-%d'))
 
-        rp = r[0:4] + [dt_int] + [int(i) for i in r[5:]] + random.sample(range(80),1)
+            # CH for now only supports dates since start of unix epoch,
+            # requiring shenangians (int days since start) to store it
 
-        batch.append(rp)
-        # client.execute('insert into addgs values',[rp])
+            dt_int = (dt - datetime.date(datetime(1970, 1, 1))).days
 
-        c+=1
-        if c % 5000 == 0:
-            client.execute('insert into addgs values', batch)
-            batch = []
+            rp = r[0:4] + [dt_int] + [int(i) for i in r[5:]] + random.sample(range(80),1)
+
+            batch.append(rp)
+            # client.execute('insert into addgs values',[rp])
+
+            c+=1
+            if c % 10000 == 0:
+                # break
+                client.execute('insert into addgs values', batch)
+                batch = []
+        except:
+            print('misfit')
 
     client.execute('insert into addgs values', batch)
 
@@ -254,26 +260,44 @@ engine = MergeTree() partition by rndm order by tuple()""")
 # lens = []
 # rows = []
 
+
+# tr < ttl_dones_tags.csv -d '\000' > ttl_dones_tags2.csv
+dones_tags_file = '/home/johannes/mega/gsss/thesis/remotes/ttl/ttl_dones_tags2.csv'
+
 batch = []
 c = 0
-with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/tag_chunks/test_split2/1_dones_tags.csv', 'r') as fi:
+err_c = 0
+
+
+with open(dones_tags_file, 'r') as fi:
     rdr = csv.reader(fi)
 
     for r in rdr:
-        if r[1] == 'fail':
-            pass
+        if r[1] in ['fail', 'manual', 'lfm', 'mb']:
+            err_c+=1
+
         else:
             # lens.append(int(r[2]))
             rp = r[0:2] + [int(i) for i in r[2:]] + random.sample(range(80),1)
             batch.append(rp)
 
             c+=1
-            if c % 5000 == 0:
+            if c % 10000 == 0:
+                print(c)
+                print(err_c)
+                # break
                 client.execute('insert into dones_tags values', batch)
                 batch =[]
+    # except:
+    #     print('misfit')
+    #     break
+            # pass
     client.execute('insert into dones_tags values', batch)
 
-            # rows.append(r)
+    # there's an entire 200k segment that doesn't have the normal structure -> figure out after break
+    # is between 390 and 400k
+    # but no idea how 10k rows can increase error counter to 200k... - >break frist
+    # is apparently issue of chunk3, maybe it ran with an older version? 
 
             
 # ** acousticbrainz
