@@ -957,14 +957,4 @@ vertex_similarity(gx, 'dice', vertex_pairs = [(vd['b'],vd['a'])], eweight=wts)
 
 excs_assmnt(gx, 'b', 'a', vd, wts) # 0
 
-# could check absolute size first: makes only sense to compare those where unweighted weights of A are larger than unweighted of B
-# does it tho? 
-# what if subgenre becomes more popular than main genre?
-# lets say dubstep grows ginormously big in playcounts and songs and everything
-# if they are still tagged electronic, electronic will grow at least with the same amount -> No problemo
-# if songs are tagged dubset but not electronic -> then dubstep seen as autonomous from electronic
-
-# so i think subgenre relations make only sense if a < b
-# -> sorting by size would work,
-# maybe also reduce the number of comparisons? 
 

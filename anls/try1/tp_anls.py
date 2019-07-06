@@ -24,9 +24,6 @@ from os import listdir
 # write graphs to gt objects
 
 
-
-
-
 def get_mbid_v_dict():
 
     vcnt = len(list(gx.vertices()))
@@ -45,7 +42,6 @@ def get_mbid_v_dict():
             cntr2 = 0
 
     return(mbid_v_dict)
-
 
 
 

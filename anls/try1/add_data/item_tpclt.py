@@ -208,8 +208,7 @@ def get_df_cbmd(gnr):
     timeit(stmt='df_gnr_tags = df_tags.iloc[tag_row_dict[gnr]]')
     timeit(stmt='df_tags.iloc[tag_row_dict[gnr]]', globals=globals(), number=10)
 
-    
-    
+        
     df_gnr_acst = df_acst.iloc[gnr_acst_ids]
 
     df[df.index.isin([1,3])]

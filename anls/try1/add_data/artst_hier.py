@@ -519,10 +519,6 @@ sbst_ar = ovlpr(unq_tags, sim_ar)
 elx = el_getter(sbst_ar, unq_tags, 0.9)
 
 
-t1 = time.time()
-for i in range(50000000):
-    x = vd['s1']
-t2 = time.time()
 
 # dicts support 5m look ups per second, not bad 
 # can probably be multi-processed -> 20m

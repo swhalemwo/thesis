@@ -98,13 +98,16 @@ make the use more the improvisations (Bourdieu) -> stresses flexibility
 
 Classification systems are essential for social life parencite:Durkheim_2019_primitive. 
 # 
-Without conceptual systems to aid in our sense-making, no order could be imposed on a chaotic world ~Kant?~. 
+Without conceptual systems to aid in sense-making and generalization of experience, the complexity of perception would be overwhelming. 
+# 
+Interpretive frameworks that precede action/perception are hence crucial for ~XYZ~
 # 
 The ways in which the world is symbolic divided up can facilitate understanding and coordination if agreement over them is obtained, be it through cooperation or imposition parencite:diMaggio_1983_iron. 
 # 
 Visions of division can compete [[parencite:Bourdieu_1989_space][p.17]], yet competition can also occur in the case of shared classification systems where agreement exists over what is at stake [[parencite:Fligstein_2015_fields][p.27]].
+# 
+The importance of categories for social action can hardly be overstated. 
 
-The importance of categories for social action can hardly be understated. 
 expand on enabling, shaping, constraining
 action in 
 - economy
@@ -166,9 +169,20 @@ Meanwhile, the much less clearly defined neoinstitutionalism and organizational 
 audience
 # that's literally the only thing for now
 
+*** Practical classification 
+# """ distinguish between informal and practical classification"""
+
+# lfm kinda inbetween: it is written out, but not under central authority
+
+- cite:van_Venrooij_2018_fuzziness
+
 
 ** concepts
 #
+textcite:Powell_1991_introduction highlight the importance of classification and cognitive aspects as a core aspect of sociological neoinstitutionalism. 
+# 
+
+
 
 *** location of concepts
 # """debates the location of concepts, not clear if needed"""
@@ -728,8 +742,6 @@ It might be argued that the causal path runs in the other direction, as genres w
 It is certainly true in a trivial sense as genres that have not survived are also not popular. 
 
 However, numerous obscure genres exist which are unlikely to have an audience with a high taste for popularity, which seems to indicate that survival does not necessarily result in popularity. 
-
-
 
 
 
