@@ -102,7 +102,8 @@ Without conceptual systems to aid in sense-making and generalization of experien
 # 
 Interpretive frameworks that precede action/perception are hence crucial for ~XYZ~
 # 
-The ways in which the world is symbolic divided up can facilitate understanding and coordination if agreement over them is obtained, be it through cooperation or imposition parencite:diMaggio_1983_iron. 
+The ways in which the world is symbolic divided up can facilitate understanding and coordination if agreement over them is obtained, be it through cooperation or imposition 
+# is parencite:diMaggio_1983_iron example for imposition? somewhat
 # 
 Visions of division can compete [[parencite:Bourdieu_1989_space][p.17]], yet competition can also occur in the case of shared classification systems where agreement exists over what is at stake [[parencite:Fligstein_2015_fields][p.27]].
 # 
@@ -191,11 +192,12 @@ textcite:Powell_1991_introduction highlight the importance of classification and
 It is certainly relevant to consider whether concepts reside in a public domain, an individual's mind, or both parencite:Lizardo_2016_improving. 
 # 
 
-- cite:Martin_2010_ant emphasizes the cognitive limitations, and therefore similarly argues to conceptualize culture as a network of concepts
-  stresses interaction with environment for sensemaking: availability heuristic, representativeness heuristic, anchoring-and-adjustment
-  *ecologically rational*: good decision making if high quality information is accessible
+- cite:Martin_2010_ant 
+  - emphasizes the cognitive limitations, and therefore similarly argues to conceptualize culture as a network of concepts
+  - stresses interaction with environment for sensemaking: availability heuristic, representativeness heuristic, anchoring-and-adjustment
+  - *ecologically rational*: good decision making if high quality information is accessible
 
-- [[textcite:Steyvers_2005_structure][p.44]] argue that same developmental mechanisms shape semantic association networks, whether they are personal, (language acquisition)  or public (language evolution). 
+- [[textcite:Steyvers_2005_structure][p.44]] argue that same developmental mechanisms shape semantic association networks, whether they are personal (language acquisition)  or public (language evolution). 
 - cite:Strauss_1997_cognitive: the meaning we will give to "meaning" here is the interpretation evoked /in a person/ by an object or event at a given time" (emphasis added). (p.6)
 
 # hmm no sin-gle person knows all the entire classification system -> public? 
@@ -208,39 +210,63 @@ idea of explicit hierarchies seems like an imposition of public culture/order (b
 # 
 
 *** classical view
-# """introduces classical view: definitions, hierarchy, feature storage at relevant level"""
+# """introduces classical view: definitions, hierarchy"""
 
 # is bluerprint actually a good metaphor? quite technical/precise/exact, qute unlike fuzzy probability distributions
 # alternatives: template, matrix (too technical), schema/scheme? 
 # feature is that it is used to produce things; is abstraction
+
+# mention cite:Strauss_1997_cognitive: symbolic/classical/Good Old Fashioned Artificial Intelligence vs connectionist 
+# what are specific criticisms not covered by Murth/Smith? 
+
+
+# distinguish 
+# - storage
+# - processing: categorization, inference
+# - learning/acquisition: not really important here me thinks: could put it into suggestions for further research
 
 Given
 - logocentrism (Derrida)
 - bureaucratization/iron cage 
   - narrow down to institutional logic? 
 
-It may seem intuitive to think that concepts adhere to a unambiguous and internally coherent structure 
+It may seem intuitive to think that concepts adhere to a unambiguous and internally coherent structure. 
 # (~it certainly seems to an extent be the prevailing worldview in formal education systems~) . 
 # 
-This general idea of well-orderedness is what textcite:Murphy_2004_concepts calls the "classical view", and argues that it not only constitutes a lay understanding of concepts, but was the established paradigm in the psychology of concepts until the 1970s. 
+This general idea of well-orderedness is what textcite:Smith_1981_categories,Murphy_2004_concepts call the "classical view", and argue that it not only constitutes a lay understanding of concepts, but was the established paradigm in the psychology of concepts until the 1970s. 
 # 
 The classical view makes a number of assumptions. 
 # 
 First, it argues that concepts are definitions which can be clearly defined with a list of necessary and/or jointly sufficient features. 
 # 
-Inspired by set theory, a necessary consequence of this assumption is to view category membership as clear cut (objects are either complete members of categories, or they are not members at all) and view each object that fulfills these exact criteria as an equal member (p.15).  
+Inspired by set theory, a necessary consequence of this assumption is to view category membership as clear cut as objects are either complete members of categories, or they are not members at all. 
+# 
+In turn, this assumes that all objects that exactly fulfill the membership conditions are equally good members (p.15).  
 # 
 Second, concepts at different levels of abstraction are seen as forming a logically ordered and explicitly stored hierarchy. 
 # 
-If a concept is a sub-concept of another concept, all members of the sub-concept are also members of the super ordinate concept, resulting in membership being transitive. 
+If a concept is a sub-concept of another concept, all members of the sub-concept are also members of the super ordinate concept, resulting in membership being transitive [[parencite:Murphy_2004_concepts][p.27]]. 
 # 
-For example, if one considers dogs as a sub-concept of mammals, than every member that is a member of the set of dogs is also a member of the set of mammals. 
-# 
+For example, if one considers dogs as a sub-concept of mammals, than every member that is a member of the set of dogs is also a member of the set of mammals [[parencite:Smith_1981_categories][p.177]]. 
+
+
+*** conceptual hierarchy
+# """feature storage at relevant level"""
+# is that part of classical view? 
+# unclear: has logic fetishism: explicitly stored links rather than similarity judgments
+# but Quillian/Collins consider substantial limitations in 1969 and Quillian doesn't require logical hierarchy in any of his other papers afaik
+
+# is it even needed? definitely don't have different features at different levels as that what defines concepts
+# -> would leaving it out not require me to elaborate on features v dimensions? 
+# no would still need features v dimensions because i need overlap (not distance) to drive similarity judgment
+
+
+
 ~Third??~, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
 # 
 While 'barking' is a feature that is relevant to define a dog, more general features that dogs share with other mammals (for example, lactation), are stored only at the more general mammal concept and can be retrieved by traversing up the explicitly stored hierarchical link between the concept of dog and mammal. 
 # 
-This distributed storage is argued to be more efficient, as it greatly reduces the need to define all properties especially at more specific lower levels, which instead receive most defining properties from superordinate concepts. 
+This distributed storage is argued to be more efficient parencite:Collins_1969_retrieval, as it greatly reduces the need to define all properties especially at more specific lower levels, which instead receive most defining properties from superordinate concepts. 
 
 
 # A further assumption is that features are only saved at the corresponding level of abstraction: 
@@ -251,7 +277,7 @@ This distributed storage is argued to be more efficient, as it greatly reduces t
 # 
 # Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks are cars as well as vehicles. 
 
-*** new view
+*** new view: probabilistic, connectionist
 cite:Murphy_2004_concepts argues that each of these points has received criticisms to an extent that they have been abandoned or heavily reformulated. 
 # 
 I will start with the notion of concepts as definitions. 
@@ -265,13 +291,33 @@ If you look at [board-games, card-games, ball-games, Olympic games, and so on] y
 #+end_quote
 
 Following Wittgenstein's argument in regard to inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. [fn::It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms that attempt to make sense of social action. As these blurry boundaries are a feature of classification systems generally, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs.]
+# 
+
+# ~One might argue that it is possible to construct crisp definitions in some cases~. 
+# - square: 4 sides of equal length, 4 90% degree angles
+# - bird: flies and feathered
+#   but that is not exhaustive: everything that flies and is feathered is a bird, but not every bird flies and is feathered
+#  focus is on concepts -> strong refusal 
+
+# people list attributes that are not essential
+# - bird flies
+# - vehicle wheels, hovercraft
+
+Moreover, when asking participants to list features of a category (a common technique in the psychology of concepts) 
+
+participants often list features that do not apply to every member
  
 **** probabilistic 2 WORK WORK
 # """typicality, graded membership, MODEL??"""
 # 
-The abandonment of crisp boundaries does not entail the adoption of an arbitrary 'postmodern' 'anything-goes' approach, or more precisely a caricature thereof. 
+The abandonment of crisp boundaries does not entail the adoption of an arbitrary 'postmodern' 'anything-goes' approach (or more precisely a caricature thereof). 
 # 
-Rather, the proper reformulation of crisp boundaries is through a probabilistic notion of features co-occurence. 
+Rather, the proper reformulation of crisp boundaries is through a probabilistic specification of concept-feature relations and category membership, which leads textcite:Smith_1981_categories to call it the *probabilistic view*. 
+# 
+
+prototype, exemplar, holistic ? schema? 
+
+ # of features co-occurrence. 
 # 
 A clear implication of a probabilistic formulation is variation in typicality instead of clear-cut membership, which textcite:Rosch_1975_family show in the case of fruits. 
 # 
@@ -716,17 +762,16 @@ It therefore seems reasonably to argue that genres increase their survival chanc
 
 
 *** taste for popularity: still elaboration needed
-
-  # implication: a genre is more likely to survive if it has an audience that likes popular stuff
-  # but isn't it the other way around? a person that likes popular stuff is not going to listen to things that have a chance of dying out
-  # could you say that if a genre manages to attract/capture people who only like popular stuff it is more likely to survive? 
-  # hmm popularity -> survivavl definitely holds
-  # but survival  -> popularity not necessarily: there are many things that exist that are not popular
+# implication: a genre is more likely to survive if it has an audience that likes popular stuff
+# but isn't it the other way around? a person that likes popular stuff is not going to listen to things that have a chance of dying out
+# could you say that if a genre manages to attract/capture people who only like popular stuff it is more likely to survive? 
+# hmm popularity -> survivavl definitely holds
+# but survival  -> popularity not necessarily: there are many things that exist that are not popular
 
 # 
 Audiences furthermore vary in the degree to which they value popularity parencite:Lieberson_2003_popularity,Kovacs_2014_paradox. 
 # 
-Such variation in second-order preferences parencite:Vaisey_2018_decision has been found to influence first names parencite:Lieberson_2003_popularity, song cite:Salganik_2008_herd and book ratings cite:Kovacs_2014_paradox. 
+Such variation in second-order preferences parencite:Vaisey_2018_decision has been found to influence first names parencite:Lieberson_2003_popularity, song parencite:Salganik_2008_herd and book ratings parencite:Kovacs_2014_paradox. 
 # 
 Variation in taste for popularity has been found to produce fashion dynamics parencite:Zuckerman_2012_valuations
 # 
@@ -742,8 +787,6 @@ It might be argued that the causal path runs in the other direction, as genres w
 It is certainly true in a trivial sense as genres that have not survived are also not popular. 
 
 However, numerous obscure genres exist which are unlikely to have an audience with a high taste for popularity, which seems to indicate that survival does not necessarily result in popularity. 
-
-
 
 
 
