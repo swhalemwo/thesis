@@ -165,14 +165,20 @@ def cmp_crubgs(gnrs, vd):
 
 cmps = cmp_crubgs(gnrs, vd)
 
-def all_cmps_crubgs(gnrs, vd): 
+def all_cmps_crubgs(gnrs, vd, type): 
     gnr_ids = [vd[i] for i in gnrs]
     lenx = len(gnrs)
 
-    cmps = list(itertools.permutations(gnr_ids, 2))
+    if type == "permutations":
+        cmps = list(itertools.permutations(gnr_ids, 2))
+
+    if type == "product":
+        cmps = list(itertools.product(gnr_ids, repeat=2))
+        
     return(cmps)
 
-cmps = all_cmps_crubgs(gnrs, vd)
+
+cmps = all_cmps_crubgs(gnrs, vd, 'permutations')
 
 # * actual comparision
 # is not asymmetric now
@@ -187,21 +193,32 @@ gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std2)
 plt.hist(gt_sims, bins='auto')
 plt.show()
 
-thrshld = 0.90
 
-rel_cmps = np.where(gt_sims > thrshld)
+gt_sims = asym_sim_ar
+thrshld = 0.99
 
-rel_cmps2 = [cmps[i] for i in rel_cmps[0]]
+def sbst_eler(gt_sims, thrshld):
+    """assumes (asymmetric quadratic) similarity matrix as input"""
 
-el_acst = []
+    rel_cmps = np.where(gt_sims > thrshld)
 
-for i in zip(rel_cmps2, rel_cmps[0]):
+    rel_cmps2 = [i for i in zip(rel_cmps[0],rel_cmps[1])]
 
-    # direction is now from larger to more general 
-    vlu = gt_sims[i[1]]
-    cmp = [vdrv[i[0][1]], vdrv[i[0][0]], vlu]
+    el_acst = []
 
-    el_acst.append(cmp)
+    for i in rel_cmps2:
+
+        # direction is now from larger to more general 
+        if i[0] == i[1]:
+            continue
+        
+        else:
+            vlu = gt_sims[i]
+            cmp = [gnrs[i[1]], gnrs[i[0]], vlu]
+
+        el_acst.append(cmp)
+    return(el_acst)
+
 
 # Graph hierarchy acoustic
 ghrac = Graph()
@@ -229,6 +246,9 @@ graph_draw(ghrac, output='ghrac.pdf')
 # but not super happy with the lack of directionality
 
 
+
+# * other comparisons
+
 # if i treat the splitted stuff as features, why not cosine similarity?
 # or correlation?
 # if it's standardized it's symmetric now anyways
@@ -241,10 +261,12 @@ graph_draw(ghrac, output='ghrac.pdf')
 
 # how fast is KLD for that many comps? 
 
-# * other comparisons
 # need to turn el into array/df
 
-x = np.split(el_ttl, 50)
+
+x = np.split(np.array(el_ttl), 50)
+
+x2 = np.array(x)
 
 acst_mat = np.empty([len(gnrs), 50])
 
@@ -381,6 +403,51 @@ sim_vlu[ghrac.edge(v, gv)]
 
 # *** debug w_std2: should not result in symmetric similarities
 # similarites are symmetric, but have to be processed
+
+def asym_sim(gnrs, vd):
+    """generates asym mat based on weights scaled by max, making more equally distributed genres more general"""
+    cmps = all_cmps_crubgs(gnrs, vd, 'product')
+
+    all_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight = w_std2)
+
+    sims_rows = np.split(all_sims, len(gnrs))
+    sims_ar = np.array(sims_rows)
+
+    deg_vec = [gac.vertex(vd[i]).out_degree(weight=w_std2) for i in gnrs]
+
+    # equivalent to adding the two outdegrees together 
+    deg_ar = np.array([deg_vec]*len(gnrs))
+    deg_ar2 = (deg_ar + np.array([deg_vec]*len(gnrs)).transpose())/2
+
+    # see how much is actually in common, equivalent of multiplication with similarity
+    cmn_ar = deg_ar2*sims_ar
+
+    # see the percentage of what is in common for each genre
+    ovlp_ar = cmn_ar/deg_ar
+    return(ovlp_ar)
+
+asym_sim_ar = asym_sim(gnrs, vd)
+
+el_asym = sbst_eler(asym_sim_ar, 0.99)
+# this seems to put super general things (10 of 10 stars) as super wide
+# wonder if i should use the reverse distance (superordinate to subordinate) somehow, might have relevant information
+
+g_asym = Graph()
+asym_weit = g_asym.new_edge_property('double')
+
+asym_id = g_asym.add_edge_list(el_asym, hashed=True, string_vals=True, eprops = [asym_weit])
+
+vd_asym, vd_asym_rv = vd_fer(g_asym, asym_id)
+
+graph_pltr(g_asym, asym_id, 'acst_spc4.pdf')
+
+for v in g_asym.vertices():
+    print(asym_id[v], v.in_degree())
+
+# x = np.reshape(asym_sim_ar, (1, len(gnrs)**2))
+# plt.hist(x[0], bins='auto')
+# plt.show()
+
 
 
 # you imbecil
