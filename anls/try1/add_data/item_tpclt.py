@@ -48,190 +48,105 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
     # min_tag_aprnc = 5
     # min_cnt = 400
 
-    # generate string for musicological data
-    
-
-
-    # first join everything together, then filter on that
-    # merging first: only counts those tags that are part of the genres that fulfil criteria
-    # nope that's always teh case; some weightings (those of the tags I don't want) always get discarded
-
-    # i hate all this nesting
-
-    client_str= """
-    SELECT lfm_id as mbid,""" + vrbl_strs + """
-    FROM acstb
-    ANY JOIN
-    (
-        SELECT mbid,tag FROM tag_sums 
-        JOIN
-        (
-            SELECT tag, count(tag) AS tag_aprnc FROM (
-                SELECT * FROM (
-                    SELECT * FROM tag_sums 
-                    INNER JOIN 
-                    (
-                        SELECT mbid, cnt
-                        FROM song_info3
-                        WHERE cnt > """ + str(min_cnt) + """
-                    ) USING mbid
-                    WHERE (weight > """ + str(min_weight) + """) 
-                    AND (rel_weight > """ + str(min_rel_weight) + """ )
-                )
-                JOIN 
-                (
-                    SELECT lfm_id AS mbid FROM acstb
-                ) USING mbid 
-            )
-            GROUP BY tag
-            HAVING tag_aprnc > """ + str(min_tag_aprnc) + """
-        ) USING tag 
-        
-    ) USING mbid
-
-    """
-
     # another try: try to create merged df from beginning
     # try to split it the queries into strings
-    # needs pairwise joins
+    # use temporary tables
 
-
-    
     # gets the mbids that are can be used in terms of minimal playcount and acoustic data availability
-    mbid_sel_fix = """
-    SELECT lfm_id as mbid from acstb 
+    # basic = basis for further operations
+    mbid_tbl_basic = """
+    CREATE TEMPORARY TABLE mbids_basic
+    (
+    mbid_basic String
+    )
+    """
+
+    mbid_basic_insert = """
+    INSERT INTO mbids_basic 
+    SELECT lfm_id as mbid from acstb
     JOIN
     (
-        SELECT mbid from song_info3 
+        SELECT mbid from song_info3
         WHERE cnt > """ + str(min_cnt) + """
-    ) USING mbid"""
+    ) USING mbid
+    """
+    print(mbid_basic_insert)
+    
+    tag_tbl_basic = """
+    CREATE TEMPORARY TABLE tags_basic
+    ( tag_basic String)
+    """
 
-    # select songs that have at least 1 loading on greater than min_weight/min_rel_weight
-    # on a genre with at least min_tag_aprnc other songs who do so as well
-
-    # might save some power (not having to merge on everything)
-
-    mbid_sel_tag = """SELECT distinct(mbid) from tag_sums 
-        JOIN
-        (    
-            SELECT tag, count(tag) as tag_aprnc
+    tag_basic_insert = """
+    INSERT INTO tags_basic
+    SELECT tag
             FROM tag_sums 
             WHERE (weight > """ + str(min_weight) + """) 
             AND (rel_weight > """ + str(min_rel_weight) + """ )
             GROUP BY tag
-            HAVING tag_aprnc > """ + str(min_tag_aprnc) + """ 
-        ) USING tag"""
+            HAVING count(tag) > """ + str(min_tag_aprnc)
 
-    # gets the mbids that can be used in terms of general requirements (min plcnt, acst, min tag requirement)
-    tag_song_sel = """
-    SELECT mbid from (""" + mbid_sel_fix + """)
-    JOIN
-    ( """ + mbid_sel_tag + """
+    print(tag_basic_insert)
+    client.execute('drop table tags_basic')
+    client.execute(tag_tbl_basic)    
+    client.execute(tag_basic_insert)
 
-    ) USING mbid """
-
-
-    # get tags that fulfill tag requirements in intersection
-    tag_sel = """
-    SELECT tag, count(tag) as tag_aprnc FROM (
-        SELECT mbid, tag, weight, rel_weight FROM tag_sums
-        JOIN
-        ( """ + tag_song_sel + """
-        ) USING mbid
-
-        WHERE (weight > """ + str(min_weight) + """) 
-        AND (rel_weight > """ + str(min_rel_weight) + """ )
-        ) GROUP BY tag 
-        HAVING tag_aprnc > """ + str(min_tag_aprnc)
-
-
-    # select combination
-    con_sel = """
-    SELECT * FROM (""" + tag_song_sel + """)
-    JOIN
-    (
-        SELECT mbid, tag, weight, rel_weight FROM tag_sums
-        JOIN 
-        ( """ + tag_sel + """ )
-        USING tag 
-        WHERE (weight > """ + str(min_weight) + """) 
-        AND (rel_weight > """ + str(min_rel_weight) + """ )
-    ) USING mbid
+    # select the tags that correspond to the relevant songs
+    # actually might be that the select of basic tags is quite useless and it's faster to just go over the relevant songs?
+    # but still might need it for general tag filtering, and is not expensive
+    
+    basic_songs_tags_tbl = """
+    CREATE TEMPORARY TABLE basic_songs_tags (
+    mbid String,
+    tag String,
+    weight Int8,
+    rel_weight Float32)
     """
-    # seems to work: all of the 530 have a at least 50 songs also in the df
-    # need to combine with acoustic data now
+    client.execute('drop table basic_songs_tags')
+    client.execute(basic_songs_tags_tbl)
 
-    # JOIN (    
-    #         SELECT mbid, tag, weight, rel_weight FROM tag_sums
-    #             WHERE (weight > """ + str(min_weight) + """) 
-    #             AND (rel_weight > """ + str(min_rel_weight) + """ )
-    #     ) USING tag"""
+    # select tags of songs that fulfil requirements generally (but maybe not in intersection)
+    basic_songs_tags = """INSERT INTO basic_songs_tags
+    SELECT mbid, tag, weight, rel_weight 
+    FROM (
+        SELECT mbid, tag, weight, rel_weight 
+            FROM tag_sums
+
+         JOIN (
+            SELECT tag_basic as tag FROM tags_basic) 
+        USING tag
+        WHERE (weight > """ + str(min_weight) + """) 
+        AND (rel_weight > """ + str(min_rel_weight) + """ ))
+
+    JOIN (
+        SELECT mbid_basic as mbid from mbids_basic)
+    USING mbid"""
+    # print(basic_songs_tags)
+
     
-    # JOIN (
-    #     SELECT mbid, tag, weight, rel_weight FROM tag_sums
-    #     JOIN
-    #     ( """ + tag_song_sel + """
-    #     WHERE (weight > """ + str(min_weight) + """) 
-    #     AND (rel_weight > """ + str(min_rel_weight) + """ )
-    #     ) USING mbid
-    # ) USING tag
-    # WHERE tag_aprnc > """ + str(min_tag_aprnc) + """ 
-    # AND (weight > """ + str(min_weight) + """) 
-    # AND (rel_weight > """ + str(min_rel_weight) + """ )
-    # """
+    # get tags that are actually present enough in intsec
+    # no real need for separate table for this, not that big an operation and only done once
+    intsect_tags = """SELECT tag FROM basic_songs_tags
+    GROUP BY tag
+    HAVING count(tag) > """ + str(min_tag_aprnc)
 
-    # FUCKCCKCKCK
-    # i never can get everything clear
-    # if i get the tags of the songs which have at least one proper tag (weight + on proper genre), there will be tags for them that don't fulfill those criteria
-    # maybe eventually unit of analysis is link between things (like song, tag and weight?)
-    # but that's always unique, and no way of working on it
+    # boil down basic_songs_tags to intersection requirements
 
-
-
-    # rows_acst = client.execute(client_str)
-    # df_acst = pd.DataFrame(rows_acst, columns = ['lfm_id'] + vrbls)
-    # songs_acst = df_acst['lfm_id']
-    # print(len(np.unique(songs_acst)))
+    int_sec_all = """
+    SELECT * from basic_songs_tags
+    JOIN ( """ + intsect_tags + """)
+    USING tag"""
+    print(int_sec_all)
     
-    client_str2 = """
-    SELECT * FROM (
-        SELECT mbid,tag, weight, rel_weight FROM tag_sums 
-            JOIN
-            (
-                SELECT tag, count(tag) AS tag_aprnc FROM (
-                    SELECT * FROM (
-                        SELECT * FROM tag_sums 
-                        INNER JOIN 
-                        (
-                            SELECT mbid, cnt
-                            FROM song_info3
-                            WHERE cnt > """ + str(min_cnt) + """
-                        ) USING mbid
-                        WHERE (weight > """ + str(min_weight) + """) 
-                        AND (rel_weight > """ + str(min_rel_weight) + """ )
-                    )
-                    JOIN 
-                    (
-                        SELECT lfm_id AS mbid FROM acstb
-                    ) USING mbid 
-                )
-                GROUP BY tag
-                HAVING tag_aprnc > """ + str(min_tag_aprnc) + """
-            ) USING tag
-            WHERE (weight > """ + str(min_weight) + """) 
-            AND (rel_weight > """ + str(min_rel_weight) + """ ))
-        JOIN 
-        (
-            SELECT lfm_id as mbid from acstb)
-        USING mbid"""
-    
-    # fuck this is so stupid
-    # can't manage to combine both conditions, don't think properly now for 1 either
-    # think final operation has to be join
-    # connecting link is mbids
-    # 1: get the musical info for a bunch of mbids
-    # 2: get the tags for a bunch of mbids
 
+    # make merge table by getting stuff from acstb in
+    # filtered on acstb before so should all be in there, and seems like it is
+
+    merge_qry = """
+    SELECT lfm_id as mbid, """ + vrbl_strs + """ from acstb
+    JOIN (""" + int_sec_all + """) USING mbid"""
+    
+    
     rows_tags = client.execute(client_str2)
     rows_tags = client.execute(con_sel)
     df_tags = pd.DataFrame(rows_tags, columns=['lfm_id', 'tag', 'rel_weight', 'cnt'])
@@ -749,3 +664,187 @@ plt.show()
 
     #     ) GROUP BY mbid
     # ) USING mbid"""
+
+    # ** rework2: use temporary tables
+    # get tags that fulfill tag requirements in intersection
+
+    # tag_sel = """
+    # SELECT tag, count(tag) as tag_aprnc FROM (
+    #     SELECT mbid, tag, weight, rel_weight FROM tag_sums
+    #     JOIN
+    #     ( """ + tag_song_sel + """
+    #     ) USING mbid
+
+    #     WHERE (weight > """ + str(min_weight) + """) 
+    #     AND (rel_weight > """ + str(min_rel_weight) + """ )
+    #     ) GROUP BY tag 
+    #     HAVING tag_aprnc > """ + str(min_tag_aprnc)
+
+
+    # # select combination
+    # con_sel = """
+    # SELECT * FROM (""" + tag_song_sel + """)
+    # JOIN
+    # (
+    #     SELECT mbid, tag, weight, rel_weight FROM tag_sums
+    #     JOIN 
+    #     ( """ + tag_sel + """ )
+    #     USING tag 
+    #     WHERE (weight > """ + str(min_weight) + """) 
+    #     AND (rel_weight > """ + str(min_rel_weight) + """ )
+    # ) USING mbid
+    # """
+
+        # seems to work: all of the 530 have a at least 50 songs also in the df
+    # need to combine with acoustic data now
+
+    # JOIN (    
+    #         SELECT mbid, tag, weight, rel_weight FROM tag_sums
+    #             WHERE (weight > """ + str(min_weight) + """) 
+    #             AND (rel_weight > """ + str(min_rel_weight) + """ )
+    #     ) USING tag"""
+    
+    # JOIN (
+    #     SELECT mbid, tag, weight, rel_weight FROM tag_sums
+    #     JOIN
+    #     ( """ + tag_song_sel + """
+    #     WHERE (weight > """ + str(min_weight) + """) 
+    #     AND (rel_weight > """ + str(min_rel_weight) + """ )
+    #     ) USING mbid
+    # ) USING tag
+    # WHERE tag_aprnc > """ + str(min_tag_aprnc) + """ 
+    # AND (weight > """ + str(min_weight) + """) 
+    # AND (rel_weight > """ + str(min_rel_weight) + """ )
+    # """
+
+    # FUCKCCKCKCK
+    # i never can get everything clear
+    # if i get the tags of the songs which have at least one proper tag (weight + on proper genre), there will be tags for them that don't fulfill those criteria
+    # maybe eventually unit of analysis is link between things (like song, tag and weight?)
+    # but that's always unique, and no way of working on it
+
+
+
+    # rows_acst = client.execute(client_str)
+    # df_acst = pd.DataFrame(rows_acst, columns = ['lfm_id'] + vrbls)
+    # songs_acst = df_acst['lfm_id']
+    # print(len(np.unique(songs_acst)))
+
+    # gets the mbids that can be used in terms of general requirements (min plcnt, acst, min tag requirement)
+    # tag_song_sel = """
+    # SELECT mbid from (""" + mbid_sel_fix + """)
+    # JOIN
+    # ( """ + mbid_sel_tag + """
+
+    # ) USING mbid """
+
+
+
+    
+    
+    # client_str2 = """
+    # SELECT * FROM (
+    #     SELECT mbid,tag, weight, rel_weight FROM tag_sums 
+    #         JOIN
+    #         (
+    #             SELECT tag, count(tag) AS tag_aprnc FROM (
+    #                 SELECT * FROM (
+    #                     SELECT * FROM tag_sums 
+    #                     INNER JOIN 
+    #                     (
+    #                         SELECT mbid, cnt
+    #                         FROM song_info3
+    #                         WHERE cnt > """ + str(min_cnt) + """
+    #                     ) USING mbid
+    #                     WHERE (weight > """ + str(min_weight) + """) 
+    #                     AND (rel_weight > """ + str(min_rel_weight) + """ )
+    #                 )
+    #                 JOIN 
+    #                 (
+    #                     SELECT lfm_id AS mbid FROM acstb
+    #                 ) USING mbid 
+    #             )
+    #             GROUP BY tag
+    #             HAVING tag_aprnc > """ + str(min_tag_aprnc) + """
+    #         ) USING tag
+    #         WHERE (weight > """ + str(min_weight) + """) 
+    #         AND (rel_weight > """ + str(min_rel_weight) + """ ))
+    #     JOIN 
+    #     (
+    #         SELECT lfm_id as mbid from acstb)
+    #     USING mbid"""
+
+        # fuck this is so stupid
+    # can't manage to combine both conditions, don't think properly now for 1 either
+    # think final operation has to be join
+    # connecting link is mbids
+    # 1: get the musical info for a bunch of mbids
+    # 2: get the tags for a bunch of mbids
+
+        # mbid_sel_fix = """
+    # SELECT lfm_id as mbid from acstb 
+    # JOIN
+    # (
+    #     SELECT mbid from song_info3 
+    #     WHERE cnt > """ + str(min_cnt) + """
+    # ) USING mbid"""
+
+        # generate string for musicological data
+    
+    # first join everything together, then filter on that
+    # merging first: only counts those tags that are part of the genres that fulfil criteria
+    # nope that's always teh case; some weightings (those of the tags I don't want) always get discarded
+
+    # i hate all this nesting
+
+    # client_str= """
+    # SELECT lfm_id as mbid,""" + vrbl_strs + """
+    # FROM acstb
+    # ANY JOIN
+    # (
+    #     SELECT mbid,tag FROM tag_sums 
+    #     JOIN
+    #     (
+    #         SELECT tag, count(tag) AS tag_aprnc FROM (
+    #             SELECT * FROM (
+    #                 SELECT * FROM tag_sums 
+    #                 INNER JOIN 
+    #                 (
+    #                     SELECT mbid, cnt
+    #                     FROM song_info3
+    #                     WHERE cnt > """ + str(min_cnt) + """
+    #                 ) USING mbid
+    #                 WHERE (weight > """ + str(min_weight) + """) 
+    #                 AND (rel_weight > """ + str(min_rel_weight) + """ )
+    #             )
+    #             JOIN 
+    #             (
+    #                 SELECT lfm_id AS mbid FROM acstb
+    #             ) USING mbid 
+    #         )
+    #         GROUP BY tag
+    #         HAVING tag_aprnc > """ + str(min_tag_aprnc) + """
+    #     ) USING tag 
+        
+    # ) USING mbid
+
+    # """
+
+    # client.execute(mbid_tbl_basic)
+    # client.execute(mbid_basic_insert)
+    # client.execute('select count(*) from mbids_basic')
+
+    # select songs that have at least 1 loading on greater than min_weight/min_rel_weight
+    # on a genre with at least min_tag_aprnc other songs who do so as well
+
+    # mbid_sel_tag = """SELECT distinct(mbid) from tag_sums 
+    #     JOIN
+    #     (    
+    #         SELECT tag, count(tag) as tag_aprnc
+    #         FROM tag_sums 
+    #         WHERE (weight > """ + str(min_weight) + """) 
+    #         AND (rel_weight > """ + str(min_rel_weight) + """ )
+    #         GROUP BY tag
+    #         HAVING tag_aprnc > """ + str(min_tag_aprnc) + """ 
+    #     ) USING tag"""
+
