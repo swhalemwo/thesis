@@ -261,12 +261,11 @@ graph_draw(ghrac, output='ghrac.pdf')
 
 # how fast is KLD for that many comps? 
 
-# need to turn el into array/df
+# ** turn el into array/df
 
 
-x = np.split(np.array(el_ttl), 50)
-
-x2 = np.array(x)
+# x = np.split(np.array(el_ttl), 50)
+# x2 = np.array(x)
 
 acst_mat = np.empty([len(gnrs), 50])
 
@@ -288,7 +287,6 @@ for i in el_ttl:
 
     c+=1   
 
-
 # 10k comparisons/sec, can be parallelized -> not too bad
 # timeit('entropy(acst_mat[0], acst_mat[1])', globals=globals(), number=100000)
 
@@ -298,6 +296,41 @@ for i in el_ttl:
 gnr_ind = {}
 for i in gnrs:
     gnr_ind[i] = gnrs.index(i)
+
+NO_CHUNKS = 4
+
+gnr_chunks = []
+for i in range(NO_CHUNKS):
+    gnr_chunks.append([])
+
+c = 0
+for gnr in gnrs:
+    chnk = c % NO_CHUNKS
+    gnr_chunks[chnk].append(gnr)
+    c+=1
+
+def kld_mp(gnrs):
+    lens_ttls = []
+    for gnr in gnrs:
+        i_id = gnr_ind[gnr]
+        i_v = acst_mat[i_id]
+        g_lens = []
+        
+        for k in gnrs:
+            k_id = gnr_ind[k]
+            k_v = acst_mat[k_id]
+        
+
+            b_zeros = np.where(k_v ==0)
+            a_sum_b_zeros = sum(i_v[b_zeros])
+            prop_missing = a_sum_b_zeros/sum(i_v)
+
+            if prop_missing < 0.05:
+                i_v = np.delete(i_v, b_zeros)
+                k_v = np.delete(k_v, b_zeros)
+
+                ent = entropy(i_v, k_v)
+                
 
 all_ents = []
 all_comps = []
