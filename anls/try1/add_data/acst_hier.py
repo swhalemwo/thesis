@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 import math
 import time
-from discodb import DiscoDB, Q
 import matplotlib.pyplot as plt
+import itertools
 
 from scipy.stats import entropy
 from sklearn import preprocessing
@@ -16,186 +16,6 @@ from graph_tool import *
 
 # * hierarchical relations based on split dimensions
 # functions defined in item_tpclt
-
-def vd_fer(g, idx):
-    """creates vertex index dict from graph and id property map"""
-    # vertex_dict
-    vd = {}
-    vdrv = {}
-    for i in g.vertices():
-        vd[idx[i]] = int(i)
-        vdrv[int(i)] = idx[i]
-        
-    return(vd, vdrv)
-
-
-el_ttl = []
-ts = []
-gnrs = ['metal', 'ambient', 'rock', 'hard rock', 'electronic', 'death metal']*10
-gnrs = list(acst_gnr_dict.keys())
-
-tt1 = time.time()
-
-for gnr in gnrs:
-    # print(gnr)
-    t1 = time.time()
-
-    # dfc = get_df_cbmd(gnr)
-    dfc = acst_gnr_dict[gnr]
-    
-    gnr_cnt = len(dfc)
-    el_gnr = []
-    # print(len(el_gnr))
-    t2 = time.time()
-
-    for vrbl in vrbls:
-
-        bins = np.arange(0, 1.1, 0.1)
-        a1, a0 = np.histogram(dfc[vrbl], bins=10)
-
-        nds1 = [vrbl + str(i) for i in range(1, len(bins))]
-        nds2 = [gnr]*len(nds1)
-
-        a_wtd = [i/gnr_cnt for i in a1]
-
-        elx = [i for i in zip(nds2, nds1, a1, a_wtd)]
-
-        el_gnr = el_gnr + elx
-    t3 = time.time()
-
-    el_ttl = el_ttl + el_gnr
-    t4 = time.time()
-
-    # ts.append([t1,t2,t3,t4])
-
-tt2 = time.time()
-
-
-# not that fast, might be optimized
-# atm takes especially long for long genres
-# NOT GOOD
-# can be parallelized but still
-# iloc is some improvement, especially for longer ones? seems so
-# think i can shave off some time by doing an additional dict for gnrs with gnrs as keys and acst_df as values
-# would save queries..
-# but for rock it's currently 0.02 of 0.12
-# more substantial savings by throwing out pandas
-
-# graph acoustic 
-gac = Graph()
-
-w = gac.new_edge_property('int16_t')
-w_std = gac.new_edge_property('double')
-
-idx = gac.add_edge_list(el_ttl, hashed=True, string_vals=True, eprops = [w, w_std])
-
-vd,vdrv = vd_fer(gac, idx)
-
-# needs to be generalized into list for relevant pairs 
-# especially to assess prevalence of non-binary fit and hence possibility of overlap misattribution (lack sub due to area not covered)
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])])
-# # WTF start
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w)
-# vertex_similarity(gac, 'jaccard', vertex_pairs = [(vd['electronic'],vd['ambient'])], eweight = w)
-# # WTFFF end: 
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w_std)
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['death metal'])], eweight = w_std)
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['black metal'],vd['metal'])], eweight = w_std)
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['love song'],vd['rock'])], eweight = w_std)
-
-
-# [print(w[gac.edge(vd['ambient'], vd['voice' + str(i)])]) for i in range(1,11)]
-# [print(w[gac.edge(vd['electronic'], vd['voice' + str(i)])]) for i in range(1,11)]
-
-
-# g.vertex(vd['electronic']).out_neighbors()
-
-# * general comparison function
-
-gnr_ids = [vd[i] for i in gnrs]
-
-# needs size dict for direction
-# might need to integrate some weights
-sz_dict = {}
-for gnr in gnrs:
-    weit_ttl = sum([w[v] for v in gac.vertex(vd[gnr]).out_edges()])/5
-    sz_dict[gnr] = weit_ttl
-
-# order doesn't matter anymore due to standardization
-# do i need a matrix?
-# can read it back in (either lower triangle columnwise or upper rowise)
-# not sure if needed tho
-# can just the positions of those over threshold, get the corresponding original comparisions, get the corresponding genres, and add that to edge list
-
-# comps = list(itertools.combinations(gnr_ids, 2))
-
-# nested loops to ensure direction
-# smaller one is now first: relation to be tested is subsetness
-
-lenx = len(gnrs)
-
-cprx = []
-c = 0
-for i in range(lenx):
-
-    cprx2 = []
-    
-    for k in range(i,lenx):
-
-        # print(k)
-
-        if i==k:
-            next
-        else:
-            c +=1
-            
-            v1, v2 = gnrs[i], gnrs[k]
-            v1_sz, v2_sz = sz_dict[v1], sz_dict[v2]
-            
-            if v1_sz > v2_sz:
-                cprsn = [vd[v2], vd[v1]]
-            else:
-                cprsn = [vd[v1], vd[v2]]
-
-            cprx2.append(cprsn)
-    if len(cprx2) > 0:
-        cprx.append(cprx2)
-
-cmps = list(itertools.chain.from_iterable(cprx))
-
-# * actual comparision
-
-gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std)
-
-plt.hist(gt_sims, bins='auto')
-plt.show()
-
-thrshld = 0.85
-
-rel_cmps = np.where(gt_sims > thrshld)
-
-rel_cmps2 = [cmps[i] for i in rel_cmps[0]]
-
-el_acst = []
-for i in rel_cmps2:
-    # direction is now from larger to more general 
-    cmp = [vdrv[i[1]], vdrv[i[0]]]
-    el_acst.append(cmp)
-
-# Graph hierarchy acoustic
-ghrac = Graph()
-
-ghrac_id = ghrac.add_edge_list(el_acst, hashed=True, string_vals=True)
-
-g = ghrac
-ids = ghrac_id
-filename = 'acst_space1.pdf'
-
-graph_pltr(ghrac, ghrac_id, 'acst_spc3.pdf')
 
 def graph_pltr(g, ids, filename):
     """function for graph plotting, maybe put all the plotting parameters into function too?"""
@@ -215,7 +35,7 @@ def graph_pltr(g, ids, filename):
 
     gvd = graphviz_draw(g, size = (100,100),
                         # layout = 'sfdp',
-                        # overlap = 'scalexy',
+                        overlap = 'scalexy',
                         # overlap = 'false',
                         vprops = {'xlabel':gt_lbls_plot, 'fontsize':size_scl, 'height':0.03,
                                   'penwidth':0.001, 'shape':'point', 'fixedsize': True,
@@ -224,6 +44,186 @@ def graph_pltr(g, ids, filename):
                         # returngv==True,
                         output = filename)
     gt_lbls_plot = 0
+
+
+
+def vd_fer(g, idx):
+    """creates vertex index dict from graph and id property map"""
+    # vertex_dict
+    vd = {}
+    vdrv = {}
+    for i in g.vertices():
+        vd[idx[i]] = int(i)
+        vdrv[int(i)] = idx[i]
+        
+    return(vd, vdrv)
+
+
+# gnrs = ['metal', 'ambient', 'rock', 'hard rock', 'electronic', 'death metal']*10
+# gnrs = list(acst_gnr_dict.keys())
+
+
+def gnrt_acst_el(acst_gnr_dict):
+    
+    """generates edge list for acoustic space network"""
+    
+    gnrz = acst_gnr_dict.keys()
+    el_ttl = []
+    sz_dict = {}
+    
+    for gnr in gnrz:
+        # print(gnr)
+        
+        # dfc = get_df_cbmd(gnr)
+        dfcx = acst_gnr_dict[gnr]
+
+        gnr_cnt = len(dfcx)
+        sz_dict[gnr] = gnr_cnt
+        
+        el_gnr = []
+        # print(len(el_gnr))
+
+        for vrbl in vrbls:
+
+            bins = np.arange(0, 1.1, 0.1)
+            a1, a0 = np.histogram(dfcx[vrbl], bins=10)
+
+            nds1 = [vrbl + str(i) for i in range(1, len(bins))]
+            nds2 = [gnr]*len(nds1)
+
+            a_wtd = [i/gnr_cnt for i in a1]
+            a_wtd2 = [i/max(a1) for i in a1]
+
+            elx = [i for i in zip(nds2, nds1, a1, a_wtd, a_wtd2)]
+
+            el_gnr = el_gnr + elx
+
+        el_ttl = el_ttl + el_gnr
+    return(el_ttl, sz_dict)
+
+el_ttl, sz_dict = gnrt_acst_el(acst_gnr_dict)
+
+# graph acoustic 
+gac = Graph()
+
+w = gac.new_edge_property('int16_t')
+w_std = gac.new_edge_property('double')
+w_std2 = gac.new_edge_property('double')
+
+idx = gac.add_edge_list(el_ttl, hashed=True, string_vals=True, eprops = [w, w_std, w_std2])
+
+vd,vdrv = vd_fer(gac, idx)
+
+# * general comparison function
+
+# order doesn't matter anymore due to standardization
+# do i need a matrix?
+# can read it back in (either lower triangle columnwise or upper rowise)
+# not sure if needed tho
+# can just the positions of those over threshold, get the corresponding original comparisions, get the corresponding genres, and add that to edge list
+
+# nested loops to ensure direction
+# smaller one is now first: relation to be tested is subsetness
+# but there is no a priori reason why smaller genre should be subset
+# subgenre can also grow larger than original (w40k > warhammer)
+
+def cmp_crubgs(gnrs, vd):
+
+    gnr_ids = [vd[i] for i in gnrs]
+    
+    lenx = len(gnrs)
+
+    cprx = []
+    c = 0
+    for i in range(lenx):
+
+        cprx2 = []
+
+        for k in range(i,lenx):
+
+            # print(k)
+
+            if i==k:
+                next
+            else:
+                c +=1
+
+                v1, v2 = gnrs[i], gnrs[k]
+                v1_sz, v2_sz = sz_dict[v1], sz_dict[v2]
+
+                if v1_sz > v2_sz:
+                    cprsn = [vd[v2], vd[v1]]
+                else:
+                    cprsn = [vd[v1], vd[v2]]
+
+                cprx2.append(cprsn)
+        if len(cprx2) > 0:
+            cprx.append(cprx2)
+
+    cmps = list(itertools.chain.from_iterable(cprx))
+    return(cmps)
+
+cmps = cmp_crubgs(gnrs, vd)
+
+def all_cmps_crubgs(gnrs, vd): 
+    gnr_ids = [vd[i] for i in gnrs]
+    lenx = len(gnrs)
+
+    cmps = list(itertools.permutations(gnr_ids, 2))
+    return(cmps)
+
+cmps = all_cmps_crubgs(gnrs, vd)
+
+# * actual comparision
+# is not asymmetric now
+# that's what happens when you standardize 
+# could standardize so that max = 1,
+# 3,3,2 -> 1,1,0.6
+# 3,0.5,0.5 -> 1,1,0.1666
+# scaling down with max, not total sum -> ask MARIEKE
+
+gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std2)
+
+plt.hist(gt_sims, bins='auto')
+plt.show()
+
+thrshld = 0.90
+
+rel_cmps = np.where(gt_sims > thrshld)
+
+rel_cmps2 = [cmps[i] for i in rel_cmps[0]]
+
+el_acst = []
+
+for i in zip(rel_cmps2, rel_cmps[0]):
+
+    # direction is now from larger to more general 
+    vlu = gt_sims[i[1]]
+    cmp = [vdrv[i[0][1]], vdrv[i[0][0]], vlu]
+
+    el_acst.append(cmp)
+
+# Graph hierarchy acoustic
+ghrac = Graph()
+
+sim_vlu = ghrac.new_edge_property('double')
+
+ghrac_id = ghrac.add_edge_list(el_acst, hashed=True, string_vals=True, eprops  = [sim_vlu])
+
+# vertex dict hierachical
+vd_hr, vd_hr_rv = vd_fer(ghrac, ghrac_id)
+
+# does not reliable capture birirectionality
+graph_pltr(ghrac, ghrac_id, 'acst_spc3.pdf')
+
+
+graph_draw(ghrac, output='ghrac.pdf')
+
+
+
+# g = ghrac
+# ids = ghrac_id
+# filename = 'acst_space1.pdf'
 
 # no more artists, i guess that's something
 # but not super happy with the lack of directionality
@@ -265,7 +265,6 @@ for i in el_ttl:
         ypos+=1
 
     c+=1   
-
 
 
 # 10k comparisons/sec, can be parallelized -> not too bad
@@ -363,6 +362,32 @@ plt.show()
 # what's the point of putting it into network really
 # -> need to functionalize the network generation
 # but more the relevant feature extraction -> straightforward to compare
+
+
+# * feature extraction
+# ** informativeness
+
+gnr = 'dark ambient'
+
+# average of similarities of indegrees
+# superordinates
+spr_ord = list(ghrac.vertex(vd_hr[gnr]).in_neighbors())
+gv = ghrac.vertex(vd_hr[gnr])
+v = spr_ord[0]
+sum([sim_vlu[v, gv] for i in spr_ord])
+
+sim_vlu[ghrac.edge(gv, v)]
+sim_vlu[ghrac.edge(v, gv)]
+
+# *** debug w_std2: should not result in symmetric similarities
+# similarites are symmetric, but have to be processed
+
+
+# you imbecil
+# you fucking moron
+# when you get directed similarity you have to divide it by the bases
+# first get common stuff
+# then divide that by each vertex' ttl 
 
 # * some old stuff
 
@@ -622,7 +647,6 @@ ax.plot(xs2, yy2)
 plt.show()
 
 
-
 # * kullback-Leibler divergence
 
 x = [i for i in range(0,10)]
@@ -799,6 +823,90 @@ klbk_lblr_dist(x2,x1)
 
 
 # * scrap 
+# acoustic space edgelist construction
+# optimization achieved by faster CH queries and constructing overall merged table from start and breaking that down
+# can also just be seen as long format df
+
+# not that fast, might be optimized
+# atm takes especially long for long genres
+# NOT GOOD
+# can be parallelized but still
+# iloc is some improvement, especially for longer ones? seems so
+# think i can shave off some time by doing an additional dict for gnrs with gnrs as keys and acst_df as values
+# would save queries..
+# but for rock it's currently 0.02 of 0.12
+# more substantial savings by throwing out pandas
+
+
+# ** similarity testing
+
+# needs to be generalized into list for relevant pairs 
+# especially to assess prevalence of non-binary fit and hence possibility of overlap misattribution (lack sub due to area not covered)
+
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])])
+# # WTF start
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w)
+# vertex_similarity(gac, 'jaccard', vertex_pairs = [(vd['electronic'],vd['ambient'])], eweight = w)
+# # WTFFF end: 
+
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w_std)
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['death metal'])], eweight = w_std)
+
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['black metal'],vd['metal'])], eweight = w_std)
+
+# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['love song'],vd['rock'])], eweight = w_std)
+
+
+# [print(w[gac.edge(vd['ambient'], vd['voice' + str(i)])]) for i in range(1,11)]
+# [print(w[gac.edge(vd['electronic'], vd['voice' + str(i)])]) for i in range(1,11)]
+
+
+# g.vertex(vd['electronic']).out_neighbors()
+
+# ** asymmetric similarity debugging like a fuckign moron
+
+# gnr1 = 'rock'
+# gnr2 = 'hard rock'
+# sim_vlu[ghrac.edge(vd_hr[gnr1], vd_hr[gnr2])]
+# sim_vlu[ghrac.edge(vd_hr[gnr2], vd_hr[gnr1])]
+
+# for e in ghrac.edges():
+#     print(ghrac_id[e.source()], '----', ghrac_id[e.target()], round(sim_vlu[e],4))
 
 
 
+# gt_sims[cmps.index(itrbl[0])]
+# gt_sims[cmps.index(itrbl2[0])]
+
+# list(rel_cmps[0]).index(cmps.index(itrbl[0]))
+# list(rel_cmps[0]).index(cmps.index(itrbl2[0]))
+
+
+# acst1 = list(gac.vertex(vd[gnr1]).out_neighbors())
+# acst2 = list(gac.vertex(vd[gnr2]).out_neighbors())
+# sum([w_std2[gac.edge(gac.vertex(vd[gnr1]), i)] for i in acst1])
+# sum([w_std2[gac.edge(gac.vertex(vd[gnr2]), i)] for i in acst2])
+
+# itrbl = [(vd[gnr1], vd[gnr2])]
+# itrbl2 = [(vd[gnr2], vd[gnr1])]
+# vertex_similarity(gac, 'dice', vertex_pairs = itrbl, eweight = w_std)
+# vertex_similarity(gac, 'dice', vertex_pairs = itrbl2, eweight = w_std)
+
+# test_el =[
+#     ['a', 'f1', 2],
+#     ['a', 'f2', 1],
+#     ['a', 'f3', 1],
+#     ['b', 'f1', 2],
+#     ['b', 'f2', 0.5],
+#     ['b', 'f3', 0.5]]
+
+# g_db = Graph()
+# db_weit = g_db.new_edge_property('double')
+
+# db_id = g_db.add_edge_list(test_el, hashed=True, string_vals=True, eprops = [db_weit])
+
+# vd_db, vd_db_rv = vd_fer(g_db, db_id)
+
+# itrblx = [(vd_db['a'], vd_db['b'])]
+
+# vertex_similarity(g_db, 'dice', vertex_pairs = itrblx, eweight = db_weit) * ( sum([db_weit[g_db.edge(g_db.vertex(vd_db['a']), i)] for i in g_db.vertex(vd_db['a']).out_neighbors()]) + sum([db_weit[g_db.edge(g_db.vertex(vd_db['b']), i)] for i in g_db.vertex(vd_db['b']).out_neighbors()]))/2
