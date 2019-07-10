@@ -100,8 +100,9 @@ client.execute('create table song_info2 (song String, cnt Int32, rndm Int32) eng
 # add random shit
 client.execute("""insert into song_info2 
 select song, count(*), count(*) % 30 from logs group by song""")
-# could probably also just select 1 or any number
 
+
+# could probably also just select 1 or any number
 
 client.execute('drop table song_info3')
 
@@ -110,8 +111,6 @@ client.execute('create table song_info3 (mbid String, abbrv String, rndm Int32, 
 
 client.execute("""insert into song_info3 select * from song_info join
 (select song as abbrv, cnt from song_info2) using (abbrv)""")
-
-
 
 
 
@@ -263,17 +262,18 @@ engine = MergeTree() partition by rndm order by tuple()""")
 
 # tr < ttl_dones_tags.csv -d '\000' > ttl_dones_tags2.csv
 dones_tags_file = '/home/johannes/mega/gsss/thesis/remotes/ttl/ttl_dones_tags2.csv'
+# dones_tags_file = '/home/johannes/Dropbox/orgzly/tag_chunks/chunk3/3_dones_tags.csv'
 
 batch = []
 c = 0
 err_c = 0
 
-
 with open(dones_tags_file, 'r') as fi:
     rdr = csv.reader(fi)
 
     for r in rdr:
-        if r[1] in ['fail', 'manual', 'lfm', 'mb']:
+        if len(r) != 5:
+        # if r[1] in ['fail', 'manual', 'lfm', 'mb']:
             err_c+=1
 
         else:
@@ -286,7 +286,7 @@ with open(dones_tags_file, 'r') as fi:
                 print(c)
                 print(err_c)
                 # break
-                client.execute('insert into dones_tags values', batch)
+                # client.execute('insert into dones_tags values', batch)
                 batch =[]
     # except:
     #     print('misfit')
@@ -313,7 +313,7 @@ with open(dones_tags_file, 'r') as fi:
 
 client.execute('drop table acstb')
 
-client.execute("""create table acstb (
+client.execute("""create table acstb2 (
 lfm_id String,
 dncblt Float32,
 gender Float32,
@@ -338,24 +338,31 @@ chsn_vars = ['dncblt', 'gender', 'timb_brt', 'tonal', 'voice', 'mood_acoustic', 
 
 ids = [avbl_vars.index(i) for i in chsn_vars]
 
+acstb_file = '/home/johannes/mega/gsss/thesis/acb/acstbrnz.csv'
+
+'/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv'
+
+import random
+
 c = 0
 batch = []
-with open('/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/acstbrnz.csv', 'r') as fi:
+with open(acstb_file, 'r') as fi:
     rdr = csv.reader(fi)
     for r in rdr:
+
         c+=1
             
         rp = [r[0]] + [round(float(r[k]),5) for k in ids] + random.sample(range(80),1)
         batch.append(rp)
 
-        if c % 5000 == 0:
-            client.execute('insert into acstb values', batch)
+        if c % 10000 == 0:
+            client.execute('insert into acstb2 values', batch)
             batch=[]
+            print(c)
             
-    client.execute('insert into acstb values', batch)
+    client.execute('insert into acstb2 values', batch)
 
     # ids = [r[0] for r in rdr]
-
 
 
 
