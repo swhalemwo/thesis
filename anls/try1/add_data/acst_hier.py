@@ -83,16 +83,20 @@ def gnrt_acst_el(acst_gnr_dict, gnrz):
         el_gnr = []
         # print(len(el_gnr))
 
+        wts = dfcx['rel_weight'] * dfcx['cnt']
+
         for vrbl in vrbls:
 
             bins = np.arange(0, 1.1, 0.1)
-            a1, a0 = np.histogram(dfcx[vrbl], bins=10)
+            a1, a0 = np.histogram(dfcx[vrbl], bins=10, weights=wts)
+            # a_old, a0 = np.histogram(dfcx[vrbl], bins=10)
 
             nds1 = [vrbl + str(i) for i in range(1, len(bins))]
             nds2 = [gnr]*len(nds1)
 
-            a_wtd = [i/gnr_cnt for i in a1]
-            a_wtd2 = [i/max(a1) for i in a1]
+            a_wtd = [i/sum(wts) for i in a1]
+            # a_wtd_old = [i/gnr_cnt for i in a_old]
+            a_wtd2 = [i/max(wts) for i in a1]
 
             elx = [i for i in zip(nds2, nds1, a1, a_wtd, a_wtd2)]
 
@@ -102,6 +106,12 @@ def gnrt_acst_el(acst_gnr_dict, gnrz):
     return(el_ttl, sz_dict)
 
 el_ttl, sz_dict = gnrt_acst_el(acst_gnr_dict, gnrs)
+
+# fig = plt.figure()
+# ax = plt.axes()
+# # ax.plot(range(10),a_wtd)
+# ax.plot(range(10),a_wtd_old)
+# plt.show()
 
 # graph acoustic n
 gac = Graph()
@@ -301,7 +311,6 @@ gnr_ind = {}
 for i in gnrs:
     gnr_ind[i] = gnrs.index(i)
 
-
 def split(a, n):
     k, m = divmod(len(a), n)
     return (a[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
@@ -351,10 +360,6 @@ def kld_mp(chnk):
 # t2 = time.time()
 # increasing number of elements only slowly increases time (10*elements: twice as slow): logarithmic? 
 
-t1 = time.time()
-x = kld_mp(gnrs[0:10])
-t2 = time.time()
-
 p = Pool(processes=3)
 
 t1=time.time()
@@ -374,10 +379,13 @@ plt.show()
 # where do they come from? 0s in A i think
 # assess badness of fit: sum of cells of a that are 0 in b should not be above X (0.95)
 
+# *** test how much thrshold has to be relaxed to get most/all genres included
+# quite alot; to the extent that most genres will have at least dozes of superordiates and suporidates
+# -> how to 
 
 gnr_cnt = []
 
-for i in np.arange(0.01, 0.15, 0.001):
+for i in np.arange(0.01, 0.25, 0.0025):
     kld_el = sbst_eler(ar_cb, operator.lt, i)
 
     g_kld = Graph()
@@ -388,7 +396,7 @@ for i in np.arange(0.01, 0.15, 0.001):
 
     gnr_cnt.append(len(list(g_kld.vertices())))
 
-xs = np.arange(0.01, 0.15, 0.001)
+xs = np.arange(0.01, 0.25, 0.0025)
 
 fig = plt.figure()
 ax = plt.axes()
@@ -396,11 +404,11 @@ ax = plt.axes()
 ax.plot(xs, gnr_cnt)
 plt.show()
 
-[print(g_kld_id[i]) for i in g_kld.vertex(vd['post-punk']).in_neighbors()]
+[print(g_kld_id[i]) for i in g_kld.vertex(vd_kld['eurodance']).out_neighbors()]
 
+# *** normal kld continue
 
-
-kld_el = sbst_eler(ar_cb, operator.lt, 0.06)
+kld_el = sbst_eler(ar_cb, operator.lt, 0.08)
 
 # kld_rel = np.where(np.array(klds) < 0.05)
 # kld_el = np.array(kld_cmps)[kld_rel[0]]
