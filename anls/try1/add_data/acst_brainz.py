@@ -266,6 +266,12 @@ if __name__ == '__main__':
     fails =[]
 
     for i in some_mbids:
+
+        if len(i[0]) == len(i[1]) == 36:
+            pass
+        else:
+            continue
+        
         if i[0] == i[1]:
             batch.append(i[0])
             mlhd_ids.append(i[0])
@@ -287,8 +293,19 @@ if __name__ == '__main__':
             batch_str=batch_prepper(batch)
             # t1 = time.time()
             # for p in range(200):
-            with urllib.request.urlopen(batch_str) as url2:
-                data2 = json.loads(url2.read().decode())
+
+            while True:
+                try:
+                    with urllib.request.urlopen(batch_str) as url2:
+                        data2 = json.loads(url2.read().decode())
+                    break
+                
+                except:
+                    print('BAD REQ')
+                    print(batch_str)
+                    print(batch)
+                    time.sleep(10)
+                    pass
 
             batch_procr(data2, mlhd_ids, pointers)
             writer_res(skes, fails)
