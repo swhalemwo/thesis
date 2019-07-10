@@ -7,6 +7,7 @@ import math
 import time
 import matplotlib.pyplot as plt
 import itertools
+from multiprocessing import Pool
 
 from scipy.stats import entropy
 from sklearn import preprocessing
@@ -63,16 +64,15 @@ def vd_fer(g, idx):
 # gnrs = list(acst_gnr_dict.keys())
 
 
-def gnrt_acst_el(acst_gnr_dict):
-    
+def gnrt_acst_el(acst_gnr_dict, gnrz):
     """generates edge list for acoustic space network"""
     
-    gnrz = acst_gnr_dict.keys()
+    # gnrz = acst_gnr_dict.keys()
     el_ttl = []
     sz_dict = {}
     
     for gnr in gnrz:
-        # print(gnr)
+    #     print(gnr)
         
         # dfc = get_df_cbmd(gnr)
         dfcx = acst_gnr_dict[gnr]
@@ -101,9 +101,9 @@ def gnrt_acst_el(acst_gnr_dict):
         el_ttl = el_ttl + el_gnr
     return(el_ttl, sz_dict)
 
-el_ttl, sz_dict = gnrt_acst_el(acst_gnr_dict)
+el_ttl, sz_dict = gnrt_acst_el(acst_gnr_dict, gnrs)
 
-# graph acoustic 
+# graph acoustic n
 gac = Graph()
 
 w = gac.new_edge_property('int16_t')
@@ -188,6 +188,8 @@ cmps = all_cmps_crubgs(gnrs, vd, 'permutations')
 # 3,0.5,0.5 -> 1,1,0.1666
 # scaling down with max, not total sum -> ask MARIEKE
 
+# seems not too good: some pointless genres (00s, 10 stars become super large)
+
 gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std2)
 
 plt.hist(gt_sims, bins='auto')
@@ -197,10 +199,11 @@ plt.show()
 gt_sims = asym_sim_ar
 thrshld = 0.99
 
-def sbst_eler(gt_sims, thrshld):
+def sbst_eler(gt_sims, oprtr, thrshld):
     """assumes (asymmetric quadratic) similarity matrix as input"""
 
-    rel_cmps = np.where(gt_sims > thrshld)
+    # rel_cmps = np.where(gt_sims > thrshld)
+    rel_cmps = np.where(oprtr(gt_sims, thrshld))
 
     rel_cmps2 = [i for i in zip(rel_cmps[0],rel_cmps[1])]
 
@@ -233,10 +236,7 @@ vd_hr, vd_hr_rv = vd_fer(ghrac, ghrac_id)
 # does not reliable capture birirectionality
 graph_pltr(ghrac, ghrac_id, 'acst_spc3.pdf')
 
-
 graph_draw(ghrac, output='ghrac.pdf')
-
-
 
 # g = ghrac
 # ids = ghrac_id
@@ -244,7 +244,6 @@ graph_draw(ghrac, output='ghrac.pdf')
 
 # no more artists, i guess that's something
 # but not super happy with the lack of directionality
-
 
 
 # * other comparisons
@@ -267,29 +266,34 @@ graph_draw(ghrac, output='ghrac.pdf')
 # x = np.split(np.array(el_ttl), 50)
 # x2 = np.array(x)
 
-acst_mat = np.empty([len(gnrs), 50])
+def acst_arfy(el_ttl, vrbls, el_pos):
 
-c = ypos =xpos = 0
+    acst_mat = np.empty([len(gnrs), len(vrbls)*10])
 
-for i in el_ttl:
-    itempos = [ypos, xpos]
-    vlu = i[3]
-    # print(vlu)
-    
-    acst_mat[ypos, xpos] = vlu
-    # print(itempos)
+    c = ypos =xpos = 0
 
-    xpos+=1
+    for i in el_ttl:
+        itempos = [ypos, xpos]
+        # have to make sure to select right one here
+        vlu = i[el_pos]
+        # print(vlu)
 
-    if xpos == 50:
-        xpos = 0
-        ypos+=1
+        acst_mat[ypos, xpos] = vlu
+        # print(itempos)
 
-    c+=1   
+        xpos+=1
+
+        if xpos == len(vrbls)*10:
+            xpos = 0
+            ypos+=1
+
+        c+=1
+    return(acst_mat)
+
+acst_mat = acst_arfy(el_ttl, vrbls,3)
 
 # 10k comparisons/sec, can be parallelized -> not too bad
 # timeit('entropy(acst_mat[0], acst_mat[1])', globals=globals(), number=100000)
-
 
 # ** KLD
 # needs functionizing and parallel processing 
@@ -297,99 +301,172 @@ gnr_ind = {}
 for i in gnrs:
     gnr_ind[i] = gnrs.index(i)
 
-NO_CHUNKS = 4
 
-gnr_chunks = []
-for i in range(NO_CHUNKS):
-    gnr_chunks.append([])
+def split(a, n):
+    k, m = divmod(len(a), n)
+    return (a[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
 
-c = 0
-for gnr in gnrs:
-    chnk = c % NO_CHUNKS
-    gnr_chunks[chnk].append(gnr)
-    c+=1
+NO_CHUNKS = 3
+gnr_chnks = list(split(gnrs, NO_CHUNKS))
 
-def kld_mp(gnrs):
-    lens_ttls = []
-    for gnr in gnrs:
+def kld_mp(chnk):
+    ents_ttl = []
+
+    for gnr in chnk:
+
         i_id = gnr_ind[gnr]
         i_v = acst_mat[i_id]
-        g_lens = []
+        gnr_ents = []
         
         for k in gnrs:
+            
             k_id = gnr_ind[k]
             k_v = acst_mat[k_id]
-        
-
-            b_zeros = np.where(k_v ==0)
+            
+            b_zeros = np.where(k_v==0)
             a_sum_b_zeros = sum(i_v[b_zeros])
             prop_missing = a_sum_b_zeros/sum(i_v)
-
-            if prop_missing < 0.05:
-                i_v = np.delete(i_v, b_zeros)
-                k_v = np.delete(k_v, b_zeros)
-
+            
+            if prop_missing == 0:
                 ent = entropy(i_v, k_v)
                 
+            elif prop_missing < 0.05:
+                
+                i_v2 = np.delete(i_v, b_zeros)
+                k_v2 = np.delete(k_v, b_zeros)
 
-all_ents = []
-all_comps = []
+                ent = entropy(i_v2, k_v2)
+            else:
+                ent = math.inf
+
+            gnr_ents.append(ent)
+        ents_ttl.append(gnr_ents)
+    return(ents_ttl)
+                
+
+# t1 = time.time()
+# for i in range(1000):
+    # entropy(list(k_v)*10, list(i_v)*10)
+    # entropy(list(k_v), list(i_v))
+# t2 = time.time()
+# increasing number of elements only slowly increases time (10*elements: twice as slow): logarithmic? 
 
 t1 = time.time()
-for i in gnrs:
-    i_id = gnr_ind[i]
-
-    i_ents = []
-    i_comps = []
-    
-    for k in gnrs:
-        k_id = gnr_ind[k]
-        
-        if i==k:
-            next
-        else:
-            i_v = acst_mat[i_id]
-            k_v = acst_mat[k_id]
-            
-            b_zeros = np.where(k_v ==0)
-            a_sum_b_zeros = sum(i_v[b_zeros])
-            prop_missing = a_sum_b_zeros/sum(i_v)
-
-            if prop_missing < 0.05:
-                i_v = np.delete(i_v, b_zeros)
-                k_v = np.delete(k_v, b_zeros)
-            # else:
-            #     continue
-
-                ent = entropy(i_v, k_v)
-                comp = [i,k]
-
-                i_ents.append(ent)
-                i_comps.append(comp)
-
-    all_ents.append(i_ents)
-    all_comps.append(i_comps)
-
+x = kld_mp(gnrs[0:10])
 t2 = time.time()
 
-klds = list(itertools.chain.from_iterable(all_ents))
-kld_cmps = list(itertools.chain.from_iterable(all_comps))
+p = Pool(processes=3)
 
-plt.hist(klds, bins='auto')
+t1=time.time()
+data = p.map(kld_mp, [i for i in gnr_chnks])
+t2=time.time()
+
+# only 12% improvement with 4 instead of 3, not worth it i think
+# makes me uneasy to see everything at 100%, wonder if its good for cpu
+
+ar_lst = [np.array(i) for i in data]
+ar_cb = np.concatenate(ar_lst, axis=0)
+
+plt.hist(ar_cb[np.where(ar_cb < math.inf)], bins='auto')
 plt.show()
 
 # need to deal with inf values
 # where do they come from? 0s in A i think
 # assess badness of fit: sum of cells of a that are 0 in b should not be above X (0.95)
 
-kld_rel = np.where(np.array(klds) < 0.05)
-kld_el = np.array(kld_cmps)[kld_rel[0]]
+
+gnr_cnt = []
+
+for i in np.arange(0.01, 0.15, 0.001):
+    kld_el = sbst_eler(ar_cb, operator.lt, i)
+
+    g_kld = Graph()
+    g_kld_id = g_kld.add_edge_list(kld_el, hashed=True, string_vals=True)
+
+    # print(g_kld)
+    # print(i)
+
+    gnr_cnt.append(len(list(g_kld.vertices())))
+
+xs = np.arange(0.01, 0.15, 0.001)
+
+fig = plt.figure()
+ax = plt.axes()
+
+ax.plot(xs, gnr_cnt)
+plt.show()
+
+[print(g_kld_id[i]) for i in g_kld.vertex(vd['post-punk']).in_neighbors()]
+
+
+
+kld_el = sbst_eler(ar_cb, operator.lt, 0.06)
+
+# kld_rel = np.where(np.array(klds) < 0.05)
+# kld_el = np.array(kld_cmps)[kld_rel[0]]
+
+
 
 g_kld = Graph()
 g_kld_id = g_kld.add_edge_list(kld_el, hashed=True, string_vals=True)
 
 graph_pltr(g_kld, g_kld_id, 'acst_spc4.pdf')
 
+vd_kld, vd_kld_rv = vd_fer(g_kld, g_kld_id)
+
+case:
+gnr = 'Death Doom Metal'
+gnr_nbrs = [g_kld_id[i] for i in list(g_kld.vertex(vd_kld['Death Doom Metal']).out_neighbors())]
+gnr_id = gnrs.index(gnr)
+
+klds = kld_mp([gnr])
+
+klds2 = [i for i in klds[0] if i < 0.05]
+plt.hist(klds2, bins='auto')
+plt.show()
+
+for k in gnr_nbrs:
+    i_v = acst_mat[gnrs.index(gnr)]
+    k_v = acst_mat[gnrs.index(k)]
+
+    b_zeros = np.where(k_v==0)
+    a_sum_b_zeros = sum(i_v[b_zeros])
+    prop_missing = a_sum_b_zeros/sum(i_v)
+            
+    if prop_missing == 0:
+        ent = round(entropy(i_v, k_v),3)
+        print(gnr, k, ent, 'complete')
+                
+    elif prop_missing < 0.05:
+                
+        i_v2 = np.delete(i_v, b_zeros)
+        k_v2 = np.delete(k_v, b_zeros)
+
+        ent = round(entropy(i_v2, k_v2),3)
+        print(gnr, k, ent, 'incomplete', prop_missing)
+
+x = [i for i in range(0,120,1)]
+
+fig = plt.figure()
+ax = plt.axes()
+# ax.plot(x[0:10], i_v[0:10])
+ax.plot(x[0:10], k_v[0:10])
+plt.show()
+
+a1,a2,nsns = plt.hist(acst_gnr_dict[gnr]['dncblt'], bins=10)
+plt.hist(acst_gnr_dict[k]['dncblt'], bins=10)
+plt.show()
+
+fig = plt.figure()
+ax = plt.axes()
+ax.plot(x[0:10], a1/sum(a1))
+# ax.plot(x[0:10], i_v[0:10])
+plt.show()
+
+
+
+
+# ax.plot(x, i_v)
 
 
 # ** cosine similarity
@@ -1010,3 +1087,44 @@ klbk_lblr_dist(x2,x1)
 # itrblx = [(vd_db['a'], vd_db['b'])]
 
 # vertex_similarity(g_db, 'dice', vertex_pairs = itrblx, eweight = db_weit) * ( sum([db_weit[g_db.edge(g_db.vertex(vd_db['a']), i)] for i in g_db.vertex(vd_db['a']).out_neighbors()]) + sum([db_weit[g_db.edge(g_db.vertex(vd_db['b']), i)] for i in g_db.vertex(vd_db['b']).out_neighbors()]))/2
+
+# ** kld now functionalized
+# all_ents = []
+# all_comps = []
+
+# t1 = time.time()
+# for i in gnrs:
+#     i_id = gnr_ind[i]
+
+#     i_ents = []
+#     i_comps = []
+    
+#     for k in gnrs:
+#         k_id = gnr_ind[k]
+        
+#         if i==k:
+#             next
+#         else:
+#             i_v = acst_mat[i_id]
+#             k_v = acst_mat[k_id]
+            
+#             b_zeros = np.where(k_v ==0)
+#             a_sum_b_zeros = sum(i_v[b_zeros])
+#             prop_missing = a_sum_b_zeros/sum(i_v)
+
+#             if prop_missing < 0.05:
+#                 i_v = np.delete(i_v, b_zeros)
+#                 k_v = np.delete(k_v, b_zeros)
+#             # else:
+#             #     continue
+
+#                 ent = entropy(i_v, k_v)
+#                 comp = [i,k]
+
+#                 i_ents.append(ent)
+#                 i_comps.append(comp)
+
+#     all_ents.append(i_ents)
+#     all_comps.append(i_comps)
+
+# t2 = time.time()
