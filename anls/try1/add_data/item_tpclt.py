@@ -57,20 +57,22 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
     mbid_tbl_basic = """
     CREATE TEMPORARY TABLE mbids_basic
     (
-    mbid_basic String
+    mbid_basic String,
+    cnt Int16
     )
     """
 
     mbid_basic_insert = """
     INSERT INTO mbids_basic 
-    SELECT lfm_id as mbid from acstb
+    SELECT lfm_id as mbid, cnt from acstb2
     JOIN
     (
-        SELECT mbid from song_info3
+        SELECT mbid, cnt from song_info3
         WHERE cnt > """ + str(min_cnt) + """
     ) USING mbid
     """
 
+    # tags with basic requirement (in entire df)
     tag_tbl_basic = """
     CREATE TEMPORARY TABLE tags_basic
     ( tag_basic String)
@@ -90,6 +92,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
     basic_songs_tags_tbl = """
     CREATE TEMPORARY TABLE basic_songs_tags (
     mbid String,
+    cnt Int16,
     tag String,
     weight Int8,
     rel_weight Float32)
@@ -97,7 +100,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
 
     # select tags of songs that fulfil requirements generally (but maybe not in intersection)
     basic_songs_tags = """INSERT INTO basic_songs_tags
-    SELECT mbid, tag, weight, rel_weight 
+    SELECT mbid, cnt, tag, weight, rel_weight 
     FROM (
         SELECT mbid, tag, weight, rel_weight 
             FROM tag_sums
@@ -109,9 +112,8 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
         AND (rel_weight > """ + str(min_rel_weight) + """ ))
 
     JOIN (
-        SELECT mbid_basic as mbid from mbids_basic)
+        SELECT mbid_basic as mbid, cnt from mbids_basic)
     USING mbid"""
-
     
     # get tags that are actually present enough in intsec
     # no real need for separate table for this, not that big an operation and only done once
@@ -130,7 +132,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
     # filtered on acstb before so should all be in there, and seems like it is
 
     merge_qry = """
-    SELECT lfm_id as mbid, tag, weight, rel_weight, """ + vrbl_strs + """ from acstb
+    SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, """ + vrbl_strs + """ from acstb2
     JOIN (""" + int_sec_all + """) USING mbid"""
     
     drops = [
@@ -151,17 +153,21 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
     client.execute(basic_songs_tags)
     rows_merged = client.execute(merge_qry)
 
-    dfc = pd.DataFrame(rows_merged, columns = ['lfm_id', 'tag', 'weigth', 'rel_weight'] + vrbls)
+    dfc = pd.DataFrame(rows_merged, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight'] + vrbls)
     # generate string for tag data
     return(dfc)
 
-min_cnt = 200
+min_cnt = 100
 min_weight = 10
 min_rel_weight = 0.1
 min_tag_aprnc = 50
 
 client = Client(host='localhost', password='anudora', database='frrl')
-vrbls = ['dncblt','gender','timb_brt','tonal','voice']
+
+# vrbls = ['dncblt','gender','timb_brt','tonal','voice']
+
+vrbls = ['dncblt','gender','timb_brt','tonal','voice','mood_acoustic','mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
+
 
 dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc)
 gnrs = list(np.unique(dfc['tag']))
