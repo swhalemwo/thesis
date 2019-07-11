@@ -9,6 +9,7 @@ import math
 import time
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import mahalanobis
+import json
 
 # * funcs
 
@@ -25,7 +26,7 @@ def weighted_avg_and_std(values, weights):
 
 
 
-def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
+def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2):
     # still has to be adopted to be able to accommodate time slices
     # wonder if the subsequent sorting can result in violations again?
     
@@ -61,16 +62,28 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
     cnt Int16
     )
     """
+    # d1 = '2011-10-01'
+    # d2 = '2011-11-01'
+    
+    # filters by date
+    date_str = """SELECT mbid, cnt FROM (
+    SELECT song as abbrv, count(song) AS cnt FROM logs
+        WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+        GROUP BY song
+        HAVING cnt > """ + str(min_cnt) + """
+    ) JOIN (
+        SELECT * FROM song_info3) 
+        USING abbrv"""
+
 
     mbid_basic_insert = """
     INSERT INTO mbids_basic 
     SELECT lfm_id as mbid, cnt from acstb2
     JOIN
-    (
-        SELECT mbid, cnt from song_info3
-        WHERE cnt > """ + str(min_cnt) + """
-    ) USING mbid
+    ( """ + date_str + """ ) USING mbid
     """
+
+
 
     # tags with basic requirement (in entire df)
     tag_tbl_basic = """
@@ -157,10 +170,12 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc):
     # generate string for tag data
     return(dfc)
 
-min_cnt = 100
+min_cnt = 10
 min_weight = 10
 min_rel_weight = 0.1
 min_tag_aprnc = 50
+d1 = '2011-05-01'
+d2 = '2011-05-31'
 
 client = Client(host='localhost', password='anudora', database='frrl')
 
@@ -169,7 +184,7 @@ client = Client(host='localhost', password='anudora', database='frrl')
 vrbls = ['dncblt','gender','timb_brt','tonal','voice','mood_acoustic','mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
 
 
-dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc)
+dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2)
 gnrs = list(np.unique(dfc['tag']))
 
 # seems to be working
