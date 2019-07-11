@@ -8,6 +8,7 @@ import time
 import matplotlib.pyplot as plt
 import itertools
 from multiprocessing import Pool
+import operator
 
 from scipy.stats import entropy
 from sklearn import preprocessing
@@ -17,6 +18,23 @@ from graph_tool import *
 
 # * hierarchical relations based on split dimensions
 # functions defined in item_tpclt
+
+
+# g = g_kld2
+# ids = g_kld2_id
+# filename = 'acst_spc5.pdf'
+# eweit = kld_sim_int
+
+def nph(ar_x):
+    """because hists work very unreliably"""
+    a1,a2 = np.histogram(ar_x, bins='auto')
+    # width = 0.7 * (a2[1] - a2[0])
+    width = (a2[1] - a2[0])
+    center = (a2[:-1] + a2[1:]) / 2
+    plt.bar(center, a1, align='center', width=width)
+    plt.show()
+
+
 
 def graph_pltr(g, ids, filename):
     """function for graph plotting, maybe put all the plotting parameters into function too?"""
@@ -30,22 +48,23 @@ def graph_pltr(g, ids, filename):
 
     size = g.degree_property_map('out')
 
-    size_scl=graph_tool.draw.prop_to_size(size, mi=4, ma=8, log=False, power=0.5)
+    # size_scl=graph_tool.draw.prop_to_size(size, mi=4, ma=8, log=False, power=0.5)
+    size_scl=graph_tool.draw.prop_to_size(size, mi=7, ma=25, log=False, power=0.5)
+
     size_scl2=graph_tool.draw.prop_to_size(size, mi=0.025, ma=0.15, log=False, power=1)
 
-
-    gvd = graphviz_draw(g, size = (100,100),
+    gvd = graphviz_draw(g, size = (50,50),
                         # layout = 'sfdp',
-                        overlap = 'scalexy',
-                        # overlap = 'false',
+                        # overlap = 'scalexy',
+                        overlap = 'false',
                         vprops = {'xlabel':gt_lbls_plot, 'fontsize':size_scl, 'height':0.03,
-                                  'penwidth':0.001, 'shape':'point', 'fixedsize': True,
+                                  'shape':'point', 'fixedsize': True,
                                   'width':size_scl2, 'height':size_scl2, 'fillcolor':'black'},
-                        eprops = {'arrowhead':'vee', 'color':'grey'},
+                        eprops = {'arrowhead':'vee', 'color':'grey', 'weight':eweit,
+                                  'penwidth':1},
                         # returngv==True,
                         output = filename)
     gt_lbls_plot = 0
-
 
 
 def vd_fer(g, idx):
@@ -58,7 +77,6 @@ def vd_fer(g, idx):
         vdrv[int(i)] = idx[i]
         
     return(vd, vdrv)
-
 
 # gnrs = ['metal', 'ambient', 'rock', 'hard rock', 'electronic', 'death metal']*10
 # gnrs = list(acst_gnr_dict.keys())
@@ -116,11 +134,12 @@ el_ttl, sz_dict = gnrt_acst_el(acst_gnr_dict, gnrs)
 # graph acoustic n
 gac = Graph()
 
-w = gac.new_edge_property('int16_t')
+# w = gac.new_edge_property('int16_t')
+w = gac.new_edge_property('double')
 w_std = gac.new_edge_property('double')
 w_std2 = gac.new_edge_property('double')
 
-idx = gac.add_edge_list(el_ttl, hashed=True, string_vals=True, eprops = [w, w_std, w_std2])
+idx = gac.add_edge_list(el_ttl, hashed=True, string_vals=True,  eprops = [w, w_std, w_std2])
 
 vd,vdrv = vd_fer(gac, idx)
 
@@ -188,7 +207,7 @@ def all_cmps_crubgs(gnrs, vd, type):
     return(cmps)
 
 
-cmps = all_cmps_crubgs(gnrs, vd, 'permutations')
+cmps = all_cmps_crubgs(gnrs, vd, 'product')
 
 # * actual comparision
 # is not asymmetric now
@@ -205,9 +224,12 @@ gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std2)
 plt.hist(gt_sims, bins='auto')
 plt.show()
 
+asym_sim_ar = asym_sim(gnrs, vd)
 
-gt_sims = asym_sim_ar
-thrshld = 0.99
+nph(asym_sim_ar)
+
+
+
 
 def sbst_eler(gt_sims, oprtr, thrshld):
     """assumes (asymmetric quadratic) similarity matrix as input"""
@@ -233,11 +255,12 @@ def sbst_eler(gt_sims, oprtr, thrshld):
     return(el_acst)
 
 
-# Graph hierarchy acoustic
+# Graph asymmetric hierarchy acoustic
+
+el_acst = sbst_eler(asym_sim_ar, operator.gt, 0.99)
+
 ghrac = Graph()
-
 sim_vlu = ghrac.new_edge_property('double')
-
 ghrac_id = ghrac.add_edge_list(el_acst, hashed=True, string_vals=True, eprops  = [sim_vlu])
 
 # vertex dict hierachical
@@ -248,6 +271,9 @@ graph_pltr(ghrac, ghrac_id, 'acst_spc3.pdf')
 
 graph_draw(ghrac, output='ghrac.pdf')
 
+for v in ghrac.vertices():
+    print(ghrac_id[v], v.out_degree(),v.in_degree() )
+
 # g = ghrac
 # ids = ghrac_id
 # filename = 'acst_space1.pdf'
@@ -257,7 +283,6 @@ graph_draw(ghrac, output='ghrac.pdf')
 
 
 # * other comparisons
-
 # if i treat the splitted stuff as features, why not cosine similarity?
 # or correlation?
 # if it's standardized it's symmetric now anyways
@@ -366,6 +391,8 @@ t1=time.time()
 data = p.map(kld_mp, [i for i in gnr_chnks])
 t2=time.time()
 
+p.close()
+
 # only 12% improvement with 4 instead of 3, not worth it i think
 # makes me uneasy to see everything at 100%, wonder if its good for cpu
 
@@ -397,22 +424,17 @@ for i in np.arange(0.01, 0.25, 0.0025):
     gnr_cnt.append(len(list(g_kld.vertices())))
 
 xs = np.arange(0.01, 0.25, 0.0025)
-
 fig = plt.figure()
 ax = plt.axes()
-
 ax.plot(xs, gnr_cnt)
 plt.show()
 
-[print(g_kld_id[i]) for i in g_kld.vertex(vd_kld['eurodance']).out_neighbors()]
-
 # *** normal kld continue
 
-kld_el = sbst_eler(ar_cb, operator.lt, 0.08)
+kld_el = sbst_eler(ar_cb, operator.lt, 0.12)
 
 # kld_rel = np.where(np.array(klds) < 0.05)
 # kld_el = np.array(kld_cmps)[kld_rel[0]]
-
 
 
 g_kld = Graph()
@@ -420,7 +442,53 @@ g_kld_id = g_kld.add_edge_list(kld_el, hashed=True, string_vals=True)
 
 graph_pltr(g_kld, g_kld_id, 'acst_spc4.pdf')
 
+x = set(g_kld_id[i] for i in g_kld.vertices())
+
 vd_kld, vd_kld_rv = vd_fer(g_kld, g_kld_id)
+
+[print(g_kld_id[i]) for i in g_kld.vertex(vd_kld['indie']).in_neighbors()]
+
+graph_draw(g_kld, output='g_kld.pdf')
+# amount of reciprocal relationships?
+# not if i just get 3 most influential parents or so
+
+# *** get 3 closest parents
+
+kld2_el = []
+
+for i in gnrs:
+    i_id = gnr_ind[i]
+    sims = ar_cb[i_id]
+
+    k = 4
+
+    idx = np.argpartition(sims, k)
+    prnts = idx[0:4]
+    vlus = sims[idx[0:4]]
+
+    for k in zip(prnts, vlus):
+        if k[0] == i_id:
+            pass
+        else:
+            kld2_el.append((gnrs[k[0]], gnrs[i_id], k[1]))
+
+
+
+g_kld2 = Graph()
+kld_sim = g_kld2.new_edge_property('double')
+g_kld2_id = g_kld2.add_edge_list(kld2_el, hashed=True, string_vals=True, eprops = [kld_sim])
+
+vd_kld2,vd_kld2_rv = vd_fer(g_kld2, g_kld2_id)
+
+kld_sim_int = g_kld2.new_edge_property('int16_t')
+
+for e in g_kld2.edges():
+    kld_sim_int[e] = math.ceil(kld_sim[e]*100)
+
+graph_pltr(g_kld2, g_kld2_id, 'acst_spc5.pdf')
+
+
+
 
 case:
 gnr = 'Death Doom Metal'
@@ -511,7 +579,7 @@ gnr = 'dark ambient'
 
 # average of similarities of indegrees
 # superordinates
-spr_ord = list(ghrac.vertex(vd_hr[gnr]).in_neighbors())
+spr_ord = list(g_kld2.vertex(vd_hr[gnr]).in_neighbors())
 gv = ghrac.vertex(vd_hr[gnr])
 v = spr_ord[0]
 sum([sim_vlu[v, gv] for i in spr_ord])
@@ -567,231 +635,14 @@ for v in g_asym.vertices():
 # plt.show()
 
 
-
 # you imbecil
 # you fucking moron
 # when you get directed similarity you have to divide it by the bases
 # first get common stuff
 # then divide that by each vertex' ttl 
 
-# * some old stuff
-
-# ** plotting dists for multiple varibales and genres
-fig, ax = plt.subplots()
-# ax.bar(a0[:-1], a1)
-
-ax.plot(a1)
-plt.show()
-
-ax_lbl = []
-for i in range(len(a1)):
-    print(i)
-    ax_lbl.append(str(round(a0[i],2)) + "-" + str(round(a0[i+1],2)))
-
-plt.bar(ax_lbl, a1)
-plt.show()
-
-
-
-def sb_pltr(ttl, row, nbr, xs, ys, xlbl, ylbl):
-    plt.subplot(ttl, row, nbr)
-    plt.plot(xs, ys, '.-')
-    plt.xlabel(xlbl)
-    plt.ylabel(ylbl)
-
-
-
-gnrs = ['rap', 'metal', 'ambient', 'hard rock', 'pop', 'punk', 'ska']
-
-
-for gnr in gnrs: 
-    c = 0
-    for v in vrbls:
-
-        # wrap into genre function
-        gnr_acst_ids = [acst_pos_dict[i] for i in gnr_song_dict[gnr]]
-
-        df_gnr_tags = df_tags[df_tags['tag']==gnr]
-        df_gnr_acst = df_acst.loc[gnr_acst_ids]
-
-        df_gnr_cbmd = pd.merge(df_gnr_tags, df_gnr_acst, on='lfm_id')
-        bins = np.arange(0, 1, 0.1)
-        a1, a0 = np.histogram(df_gnr_cbmd[v], bins=bins, weights=df_gnr_cbmd['rel_weight'])
-
-        ttl = 5
-        c +=1
-        sb_pltr(ttl, 1, c, ax_lbl, a1, 'freq', v)
-
-plt.show()
-# i don't like this at all
-# maybe i shouldn't treat variables as continuous
-# rather binary and weigh?
-# idk.. would mean separate weights for each cell
-
-# think i should functionify the df creation
-# use item_tpclt_for it
-
-
-# multiple lines: i guess i should pass dimensions there earlier
-
- 
-# g1 = 'black metal'
-# g2 = 'metal'
-
-# 371 comparisons in per sec
-# 16 mil is gonna take like 12 hours
-# and it's not even weighted yet
-# 
-
-
-
-
-
-
-# * infering probability distributions from vectors
-
-import matplotlib.pyplot as plt
-import math
-
-class dist_cpr:
-    """generates 2D probability distribution given raw data (set has separate parameter for each dimension)"""
-    
-    def summr(self, s, min_s, max_s):
-        """creates hists of the distributions"""
-        sums1 = []
-        for i1 in np.arange(min_s, max_s, res):
-            i2 = i1 + res
-            buckets = []
-            buckets = [x for x in s if x > i1 and x < i2]
-            sums1.append(len(buckets))
-
-        return(sums1)        
-
-    def spc_mlt(self, v1,v2):
-        """re-calculate (multiply) 2d space from histogram info"""
-        space = []
-        for i in v1:
-            v1s = []
-            for k in v2:
-                v1s.append(i*k)
-            space.append(v1s)
-
-        spc_ar = np.array(space)
-        
-        return(spc_ar)
-    
-
-    def vx_cructr(self, s1,s2):
-        """combines input to get single vector for easier processing"""
-        c = 0
-        vx = []
-        for s1x in s1:
-            s2x = s2[c]
-            vx.append((s1x, s2x))
-            c+=1
-        return(vx)
-
-    def spc_cructr(self, min_s, max_s, res):
-        """constructs the space for prob dist, dict is faster for now (than looping over each entry)"""
-        spc = {}
-        for i in np.arange(min_s, max_s, res):
-            i1 = math.ceil(i)
-            # print(i)
-            spc[i1] = {}
-
-            for k in np.arange(min_s, max_s, res):
-                k1 = math.ceil(k)
-                spc[i1][k1] = 0
-
-        return(spc)
-
-
-    def spc_flr(self, vx, spc, min_s, max_s, res):
-        """fill up the dict space, convert it into list of lists and then np array"""
-        # fill space
-        fails = 0
-        for i in vx:
-            x = math.floor(i[0]/res)*res
-            y = math.floor(i[1]/res)*res
-            try:
-                spc[x][y]+=1
-            except:
-                fails+=1
-                pass
-        print(fails)
-
-        lls = []
-        for i in np.arange(min_s, max_s, res):
-            i1 = math.ceil(i)
-            ll = []
-
-            for k in np.arange(min_s, max_s, res):
-                k1 = math.ceil(k)
-                ll.append(spc[i1][k1])
-
-            lls.append(ll)
-
-        spc_fl = np.array(lls)
-        return(spc_fl)
-
-    
-    def __init__(self, xs, ys, res, min_s, max_s):
-        self.h1 = self.summr(xs, min_s, max_s)
-        self.h2 = self.summr(ys, min_s, max_s)
-
-        self.spc_ar = self.spc_mlt(self.h1, self.h2)
-        self.vx = self.vx_cructr(xs, ys)
-        print(len(self.vx))
-        self.spc = self.spc_cructr(min_s, max_s, res)
-        print(len(self.spc))
-
-        self.spc_fl = self.spc_flr(self.vx, self.spc, min_s, max_s, res)
-
-
-
-
-mu1, sigma1 = 50, 20
-mu2, sigma2 = 40, 15
-s1 = np.random.normal(mu1, sigma1, 40000)
-s2 = np.random.normal(mu2, sigma2, 40000)
-res = 5
-
-min_s = 0
-max_s = 100
-
-c1 = dist_cpr(s1, s2, res, min_s, max_s)
-
-xs = [i for i in np.arange(max_s/res)]
-
-
-plt.imshow(c1.spc_ar, interpolation='nearest')
-plt.show()
-
-plt.imshow(c1.spc_fl, interpolation='nearest')
-plt.show()
-
-
-s3 = np.random.normal(30, 8, 10000)
-s4 = np.random.normal(25, 5, 10000) 
-
-c2 = dist_cpr(s3, s4, res, min_s, max_s)
-
-cmb_ar = c1.spc_fl + c2.spc_fl
-
-# plt.imshow(c1.spc_fl, interpolation='nearest')
-plt.imshow(cmb_ar, interpolation='nearest')
-plt.show()
-
-ax = plt.axes()
-ax.plot(xs, c1.h1)
-ax.plot(xs, c1.h2)
-
-ax.plot(xs, c2.h1)
-ax.plot(xs, c2.h2)
-
-plt.show()
-
-# * calculating overlap/divergence
+# * old stuff, maybe recyclable
+# ** calculating overlap/divergence
 
 # need to find cells where c2 is nonzero and c1 is zero
 
@@ -832,7 +683,7 @@ ax.plot(xs2, yy2)
 plt.show()
 
 
-# * kullback-Leibler divergence
+# ** kullback-Leibler divergence
 
 x = [i for i in range(0,10)]
 x1 =  [0,  0,0,0, 0.05,0.1,0.3,0.6,0.3,0.1]
@@ -926,7 +777,7 @@ ax.plot(x, x1_szn)
 ax.plot(x, x2_szn)
 plt.show()
 
-# * hausdorff distance
+# ** hausdorff distance
 
 from scipy.spatial.distance import directed_hausdorff
 
@@ -1007,132 +858,7 @@ PIazzai use mean of min minimum distances
 klbk_lblr_dist(x2,x1)
 
 
-# * scrap 
-# acoustic space edgelist construction
-# optimization achieved by faster CH queries and constructing overall merged table from start and breaking that down
-# can also just be seen as long format df
-
-# not that fast, might be optimized
-# atm takes especially long for long genres
-# NOT GOOD
-# can be parallelized but still
-# iloc is some improvement, especially for longer ones? seems so
-# think i can shave off some time by doing an additional dict for gnrs with gnrs as keys and acst_df as values
-# would save queries..
-# but for rock it's currently 0.02 of 0.12
-# more substantial savings by throwing out pandas
-
-
-# ** similarity testing
-
-# needs to be generalized into list for relevant pairs 
-# especially to assess prevalence of non-binary fit and hence possibility of overlap misattribution (lack sub due to area not covered)
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])])
-# # WTF start
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w)
-# vertex_similarity(gac, 'jaccard', vertex_pairs = [(vd['electronic'],vd['ambient'])], eweight = w)
-# # WTFFF end: 
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['electronic'])], eweight = w_std)
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['ambient'],vd['death metal'])], eweight = w_std)
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['black metal'],vd['metal'])], eweight = w_std)
-
-# vertex_similarity(gac, 'dice', vertex_pairs = [(vd['love song'],vd['rock'])], eweight = w_std)
-
-
-# [print(w[gac.edge(vd['ambient'], vd['voice' + str(i)])]) for i in range(1,11)]
-# [print(w[gac.edge(vd['electronic'], vd['voice' + str(i)])]) for i in range(1,11)]
-
-
-# g.vertex(vd['electronic']).out_neighbors()
-
-# ** asymmetric similarity debugging like a fuckign moron
-
-# gnr1 = 'rock'
-# gnr2 = 'hard rock'
-# sim_vlu[ghrac.edge(vd_hr[gnr1], vd_hr[gnr2])]
-# sim_vlu[ghrac.edge(vd_hr[gnr2], vd_hr[gnr1])]
-
-# for e in ghrac.edges():
-#     print(ghrac_id[e.source()], '----', ghrac_id[e.target()], round(sim_vlu[e],4))
 
 
 
-# gt_sims[cmps.index(itrbl[0])]
-# gt_sims[cmps.index(itrbl2[0])]
 
-# list(rel_cmps[0]).index(cmps.index(itrbl[0]))
-# list(rel_cmps[0]).index(cmps.index(itrbl2[0]))
-
-
-# acst1 = list(gac.vertex(vd[gnr1]).out_neighbors())
-# acst2 = list(gac.vertex(vd[gnr2]).out_neighbors())
-# sum([w_std2[gac.edge(gac.vertex(vd[gnr1]), i)] for i in acst1])
-# sum([w_std2[gac.edge(gac.vertex(vd[gnr2]), i)] for i in acst2])
-
-# itrbl = [(vd[gnr1], vd[gnr2])]
-# itrbl2 = [(vd[gnr2], vd[gnr1])]
-# vertex_similarity(gac, 'dice', vertex_pairs = itrbl, eweight = w_std)
-# vertex_similarity(gac, 'dice', vertex_pairs = itrbl2, eweight = w_std)
-
-# test_el =[
-#     ['a', 'f1', 2],
-#     ['a', 'f2', 1],
-#     ['a', 'f3', 1],
-#     ['b', 'f1', 2],
-#     ['b', 'f2', 0.5],
-#     ['b', 'f3', 0.5]]
-
-# g_db = Graph()
-# db_weit = g_db.new_edge_property('double')
-
-# db_id = g_db.add_edge_list(test_el, hashed=True, string_vals=True, eprops = [db_weit])
-
-# vd_db, vd_db_rv = vd_fer(g_db, db_id)
-
-# itrblx = [(vd_db['a'], vd_db['b'])]
-
-# vertex_similarity(g_db, 'dice', vertex_pairs = itrblx, eweight = db_weit) * ( sum([db_weit[g_db.edge(g_db.vertex(vd_db['a']), i)] for i in g_db.vertex(vd_db['a']).out_neighbors()]) + sum([db_weit[g_db.edge(g_db.vertex(vd_db['b']), i)] for i in g_db.vertex(vd_db['b']).out_neighbors()]))/2
-
-# ** kld now functionalized
-# all_ents = []
-# all_comps = []
-
-# t1 = time.time()
-# for i in gnrs:
-#     i_id = gnr_ind[i]
-
-#     i_ents = []
-#     i_comps = []
-    
-#     for k in gnrs:
-#         k_id = gnr_ind[k]
-        
-#         if i==k:
-#             next
-#         else:
-#             i_v = acst_mat[i_id]
-#             k_v = acst_mat[k_id]
-            
-#             b_zeros = np.where(k_v ==0)
-#             a_sum_b_zeros = sum(i_v[b_zeros])
-#             prop_missing = a_sum_b_zeros/sum(i_v)
-
-#             if prop_missing < 0.05:
-#                 i_v = np.delete(i_v, b_zeros)
-#                 k_v = np.delete(k_v, b_zeros)
-#             # else:
-#             #     continue
-
-#                 ent = entropy(i_v, k_v)
-#                 comp = [i,k]
-
-#                 i_ents.append(ent)
-#                 i_comps.append(comp)
-
-#     all_ents.append(i_ents)
-#     all_comps.append(i_comps)
-
-# t2 = time.time()
