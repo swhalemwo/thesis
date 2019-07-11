@@ -20,13 +20,9 @@ from graph_tool import *
 # functions defined in item_tpclt
 
 
-# g = g_kld2
-# ids = g_kld2_id
-# filename = 'acst_spc5.pdf'
-# eweit = kld_sim_int
 
 def nph(ar_x):
-    """because hists work very unreliably"""
+    """custom hist function because plt.hist is fucking unreliably"""
     a1,a2 = np.histogram(ar_x, bins='auto')
     # width = 0.7 * (a2[1] - a2[0])
     width = (a2[1] - a2[0])
@@ -35,8 +31,12 @@ def nph(ar_x):
     plt.show()
 
 
+g = g_kld2
+ids = g_kld2_id
+filename = 'acst_spc5.pdf'
+eweit = kld_sim_int
 
-def graph_pltr(g, ids, filename):
+def graph_pltr(g, ids, filename, eweit):
     """function for graph plotting, maybe put all the plotting parameters into function too?"""
 
     gt_lbls_plot = g.new_vertex_property('string')
@@ -53,6 +53,12 @@ def graph_pltr(g, ids, filename):
 
     size_scl2=graph_tool.draw.prop_to_size(size, mi=0.025, ma=0.15, log=False, power=1)
 
+    if type(eweit) == type (1):
+        e_scl = eweit
+        pass
+    else:
+        e_scl=graph_tool.draw.prop_to_size(eweit, mi=1, ma=6, log=False, power=0.5)
+
     gvd = graphviz_draw(g, size = (50,50),
                         # layout = 'sfdp',
                         # overlap = 'scalexy',
@@ -61,7 +67,7 @@ def graph_pltr(g, ids, filename):
                                   'shape':'point', 'fixedsize': True,
                                   'width':size_scl2, 'height':size_scl2, 'fillcolor':'black'},
                         eprops = {'arrowhead':'vee', 'color':'grey', 'weight':eweit,
-                                  'penwidth':1},
+                                  'penwidth':e_scl},
                         # returngv==True,
                         output = filename)
     gt_lbls_plot = 0
@@ -452,27 +458,30 @@ graph_draw(g_kld, output='g_kld.pdf')
 # amount of reciprocal relationships?
 # not if i just get 3 most influential parents or so
 
-# *** get 3 closest parents
+# *** get N closest parents
 
-kld2_el = []
+def kld_n_prnts(ar_cb, npr):
+    """generates edgelist by taking npr (number of parents) lowest values of row of asym kld mat"""
 
-for i in gnrs:
-    i_id = gnr_ind[i]
-    sims = ar_cb[i_id]
+    kld2_el = []
 
-    k = 4
+    for i in gnrs:
+        i_id = gnr_ind[i]
+        sims = ar_cb[i_id]
 
-    idx = np.argpartition(sims, k)
-    prnts = idx[0:4]
-    vlus = sims[idx[0:4]]
+        idx = np.argpartition(sims, npr)
+        prnts = idx[0:4]
+        vlus = sims[idx[0:4]]
 
-    for k in zip(prnts, vlus):
-        if k[0] == i_id:
-            pass
-        else:
-            kld2_el.append((gnrs[k[0]], gnrs[i_id], k[1]))
+        for k in zip(prnts, vlus):
+            if k[0] == i_id:
+                pass
+            else:
+                kld2_el.append((gnrs[k[0]], gnrs[i_id], k[1]))
+                
+    return(kld2_el)
 
-
+kld2_el = kld_n_prnts(ar_cb, 4)
 
 g_kld2 = Graph()
 kld_sim = g_kld2.new_edge_property('double')
@@ -485,10 +494,9 @@ kld_sim_int = g_kld2.new_edge_property('int16_t')
 for e in g_kld2.edges():
     kld_sim_int[e] = math.ceil(kld_sim[e]*100)
 
-graph_pltr(g_kld2, g_kld2_id, 'acst_spc5.pdf')
+graph_pltr(g_kld2, g_kld2_id, 'acst_spc5.pdf', 1)
 
-
-
+# ** KDL 1 exploration 
 
 case:
 gnr = 'Death Doom Metal'
@@ -545,47 +553,83 @@ plt.show()
 # ax.plot(x, i_v)
 
 
-# ** cosine similarity
-# might not even have to normalize for it, but won't really distort much me thinks
-
-from sklearn.metrics.pairwise import cosine_similarity
-
-x= cosine_similarity(acst_mat)
-
-
-plt.hist(x[np.where(0<np.tril(x))], bins='auto')
-plt.show()
-
-
-plt.hist(x[(np.tril(x) > 0) & (np.tril(x) < 1)], bins='auto')
-plt.show()
-
-from scipy.spatial import distance
-distance.euclidean
-
-x2 = sklearn.metrics.pairwise.euclidean_distances(acst_mat)
-plt.hist(x2[np.tril(x2) > 0], bins='auto')
-plt.show()
-
-# what's the point of putting it into network really
-# -> need to functionalize the network generation
-# but more the relevant feature extraction -> straightforward to compare
 
 
 # * feature extraction
 # ** informativeness
 
-gnr = 'dark ambient'
-
 # average of similarities of indegrees
 # superordinates
-spr_ord = list(g_kld2.vertex(vd_hr[gnr]).in_neighbors())
-gv = ghrac.vertex(vd_hr[gnr])
-v = spr_ord[0]
-sum([sim_vlu[v, gv] for i in spr_ord])
 
-sim_vlu[ghrac.edge(gv, v)]
-sim_vlu[ghrac.edge(v, gv)]
+gnr = 'dark ambient'
+gnr = 'rock'
+
+# spr_ord = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
+
+# sim_vlu[ghrac.edge(gv, v)]
+# sim_vlu[ghrac.edge(v, gv)]
+
+v = spr_ord[0]
+
+res_dict = {}
+for gnr in gnrs:
+    res_dict[gnr] = {}
+
+    
+for gnr in gnrs:
+    # generate a whole bunch of measures
+    
+    gv = g_kld2.vertex(vd_kld2[gnr])
+
+    # get sum of 3 distance to 3 parents
+    prnt3_inf = gv.in_degree(kld_sim)
+    res_dict[gnr]['prnt3_inf'] = prnt3_inf
+
+    # from original data, might be interesting to weigh/add sds
+    res_dict[gnr]['sz_raw'] = sz_dict[gnr]
+    res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
+
+
+    # get parents for all kinds of things
+    prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
+    # outdegree of parents (weighted and unweighted)
+    # may have to divide by 1 (or other thing to get distance), not quite clear now
+    prnt_odg = np.mean([prnt.out_degree() for prnt in prnts])
+    prnt_odg_wtd = np.mean([prnt.out_degree() * kld_sim[g_kld2.edge(prnt,gv)] for prnt in prnts])
+    
+    res_dict[gnr]['prnt_odg'] = prnt_odg
+    res_dict[gnr]['prnt_odg_wtd'] = prnt_odg_wtd
+
+    # cohorts
+    cohrts = [list(pr.out_neighbors()) for pr in prnts]
+
+    cohrt_pcts_inf = []
+    cohrt_means_non_inf = []
+    
+    for cht in cohrts:
+        cht_dists = []
+        for v_cp in cht:
+            if v_cp != gv:
+                distx = ar_cb[gnr_ind[gnr],gnr_ind[g_kld2_id[v_cp]]]
+                cht_dists.append(distx)
+
+        pos_non_inf = np.where(np.array(cht_dists) < math.inf)
+
+        pct_non_inf = len(pos_non_inf[0])/len(cht)
+        mean_non_inf = np.mean([cht_dists[i] for i in pos_non_inf[0]])
+
+        cohrt_pcts_inf.append(1-pct_non_inf)
+        cohrt_means_non_inf.append(mean_non_inf)
+        
+    # possible to weight by distance to parent of cohort, cohort size, both,
+    # neither
+    cohrt_pct_inf = np.mean(cohrt_pcts_inf)
+    cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
+
+    res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
+    res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
+
+df_res = pd.DataFrame(res_dict).transpose()
 
 # *** debug w_std2: should not result in symmetric similarities
 # similarites are symmetric, but have to be processed
@@ -859,6 +903,31 @@ klbk_lblr_dist(x2,x1)
 
 
 
+# * scrap: basically useless
+# ** cosine similarity
+# might not even have to normalize for it, but won't really distort much me thinks
 
+from sklearn.metrics.pairwise import cosine_similarity
+
+x= cosine_similarity(acst_mat)
+
+
+plt.hist(x[np.where(0<np.tril(x))], bins='auto')
+plt.show()
+
+
+plt.hist(x[(np.tril(x) > 0) & (np.tril(x) < 1)], bins='auto')
+plt.show()
+
+from scipy.spatial import distance
+distance.euclidean
+
+x2 = sklearn.metrics.pairwise.euclidean_distances(acst_mat)
+plt.hist(x2[np.tril(x2) > 0], bins='auto')
+plt.show()
+
+# what's the point of putting it into network really
+# -> need to functionalize the network generation
+# but more the relevant feature extraction -> straightforward to compare
 
 
