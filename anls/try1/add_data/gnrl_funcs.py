@@ -1,0 +1,255 @@
+def weighted_avg_and_std(values, weights):
+    """
+    Return the weighted average and standard deviation.
+
+    values, weights -- Numpy ndarrays with the same shape.
+    """
+    average = np.average(values, weights=weights)
+    # Fast and numerically precise:
+    variance = np.average((values-average)**2, weights=weights)
+    return (average, math.sqrt(variance))
+
+
+
+def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, client, pd):
+    # still has to be adopted to be able to accommodate time slices
+    # wonder if the subsequent sorting can result in violations again?
+    
+    """retrieves acoustic data (vrbls) and tags of corresponding songs
+        queries are written to only retrieve only complete matches (songs for which both musicological data and tags are available
+    vrbls: variables for which to get musicological information
+    min_cnt: minimal playcount for song
+    min_weight: minimal absolute value for tagging to be included
+    min_rel_weight: minimal relative value for tagging to be included
+    min_tag_aprnc: minimal number of times tag has to appear
+    """
+
+    vrbl_strs  = ", ".join(vrbls)
+    # TEST VALUES
+    # min_weight = 10
+    # min_rel_weight = 0.05
+    # min_tag_aprnc = 5
+    # min_cnt = 400
+
+    # create merged df from beginning
+    # try to split it the queries into strings
+    # use temporary tables
+
+
+    # gets the mbids that are can be used in terms of minimal playcount and acoustic data availability
+    # basic = basis for further operations
+    # probably should integrate temporal part here
+
+    mbid_tbl_basic = """
+    CREATE TEMPORARY TABLE mbids_basic
+    (
+    mbid_basic String,
+    cnt Int16
+    )
+    """
+    # d1 = '2011-10-01'
+    # d2 = '2011-11-01'
+    
+    # filters by date
+    date_str = """SELECT mbid, cnt FROM (
+    SELECT song as abbrv, count(song) AS cnt FROM logs
+        WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+        GROUP BY song
+        HAVING cnt > """ + str(min_cnt) + """
+    ) JOIN (
+        SELECT * FROM song_info3) 
+        USING abbrv"""
+
+
+    mbid_basic_insert = """
+    INSERT INTO mbids_basic 
+    SELECT lfm_id as mbid, cnt from acstb2
+    JOIN
+    ( """ + date_str + """ ) USING mbid
+    """
+
+
+
+    # tags with basic requirement (in entire df)
+    tag_tbl_basic = """
+    CREATE TEMPORARY TABLE tags_basic
+    ( tag_basic String)
+    """
+
+    tag_basic_insert = """
+    INSERT INTO tags_basic
+    SELECT tag
+            FROM tag_sums 
+            WHERE (weight > """ + str(min_weight) + """) 
+            AND (rel_weight > """ + str(min_rel_weight) + """ )
+            GROUP BY tag
+            HAVING count(tag) > """ + str(min_tag_aprnc)
+
+
+    # select the tags that correspond to the relevant songs, which is not useless
+    basic_songs_tags_tbl = """
+    CREATE TEMPORARY TABLE basic_songs_tags (
+    mbid String,
+    cnt Int16,
+    tag String,
+    weight Int8,
+    rel_weight Float32)
+    """
+
+    # select tags of songs that fulfil requirements generally (but maybe not in intersection)
+    basic_songs_tags = """INSERT INTO basic_songs_tags
+    SELECT mbid, cnt, tag, weight, rel_weight 
+    FROM (
+        SELECT mbid, tag, weight, rel_weight 
+            FROM tag_sums
+
+         JOIN (
+            SELECT tag_basic as tag FROM tags_basic) 
+        USING tag
+        WHERE (weight > """ + str(min_weight) + """) 
+        AND (rel_weight > """ + str(min_rel_weight) + """ ))
+
+    JOIN (
+        SELECT mbid_basic as mbid, cnt from mbids_basic)
+    USING mbid"""
+    
+    # get tags that are actually present enough in intsec
+    # no real need for separate table for this, not that big an operation and only done once
+    intsect_tags = """SELECT tag FROM basic_songs_tags
+    GROUP BY tag
+    HAVING count(tag) > """ + str(min_tag_aprnc)
+
+
+    # boil down basic_songs_tags to intersection requirements
+    int_sec_all = """
+    SELECT * from basic_songs_tags
+    JOIN ( """ + intsect_tags + """)
+    USING tag"""
+    
+    # make merge table by getting stuff from acstb in
+    # filtered on acstb before so should all be in there, and seems like it is
+
+    merge_qry = """
+    SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, """ + vrbl_strs + """ from acstb2
+    JOIN (""" + int_sec_all + """) USING mbid"""
+    
+    drops = [
+        'drop table mbids_basic',
+        'drop table tags_basic',
+        'drop table basic_songs_tags']
+    for d in drops:
+        try:
+            client.execute(d)
+        except:
+            pass
+    
+    client.execute(mbid_tbl_basic)
+    client.execute(mbid_basic_insert)
+    client.execute(tag_tbl_basic)    
+    client.execute(tag_basic_insert)
+    client.execute(basic_songs_tags_tbl)
+    client.execute(basic_songs_tags)
+    rows_merged = client.execute(merge_qry)
+
+    dfc = pd.DataFrame(rows_merged, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight'] + vrbls)
+    # generate string for tag data
+    return(dfc)
+
+################## get_dfs test start ############
+
+# min_cnt = 10
+# min_weight = 10
+# min_rel_weight = 0.1
+# min_tag_aprnc = 30
+# d1 = '2011-05-01'
+# d2 = '2011-05-31'
+
+# client = Client(host='localhost', password='anudora', database='frrl')
+
+# # vrbls = ['dncblt','gender','timb_brt','tonal','voice']
+
+# vrbls = ['dncblt','gender','timb_brt','tonal','voice','mood_acoustic','mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
+
+
+# dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2)
+# gnrs = list(np.unique(dfc['tag']))
+
+################## get_dfs test end ############
+
+def dict_gnrgs(dfc, gnrs, pd):
+    """generates dict with genres as keys as their cmbd dfs as values"""
+    # make position dicts because dicts good
+    # or rather, they would be if pandas subsetting wouldnt be slow AF
+    # solution: make genre dfs only once in initialization
+
+    acst_gnr_dict = {}
+    for r in dfc.itertuples():
+        gnr = r.tag
+
+        if gnr in acst_gnr_dict.keys():
+            acst_gnr_dict[gnr].append(r)
+        else:
+            acst_gnr_dict[gnr] = [r]
+
+    for gnr in gnrs:
+        acst_gnr_dict[gnr] = pd.DataFrame(acst_gnr_dict[gnr])
+
+    return(acst_gnr_dict)
+
+# acst_gnr_dict = dict_gnrgs(dfc)
+
+
+# * general comparison function
+
+# order doesn't matter anymore due to standardization
+# do i need a matrix?
+# can read it back in (either lower triangle columnwise or upper rowise)
+# not sure if needed tho
+# can just the positions of those over threshold, get the corresponding original comparisions, get the corresponding genres, and add that to edge list
+
+# nested loops to ensure direction
+# smaller one is now first: relation to be tested is subsetness
+# but there is no a priori reason why smaller genre should be subset
+# subgenre can also grow larger than original (w40k > warhammer)
+
+
+def cmp_crubgs(gnrs, vd):
+
+    gnr_ids = [vd[i] for i in gnrs]
+    
+    lenx = len(gnrs)
+
+    cprx = []
+    c = 0
+    for i in range(lenx):
+
+        cprx2 = []
+
+        for k in range(i,lenx):
+
+            # print(k)
+
+            if i==k:
+                next
+            else:
+                c +=1
+
+                v1, v2 = gnrs[i], gnrs[k]
+                v1_sz, v2_sz = sz_dict[v1], sz_dict[v2]
+
+                if v1_sz > v2_sz:
+                    cprsn = [vd[v2], vd[v1]]
+                else:
+                    cprsn = [vd[v1], vd[v2]]
+
+                cprx2.append(cprsn)
+        if len(cprx2) > 0:
+            cprx.append(cprx2)
+
+    cmps = list(itertools.chain.from_iterable(cprx))
+    return(cmps)
+
+# cmps = cmp_crubgs(gnrs, vd)
+
+
+# cmps = all_cmps_crubgs(gnrs, vd, 'product')
