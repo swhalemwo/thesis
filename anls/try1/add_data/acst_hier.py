@@ -30,6 +30,11 @@ def nph(ar_x):
     plt.bar(center, a1, align='center', width=width)
     plt.show()
 
+def nps(x,y):
+    """custom scatter function"""
+    plt.scatter(x,y)
+    plt.show()
+
 
 g = g_kld2
 ids = g_kld2_id
@@ -145,9 +150,9 @@ w = gac.new_edge_property('double')
 w_std = gac.new_edge_property('double')
 w_std2 = gac.new_edge_property('double')
 
-idx = gac.add_edge_list(el_ttl, hashed=True, string_vals=True,  eprops = [w, w_std, w_std2])
+gac_id = gac.add_edge_list(el_ttl, hashed=True, string_vals=True,  eprops = [w, w_std, w_std2])
 
-vd,vdrv = vd_fer(gac, idx)
+vd,vdrv = vd_fer(gac, gac_id)
 
 # * general comparison function
 
@@ -561,20 +566,14 @@ plt.show()
 # average of similarities of indegrees
 # superordinates
 
-gnr = 'dark ambient'
-gnr = 'rock'
-
 # spr_ord = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
 
 # sim_vlu[ghrac.edge(gv, v)]
 # sim_vlu[ghrac.edge(v, gv)]
 
-v = spr_ord[0]
-
 res_dict = {}
 for gnr in gnrs:
     res_dict[gnr] = {}
-
     
 for gnr in gnrs:
     # generate a whole bunch of measures
@@ -582,8 +581,8 @@ for gnr in gnrs:
     gv = g_kld2.vertex(vd_kld2[gnr])
 
     # get sum of 3 distance to 3 parents
-    prnt3_inf = gv.in_degree(kld_sim)
-    res_dict[gnr]['prnt3_inf'] = prnt3_inf
+    prnt3_dvrg = gv.in_degree(kld_sim)
+    res_dict[gnr]['prnt3_dvrg'] = prnt3_dvrg
 
     # from original data, might be interesting to weigh/add sds
     res_dict[gnr]['sz_raw'] = sz_dict[gnr]
@@ -601,11 +600,29 @@ for gnr in gnrs:
     res_dict[gnr]['prnt_odg_wtd'] = prnt_odg_wtd
 
     # cohorts
+    cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr)
+
+    res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
+    res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
+
+    # spanningness
+    spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v)
+    res_dict[gnr]['spngns'] = spngns
+
+df_res = pd.DataFrame(res_dict).transpose()
+df_res['spngns_std'] = df_res['spngns']-min(df_res['spngns'])
+df_res['spngns_std'] = df_res['spngns_std']/max(df_res['spngns_std'])
+
+
+
+# ** cohort processing
+def chrt_proc(gnr):
+    prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
     cohrts = [list(pr.out_neighbors()) for pr in prnts]
 
     cohrt_pcts_inf = []
     cohrt_means_non_inf = []
-    
+
     for cht in cohrts:
         cht_dists = []
         for v_cp in cht:
@@ -620,16 +637,91 @@ for gnr in gnrs:
 
         cohrt_pcts_inf.append(1-pct_non_inf)
         cohrt_means_non_inf.append(mean_non_inf)
-        
+
     # possible to weight by distance to parent of cohort, cohort size, both,
     # neither
     cohrt_pct_inf = np.mean(cohrt_pcts_inf)
     cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
+    return(cohrt_pct_inf, cohrt_mean_non_inf)
 
-    res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
-    res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
 
-df_res = pd.DataFrame(res_dict).transpose()
+# ** degree of space spanning
+# use similar logic of omnivorousness
+
+def gnr_span_prep(vrbls):
+    """prepares feature similarity matrix, needed to see how well genres span"""
+    # not sure if good:
+    # weight
+    
+    vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,11)] for vrbl in vrbls]
+    vrbl_nd_strs = list(itertools.chain.from_iterable(vrbl_nd_strs_raw))
+
+    vrbl_cmprs = all_cmps_crubgs(vrbl_nd_strs, vd, 'product')
+
+    # vrbl_sims = vertex_similarity(GraphView(gac, reversed=True), 'dice', vertex_pairs = vrbl_cmprs, eweight = w_std)
+    vrbl_sims = vertex_similarity(GraphView(gac, reversed=True), 'dice', vertex_pairs = vrbl_cmprs, eweight = w)
+    vrbl_sim_rows = np.split(vrbl_sims, len(vrbl_nd_strs))
+    vrbl_sim_ar = np.array(vrbl_sim_rows)
+
+    # plt.imshow(1-vrbl_sim_ar, cmap='hot', interpolation='nearest')
+    # plt.show()
+
+    # sims or dsims? 
+
+    vrbl_nds = [vd[i] for i in vrbl_nd_strs]
+
+    # map to array row/col positions
+    vrbl_mat_ids = {}
+    for i in vrbl_nds:
+        vrbl_mat_ids[i] = vrbl_nds.index(i) 
+
+    cmps_rel = list(itertools.combinations(vrbl_nds, 2))
+
+    sim_v = [1-vrbl_sim_ar[vrbl_mat_ids[i[0]],vrbl_mat_ids[i[1]]] for i in cmps_rel]
+    
+    return(cmps_rel, sim_v)
+
+cmps_rel, sim_v = gnr_span_prep(vrbls)
+
+def gnr_mus_spc_spng(gnr, cmps_rel, sim_v):
+    """calculates sum of dissimilarities for a gnr"""
+    # relies on feature nodes always being returned in the same order so that sim_v applies across genres
+
+    t1 = time.time()
+    gv = gac.vertex(vd[gnr])
+    g_es_raw = list(gv.out_edges())
+    
+    g_es = {}
+    for i in g_es_raw:
+        g_es[int(i.target())] = w_std[i]
+
+    e1_v = []
+    e2_v = []
+
+    for i in cmps_rel:
+
+        # e1 = w_std[gac.edge(gv, gac.vertex(i[0]))]
+        # e2 = w_std[gac.edge(gv, gac.vertex(i[1]))]
+
+        e1 = g_es[i[0]]
+        e2 = g_es[i[1]]
+
+        e1_v.append(e1)
+        e2_v.append(e2)
+
+    x = np.array(e1_v) * np.array(e2_v) * sim_v
+    ttl_asim = sum(x)
+    
+    t2 = time.time()
+    return(ttl_asim)
+
+
+# for gnr in gnrs:
+    
+    
+    
+
+
 
 # *** debug w_std2: should not result in symmetric similarities
 # similarites are symmetric, but have to be processed
