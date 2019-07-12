@@ -214,51 +214,54 @@ if __name__ == '__main__':
     # links = get_links(driver, start,end)
 
     for vlu in links.keys():
-        done_chnks = get_done_chunks()
-        if vlu in done_chnks:
-            pass
-        else:
-            print(vlu)
+        while True:
+            done_chnks = get_done_chunks()
+            if vlu in done_chnks:
+                pass
+            else:
+                print(vlu)
 
-            print(links[vlu])
-            
-            links[vlu].click()
-            # close download window
-            cls_dl_win()
+                print(links[vlu])
 
-            time.sleep(2)
+                links[vlu].click()
+                # close download window
+                cls_dl_win()
 
-            # ttl_no_goods = 0 
-            while True:
-                res = dl_fin_chck(vlu)
-                if res == 'success':
-                    break
-                
-                else:
-                    clean_str = 'rm ' + dl_dir + '*'
-                    os.system(clean_str)
-                    driver.quit()                    
-                    while True:
-                        try:
-                            driver, links2 = setup(start, end)
-                            break
-                        except:
-                            print('go to sleep')
-                            driver.quit()
-                            time.sleep(40)
-                            pass
+                time.sleep(2)
 
-                    links2[vlu].click()
-                    # close download window
-                    cls_dl_win()
-                    
+                # ttl_no_goods = 0 
+                while True:
+                    res = dl_fin_chck(vlu)
+                    if res == 'success':
+                        break
 
-                    # ttl_no_goods+=1
-                    # if ttl_no_goods ==3:
-                    #     driver, links = setup(start, end)
-                    
-                    
-            fl_prep(vlu)
+                    else:
+                        clean_str = 'rm ' + dl_dir + '* && killall firefox'
+                        os.system(clean_str)
+
+                        driver.quit()                    
+                        while True:
+                            try:
+                                driver, links2 = setup(start, end)
+                                break
+                            except:
+                                print('go to sleep')
+                                driver.quit()
+                                time.sleep(40)
+                                pass
+
+                        links2[vlu].click()
+                        # close download window
+                        cls_dl_win()
+
+
+                fl_prep(vlu)
+                break
+
+                        # ttl_no_goods+=1
+                        # if ttl_no_goods ==3:
+                        #     driver, links = setup(start, end)
+
 
 
 
