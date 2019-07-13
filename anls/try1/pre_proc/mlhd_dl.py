@@ -25,7 +25,7 @@ def setup(start, end):
 
     from selenium.webdriver.firefox.options import Options
     options = Options()
-    # options.headless = True
+    options.headless = True
     
     driver = webdriver.Firefox(firefox_profile=profile, options=options)
 
@@ -34,9 +34,7 @@ def setup(start, end):
     print('wait till page loaded')
     time.sleep(5)
     
-
     # scroll down a bunch
-
 
     actions = ActionChains(driver)
     actions.send_keys(Keys.TAB).perform()
@@ -213,57 +211,53 @@ if __name__ == '__main__':
 
     # links = get_links(driver, start,end)
 
-    for vlu in links.keys():
+    links_txt = links.keys()
+    ttl_bads = 0
+
+    for vlu in links_txt:
         while True:
-            done_chnks = get_done_chunks()
-            if vlu in done_chnks:
-                pass
-            else:
-                print(vlu)
+            print(vlu)
+            try:
+                done_chnks = get_done_chunks()
+                if vlu in done_chnks:
+                    break
+                else:
 
-                print(links[vlu])
+                    print(vlu)
+                    print(links[vlu])
 
-                links[vlu].click()
-                # close download window
-                cls_dl_win()
+                    links[vlu].click()
+                    # close download window
+                    cls_dl_win()
 
-                time.sleep(2)
+                    time.sleep(2)
 
-                # ttl_no_goods = 0 
-                while True:
+                    # ttl_no_goods = 0 
+
                     res = dl_fin_chck(vlu)
                     if res == 'success':
+                        fl_prep(vlu)
                         break
-
                     else:
-                        clean_str = 'rm ' + dl_dir + '* && killall firefox'
-                        os.system(clean_str)
+                        ttl_bads +=1
+                        if ttl_bads ==3:
+                            raise Exception('download failed')
+                            
 
-                        driver.quit()                    
-                        while True:
-                            try:
-                                driver, links2 = setup(start, end)
-                                break
-                            except:
-                                print('go to sleep')
-                                driver.quit()
-                                time.sleep(40)
-                                pass
+            except:
+                clean_str = 'rm ' + dl_dir + '* && killall firefox'
+                os.system(clean_str)
 
-                        links2[vlu].click()
-                        # close download window
-                        cls_dl_win()
-
-
-                fl_prep(vlu)
-                break
+                driver.quit()                    
+                print('go to sleep')
+                time.sleep(40)
+                driver, links = setup(start, end)
+                
+                
 
                         # ttl_no_goods+=1
                         # if ttl_no_goods ==3:
                         #     driver, links = setup(start, end)
-
-
-
 
 
 # import gzip
