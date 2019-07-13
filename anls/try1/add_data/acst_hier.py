@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import itertools
 from multiprocessing import Pool
 import operator
+from datetime import datetime
+from datetime import timedelta
+
 
 from scipy.stats import entropy
 from sklearn import preprocessing
@@ -35,19 +38,16 @@ def vd_fer(g, idx):
         
     return(vd, vdrv)
 
-def gnrt_acst_el(acst_gnr_dict, gnrz):
+def gnrt_acst_el(gnrs):
     """generates edge list for acoustic space network"""
     
-    # gnrz = acst_gnr_dict.keys()
     el_ttl = []
-    sz_dict = {}
-    gnr_ind = {}
     
-    for gnr in gnrz:
+    for gnr in gnrs:
     #     print(gnr)
         
         # dfc = get_df_cbmd(gnr)
-        gnr_ind[gnr] = gnrz.index(gnr)
+        # gnr_ind[gnr] = gnrz.index(gnr)
         dfcx = acst_gnr_dict[gnr]
 
         gnr_cnt = len(dfcx)
@@ -76,8 +76,39 @@ def gnrt_acst_el(acst_gnr_dict, gnrz):
             el_gnr = el_gnr + elx
 
         el_ttl = el_ttl + el_gnr
-    return(el_ttl, sz_dict, gnr_ind)
+        
+    return(el_ttl)
 
+
+def gnrt_acst_el_mp(gnrs):
+    """parallelizes the acoustic edgelist generation process"""
+
+    NO_CHUNKS = 3
+    gnr_chnks = list(split(gnrs, NO_CHUNKS))
+
+    t1 = time.time()
+    p = Pool(processes=NO_CHUNKS)
+    data = p.map(gnrt_acst_el, [i for i in gnr_chnks])
+    t2=time.time()
+
+    p.close()
+
+    el_ttl = list(itertools.chain.from_iterable(data))
+    return(el_ttl)
+
+
+
+def gnrt_sup_dicts(acst_gnr_dict,gnrs):
+    sz_dict = {}
+    gnr_ind = {}
+
+    for gnr in gnrs:
+        sz_dict[gnr] = len(acst_gnr_dict[gnr])
+        gnr_ind[gnr] = gnrs.index(gnr)
+        
+    return(sz_dict, gnr_ind)
+
+sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
 
 def gac_crubgs(el_ttl):
@@ -285,10 +316,29 @@ def kld_proc(kld2_el):
     return(g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv)
 
 
+def all_cmps_crubgs(gnrs, vd, type):
+    """constructs basic comparisons sets of nodes from different conditions"""
+    # have to include combinations
+    
+    gnr_ids = [vd[i] for i in gnrs]
+    lenx = len(gnrs)
+
+    if type == "permutations":
+        cmps = list(itertools.permutations(gnr_ids, 2))
+
+    if type == "product":
+        cmps = list(itertools.product(gnr_ids, repeat=2))
+        
+    return(cmps)
+
+
+
 
 # * feature extraction
 
 ## ** amount of musical space spanning
+# use similar logic of omnivorousness
+
 def gnr_span_prep(vrbls):
     """prepares feature similarity matrix, needed to see how well genres span"""
     # not sure if good:
@@ -365,19 +415,6 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v):
 
 # sim_vlu[ghrac.edge(gv, v)]
 # sim_vlu[ghrac.edge(v, gv)]
-
-def all_cmps_crubgs(gnrs, vd, type):
-    """constructs comparisons"""
-    gnr_ids = [vd[i] for i in gnrs]
-    lenx = len(gnrs)
-
-    if type == "permutations":
-        cmps = list(itertools.permutations(gnr_ids, 2))
-
-    if type == "product":
-        cmps = list(itertools.product(gnr_ids, repeat=2))
-        
-    return(cmps)
 
 
 
@@ -462,57 +499,127 @@ def chrt_proc(gnr):
     cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
     return(cohrt_pct_inf, cohrt_mean_non_inf)
 
+# * higher level  management functions
 
-# ** degree of space spanning
-# use similar logic of omnivorousness
+def gnr_t_prds(tdlt):
+    time_start = datetime.date(datetime(2006,1,1))
+    period_end = datetime.date(datetime(2012,12,20))
+
+    # tdlt = 28
+
+    time_periods = []
+
+    while True:
+        time_end = time_start + timedelta(days=tdlt)
+
+        if time_end < period_end:
+            time_range = [time_start, time_end]
+            time_periods.append(time_range)
+
+            time_start = time_start + timedelta(days=tdlt+1)
+        else:
+            break
+
+    return(time_periods)
 
 
 
 # for gnr in gnrs:
 
 if __name__ == '__main__':
-    # dates generation
-    print('set parameters')
-    min_cnt = 10
-    min_weight = 10
-    min_rel_weight = 0.1
-    min_tag_aprnc = 30
-    d1 = '2011-05-01'
-    d2 = '2011-05-31'
+    time_periods = gnr_t_prds(28*6)
 
-    vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
-           'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
-    print('construct dfc')
-    dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, client, pd)
-    
-    gnrs = list(np.unique(dfc['tag']))
-    
-    print('construct acst gnr dict')
-    acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
+    res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
 
-    print('construct acoustic edge list')
-    el_ttl, sz_dict, gnr_ind = gnrt_acst_el(acst_gnr_dict, gnrs)
+    for tprd in time_periods:
+        t1 = tprd[0].strftime('%Y-%m-%d')
+        t2 = tprd[1].strftime('%Y-%m-%d')
 
-    print('construct acoustic graph')
-    gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
+        tp_id = time_periods.index(tprd)
+        tp_clm = t1 + ' -- ' + t2
 
-    print('construct acoustic mat')
-    acst_mat = acst_arfy(el_ttl, vrbls, 3)
+        print('set parameters')
+        min_cnt = 10
+        min_weight = 10
+        min_rel_weight = 0.1
+        min_tag_aprnc = 30
+        d1 = t1
+        d2 = t2
+        
 
-    print('construct kld mat')
-    ar_cb = kld_mat_crubgs(gnrs)
+        vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
+               'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
+        print('construct dfc')
 
-    print('construct kld 3 parent edgelist')
-    npr = 4
-    kld2_el = kld_n_prnts(ar_cb, npr)
+        dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, client, pd)
 
-    print('construct kld graph')
-    g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+        gnrs = list(np.unique(dfc['tag']))
 
-    print('extract features')
-    df_res = ftr_extrct()
-    print(df_res.shape)
-    raise Exception('done')
+        print('construct acst gnr dict')
+        t1 = time.time()
+        acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
+        t2 = time.time()
 
+        print('construct acoustic edge list')
+        # el_ttl = gnrt_acst_el(gnrs)
+        el_ttl = gnrt_acst_el_mp(gnrs)
+        sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict,gnrs)
+
+        print('construct acoustic graph')
+        gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
+
+        print('construct acoustic mat')
+        acst_mat = acst_arfy(el_ttl, vrbls, 3)
+
+        print('construct kld mat')
+        ar_cb = kld_mat_crubgs(gnrs)
+
+        print('construct kld 3 parent edgelist')
+        npr = 4
+        kld2_el = kld_n_prnts(ar_cb, npr)
+
+        print('construct kld graph')
+        g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+
+        print('extract features')
+        df_res = ftr_extrct()
+
+        df_res['t1'] = t1
+        df_res['t2'] = t2
+        df_res['tp_id'] = tp_id
+                
+        print(df_res.shape)
+        print('print to csv')
+        df_res.to_csv(res_dir + tp_clm + '.csv')
+
+        # raise Exception('done')
+
+# * scrap
+## ** time durations
+
+# ch_qry = 'SELECT time_d, count(time_d) FROM logs GROUP BY time_d'
+# time_cnts = client.execute(ch_qry)
+# time_pnts = [i[0] for i in time_cnts]
+# cnts = [i[1] for i in time_cnts]
+
+# ax = plt.axes()
+# ax.plot(time_pnts, cnts)
+# plt.show()
+
+# qry = 'select time_d, uniq(usr) from logs group by time_d'
+# time_cnts = client.execute(qry)
+# time_pnts = [i[0] for i in time_cnts]
+# unq_usrs = [i[1] for i in time_cnts]
+
+# ax = plt.axes()
+# ax.plot(time_pnts, unq_usrs)
+# plt.show()
+
+
+## ** speed up implementations
+# gnrt_acst_el is single core, can be parallelized tho, might be worth it
+# kld mat also takes quite some time
+# wonder if custom cython function would be faster
+# seems to be already heavily using C funcs, so don't really think there's much to improve
 
 
