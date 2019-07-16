@@ -670,6 +670,66 @@ if __name__ == '__main__':
 
         # raise Exception('done')
 
+# * xprtl
+# ** binarize weights
+
+acst_mat_bn = np.zeros(acst_mat.shape)
+acst_mat_bn[np.where(acst_mat > 0.1)] = 1
+
+sums = np.sum(acst_mat_bn, axis=1)
+nph(sums)
+
+vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,11)] for vrbl in vrbls]
+vrbl_nd_strs = list(itertools.chain.from_iterable(vrbl_nd_strs_raw))
+
+el_bin = []
+
+for gnr in gnrs:
+    gnr_ar_bin = acst_mat_bn[gnr_ind[gnr]]
+    ftrs_bin = np.array(vrbl_nd_strs)[np.where(gnr_ar_bin == 1)]
+
+    gnrs_el_bin = [(gnr, f) for f in ftrs_bin]
+    el_bin = el_bin + gnrs_el_bin
+
+g_bin = Graph()
+g_bin_id = g_bin.add_edge_list(el_bin, hashed=True, string_vals=True)
+
+vd_bin, vd_bin_rv = vd_fer(g_bin, g_bin_id)
+
+cmps = all_cmps_crubgs(gnrs, vd_bin, 'product')
+
+sims = vertex_similarity(g_bin, 'dice', vertex_pairs = cmps)
+
+ovlp_ar = asym_sim(g_bin, gnrs, vd_bin)
+
+# shows that high overlap doens't mean high similarity?
+# high overlap doesn't mean high similarity because the similarity here is symmetric
+# if there isn't much overlap for one genre, but super much for the other, for example i think
+
+nph(sims_ar[np.where(ovlp_ar > 0.8)])
+nph(ovlp_ar[np.where(ovlp_ar > 0.9)])
+
+# subsetting with absolute stuff no good
+bin_el1 = sbst_eler(ovlp_ar, operator.gt, 0.9)
+
+g_hr_bin = Graph()
+g_hr_bin_sim = g_hr_bin.new_edge_property('float')
+g_hr_bin_id = g_hr_bin.add_edge_list(bin_el1, hashed = True, string_vals=True, eprops = [g_hr_bin_sim])
+
+graph_pltr(g_hr_bin, g_hr_bin_id, 'acst_spc6.pdf', 1)
+
+## not exactly sure if that works: should rewrite kld_n_prnts into general el function similar to sbst_eler
+bin_el2 = kld_n_prnts(1-ovlp_ar ,4)
+
+
+g_asym, asym_sim, g_asym_id, vd_asym, vd_asym_rv = kld_proc(bin_el2)
+graph_pltr(g_asym, g_asym_id, 'acst_spc6.pdf', 1)
+
+
+# should try with different thresholds (0.1, 0.15, 0.2) and see if difference
+
+
+
 # * scrap
 ## ** time durations
 
@@ -693,10 +753,6 @@ if __name__ == '__main__':
 
 
 ## ** speed up implementations
-# gnrt_acst_el is single core, can be parallelized tho, might be worth it
-# kld mat also takes quite some time
-# wonder if custom cython function would be faster
-# seems to be already heavily using C funcs, so don't really think there's much to improve
 
 
 # is dict_gnrs (produces acst_gnr_dict) parallelizable?
@@ -709,3 +765,10 @@ if __name__ == '__main__':
 # kld time: even when paralellized, still takes for fucking ever: 250 sec,
 # tbh firefox took up a lot but still
 
+
+
+## *** fucking done
+# gnrt_acst_el is single core, can be parallelized tho, might be worth it
+# kld mat also takes quite some time
+# wonder if custom cython function would be faster
+# seems to be already heavily using C funcs, so don't really think there's much to improve
