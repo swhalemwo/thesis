@@ -451,12 +451,23 @@ def ftr_extrct():
 
         # get sum of 3 distance to 3 parents
         prnt3_dvrg = gv.in_degree(kld_sim)
+
+        clst_prnt = min([kld_sim[v] for v in gv.in_edges()])
+        res_dict[gnr]['clst_prnt'] = clst_prnt
+
         res_dict[gnr]['prnt3_dvrg'] = prnt3_dvrg
+
+        thd_res, thd_names = ar_cb_proc(gnr)
+        for i in zip(thd_names, thd_res):
+            # print(i)
+            res_dict[gnr][i[0]] = i[1]
 
         # from original data, might be interesting to weigh/add sds
         res_dict[gnr]['sz_raw'] = sz_dict[gnr]
         res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
 
+        cnt_x_rel_weight = sum(acst_gnr_dict[gnr]['rel_weight'] * acst_gnr_dict[gnr]['cnt'])
+        res_dict[gnr]['cnt_x_rel_weight'] = cnt_x_rel_weight
 
         # get parents for all kinds of things
         prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
@@ -516,7 +527,49 @@ def chrt_proc(gnr):
     cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
     return(cohrt_pct_inf, cohrt_mean_non_inf)
 
+def ar_cb_proc(gnr):
+    """collects information about potential (penl) parents and children"""
+    # would probably go easier but not really expensive
+    
+    t1 = time.time()
+    ar_pos = gnr_ind[gnr]
+
+    thd_res = []
+
+    thds = [100, 0.1, 0.2, 0.3]
+    thd_names = []
+
+
+    for thd in thds:
+        thd_prnts = ar_cb[ar_pos][np.where(ar_cb[ar_pos] < thd)]
+        
+        len_penl_prnts = len(thd_prnts)
+        mean_penl_prnts = np.mean(thd_prnts)
+        sum_penl_prnts = np.sum(thd_prnts)
+
+        # children calculations
+        thd_chirn = ar_cb[:,ar_pos][np.where(ar_cb[:,ar_pos] < thd)]
+
+        len_penl_chirn = len(thd_chirn)
+        mean_penl_chirn = np.mean(thd_chirn)
+        sum_penl_chirn = np.sum(thd_chirn)
+
+        thd_res.extend([len_penl_prnts, mean_penl_prnts, sum_penl_prnts,
+                        len_penl_chirn, mean_penl_chirn, sum_penl_chirn])
+        
+        thd_names.extend(['len_penl_prnts_' + str(thd),
+                          'mean_penl_prnts_' + str(thd),
+                          'sum_penl_prnts_' + str(thd),
+                          'len_penl_chirn_' + str(thd),
+                          'mean_penl_chirn_' + str(thd),
+                          'sum_penl_chirn_' + str(thd),])
+    t2 = time.time()
+
+    return(thd_res, thd_names)
+
+
 # * higher level  management functions
+
 
 def gnr_t_prds(tdlt):
     time_start = datetime.date(datetime(2006,1,1))
@@ -541,7 +594,6 @@ def gnr_t_prds(tdlt):
 
 
 
-# for gnr in gnrs:
 
 if __name__ == '__main__':
     time_periods = gnr_t_prds(28*3)
@@ -605,6 +657,7 @@ if __name__ == '__main__':
         g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
 
         print('extract features')
+        # could be parallelized as well
         df_res = ftr_extrct()
 
         df_res['t1'] = t1
