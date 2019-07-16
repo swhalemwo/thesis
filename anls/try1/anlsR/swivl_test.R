@@ -170,8 +170,45 @@ formla2 <- "sz_raw ~ (1 | X ) + prnt3_dvrg"
 
 fit_fe <- lmer(formla2, data=dfc3)
 
+## ** use plm? claims to be good for unbalanced panels
+## ahhh so much stuff and no dieuwke
 
-    
+dfc1.5 <- dfc[-which(dfc$prnt3_dvrg == Inf),]
+
+fit_plm_fe <- plm(sz_raw ~ prnt3_dvrg + cohrt_pct_inf + spngns, data=dfc1.5, model = 'within', na.action = 'na.exclude', index = 'X')
+
+fit_plm_fe_lag <- plm(sz_raw ~ lag(prnt3_dvrg,1) + lag(cohrt_pct_inf,1) + lag(spngns,1), data=dfc1.5, model = 'within', na.action = 'na.exclude', index = 'X')
+
+fit_plm_re_lag <- plm(sz_raw ~ lag(prnt3_dvrg,1) + lag(cohrt_pct_inf,1) + lag(spngns,1), data=dfc1.5, model = 'random', na.action = 'na.exclude', index = c('X'))
+
+fit_plm_re2 <- plm(sz_raw ~ prnt3_dvrg + cohrt_pct_inf + spngns, data=dfc3, model = 'random', na.action = 'na.exclude', index = c('X', 'tp_id'))
+
+screenreg(list(fit_plm_fe_lag, fit_plm_re, fit_plm_re_lag))
+phtest(fit_plm_fe_lag, fit_plm_re_lag)
+
+plmtest(fit_plm_re_lag, type='bp', effect = 'time')
+
+
+## ** DV transformation
+
+## idk just do log?
+## piazzai: doesn't seem to use log?
+## but uses poisson
+
+## ** pglm
+library(pglm)
+fit_g_fe <- pglm(log(sz_raw) ~ lag(prnt3_dvrg,1) + lag(cohrt_pct_inf,1) + lag(spngns,1),
+                 data = dfc1.5[which(dfc1.5$tp_id > 7),],
+                 family = 'poisson',
+                 model = 'within',
+                 index = 'tp_id')
+
+
+## ** time series descripties
+tsx <- aggregate(dfc1.5$sz_raw, list(dfc1.5$tp_id), sum)
+barplot(tsx$x)
+
+
 ## ** other stuff
 
 ## need example of data structure: long/short?
