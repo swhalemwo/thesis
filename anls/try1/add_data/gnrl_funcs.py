@@ -44,7 +44,10 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, c
     CREATE TEMPORARY TABLE mbids_basic
     (
     mbid_basic String,
-    cnt Int16
+    cnt Int16,
+    artist String,
+    erl_rls Int16,
+    len_rls_lst Int8
     )
     """
     # d1 = '2011-10-01'
@@ -63,10 +66,24 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, c
 
     mbid_basic_insert = """
     INSERT INTO mbids_basic 
-    SELECT lfm_id as mbid, cnt from acstb2
-    JOIN
-    ( """ + date_str + """ ) USING mbid
+    SELECT * FROM (
+        SELECT lfm_id as mbid, cnt from acstb2
+        JOIN
+        ( """ + date_str + """ ) USING mbid
+        ) JOIN ( SELECT lfm_id AS mbid, artist, erl_rls, len_rls_lst 
+        FROM addgs ) USING mbid
     """
+
+    # join with addgs
+    
+    
+    # SELECT lfm_id AS mbid_basic, cnt, artist, erl_rls, len_rls_lst FROM addgs
+    # JOIN mbids_basic USING mbid_basic
+
+    # integrate lsnrs and plcnt from dones_tags?
+    # does not vary over time...
+    # is like looking in the future: has information from 2019 -> can't really use it to predict stuff in 2012
+    
 
 
 
@@ -93,12 +110,16 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, c
     cnt Int16,
     tag String,
     weight Int8,
-    rel_weight Float32)
+    rel_weight Float32, 
+    artist String, 
+    erl_rls Int16, 
+    len_rls_lst Int8
+    )
     """
 
     # select tags of songs that fulfil requirements generally (but maybe not in intersection)
     basic_songs_tags = """INSERT INTO basic_songs_tags
-    SELECT mbid, cnt, tag, weight, rel_weight 
+    SELECT mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst
     FROM (
         SELECT mbid, tag, weight, rel_weight 
             FROM tag_sums
@@ -110,7 +131,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, c
         AND (rel_weight > """ + str(min_rel_weight) + """ ))
 
     JOIN (
-        SELECT mbid_basic as mbid, cnt from mbids_basic)
+        SELECT mbid_basic as mbid, cnt, artist, erl_rls, len_rls_lst from mbids_basic)
     USING mbid"""
     
     # get tags that are actually present enough in intsec
@@ -130,7 +151,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, c
     # filtered on acstb before so should all be in there, and seems like it is
 
     merge_qry = """
-    SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, """ + vrbl_strs + """ from acstb2
+    SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst, """ + vrbl_strs + """ from acstb2
     JOIN (""" + int_sec_all + """) USING mbid"""
     
     drops = [
@@ -145,13 +166,15 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, c
     
     client.execute(mbid_tbl_basic)
     client.execute(mbid_basic_insert)
-    client.execute(tag_tbl_basic)    
+    client.execute(tag_tbl_basic)
     client.execute(tag_basic_insert)
     client.execute(basic_songs_tags_tbl)
     client.execute(basic_songs_tags)
+    
     rows_merged = client.execute(merge_qry)
 
-    dfc = pd.DataFrame(rows_merged, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight'] + vrbls)
+    dfc = pd.DataFrame(rows_merged, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight',
+                                               'artist', 'erl_rls', 'len_rls_lst'] + vrbls)
     # generate string for tag data
     return(dfc)
 
