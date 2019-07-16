@@ -108,7 +108,7 @@ def gnrt_sup_dicts(acst_gnr_dict,gnrs):
         
     return(sz_dict, gnr_ind)
 
-sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict, gnrs)
+# sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
 
 def gac_crubgs(el_ttl):
@@ -242,7 +242,18 @@ def kld_mp(chnk):
             gnr_ents.append(ent)
         ents_ttl.append(gnr_ents)
     return(ents_ttl)
-                
+
+def kld_mp2(chnk):
+    """ improved kdl with https://www.oipapio.com/question-4293090, no more inf fixing but shouldn't be needed it it's proper subsets, """
+    # comparison with previous shows that places which are now also infinite are generally super high
+
+    start_col = gnrs.index(chnk[0])
+    end_col = gnrs.index(chnk[-1])+1
+
+    kldx = entropy(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:])
+    return(kldx)
+    
+
 
 # t1 = time.time()
 # for i in range(1000):
@@ -259,13 +270,19 @@ def kld_mat_crubgs(gnrs):
     p = Pool(processes=NO_CHUNKS)
 
     t1=time.time()
-    data = p.map(kld_mp, [i for i in gnr_chnks])
+    data = p.map(kld_mp2, [i for i in gnr_chnks])
     t2=time.time()
+
+    # t1=time.time()
+    # data2 = p.map(kld_mp, [i for i in gnr_chnks])
+    # t2=time.time()
 
     p.close()
 
-    ar_lst = [np.array(i) for i in data]
-    ar_cb = np.concatenate(ar_lst, axis=0)
+    # ar_lst = [np.array(i) for i in data2]
+    # ar_cb = np.concatenate(ar_lst, axis=0)
+
+    ar_cb = np.concatenate(data, axis=0)
 
     return(ar_cb)
 
@@ -527,9 +544,11 @@ def gnr_t_prds(tdlt):
 # for gnr in gnrs:
 
 if __name__ == '__main__':
-    time_periods = gnr_t_prds(28*6)
+    time_periods = gnr_t_prds(28*3)
 
     res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
+    
+    # tprd = time_periods[20]
 
     for tprd in time_periods:
         t1 = tprd[0].strftime('%Y-%m-%d')
@@ -549,6 +568,7 @@ if __name__ == '__main__':
 
         vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
                'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
+
         print('construct dfc')
 
         dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, client, pd)
@@ -556,14 +576,15 @@ if __name__ == '__main__':
         gnrs = list(np.unique(dfc['tag']))
 
         print('construct acst gnr dict')
-        t1 = time.time()
+
         acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
-        t2 = time.time()
+        sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict, gnrs)        
 
         print('construct acoustic edge list')
         # el_ttl = gnrt_acst_el(gnrs)
         el_ttl = gnrt_acst_el_mp(gnrs)
         sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict,gnrs)
+
 
         print('construct acoustic graph')
         gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
@@ -571,8 +592,10 @@ if __name__ == '__main__':
         print('construct acoustic mat')
         acst_mat = acst_arfy(el_ttl, vrbls, 3)
 
+        t1 = time.time()
         print('construct kld mat')
         ar_cb = kld_mat_crubgs(gnrs)
+        t2 = time.time()
 
         print('construct kld 3 parent edgelist')
         npr = 4
@@ -622,4 +645,14 @@ if __name__ == '__main__':
 # wonder if custom cython function would be faster
 # seems to be already heavily using C funcs, so don't really think there's much to improve
 
+
+# is dict_gnrs (produces acst_gnr_dict) parallelizable?
+# in principle yeah: can split pandas df, process rows separately,
+# merging into one in the end is a bit work but not too much tbh
+# is it worth it?
+# takes 10 sec, 30sec for 6 months
+# idk that's like 10% of the time (5 min), but kinda neglible against
+# el_acst_mp: even with multiprocessing still 46 second -> 90 sec saved
+# kld time: even when paralellized, still takes for fucking ever: 250 sec,
+# tbh firefox took up a lot but still
 
