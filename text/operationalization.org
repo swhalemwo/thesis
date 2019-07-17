@@ -1,0 +1,22 @@
+* Operationalization
+
+
+** musical space
+
+** lizardo: cultural holes -> omnivorism
+
+** dependent variable
+textcite:Piazzai_concepts uses the number of new releases for each year to assess the fitness of a genre. 
+# 
+However, works released prior to the respective period can still be relevant to define it. 
+# 
+The most obvious case is the category of classical music, but applies more generally to all genres that have substantial impact of classical works. 
+# 
+Empirically, textcite:Anand_2000_sensemaking,Anand_2006_charting have shown how technical changes that allowed to track not just new releases, but musical consumption in general, required the creation of a new Billboard list, the ~hot 100 or so~ which would only feature newcoming artists since otherwise classical works and artists would occupy large selections of the top 100 chart. 
+# 
+~As such, the use of individual listening records the importance of investigating actual consumption patterns.~
+
+
+
+
+
