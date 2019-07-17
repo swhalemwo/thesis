@@ -827,6 +827,27 @@ if __name__ == '__main__':
 # * xprtl
 # ** binarize weights
 
+x1 = [1,2,3]
+x2 = [1,3,4]
+
+x1 = {'a':0.5,'b':0.2,'c':0.3}
+x2 = {'a':0.3,'b':0.2,'d':0.5}
+
+hellinger(x1,x2)
+
+correlation between matrix triangles as measure of asymmetry?
+
+tri1 = np.tril(ovlp_ar, k=-1)
+
+# np always extracts rowise -> need to transpose to get correct order of items
+ovlpt = ovlp_ar.transpose()
+
+tri_vlus1 = ovlp_ar[np.where(tri1 > 0)]
+tri_vlus2 = ovlpt[np.where(tri1 > 0)]
+
+np.corrcoef(tri_vlus1, tri_vlus2)
+
+
 
 
 # * scrap
