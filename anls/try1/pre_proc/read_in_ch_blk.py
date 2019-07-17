@@ -10,13 +10,13 @@ import argparse
 import time
 import subprocess
 import itertools
+import gzip
 
 def get_log_clean(f):
     """return cleaned log (only songs that exist)"""
-    # log_lines = []
     usr_log=[]
-    # usr_tstamps=[]
-    with open(f, 'r') as fi:
+    
+    with gzip.open(f, 'rt') as fi:
         rdr=csv.reader(fi, delimiter='\t')
 
         for row in rdr:
@@ -114,6 +114,66 @@ def bucketer(all_logs, min_dts, max_dts):
 
     return(buckets)
 
+def log_files_prep(base_dir, start_fldr, end_fldr):
+    """collects all the files to insert"""
+    # start_fldr = 1
+    # end_fldr = 10
+
+    log_fldrs = os.listdir(base_dir)
+    fldr_ints = {}
+    for i in log_fldrs:
+        fldr_ints[int(i)] = i
+
+    # select folders from which logs are read
+
+    fldr_range = range(start_fldr, end_fldr +1)
+    all_log_files = []
+    for i in fldr_range:
+        if i in fldr_ints.keys():
+            fldr_log_files = os.listdir(base_dir + fldr_ints[i])
+            fldr_log_files2 = [base_dir + fldr_ints[i] + '/' + k for k in fldr_log_files]
+            all_log_files = all_log_files + fldr_log_files2
+
+    return(all_log_files)
+
+
+def chunk_prep(chnk):
+    valid_uuids = []
+    all_logs = []
+    min_dts=[]
+    max_dts=[]
+
+    for l in chnk:
+        uuid=l[-43:-7]
+
+        # ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
+        ab_uid = usr_abbrv_dict[uuid]
+
+        logx = get_log_clean(l)
+
+        logx2 = [(
+            datetime.date(datetime.utcfromtimestamp(int(i[0]))),
+            ab_uid,
+            i[1]) for i in logx]
+
+        # some logs are reverse: earliest first
+        if int(logx[0][0]) > int(logx[-1][0]):
+
+            min_dts.append(logx2[-1][0])
+            max_dts.append(logx2[0][0])
+
+            logx2.reverse()
+
+        else:
+            min_dts.append(logx2[0][0])
+            max_dts.append(logx2[-1][0])
+
+        all_logs = all_logs + logx2
+        valid_uuids.append(ab_uid)
+
+    return(valid_uuids, all_logs, min_dts, max_dts)
+
+
 
 client = Client(host='localhost', password='anudora', database='frrl')
 # client.execute('drop table tests2')
@@ -122,70 +182,42 @@ client = Client(host='localhost', password='anudora', database='frrl')
 if __name__ == '__main__':
     # reads all the logs
     parser = argparse.ArgumentParser()
-    parser.add_argument('log_dir', help='dir with logs')
+    parser.add_argument('base_dir', help='dir with folders with logs')
+    parser.add_argument('start_fldr', help = 'folder to start')
+    parser.add_argument('end_fldr', help = 'folder to end')
 
     args = parser.parse_args()
-    log_dir = args.log_dir
-
-    # log_dir = '/media/johannes/D45CF5375CF514C8/Users/johannes/mlhd/0-15/02/'
-    # log_dir = '/home/johannes/Downloads/mlhd/06/'
+    base_dir = args.log_dir
+    start_fldr = args.start_fldr
+    end_fldr = args.end_fldr
     
-    files1=os.listdir(log_dir)
-    log_files = [i for i in files1 if i.endswith('.txt')]
+    # base_dir = '/home/johannes/mlhd/us/'
+    # missing: 10-19, 218/219
 
-    chunk_size = 10
+    start_fldr = 1
+    end_fldr = 300
 
-    chunks = [log_files[x:x+chunk_size] for x in range(0, len(log_files), chunk_size)]
+    # seems to work, and should given previous cleaning in downloading stage
+    usr_abbrvs = client.execute('select uuid, abbrv2 from usr_info')
+    usr_abbrv_dict = {}
+    for i in usr_abbrvs:
+        usr_abbrv_dict[i[0]]=i[1]
+
+    all_log_files = log_files_prep(base_dir, start_fldr, end_fldr)
+
+    chunk_size = 15
+    chunks = [all_log_files[x:x+chunk_size] for x in range(0, len(all_log_files), chunk_size)]
     # c=chunks[0]
+    print(len(chunks))
 
     print('creating mbid abbrv dict')
     mbid_abbrv_dict=get_db_songs()
-
 
     for c in chunks:
         print('new chunk', chunks.index(c)+1, '/', len(chunks))
         # bulk dict construction
 
-        valid_uuids = []
-        all_logs = []
-        min_dts=[]
-        max_dts=[]
-
-        for l in c:
-            
-            f=log_dir + l
-            uuid=l[0:36]
-
-            try:
-                ab_uid = client.execute("select abbrv2 from usr_info where uuid='"+uuid + "'")[0][0]
-
-                logx = get_log_clean(f)
-
-                logx2 = [(
-                    datetime.date(datetime.utcfromtimestamp(int(i[0]))),
-                    ab_uid,
-                    i[1]) for i in logx]
-
-                # some logs are reverse: earliest first
-                if int(logx[0][0]) > int(logx[-1][0]):
-
-                    min_dts.append(logx2[-1][0])
-                    max_dts.append(logx2[0][0])
-                    
-                    logx2.reverse()
-
-                else:
-                    min_dts.append(logx2[0][0])
-                    max_dts.append(logx2[-1][0])
-
-                all_logs = all_logs + logx2
-                valid_uuids.append(ab_uid)
-
-            except:
-                # print('user not in usr_info')
-                # need to log to error file
-                print('someting wong with', ab_uid)
-                continue
+        valid_uuids, all_logs, min_dts, max_dts = chunk_prep(c)
 
         new_addgs = unq_proc_bulk(all_logs, mbid_abbrv_dict)
         
@@ -208,4 +240,12 @@ if __name__ == '__main__':
 
         for i in buckets.keys():
             # client.execute('insert into tests2 values', buckets[i])
+            print('would insert now but dont')
             client.execute('insert into logs values', buckets[i])
+# * tests
+
+# abbrvs = []
+# for l in all_log_files:
+#     uuid = l[-43:-7]
+#     abbrv = usr_abbrv_dict[uuid]
+#     abbrvs.append(abbrv)
