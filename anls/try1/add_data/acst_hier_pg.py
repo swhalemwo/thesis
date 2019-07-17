@@ -249,35 +249,6 @@ plt.show()
 # ** debug w_std2: should not result in symmetric similarities
 # similarites are symmetric, but have to be processed
 
-def asym_sim(gx, gnrs, vdx):
-    """generates asym mat based on weights scaled by max, making more equally distributed genres more general"""
-    cmps = all_cmps_crubgs(gnrs, vdx, 'product')
-
-    all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps)
-    
-    # don't think there's much sense in weights: i have weights because i standardize in np.hist
-    # if i don't all proportionality constraints are of and larger ones will swallow small ones
-    # but if i use weights the outdegree becomes the same which makes asymmetric similarity pointless
-    # -> asymmetric similarity through overlap requires variation in out_degree
-    # all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps, eweight = w_std2)
-
-    sims_rows = np.split(all_sims, len(gnrs))
-    sims_ar = np.array(sims_rows)
-
-    # deg_vec = [gx.vertex(vdx[i]).out_degree(weight=w_std2) for i in gnrs]
-    deg_vec = [gx.vertex(vdx[i]).out_degree() for i in gnrs]
-
-    # equivalent to adding the two outdegrees together 
-    deg_ar = np.array([deg_vec]*len(gnrs))
-    deg_ar2 = (deg_ar + np.array([deg_vec]*len(gnrs)).transpose())/2
-
-    # see how much is actually in common, equivalent of multiplication with similarity
-    cmn_ar = deg_ar2*sims_ar
-
-    # see the percentage of what is in common for each genre
-    ovlp_ar = cmn_ar/deg_ar
-    return(ovlp_ar)
-
 
 asym_sim_ar = asym_sim(gnrs, vd)
 nph(asym_sim_ar)
@@ -355,3 +326,141 @@ def kld_mp(chnk):
             gnr_ents.append(ent)
         ents_ttl.append(gnr_ents)
     return(ents_ttl)
+
+# ** binarizing graph to get asymmetry: BAD because requires deleting weights and then creates nonsense
+
+acst_mat_bn = np.zeros(acst_mat.shape)
+acst_mat_bn[np.where(acst_mat > 0.3)] = 1
+
+sums = np.sum(acst_mat_bn, axis=1)
+nph(sums)
+
+vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,11)] for vrbl in vrbls]
+vrbl_nd_strs = list(itertools.chain.from_iterable(vrbl_nd_strs_raw))
+
+el_bin = []
+
+for gnr in gnrs:
+    gnr_ar_bin = acst_mat_bn[gnr_ind[gnr]]
+    ftrs_bin = np.array(vrbl_nd_strs)[np.where(gnr_ar_bin == 1)]
+
+    gnrs_el_bin = [(gnr, f) for f in ftrs_bin]
+    el_bin = el_bin + gnrs_el_bin
+
+g_bin = Graph()
+g_bin_id = g_bin.add_edge_list(el_bin, hashed=True, string_vals=True)
+
+vd_bin, vd_bin_rv = vd_fer(g_bin, g_bin_id)
+
+cmps = all_cmps_crubgs(gnrs, vd_bin, 'product')
+
+sims = vertex_similarity(g_bin, 'dice', vertex_pairs = cmps)
+
+ovlp_ar = asym_sim(g_bin, gnrs, vd_bin)
+
+# shows that high overlap doens't mean high similarity?
+# high overlap doesn't mean high similarity because the similarity here is symmetric
+# if there isn't much overlap for one genre, but super much for the other, for example i think
+
+nph(sims_ar[np.where(ovlp_ar > 0.8)])
+nph(ovlp_ar[np.where(ovlp_ar > 0.8)])
+
+# subsetting with absolute stuff no good
+bin_el1 = sbst_eler(ovlp_ar, operator.gt, 0.9)
+
+bin_el2 = kld_n_prnts(1-ovlp_ar ,4)
+
+g_hr_bin = Graph()
+g_hr_bin_sim = g_hr_bin.new_edge_property('float')
+g_hr_bin_id = g_hr_bin.add_edge_list(bin_el2, hashed = True, string_vals=True, eprops = [g_hr_bin_sim])
+
+graph_pltr(g_hr_bin, g_hr_bin_id, 'acst_spc7.pdf', 1)
+
+vd_hr_bin, vd_hr_bin_rv = vd_fer(g_hr_bin, g_hr_bin_id)
+
+## not exactly sure if that works: should rewrite kld_n_prnts into general el function similar to sbst_eler
+
+
+# debug because looks weird
+# pink floyd & melancholic looks ok: melancholic is sub-genre of pink floyd, has 21 of the 24 features
+
+# also same values with acoustic guitar as superset of jazz guitar
+# check further down
+
+
+g1 = "Pink Floyd"
+g2 = 'melancholic'
+
+g1 = 'acoustic guitar'
+g2 = 'jazz guitar'
+
+
+pr = [vd_bin[g1],vd_bin[g2]]
+
+(vertex_similarity(g_bin, 'dice', vertex_pairs = [pr]) * (g_bin.vertex(vd_bin[g1]).out_degree() + g_bin.vertex(vd_bin[g2]).out_degree())/2) / g_bin.vertex(vd_bin[g1]).out_degree()
+
+
+g_hr_bin_sim[g_hr_bin.edge(g_hr_bin.vertex(vd_hr_bin[g1]), g_hr_bin.vertex(vd_hr_bin[g2]))]
+g_hr_bin_sim[g_hr_bin.edge(g_hr_bin.vertex(vd_hr_bin[g1]), g_hr_bin.vertex(vd_hr_bin[g2]))]
+
+cmon_ftrs = set(g_bin.vertex(vd_bin[g1]).out_neighbors()) & set(g_bin.vertex(vd_bin[g2]).out_neighbors())
+g1_ftrs = set(g_bin.vertex(vd_bin[g1]).out_neighbors()) - set(g_bin.vertex(vd_bin[g2]).out_neighbors())
+g2_ftrs = set(g_bin.vertex(vd_bin[g2]).out_neighbors()) - set(g_bin.vertex(vd_bin[g1]).out_neighbors())
+[print(g_bin_id[i]) for i in cmon_ftrs]
+[print(g_bin_id[i]) for i in g1_ftrs]
+
+# so far makes sense technically as in doesn't seem like errors
+# but not really thematically
+# maybe really different threshold? 
+# 0.3 threshold: suomi is now most central WTFFF
+# just has 2 features -> so many stuff is super similar to it
+
+# but the lower the threshold, the less asymmetry
+# 0.03: still enough asymmetry, but nonsense stuff like "Battlestar Galactica" and "j dilla" now eats up everything
+
+# hmm both have among the lowest attributes possible
+# -> they are similar to a lot of other ones
+# they are basically super general now
+
+g1 = 'Battlestar Galactica'
+g2 = 'j dilla'
+g3 = 'Suomi'
+len(set(g_bin.vertex(vd_bin[g3]).out_neighbors()))
+
+# hm it's kinda i'm throwing away information, the more the higher the threshold
+# tbh i dont' know if it's salvageable
+# to geth this asymmetric similarity i have to binarize
+# and to binarize means throwing away information on weights
+# but weights are exactly the thing that makes it work in the first place
+-> BINARIZING BAD, rather find different measure
+
+g_asym, asym_sim, g_asym_id, vd_asym, vd_asym_rv = kld_proc(bin_el2)
+graph_pltr(g_asym, g_asym_id, 'acst_spc6.pdf', 1)
+
+
+# should try with different thresholds (0.1, 0.15, 0.2) and see if difference
+
+# ** song similiarity
+
+# tx1 = time.time()
+# dfcx_proc('electronic')
+# tx2 = time.time()
+
+
+# unq_artsts
+# gnr_gini
+# avg_age
+# age_sd
+# nbr_rlss_tprd
+# ttl_size
+# prop_rls_size
+# dist_mean
+# dist_sd
+
+
+
+# metal genres seem to have skewed or even bimodal distributions
+# but also i wonder if the other genres with normal distributions centered between 1 and 1.5 are ok
+# basically means nothing is really similar to each other?
+# 
+
