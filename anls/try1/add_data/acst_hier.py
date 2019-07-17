@@ -22,8 +22,10 @@ from graph_tool import *
 
 from gnrl_funcs import get_dfs
 from gnrl_funcs import dict_gnrgs
-from gnrl_funcs import gini
-from gnrl_funcs import weighted_avg_and_std
+# from gnrl_funcs import gini
+# from gnrl_funcs import weighted_avg_and_std
+
+import collections
 
 client = Client(host='localhost', password='anudora', database='frrl')
 
@@ -40,6 +42,42 @@ def vd_fer(g, idx):
         vdrv[int(i)] = idx[i]
         
     return(vd, vdrv)
+
+def weighted_avg_and_std(np, values, weights):
+    """
+    Return the weighted average and standard deviation.
+
+    values, weights -- Numpy ndarrays with the same shape.
+    """
+    average = np.average(values, weights=weights)
+    # Fast and numerically precise:
+    variance = np.average((values-average)**2, weights=weights)
+    return (average, math.sqrt(variance))
+
+def gini(array):
+    """Calculate the Gini coefficient of a numpy array."""
+    # based on bottom eq:
+    # http://www.statsdirect.com/help/generatedimages/equations/equation154.svg
+    # from:
+    # http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm
+    # All values are treated equally, arrays must be 1d:
+    array = array.flatten()
+    if np.amin(array) < 0:
+        # Values cannot be negative:
+        array -= np.amin(array)
+    # Values cannot be 0:
+    array += 0.0000001
+    # Values must be sorted:
+    array = np.sort(array)
+    # Index per array element:
+    index = np.arange(1,array.shape[0]+1)
+    # Number of array elements:
+    n = array.shape[0]
+    # Gini coefficient:
+    return ((np.sum((2 * index - n  - 1) * array)) / (n * np.sum(array)))
+
+
+
 
 def gnrt_acst_el(gnrs):
     """generates edge list for acoustic space network"""
@@ -321,9 +359,37 @@ def all_cmps_crubgs(gnrs, vd, type):
 
 # * feature extraction
 
+def ftr_extrct(gnrs):
 
-def ftr_extrct():
+    NO_CHUNKS = 3
+    chnks = list(split(gnrs, NO_CHUNKS))
+    
+    p = Pool(processes=NO_CHUNKS)
+    res_data = p.map(ftr_extrct_mp, [i for i in chnks])
+    p.close()
+
+    super_dict = {}
+    for d in res_data:
+        for k, v in d.items(): 
+            super_dict[k] = v
+
+    df_res = pd.DataFrame(super_dict).transpose()
+
+    # with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #     print(df_res)
+    
+    df_res['spngns_std'] = df_res['spngns']-min(df_res['spngns'])
+    df_res['spngns_std'] = df_res['spngns_std']/max(df_res['spngns_std'])
+
+    return(df_res)
+
+
+
+def ftr_extrct_mp(gnrs):
+    # seems to sometimes require self, somtimes not??
     """extracts features like a boss"""
+
+    # print('asdf')
 
     res_dict = {}
     for gnr in gnrs:
@@ -332,29 +398,22 @@ def ftr_extrct():
     cmps_rel, sim_v = gnr_span_prep(vrbls)
 
     for gnr in gnrs:
+        tx1 = time.time()
         # generate a whole bunch of measures
 
         gv = g_kld2.vertex(vd_kld2[gnr])
 
         # get sum of 3 distance to 3 parents
         prnt3_dvrg = gv.in_degree(kld_sim)
-
         clst_prnt = min([kld_sim[v] for v in gv.in_edges()])
         res_dict[gnr]['clst_prnt'] = clst_prnt
-
         res_dict[gnr]['prnt3_dvrg'] = prnt3_dvrg
 
         thd_res, thd_names = ar_cb_proc(gnr)
         for i in zip(thd_names, thd_res):
-            # print(i)
             res_dict[gnr][i[0]] = i[1]
 
-        # from original data, might be interesting to weigh/add sds
-        res_dict[gnr]['sz_raw'] = sz_dict[gnr]
-        res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
-
-        cnt_x_rel_weight = sum(acst_gnr_dict[gnr]['rel_weight'] * acst_gnr_dict[gnr]['cnt'])
-        res_dict[gnr]['cnt_x_rel_weight'] = cnt_x_rel_weight
+        tx2 = time.time()
 
         # get parents for all kinds of things
         prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
@@ -366,28 +425,34 @@ def ftr_extrct():
         res_dict[gnr]['prnt_odg'] = prnt_odg
         res_dict[gnr]['prnt_odg_wtd'] = prnt_odg_wtd
 
+        tx3 = time.time()
+        
         # cohorts
         cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr)
-
         res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
         res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
 
-        # spanningness
+        tx4 = time.time()
 
+        # spanningness
         spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v)
         res_dict[gnr]['spngns'] = spngns
-
+        
+        tx5 = time.time()
+        
+        # dfcx stuff
         dfcx_names, dfcx_vlus = dfcx_proc(gnr)
         for i in zip(dfcx_names, dfcx_vlus):
             res_dict[gnr][i[0]] = i[1]
-        
 
+        tx6 = time.time()
+        # add to dfcx_proc
+        # from original data, might be interesting to weigh/add sds
+        res_dict[gnr]['sz_raw'] = sz_dict[gnr]
+        res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
 
-    df_res = pd.DataFrame(res_dict).transpose()
-    df_res['spngns_std'] = df_res['spngns']-min(df_res['spngns'])
-    df_res['spngns_std'] = df_res['spngns_std']/max(df_res['spngns_std'])
-
-    return(df_res)
+        tx7 = time.time()
+    return(res_dict)
 
 
 ## ** amount of musical space spanning
@@ -557,10 +622,14 @@ def dfcx_proc(gnr):
     - dist_sd: sd of euclidean distances
     """
 
+    # speed improvements:
+    # - between tx7 and tx6
+    # - between tx3 and tx2
+    # cant really improve either much
+    
     dfcx = acst_gnr_dict[gnr]
     dfcx['sz'] = dfcx['cnt'] * dfcx['rel_weight']
     
-
     # artist variables: number, concentration of size
     unq_artsts = len(set(dfcx['artist']))
     # could even add concentration, like group playcount by artist, and then gini
@@ -570,22 +639,19 @@ def dfcx_proc(gnr):
     # dfcx_grpd.index[np.where(dfcx_grpd['sz'] > 100)[0]]
     gnr_gini = gini(np.array(dfcx_grpd['sz']))
     
-    
     # age of songs:
     agex = t2_int - dfcx['erl_rls']
-    avg_age, age_sd = weighted_avg_and_std(agex[np.where(agex > 0)[0]], weights = dfcx['sz'][np.where(agex > 0)[0]])
+    avg_age, age_sd = weighted_avg_and_std(np, agex[np.where(agex > 0)[0]], weights = dfcx['sz'][np.where(agex > 0)[0]])
     
-
     # new releases: number, size, proportion to overall size
     rlss_tprd = dfcx[(dfcx['erl_rls'] > t1_int) & (dfcx['erl_rls'] < t2_int)]
 
     nbr_rlss_tprd = len(rlss_tprd)
-
+    
     rlss_tprd_size = np.sum(rlss_tprd['sz'])
     ttl_size = np.sum(dfcx['sz'])
 
     prop_rls_size = rlss_tprd_size/ttl_size
-
     
     # average euclidean distance
     # sample for large genres
@@ -628,6 +694,7 @@ def gnr_t_prds(tdlt):
             break
 
     return(time_periods)
+
 
 
 
@@ -702,7 +769,9 @@ if __name__ == '__main__':
 
         print('extract features')
         # could be parallelized as well
-        df_res = ftr_extrct()
+        tx1 = time.time()
+        df_res = ftr_extrct(gnrs)
+        tx2 = time.time()
 
         df_res['t1'] = t1
         df_res['t2'] = t2
