@@ -11,16 +11,19 @@ from multiprocessing import Pool
 import operator
 from datetime import datetime
 from datetime import timedelta
-
+from random import sample
 
 from scipy.stats import entropy
 from sklearn import preprocessing
+from sklearn.metrics.pairwise import euclidean_distances
 
 from graph_tool.all import *
 from graph_tool import *
 
 from gnrl_funcs import get_dfs
 from gnrl_funcs import dict_gnrgs
+from gnrl_funcs import gini
+from gnrl_funcs import weighted_avg_and_std
 
 client = Client(host='localhost', password='anudora', database='frrl')
 
@@ -207,41 +210,6 @@ def split(a, n):
     return (a[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
 
 
-def kld_mp(chnk):
-    """multiprocessing function for KLD"""
-    
-    ents_ttl = []
-
-    for gnr in chnk:
-
-        i_id = gnr_ind[gnr]
-        i_v = acst_mat[i_id]
-        gnr_ents = []
-        
-        for k in gnrs:
-            
-            k_id = gnr_ind[k]
-            k_v = acst_mat[k_id]
-            
-            b_zeros = np.where(k_v==0)
-            a_sum_b_zeros = sum(i_v[b_zeros])
-            prop_missing = a_sum_b_zeros/sum(i_v)
-            
-            if prop_missing == 0:
-                ent = entropy(i_v, k_v)
-                
-            elif prop_missing < 0.05:
-                
-                i_v2 = np.delete(i_v, b_zeros)
-                k_v2 = np.delete(k_v, b_zeros)
-
-                ent = entropy(i_v2, k_v2)
-            else:
-                ent = math.inf
-
-            gnr_ents.append(ent)
-        ents_ttl.append(gnr_ents)
-    return(ents_ttl)
 
 def kld_mp2(chnk):
     """ improved kdl with https://www.oipapio.com/question-4293090, no more inf fixing but shouldn't be needed it it's proper subsets, """
@@ -353,6 +321,75 @@ def all_cmps_crubgs(gnrs, vd, type):
 
 # * feature extraction
 
+
+def ftr_extrct():
+    """extracts features like a boss"""
+
+    res_dict = {}
+    for gnr in gnrs:
+        res_dict[gnr] = {}
+
+    cmps_rel, sim_v = gnr_span_prep(vrbls)
+
+    for gnr in gnrs:
+        # generate a whole bunch of measures
+
+        gv = g_kld2.vertex(vd_kld2[gnr])
+
+        # get sum of 3 distance to 3 parents
+        prnt3_dvrg = gv.in_degree(kld_sim)
+
+        clst_prnt = min([kld_sim[v] for v in gv.in_edges()])
+        res_dict[gnr]['clst_prnt'] = clst_prnt
+
+        res_dict[gnr]['prnt3_dvrg'] = prnt3_dvrg
+
+        thd_res, thd_names = ar_cb_proc(gnr)
+        for i in zip(thd_names, thd_res):
+            # print(i)
+            res_dict[gnr][i[0]] = i[1]
+
+        # from original data, might be interesting to weigh/add sds
+        res_dict[gnr]['sz_raw'] = sz_dict[gnr]
+        res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
+
+        cnt_x_rel_weight = sum(acst_gnr_dict[gnr]['rel_weight'] * acst_gnr_dict[gnr]['cnt'])
+        res_dict[gnr]['cnt_x_rel_weight'] = cnt_x_rel_weight
+
+        # get parents for all kinds of things
+        prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
+        # outdegree of parents (weighted and unweighted)
+        # may have to divide by 1 (or other thing to get distance), not quite clear now
+        prnt_odg = np.mean([prnt.out_degree() for prnt in prnts])
+        prnt_odg_wtd = np.mean([prnt.out_degree() * kld_sim[g_kld2.edge(prnt,gv)] for prnt in prnts])
+
+        res_dict[gnr]['prnt_odg'] = prnt_odg
+        res_dict[gnr]['prnt_odg_wtd'] = prnt_odg_wtd
+
+        # cohorts
+        cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr)
+
+        res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
+        res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
+
+        # spanningness
+
+        spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v)
+        res_dict[gnr]['spngns'] = spngns
+
+        dfcx_names, dfcx_vlus = dfcx_proc(gnr)
+        for i in zip(dfcx_names, dfcx_vlus):
+            res_dict[gnr][i[0]] = i[1]
+        
+
+
+    df_res = pd.DataFrame(res_dict).transpose()
+    df_res['spngns_std'] = df_res['spngns']-min(df_res['spngns'])
+    df_res['spngns_std'] = df_res['spngns_std']/max(df_res['spngns_std'])
+
+    return(df_res)
+
+
 ## ** amount of musical space spanning
 # use similar logic of omnivorousness
 
@@ -434,68 +471,6 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v):
 # sim_vlu[ghrac.edge(v, gv)]
 
 
-
-def ftr_extrct():
-    """extracts features like a boss"""
-
-    res_dict = {}
-    for gnr in gnrs:
-        res_dict[gnr] = {}
-
-    cmps_rel, sim_v = gnr_span_prep(vrbls)
-
-    for gnr in gnrs:
-        # generate a whole bunch of measures
-
-        gv = g_kld2.vertex(vd_kld2[gnr])
-
-        # get sum of 3 distance to 3 parents
-        prnt3_dvrg = gv.in_degree(kld_sim)
-
-        clst_prnt = min([kld_sim[v] for v in gv.in_edges()])
-        res_dict[gnr]['clst_prnt'] = clst_prnt
-
-        res_dict[gnr]['prnt3_dvrg'] = prnt3_dvrg
-
-        thd_res, thd_names = ar_cb_proc(gnr)
-        for i in zip(thd_names, thd_res):
-            # print(i)
-            res_dict[gnr][i[0]] = i[1]
-
-        # from original data, might be interesting to weigh/add sds
-        res_dict[gnr]['sz_raw'] = sz_dict[gnr]
-        res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
-
-        cnt_x_rel_weight = sum(acst_gnr_dict[gnr]['rel_weight'] * acst_gnr_dict[gnr]['cnt'])
-        res_dict[gnr]['cnt_x_rel_weight'] = cnt_x_rel_weight
-
-        # get parents for all kinds of things
-        prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
-        # outdegree of parents (weighted and unweighted)
-        # may have to divide by 1 (or other thing to get distance), not quite clear now
-        prnt_odg = np.mean([prnt.out_degree() for prnt in prnts])
-        prnt_odg_wtd = np.mean([prnt.out_degree() * kld_sim[g_kld2.edge(prnt,gv)] for prnt in prnts])
-
-        res_dict[gnr]['prnt_odg'] = prnt_odg
-        res_dict[gnr]['prnt_odg_wtd'] = prnt_odg_wtd
-
-        # cohorts
-        cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr)
-
-        res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
-        res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
-
-        # spanningness
-
-        spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v)
-        res_dict[gnr]['spngns'] = spngns
-
-    df_res = pd.DataFrame(res_dict).transpose()
-    df_res['spngns_std'] = df_res['spngns']-min(df_res['spngns'])
-    df_res['spngns_std'] = df_res['spngns_std']/max(df_res['spngns_std'])
-
-    return(df_res)
-
 # ** cohort processing
 def chrt_proc(gnr):
 
@@ -567,9 +542,71 @@ def ar_cb_proc(gnr):
 
     return(thd_res, thd_names)
 
+# ** dfcx processing
+
+def dfcx_proc(gnr):
+    """generates a number of measures based on song data:
+    - unq_artsts: number of unique artists in period
+    - gnr_gini: see how unequally size (cnt * rel_weight) is distributed along artists
+    - avg_age: average age of song, weighted by sz
+    - age_sd: sd of age, weighted by sz
+    - nbr_rlss_tprd: number of releases in genre in period
+    - ttl_size: total size 
+    - prop_rls_size: proportion of size of new new releases compared to total size
+    - dist_mean: calculates euclidean distances for all songs (or a sample of 1k if more in gnr), avrg distance
+    - dist_sd: sd of euclidean distances
+    """
+
+    dfcx = acst_gnr_dict[gnr]
+    dfcx['sz'] = dfcx['cnt'] * dfcx['rel_weight']
+    
+
+    # artist variables: number, concentration of size
+    unq_artsts = len(set(dfcx['artist']))
+    # could even add concentration, like group playcount by artist, and then gini
+
+    dfcx_grpd = dfcx[['sz', 'artist']].groupby('artist').sum()
+    
+    # dfcx_grpd.index[np.where(dfcx_grpd['sz'] > 100)[0]]
+    gnr_gini = gini(np.array(dfcx_grpd['sz']))
+    
+    
+    # age of songs:
+    agex = t2_int - dfcx['erl_rls']
+    avg_age, age_sd = weighted_avg_and_std(agex[np.where(agex > 0)[0]], weights = dfcx['sz'][np.where(agex > 0)[0]])
+    
+
+    # new releases: number, size, proportion to overall size
+    rlss_tprd = dfcx[(dfcx['erl_rls'] > t1_int) & (dfcx['erl_rls'] < t2_int)]
+
+    nbr_rlss_tprd = len(rlss_tprd)
+
+    rlss_tprd_size = np.sum(rlss_tprd['sz'])
+    ttl_size = np.sum(dfcx['sz'])
+
+    prop_rls_size = rlss_tprd_size/ttl_size
+
+    
+    # average euclidean distance
+    # sample for large genres
+    if len(dfcx) > 1000:
+        ids = sample(range(len(dfcx)), 1000)
+
+        dfcx = dfcx.iloc[ids]
+
+    distsx = euclidean_distances(dfcx[vrbls])
+
+    dist_mean = np.mean(distsx[np.where(np.tril(distsx) > 0)])
+    dist_sd = np.std(distsx[np.where(np.tril(distsx) > 0)])
+
+    dfcx_names=['unq_artsts','gnr_gini','avg_age','age_sd','nbr_rlss_tprd','ttl_size','prop_rls_size',
+                'dist_mean','dist_sd']
+    dfcx_vlus = [unq_artsts, gnr_gini, avg_age, age_sd, nbr_rlss_tprd, ttl_size, prop_rls_size, dist_mean, dist_sd]
+
+    return(dfcx_names, dfcx_vlus)
+
 
 # * higher level  management functions
-
 
 def gnr_t_prds(tdlt):
     time_start = datetime.date(datetime(2006,1,1))
@@ -605,6 +642,13 @@ if __name__ == '__main__':
     for tprd in time_periods:
         t1 = tprd[0].strftime('%Y-%m-%d')
         t2 = tprd[1].strftime('%Y-%m-%d')
+
+        t1_dt = datetime.strptime(t1, '%Y-%m-%d')
+        t2_dt = datetime.strptime(t2, '%Y-%m-%d')
+        base_dt = datetime(1970, 1, 1)
+        t1_int = (t1_dt - base_dt).days
+        t2_int = (t2_dt - base_dt).days
+
 
         tp_id = time_periods.index(tprd)
         tp_clm = t1 + ' -- ' + t2
@@ -728,6 +772,34 @@ graph_pltr(g_asym, g_asym_id, 'acst_spc6.pdf', 1)
 
 # should try with different thresholds (0.1, 0.15, 0.2) and see if difference
 
+
+
+# ** song similiarity
+
+
+    
+
+# tx1 = time.time()
+# dfcx_proc('electronic')
+# tx2 = time.time()
+
+
+# unq_artsts
+# gnr_gini
+# avg_age
+# age_sd
+# nbr_rlss_tprd
+# ttl_size
+# prop_rls_size
+# dist_mean
+# dist_sd
+
+
+
+# metal genres seem to have skewed or even bimodal distributions
+# but also i wonder if the other genres with normal distributions centered between 1 and 1.5 are ok
+# basically means nothing is really similar to each other?
+# 
 
 
 # * scrap

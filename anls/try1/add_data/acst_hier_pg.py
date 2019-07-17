@@ -249,16 +249,23 @@ plt.show()
 # ** debug w_std2: should not result in symmetric similarities
 # similarites are symmetric, but have to be processed
 
-def asym_sim(gnrs, vd):
+def asym_sim(gx, gnrs, vdx):
     """generates asym mat based on weights scaled by max, making more equally distributed genres more general"""
-    cmps = all_cmps_crubgs(gnrs, vd, 'product')
+    cmps = all_cmps_crubgs(gnrs, vdx, 'product')
 
-    all_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight = w_std2)
+    all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps)
+    
+    # don't think there's much sense in weights: i have weights because i standardize in np.hist
+    # if i don't all proportionality constraints are of and larger ones will swallow small ones
+    # but if i use weights the outdegree becomes the same which makes asymmetric similarity pointless
+    # -> asymmetric similarity through overlap requires variation in out_degree
+    # all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps, eweight = w_std2)
 
     sims_rows = np.split(all_sims, len(gnrs))
     sims_ar = np.array(sims_rows)
 
-    deg_vec = [gac.vertex(vd[i]).out_degree(weight=w_std2) for i in gnrs]
+    # deg_vec = [gx.vertex(vdx[i]).out_degree(weight=w_std2) for i in gnrs]
+    deg_vec = [gx.vertex(vdx[i]).out_degree() for i in gnrs]
 
     # equivalent to adding the two outdegrees together 
     deg_ar = np.array([deg_vec]*len(gnrs))
@@ -312,4 +319,39 @@ for v in g_asym.vertices():
 # fixed but still seems not too good: some pointless genres (00s, 10 stars become super large)
 
 
+# * old KLD function
+def kld_mp(chnk):
+    """multiprocessing function for KLD"""
+    
+    ents_ttl = []
 
+    for gnr in chnk:
+
+        i_id = gnr_ind[gnr]
+        i_v = acst_mat[i_id]
+        gnr_ents = []
+        
+        for k in gnrs:
+            
+            k_id = gnr_ind[k]
+            k_v = acst_mat[k_id]
+            
+            b_zeros = np.where(k_v==0)
+            a_sum_b_zeros = sum(i_v[b_zeros])
+            prop_missing = a_sum_b_zeros/sum(i_v)
+            
+            if prop_missing == 0:
+                ent = entropy(i_v, k_v)
+                
+            elif prop_missing < 0.05:
+                
+                i_v2 = np.delete(i_v, b_zeros)
+                k_v2 = np.delete(k_v, b_zeros)
+
+                ent = entropy(i_v2, k_v2)
+            else:
+                ent = math.inf
+
+            gnr_ents.append(ent)
+        ents_ttl.append(gnr_ents)
+    return(ents_ttl)
