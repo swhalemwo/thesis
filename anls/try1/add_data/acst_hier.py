@@ -445,24 +445,15 @@ def ftr_extrct_mp(gnrs):
 
         gv = g_kld2.vertex(vd_kld2[gnr])
 
-        # get sum of 3 distance to 3 parents
-        prnt3_dvrg = gv.in_degree(kld_sim)
-        clst_prnt = min([kld_sim[v] for v in gv.in_edges()])
-        res_dict[gnr]['clst_prnt'] = clst_prnt
-        res_dict[gnr]['prnt3_dvrg'] = prnt3_dvrg
+        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv)
+        for i in zip(prnt_stats_names, prnt_stats_vlus):
+            res_dict[gnr][i[0]] = i[1]
 
         thd_res, thd_names = ar_cb_proc(gnr)
         for i in zip(thd_names, thd_res):
             res_dict[gnr][i[0]] = i[1]
 
         tx2 = time.time()
-
-        # get parents for all kinds of things
-        prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
-        # outdegree of parents (weighted and unweighted)
-        # may have to divide by 1 (or other thing to get distance), not quite clear now
-        prnt_odg = np.mean([prnt.out_degree() for prnt in prnts])
-        prnt_odg_wtd = np.mean([prnt.out_degree() * kld_sim[g_kld2.edge(prnt,gv)] for prnt in prnts])
 
         res_dict[gnr]['prnt_odg'] = prnt_odg
         res_dict[gnr]['prnt_odg_wtd'] = prnt_odg_wtd
@@ -496,8 +487,41 @@ def ftr_extrct_mp(gnrs):
         tx7 = time.time()
     return(res_dict)
 
+# ** prnt stats
+def prnt_stats(gv):
+    """calculates parent stats: 
+    prnt3_dvrgs: sum of divergences from parents, 
+    clst_prnt: distance to closest parent, 
+    mean_prnt_dvrg: how far prnts are apart, 
+    prnt_odg, prnt_odg_wtd: outdegree of parents (unweighted and weighted by distance)
+    """
+    
+    prnt3_dvrg = gv.in_degree(kld_sim)
+    clst_prnt = min([kld_sim[v] for v in gv.in_edges()])
 
-## ** amount of musical space spanning
+    prnts = [g_kld2_id[i] for i in gv.in_neighbors()]
+    prnt_vs = [i for i in gv.in_neighbors()]
+    prnt_ids = [gnr_ind[i] for i in prnts]
+
+    
+    prnt_cmps = list(itertools.permutations(prnt_ids,2))
+
+    prnt_sims = [ar_cb[i] for i in prnt_cmps]
+    mean_prnt_dvrg = np.mean(prnt_sims)
+
+    # may have to divide by 1 (or other thing to get distance), not quite clear now
+    
+    prnt_odg = np.mean([prnt_v.out_degree() for prnt_v in prnt_vs])
+    prnt_odg_wtd = np.mean([prnt_v.out_degree() * kld_sim[g_kld2.edge(prnt_v,gv)] for prnt_v in prnt_vs])
+
+    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_dvrg', 'prnt_odg', 'prnt_odg_wtd']
+    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_dvrg, prnt_odg, prnt_odg_wtd]
+
+    return(prnt_stats_names, prnt_stats_vlus)
+
+
+
+# ** amount of musical space spanning
 # use similar logic of omnivorousness
 
 def gnr_span_prep(vrbls):
@@ -537,7 +561,7 @@ def gnr_span_prep(vrbls):
 
 
 def gnr_mus_spc_spng(gnr, cmps_rel, sim_v):
-    """calculates sum of dissimilarities for a gnr"""
+    """calculates sum of dissimilarities for a gnr from a vector of relative comparisons and given similarities between genres"""
     # relies on feature nodes always being returned in the same order so that sim_v applies across genres
 
     t1 = time.time()
@@ -567,7 +591,6 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v):
     
     t2 = time.time()
     return(ttl_asim)
-
 
 # average of similarities of indegrees
 # superordinates
@@ -609,6 +632,7 @@ def chrt_proc(gnr):
     cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
     return(cohrt_pct_inf, cohrt_mean_non_inf)
 
+# ** ar_cb processing
 def ar_cb_proc(gnr):
     """collects information about potential (penl) parents and children"""
     # would probably go easier but not really expensive
@@ -855,6 +879,26 @@ tri_vlus2 = ovlpt[np.where(tri1 > 0)]
 np.corrcoef(tri_vlus1, tri_vlus2)
 
 
+# ** compositionality (cps)
+
+gnr = 'atmospheric black metal'
+cps_el = []
+for gnr in gnrs_l:
+
+    gnr_cpnts = gnr.split()
+    if len(gnr_cpnts) > 2:
+        gnr_cpnts2 = list(itertools.permutations(gnr_cpnts, 2))
+        gnr_cpnts2_strs = [i[0] + " " + i[1] for i in gnr_cpnts2]
+        gnr_cpnts = gnr_cpnts + gnr_cpnts2_strs
+
+    for cpnt in gnr_cpnts:
+        try:
+            
+
+# it seems to turns into different kinds of hierarchical links
+# - acoustic
+# - compositional
+# - tag co-occurence
 
 
 # * scrap
