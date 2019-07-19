@@ -20,3 +20,28 @@ Empirically, textcite:Anand_2000_sensemaking,Anand_2006_charting have shown how 
 
 
 
+** hierarchy construction
+Prototypes are constructed using the musicological data from AcousticBrainz. 
+# 
+For analytical purposes, the continuous dimensions ranging from zero to one are discretized into ranges with a width 0.1 by calculating a histogram for each dimensions. 
+# 
+Tracks are weighted by both the relative weight and their playcount in the time period to reflect the relative importance of tracks in terms of association with the genre as well as popularity. 
+# need to argue more that KLD is good to infer hierarchical structure
+To infer the hierarchical structure, the resulting 120 features are used to calculate the Kullback-Leibler Divergence between all genres. 
+# 
+Since this measure captures the asymmetry of hierarchical relationships, ~this~ results in an asymetric quadratic matrix. 
+# 
+A judgement call has to be made how these divergences constitute concept-subconcept relationships. 
+# 
+It might be possible to set a certain threshold under which every relation is a concept-subconcept relations. 
+# maybe in footnote? separate sentences
+However this approach either results either in large numbers of genres (~50%) being excluded for further analysis as their lowest KLD lay above their threshold or, if the threshold is increased sufficiently to include all or most genres, in the more typical genres to have dozes to hundreds of parent-child relations (resulting in network densities of up to 0.2)
+# p
+Another approach is to select for each genre those genres as roots which the genre has the least divergence from. 
+# 
+While this allows to gain information on all genres (particularly atypical ones), therefore captures more variation in typicality and avoids the problem of unrealistically high amounts of genre-subgenre relations, it requires to set the number of parents for each genre in advance. 
+
+# 
+~so i did it with 1-4 and it was all the same~
+
+
