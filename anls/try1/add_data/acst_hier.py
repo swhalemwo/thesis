@@ -22,6 +22,7 @@ from graph_tool import *
 
 from gnrl_funcs import get_dfs
 from gnrl_funcs import dict_gnrgs
+
 # from gnrl_funcs import gini
 # from gnrl_funcs import weighted_avg_and_std
 
@@ -101,8 +102,8 @@ def gnrt_acst_el(gnrs):
 
         for vrbl in vrbls:
 
-            bins = np.arange(0, 1.1, 0.1)
-            a1, a0 = np.histogram(dfcx[vrbl], bins=10, weights=wts)
+            bins = np.arange(0, 1 + 1/nbr_cls, 1/nbr_cls)
+            a1, a0 = np.histogram(dfcx[vrbl], bins=nbr_cls, weights=wts)
             # a_old, a0 = np.histogram(dfcx[vrbl], bins=10)
 
             nds1 = [vrbl + str(i) for i in range(1, len(bins))]
@@ -151,7 +152,7 @@ def asym_sim(gx, gnrs, vdx):
 
 
 
-def gnrt_acst_el_mp(gnrs):
+def gnrt_acst_el_mp(gnrs, nb_cls):
     """parallelizes the acoustic edgelist generation process"""
 
     NO_CHUNKS = 3
@@ -245,7 +246,7 @@ def kld_thrshld(el_acst):
 
 def acst_arfy(el_ttl, vrbls, el_pos):
 
-    acst_mat = np.empty([len(gnrs), len(vrbls)*10])
+    acst_mat = np.empty([len(gnrs), len(vrbls)*nbr_cls])
 
     c = ypos =xpos = 0
 
@@ -260,7 +261,7 @@ def acst_arfy(el_ttl, vrbls, el_pos):
 
         xpos+=1
 
-        if xpos == len(vrbls)*10:
+        if xpos == len(vrbls)*nbr_cls:
             xpos = 0
             ypos+=1
 
@@ -504,7 +505,7 @@ def gnr_span_prep(vrbls):
     # not sure if good:
     # weight
     
-    vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,11)] for vrbl in vrbls]
+    vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,nbr_cls + 1)] for vrbl in vrbls]
     vrbl_nd_strs = list(itertools.chain.from_iterable(vrbl_nd_strs_raw))
 
     vrbl_cmprs = all_cmps_crubgs(vrbl_nd_strs, vd, 'product')
@@ -764,8 +765,10 @@ if __name__ == '__main__':
         print('set parameters')
         min_cnt = 10
         min_weight = 10
-        min_rel_weight = 0.1
-        min_tag_aprnc = 30
+        min_rel_weight = 0.075
+        min_tag_aprnc = 40
+        min_unq_artsts = 10
+
         d1 = t1
         d2 = t2
         
@@ -775,9 +778,11 @@ if __name__ == '__main__':
 
         print('construct dfc')
 
-        dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, d1, d2, client, pd)
+        dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, min_unq_artsts, d1, d2, client, pd)
 
         gnrs = list(np.unique(dfc['tag']))
+        artsts = list(np.unique(dfc['artist']))
+        trks = list(np.unique(dfc['lfm_id']))
 
         print('construct acst gnr dict')
 
@@ -786,7 +791,8 @@ if __name__ == '__main__':
 
         print('construct acoustic edge list')
         # el_ttl = gnrt_acst_el(gnrs)
-        el_ttl = gnrt_acst_el_mp(gnrs)
+        nbr_cls = 5
+        el_ttl = gnrt_acst_el_mp(gnrs, 5)
         sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict,gnrs)
 
 
@@ -802,6 +808,7 @@ if __name__ == '__main__':
         t2 = time.time()
 
         print('construct kld 3 parent edgelist')
+        # could loop over npr 1-5, add prnt to column names? 
         npr = 4
         kld2_el = kld_n_prnts(ar_cb, npr)
 
@@ -872,13 +879,13 @@ np.corrcoef(tri_vlus1, tri_vlus2)
 # plt.show()
 
 
-## ** speed up implementations
-
+# ** speed up implementations
+# *** dict_gnrs: not primarily important
 
 # is dict_gnrs (produces acst_gnr_dict) parallelizable?
 # in principle yeah: can split pandas df, process rows separately,
 # merging into one in the end is a bit work but not too much tbh
-# is it worth it?
+
 # takes 10 sec, 30sec for 6 months
 # idk that's like 10% of the time (5 min), but kinda neglible against
 # el_acst_mp: even with multiprocessing still 46 second -> 90 sec saved
@@ -892,3 +899,6 @@ np.corrcoef(tri_vlus1, tri_vlus2)
 # kld mat also takes quite some time
 # wonder if custom cython function would be faster
 # seems to be already heavily using C funcs, so don't really think there's much to improve
+
+# KLD is fucking fast with broadcasting
+# feature extraction also parallelized
