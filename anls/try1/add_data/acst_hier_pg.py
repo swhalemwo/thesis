@@ -507,3 +507,179 @@ entropy(n3_cplt, n1_hist)
 
 # can't really replicate the changes to the normal function, but there is substantial divergence between two normal dists with different SD, much more than claimed 
 
+# * more hierarchy inference
+
+# how is this related to conditional independence?
+# i feel it is somehow
+
+# *** residual
+# first select most similar
+# then see how much others add
+
+gnr = "vocal jazz"
+gnr = 'fun metal'
+gnr = 'skate punk'
+gnr = 'latin pop'
+[g_kld2_id[i] for i in g_kld2.vertex(vd_kld2[gnr]).in_neighbors()]
+
+prnts = list(g_kld2.vertex(vd_kld2[gnr]).in_neighbors())
+prnt_edges = list(g_kld2.vertex(vd_kld2[gnr]).in_edges())
+
+[kld_sim[i] for i in prnt_edges]
+
+prntv = prnt_edges[[kld_sim[i] for i in prnt_edges].index(min([kld_sim[i] for i in prnt_edges]))].source()
+prnt1 = g_kld2_id[prntv]
+
+gnr_id = gnr_ind[gnr]
+prnt1_id = gnr_ind[g_kld2_id[prntv]]
+
+gnr_dist = acst_mat[gnr_id]
+prnt1_dist = acst_mat[prnt1_id]
+
+entropy(gnr_dist, prnt1_dist)
+nph(ar_cb[gnr_id][np.where(ar_cb[gnr_id] < math.inf)])
+npl([gnr_dist[0:50], prnt1_dist[0:50]], m=True)
+
+# can't be minus: probability can't be negative
+# res1 = gnr_dist - prnt1_dist
+# npl(res1[0:20])
+
+res2_1 = gnr_dist/prnt1_dist
+res2_2 = [-math.log(i) for i in res2_1]
+# res2_2 = prnt1_dist/gnr_dist
+npl(res2_1[0:50])
+npl(res2_2[0:50])
+
+npl([res2_1[0:50], gnr_dist[0:50], prnt1_dist[0:50]], m=True)
+# hm i want stuff in vocal jazz that is not explained by jazz
+# res_2_1 seems better: is high at start where vocal jazz higher than jazz -> stuff should be added here
+# res2_2 makes also no sense because gnr_dist can be 0 for values of prnt1 dist, but not other way around
+npl(res2_1[0:40])
+
+res3 = entropy_wot_sum(gnr_dist, prnt1_dist)
+npl(res3[0:140])
+# prnt2_dist = acst_mat[gnr_ind[g_kld2_id[prnts[1]]]]
+
+# entropy(res2_1, prnt2_dist)
+# prnt2 doesn't seem to add much
+
+
+simx = entropy(res2_1[None,:].T[:,:,None], acst_mat.T[:,None,:])
+simx2 = entropy(res3[None,:].T[:,:,None], acst_mat.T[:,None,:])
+
+simx3 = entropy(res3[None,np.where(res3 >= 0)].T[:,:], acst_mat[:,np.where(res3 >= 0)].T[:])
+nph(simx3[np.where(simx3 < math.inf)])
+# variable dumping might work?
+
+acst_mat.T[np.where(res3 >= 0),None,:])
+
+acst_mat[:,np.where(res3 >= 0)].T[:].shape
+
+
+gnrs[list(simx[0]).index(min(simx[0]))]
+nph(simx[0][np.where(simx[0] < math.inf)])
+
+
+gnrs[list(simx2[0]).index(min(simx2[0]))]
+nph(simx2[0][np.where(simx2[0] < math.inf)])
+
+
+def entropy_wot_sum(pk, qk=None, base=None):
+    pk = np.asarray(pk)
+    pk = 1.0*pk / np.sum(pk, axis=0)
+    if qk is None:
+        vec = scipy.special.entr(pk)
+    else:
+        qk = np.asarray(qk)
+        if len(qk) != len(pk):
+            raise ValueError("qk and pk must have same length.")
+        qk = 1.0*qk / np.sum(qk, axis=0)
+        vec = scipy.special.rel_entr(pk, qk)
+    return(vec)
+
+# vocal jazz
+# hm that's kinda unlikely
+# could make maximum of first ones threshold
+# there is no meaningful relationship tho
+
+# fun metal
+# jesus that's alone everything is fucking distant
+
+
+# does the residual make sense? 
+# reconsider subtraction: maybe just get ride of everything negative, just focus on features not explained?
+# and ignore features overexplained?
+# to some extent i'm doing it: what really highlights/jumps out are the features where genre is high and parent is low, can be by a factor of 50 or so
+
+# maybe the individual parts of KLD? 
+# can be negative, also have the same thing of large differences
+
+
+# overall, there seems to be a sense of arbiraryness: creating residuals with the first one have nothing to do wiht the rest anymore
+# but the second parent is not much different..
+# if i took him first, would it still possible to see whether the actual first one actuall is the first one?
+
+# i don't like the overall distribution of divergences for the distant ones
+# there's so much gap, and then relatively close other genres, which basically means a bit measurement error is constructing a different set of parents
+# what i would like is like on 0.5, one 0.1 and one 0.15 for fucking all
+# and it's not only for genres with low number of songs or artists, same pattern is for latin pop with 80 songs and 41 artist
+
+
+
+# *** combinations from the start
+# is there a genre in combination with instrumental that has a higher similarity with genre? 
+# weights? unclear
+
+# need overall matrix of prnt_dist
+prnt_ovrl = np.expand_dims(prnt1_dist, axis = 1)
+
+b = np.repeat(a[:, :, np.newaxis], 3, axis=2)
+
+prnt_ovrl = np.repeat(prnt1_dist[:,np.newaxis], len(gnrs), axis = 1).T
+gnr_cmb = acst_mat + prnt_ovrl
+
+gnr_cmb[gnr_ind[gnr]] = [1 for i in range(120)]
+
+simx3 = entropy(gnr_dist[None,:].T[:,:,None], gnr_cmb.T[:,None,:])
+
+min(simx3[0])
+
+add1 = gnrs[list(simx3[0]).index(min(simx3[0]))]
+entropy(gnr_dist, prnt1_dist)
+entropy(gnr_dist, prnt1_dist + acst_mat[gnr_ind[add1]])
+
+npl([gnr_dist, prnt1_dist + acst_mat[gnr_ind[add1]]/2, prnt1_dist, acst_mat[gnr_ind[add1]]], m = True)
+
+nph(simx3[0][np.where(simx3[0] < math.inf)])
+
+# not good: adds itself: itself + prnt1 is most similar combination
+# but others still lower (0.4 instead of 0.58)
+# suggested addition is 'blacker than the blackest black times infinity', which is a bit cause it's super atypical too
+
+# maybe just need to try out?
+
+# original similarity 
+entropy(gnr_dist, acst_mat[gnr_ind[add1]])
+# is infinite.. wtf
+# tbh it would kinda work if i don't assume strict subsettedness
+# but does that make much sense in terms of dimensions? if superordinate limits range, all sub genres of it should be in that area
+
+# need to see what it means theoretically to add dists together
+# also is feature overexplanation really that bad? consider theory, in particular wrt features vs dimensions
+# also relate to compositionality
+# could question just be: where do underexplained features come from?
+
+# maybe i should reduce number of features..
+# there are never ever 10 different steps of danceability..
+# probably 5 are still too much but it's in the right direction.. want uneven number and 3 is a bit low, unable to capture nuances
+# atm there's 75% inf, which is bad because data loss for pct mean and infering potential genre relations
+len(list(ar_cb[np.where(ar_cb == math.inf)]))/len(gnrs)**2
+# down to 48%
+# i think now i can really expect a subgenre to be in the same space as a main genre
+# at least 30 songs, which have to hit at most 5 cells
+# not quite sure but it should be around 0.8**30
+
+
+# if i go down that route there's no reason not to do all 2 combinations from the start
+# 480k combinations, fucking amazing
+
