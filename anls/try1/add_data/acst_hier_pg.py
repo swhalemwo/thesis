@@ -327,7 +327,7 @@ def kld_mp(chnk):
         ents_ttl.append(gnr_ents)
     return(ents_ttl)
 
-# ** binarizing graph to get asymmetry: BAD because requires deleting weights and then creates nonsense
+# ** binarizing graph to get asymmetry: BAD (at least for hierarchical links) because requires deleting weights and then creates nonsense
 
 acst_mat_bn = np.zeros(acst_mat.shape)
 acst_mat_bn[np.where(acst_mat > 0.3)] = 1
@@ -433,6 +433,9 @@ len(set(g_bin.vertex(vd_bin[g3]).out_neighbors()))
 # and to binarize means throwing away information on weights
 # but weights are exactly the thing that makes it work in the first place
 -> BINARIZING BAD, rather find different measure
+# at least for hierarical linkage
+
+# could also still weigh, 
 
 g_asym, asym_sim, g_asym_id, vd_asym, vd_asym_rv = kld_proc(bin_el2)
 graph_pltr(g_asym, g_asym_id, 'acst_spc6.pdf', 1)
@@ -463,4 +466,44 @@ graph_pltr(g_asym, g_asym_id, 'acst_spc6.pdf', 1)
 # but also i wonder if the other genres with normal distributions centered between 1 and 1.5 are ok
 # basically means nothing is really similar to each other?
 # 
+
+# * compare KLDs (test how different they really are to disprove Kotamy (cited by Piazzai))
+
+n1 = [np.random.normal(0, 1) for i in range(100000)]
+n2 = [np.random.normal(0, 2) for i in range(100000)]
+
+bins = np.arange(math.floor(min(n2)), math.ceil(max(n2)), 0.1)
+
+# has to be overall 0
+n3 = [(i**2)*4 for i in np.arange(-20, 20)]
+
+n3 = [np.absolute((i**3)*0.2) for i in np.arange(-20, 20)]
+n3_2 = [i-(sum(n3)/len(n3)) for i in n3]
+
+peak = list(n1_hist).index(max(n1_hist))
+n3_cplt = np.histogram(n1, bins = bins)[0]
+c = -20
+for i in n3_2:
+    print(c, peak+c)
+    n3_cplt[peak + c] = n3_cplt[peak + c] + i
+    c+=1
+
+
+n1_hist = np.histogram(n1, bins = bins)[0]
+n2_hist = np.histogram(n2, bins = bins)[0]
+
+plt.plot(n1_hist)
+plt.plot(n2_hist)
+plt.plot(n3_cplt)
+plt.show()
+
+entropy(n1_hist, n2_hist) # 0.31-0.33
+
+entropy(n1_hist, n3_cplt)
+entropy(n3_cplt, n1_hist)
+
+# yup: changes between 
+# Komaty BTFOp
+
+# can't really replicate the changes to the normal function, but there is substantial divergence between two normal dists with different SD, much more than claimed 
 
