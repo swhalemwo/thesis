@@ -30,7 +30,7 @@ import collections
 
 client = Client(host='localhost', password='anudora', database='frrl')
 
-# * hierarchical relations based on split dimensions
+# * auxilliary
 # functions defined in item_tpclt
 
 def vd_fer(g, idx):
@@ -78,7 +78,7 @@ def gini(array):
     return ((np.sum((2 * index - n  - 1) * array)) / (n * np.sum(array)))
 
 
-
+# * create acst network and all kinds of stuff
 
 def gnrt_acst_el(gnrs):
     """generates edge list for acoustic space network"""
@@ -149,6 +149,27 @@ def asym_sim(gx, gnrs, vdx):
     # see the percentage of what is in common for each genre
     ovlp_ar = cmn_ar/deg_ar
     return(ovlp_ar)
+
+gx = g_trks
+vdx = g_trks_vd
+sims_ar = gnr_sim_ar
+
+def asym_sim2(gx, vdx, gnrs, sims_ar, wts):
+    """calculates asymmetric similarities from graph, weights similarity mat (also needs vd and gnrs)"""
+    
+    deg_vec = [gx.vertex(vdx[i]).in_degree(wts) for i in gnrs]
+
+    # equivalent to adding the two outdegrees together 
+    deg_ar = np.array([deg_vec]*len(gnrs))
+    deg_ar2 = (deg_ar + np.array([deg_vec]*len(gnrs)).transpose())/2
+
+    # see how much is actually in common, equivalent of multiplication with similarity
+    cmn_ar = deg_ar2*sims_ar
+
+    # see the percentage of what is in common for each genre
+    ovlp_ar = cmn_ar/deg_ar
+    return(ovlp_ar)
+
 
 
 
@@ -762,8 +783,7 @@ def gnr_t_prds(tdlt):
     return(time_periods)
 
 
-
-
+# * actual program
 
 if __name__ == '__main__':
     time_periods = gnr_t_prds(28*3)
@@ -884,22 +904,196 @@ np.corrcoef(tri_vlus1, tri_vlus2)
 gnr = 'atmospheric black metal'
 cps_el = []
 for gnr in gnrs_l:
+    gnr_cpnts_tual = []
 
     gnr_cpnts = gnr.split()
+
+    if gnr_cpnts == [gnr]:
+        continue
+    
     if len(gnr_cpnts) > 2:
         gnr_cpnts2 = list(itertools.permutations(gnr_cpnts, 2))
         gnr_cpnts2_strs = [i[0] + " " + i[1] for i in gnr_cpnts2]
         gnr_cpnts = gnr_cpnts + gnr_cpnts2_strs
 
+        
     for cpnt in gnr_cpnts:
-        try:
-            
+        if gnr != cpnt:
+            try:
+                cpnt_tual = gnrs_l[gnrs_l.index(cpnt)]
+                gnr_cpnts_tual.append((cpnt_tual, gnr))
+            except:
+                pass
+        
+    cps_el = cps_el + gnr_cpnts_tual
+
+# plotting
+
+g_cps = Graph()
+g_cps_id = g_cps.add_edge_list(cps_el, hashed=True, string_vals = True)
+g_cps_vd,g_cps_vd_rv = vd_fer(g_cps, g_cps_id)
+
+g_cps_out = g_cps.degree_property_map('out')
+
+graph_pltr(g_cps, g_cps_id, 'cps_rels1.pdf', 1)
+
+# feature extraction
+cps_res_dict = {}
+for gnr in gnrs_l:
+    cps_res_dict[gnr] = {}
+
+for gnr in gnrs:
+    gnr = gnr.lower()
+
+    try:
+        gv = g_cps.vertex(g_cps_vd[gnr])
+        
+        # 1 atm just means it's involved in composing (in graph), not that it's a composite
+        # can infer that from cps_idg > 0 tho so should be fine
+        cpst = 1
+        cps_idg = gv.in_degree()
+
+        if cps_idg > 0:
+            cps_prnt_sz = np.mean([g_cps_out[i] for i in gv.in_neighbors()])
+            cps_prnt_sz_sd = np.std([g_cps_out[i] for i in gv.in_neighbors()])
+        else:
+            cps_prnt_sz, cps_prnt_sz_sd = 0
+            # need some brokerage of parents
+        
+    except:
+        cpst = cps_idg = cps_prnt_sz = cps_prnt_sz_sd = 0
+        
+
+    cps_vrbl_names = ['cpst','cps_idg','cps_prnt_sz','cps_prnt_sz_sd']
+    cps_vlus = [cpst,cps_idg,cps_prnt_sz,cps_prnt_sz_sd]
+
+    cps_res_dict[gnr]    
+
+
+
+# there are some very generic terms between rock and metal: instrumental, alternative, symphonic, depressive, post, christian, progressive, industrial, southern, power, dark
+
+# adjectives are flexible who'd have thunk
+# look up how to do brokerage; maybe relevant as well as degree
+
+# any compositionality measures are conditional on there being compositionality in the first place
+# dummy + interaction?
 
 # it seems to turns into different kinds of hierarchical links
 # - acoustic
 # - compositional
 # - tag co-occurence
 
+    
+# power: is component for composites, but doesn't have a genre on it's own
+# is power pop to pop what power metal is to metal?
+# can you just assume the components exist independently?
+# Hannan: multiple categorization only when each component is stand-alone concept
+# this is not about multiple categorization tho, it's about categories on their own
+# dew it
+# problem with "classic": huh actually seems they distinguish between classic + x and classicAL
+
+
+cps2_el = []
+# gnr = 'underground hip-hop'
+for gnr in gnrs_l:
+    gnr_cpnts_el = []
+    
+    gnr_cpnts_splt1 = gnr.split()
+    gnr_cpnts_splt2 = [i.split('-') for i in gnr_cpnts_splt1]
+
+    gnr_cpnts_splt3 = list(itertools.chain.from_iterable(gnr_cpnts_splt2))
+    
+    for i in gnr_cpnts_splt3:
+        if i != gnr:
+            gnr_cpnts_el.append((i, gnr))
+
+    cps2_el = cps2_el + gnr_cpnts_el
+    
+g_cps2 = Graph()
+g_cps2_id = g_cps2.add_edge_list(cps2_el, hashed=True, string_vals = True)
+g_cps2_vd,g_cps2_vd_rv = vd_fer(g_cps2, g_cps2_id)
+
+g_cps2_out = g_cps2.degree_property_map('out')
+
+graph_pltr(g_cps2, g_cps2_id, 'cps_rels2.pdf', 1)
+# OMEGALUL
+# it's beautiful
+# looks like a supernova of sorts
+# "second row" is interesting: it's all the words used to describe
+# there are specific and general components: second row is specific, middle is general (generic?)
+# is that a qualitative distinction? i.e. different variables?
+# don't think so tbh
+# question is how popular the components are: more popular -> more generic
+# shapes by whether node is stand-alone genre ?
+
+can quantify for each genre how much inherited from
+- other genres
+- non-genre components
+
+example "power jazz"
+- jazz: genre, quite popular
+- power: component: decently popular
+
+but what about "alternative jazz"
+alternative is yuge type of rock
+do i need to distinguish betwee alternative the genre and alternative the modifier?
+how do i know how taggers used it?
+
+X not conceptualized corresponds to X has no genre on its own
+still no solution:
+- alternative the composite functions as one would expect of a composite, resulting in alternative rock, hip-hop,   metal, rap, country, country, folk,
+- alternative the genre: not clear whats there: -> need: "songs that are tagged alternative are also tagged XYZ"
+  -> song-genre network/exepmlar stuff 
+
+## ** tag_song network
+
+trk_gnr_el = [i for i in zip(dfc['lfm_id'], dfc['tag'], dfc['rel_weight'], dfc['cnt'], dfc['rel_weight']*dfc['cnt'])]
+
+g_trks = Graph()
+g_trks_waet = g_trks.new_edge_property('float')
+g_trks_cnt = g_trks.new_edge_property('float')
+g_trks_sz = g_trks.new_edge_property('float')
+
+g_trks_id = g_trks.add_edge_list(trk_gnr_el, hashed = True, string_vals = True, eprops = [g_trks_waet, g_trks_cnt, g_trks_sz])
+g_trks_vd, g_trks_id_rv = vd_fer(g_trks, g_trks_id)
+
+gnr = 'alternative'
+# comparing genres is easier than for loop
+
+gnr_comps = all_cmps_crubgs(gnrs, g_trks_vd, 'product')
+
+gnr_sims = vertex_similarity(GraphView(g_trks, reversed = True), 'dice', vertex_pairs = gnr_comps, eweight = g_trks_waet)
+
+gnr_sim_ar = np.array(np.split(gnr_sims, len(gnrs)))
+
+gnr_sim_ar2 = asym_sim2(g_trks, g_trks_vd, gnrs, gnr_sim_ar, g_trks_waet)
+
+# len(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)]) # 1845
+nph(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)][np.where(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)] < 1)])
+
+nph(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.01)])
+
+# look what alternative is actually similar to
+# am i looking at to or from? 
+
+# gnr_sim_ar2[:,gnr_ind['alternative']][
+    
+# stuff that is similar to alternative
+simsTo = np.where(gnr_sim_ar2[:,gnr_ind['alternative']] > 0.05)
+[print(gnrs[i]) for i in simsTo[0]]
+
+# stuff alternative is similar to
+# it's actually weird: alternative is so big, it's kinda surprising that there is that much that alternative is similar to
+# maybe it's really the other way around?  yeaaaah pretty sure 
+simsFrom = np.where(gnr_sim_ar2[gnr_ind['alternative']] > 0.2)
+[print(gnrs[i]) for i in simsFrom[0]]
+
+
+# welp at least i don't have the problem of undiscriminatorily high similarity values FUCK ME
+# add weights to asym_sim2 and nothing substantially over 1; lovely
+
+    
 
 # * scrap
 ## ** time durations
