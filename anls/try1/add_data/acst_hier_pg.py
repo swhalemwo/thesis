@@ -512,7 +512,7 @@ entropy(n3_cplt, n1_hist)
 # how is this related to conditional independence?
 # i feel it is somehow
 
-# *** residual
+# ** residual
 # first select most similar
 # then see how much others add
 
@@ -626,7 +626,7 @@ def entropy_wot_sum(pk, qk=None, base=None):
 
 
 
-# *** combinations from the start
+# ** combinations from the start
 # is there a genre in combination with instrumental that has a higher similarity with genre? 
 # weights? unclear
 
@@ -683,3 +683,153 @@ len(list(ar_cb[np.where(ar_cb == math.inf)]))/len(gnrs)**2
 # if i go down that route there's no reason not to do all 2 combinations from the start
 # 480k combinations, fucking amazing
 
+# ** regression
+
+from sklearn.linear_model import LinearRegression
+
+# *** single case
+g1 = 'witch house'
+g2 = 'House'
+
+g1_vlus = acst_mat[gnr_ind[g1]].reshape(-1, 1)
+g2_vlus = acst_mat[gnr_ind[g2]]
+
+model = LinearRegression()
+
+model.fit(g1_vlus, g2_vlus)
+
+model.score(g1_vlus, g2_vlus)
+model.intercept_
+model.coef_
+
+
+# *** multiple vars
+gnrs = ['pop', 'House', 'rock', 'rap']
+preds = [gnr_ind[i] for i in gnrs]
+pred_mat = acst_mat[preds].T
+
+reg = LinearRegression()
+reg.fit(g1_vlus, pred_mat)
+
+reg.coef_
+
+reg.score(g1_vlus, pred_mat)
+
+y_pred = model.predict(g1_vlus)
+r2 = sklearn.metrics.r2_score(g1_vlus, y_pred)
+
+
+
+# *** lasso
+from sklearn.linear_model import Lasso
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+
+cancer = load_breast_cancer()
+#print cancer.keys()
+cancer_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+#print cancer_df.head(3)
+X = cancer.data
+Y = cancer.target
+
+# X_train,X_test,y_train,y_test=train_test_split(X,Y, test_size=0, random_state=31)
+
+lasso = Lasso(alpha=0.01)
+lasso.fit(X_train,y_train)
+
+# lasso.fit(X,Y)
+
+train_score=lasso.score(X_train,y_train)
+
+test_score=lasso.score(X_test,y_test)
+
+coeff_used = np.sum(lasso.coef_!=0)
+print(coeff_used)
+
+# using the entire dataset to train means only two features are selected
+#
+
+
+# *** lasso tags
+
+lasso_el = []
+las_scr_dct = {}
+gnr = "cool jazz"
+for gnr in gnrs:
+
+    gnr_vlus = acst_mat[gnr_ind[gnr]]
+    preds2 = np.delete(acst_mat, gnr_ind[gnr], axis=0).T
+
+    gnrs_pred = np.delete(np.array(gnrs), gnr_ind[gnr])
+
+    lasso = Lasso(0.016)
+    lasso.fit(preds2,gnr_vlus)
+    coef_used = np.where(lasso.coef_!=0)
+    print(len(coef_used[0]))
+
+    # [print(gnrs_pred[i], lasso.coef_[i]) for i in coef_used[0]]
+    # hm that's kinda weird parents sometimes
+    # need to test overall tho
+
+    las_scr_dct[gnr] = lasso.score(preds2, gnr_vlus)
+
+    gnr_el = []
+    for i in coef_used[0]:
+        prnt_pr = (gnrs_pred[i], gnr, lasso.coef_[i])
+        gnr_el.append(prnt_pr)
+
+    lasso_el = lasso_el + gnr_el
+    
+
+# # muhahah
+# reg.fit(g1_vlus, )
+
+g_las = Graph()
+g_las_waet = g_las.new_edge_property('float')
+
+g_las_id = g_las.add_edge_list(lasso_el, string_vals = True, hashed = True, eprops = [g_las_waet])
+g_las_vd, g_las_vd_rv = vd_fer(g_las, g_las_id)
+
+graph_pltr(g_las, g_las_id, 'lasso_spc1.pdf', 1)
+
+# hmmm
+# rock all over the place
+# metal, punk, electro have their own areas kinda
+# who the fuck is j_dilla: some rapper
+# maybe introduce constraint that genre is not allowed to be more than X (50/60%) of one artist
+# actually why don't i just hard-remove any artists? 
+
+# also wtf is the deal with aggressive and german lyrics
+# and fucking American Idol?
+
+
+# also general genres (rock, metal) are basically irrelevant
+
+
+# other stuff: weigh
+# - lasso cutoff by size of genre: can't see a substantial reason for it
+- predictors by their size
+  does that even make sense? usually you weigh rows, not variables
+  could multiply the columns by their size but it wouldn't make much sense 
+  
+
+# it's a plausible model of constructing tho
+
+composites: Core
+
+## ** artist genres
+# see if there's a clear distinction in terms of features
+
+
+artsts_l = [i.lower() for i in artsts]
+
+artst_gnrs = []
+for gnr in gnrs_l:
+    if gnr in artsts_l:
+        artst_gnrs.append(gnr)
+
+# i think it's just easier to filter on percentage of unique artists
+
+
+# this opens the can of worms of integrating artist information as well FUCK ME
