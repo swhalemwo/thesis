@@ -11,7 +11,9 @@ def weighted_avg_and_std(values, weights):
 
 
 
-def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, min_unq_artsts, d1, d2, client, pd):
+def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
+            min_unq_artsts, max_propx1, max_propx2, d1, d2, 
+            client, pd):
     # still has to be adopted to be able to accommodate time slices
     # wonder if the subsequent sorting can result in violations again?
     
@@ -23,6 +25,8 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, min_unq_a
     min_rel_weight: minimal relative value for tagging to be included
     min_tag_aprnc: minimal number of unique songs tag has to appear with
     min_unq_artsts: minimum number of unique artists for tag
+    max_propx1: maximum percentage of songs in a genre by the largest artist
+    max_propx2: maximum volume (rel_weight * cnt) in genre by largest artist
     """
 
     vrbl_strs  = ", ".join(vrbls)
@@ -138,47 +142,27 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, min_unq_a
     # get tags that are actually present enough in intsec
     # no real need for separate table for this, not that big an operation and only done once
     intsect_tags = """
-    SELECT tag, cnt_tag, unq_artsts, max_cnt2, max_cnt2/cnt_tag as propx, max_sz2/szx as propx2 FROM (
-        SELECT tag, count(tag) as cnt_tag, uniqExact(artist) as unq_artsts, sum(cnt*rel_weight) as szx
-        FROM basic_songs_tags
-        GROUP BY tag
-        HAVING count(tag) > """ + str(min_tag_aprnc) + """ 
-        AND uniqExact(artist) > """ + str(min_unq_artsts) + """
-        ) 
-
-    JOIN (
-        SELECT tag, max(cnt2) as max_cnt2, max(sz2) as max_sz2 from (
-            SELECT tag, artist, count(*) as cnt2, sum(cnt*rel_weight) as sz2
+    SELECT tag from (
+        SELECT tag, cnt_tag, unq_artsts, max_cnt2, max_cnt2/cnt_tag as propx, max_sz2/szx as propx2 FROM (
+            SELECT tag, count(tag) as cnt_tag, uniqExact(artist) as unq_artsts, sum(cnt*rel_weight) as szx
             FROM basic_songs_tags
-            GROUP BY(tag, artist)
-        )
+            GROUP BY tag
+            HAVING count(tag) > """ + str(min_tag_aprnc) + """ 
+            AND uniqExact(artist) > """ + str(min_unq_artsts) + """
+            ) 
+
+        JOIN (
+            SELECT tag, max(cnt2) as max_cnt2, max(sz2) as max_sz2 from (
+                SELECT tag, artist, count(*) as cnt2, sum(cnt*rel_weight) as sz2
+                FROM basic_songs_tags
+                GROUP BY(tag, artist)
+            )
         GROUP BY tag)
     USING tag
-    """
-
-    # need most common artist for each tag
-    # group by (tag, artist)?
-    # then join that back to group by tag
-    # seems to work (metallica, abba), but a lot of weird results: Funk Rock, true metal, Love Metal, NWOBHM
-
-    # rewrite in terms of size
-    using propx gets ride of basically all the shitty stuff:
-    - german lyrics: 0.82
-    - skate punk
-    - aggressive
-
-    but also a bunch of otherwise meaningful stuff like
-    - country pop
-    - chamber pop
-    - 8-bit
-    - NWOBHM
-    - true metal
-    - barouque pop
-    -> look in more detail what makes these genres so dominated by one band
-    # maybe it's also limited acoustic data? 
+    )
+    WHERE propx < """ + str(max_propx1) + """
+    AND propx2 < """ + str(max_propx2)
     
-    
-
 
     # boil down basic_songs_tags to intersection requirements
     int_sec_all = """
