@@ -687,6 +687,7 @@ len(list(ar_cb[np.where(ar_cb == math.inf)]))/len(gnrs)**2
 
 from sklearn.linear_model import LinearRegression
 
+
 # *** single case
 g1 = 'witch house'
 g2 = 'House'
@@ -721,7 +722,7 @@ r2 = sklearn.metrics.r2_score(g1_vlus, y_pred)
 
 
 # *** lasso
-from sklearn.linear_model import Lasso
+
 
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -754,8 +755,8 @@ print(coeff_used)
 # *** lasso tags
 
 lasso_el = []
-las_scr_dct = {}
-gnr = "cool jazz"
+las_scrs = []
+
 for gnr in gnrs:
 
     gnr_vlus = acst_mat[gnr_ind[gnr]]
@@ -772,7 +773,7 @@ for gnr in gnrs:
     # hm that's kinda weird parents sometimes
     # need to test overall tho
 
-    las_scr_dct[gnr] = lasso.score(preds2, gnr_vlus)
+    las_scrs.append(lasso.score(preds2, gnr_vlus))
 
     gnr_el = []
     for i in coef_used[0]:
@@ -781,9 +782,6 @@ for gnr in gnrs:
 
     lasso_el = lasso_el + gnr_el
     
-
-# # muhahah
-# reg.fit(g1_vlus, )
 
 g_las = Graph()
 g_las_waet = g_las.new_edge_property('float')
@@ -803,8 +801,8 @@ graph_pltr(g_las, g_las_id, 'lasso_spc1.pdf', 1)
 # also wtf is the deal with aggressive and german lyrics
 # and fucking American Idol?
 
-
 # also general genres (rock, metal) are basically irrelevant
+# also fuccking "aggressive"
 
 
 # other stuff: weigh
@@ -816,9 +814,188 @@ graph_pltr(g_las, g_las_id, 'lasso_spc1.pdf', 1)
 
 # it's a plausible model of constructing tho
 
-composites: Core
 
-## ** artist genres
+# *** lasso weighted
+# **** https://stackoverflow.com/questions/44757238/how-to-configure-lasso-regression-to-not-penalize-certain-variables
+
+""" data """
+import numpy as np
+from sklearn import datasets
+diabetes = datasets.load_diabetes()
+A = diabetes.data[:150]
+y = diabetes.target[:150]
+alpha=0.1
+weights=np.ones(A.shape[1])
+
+""" sklearn """
+from sklearn import linear_model
+clf = linear_model.Lasso(alpha=alpha, fit_intercept=False)
+clf.fit(A, y)
+
+""" scipy """
+from scipy.optimize import minimize
+def lasso_min(x):  # following sklearn's definition from user-guide!
+    return (1. / (2*A.shape[0])) * np.square(np.linalg.norm(A.dot(x) - y, 2)) + alpha * np.linalg.norm(weights*x, 1)
+
+def lasso_min2(x, A, y, weights):
+    cp1 = (1. / (2*A.shape[0]))
+    cp2 = np.square(np.linalg.norm(A.dot(x) - y, 2)) 
+    cp3 = alpha * np.linalg.norm(weights*x, 1)
+
+    res = cp1 * cp2 + cp3
+    # print(res)
+    return(res)
+
+
+""" Test with weights = 1 """
+x0 = np.zeros(A.shape[1])
+res = minimize(lasso_min, x0, method='L-BFGS-B', options={'disp': False})
+res2 = minimize(lasso_min2, x0, args=(A, y, weights), method='L-BFGS-B', options={'disp': False})
+
+print('Equal weights')
+print(lasso_min(clf.coef_), clf.coef_[:5])
+print(lasso_min(res.x), res.x[:5])
+print(lasso_min(res.x), res2.x[:5])
+
+""" Test scipy-based with special weights """
+weights2 = weights
+weights2[[0, 3, 5]] = 0.0
+res = minimize(lasso_min, x0, method='L-BFGS-B', options={'disp': False})
+res2 = minimize(lasso_min2, x0, args=(A, y, weights2), method='L-BFGS-B', options={'disp': False})
+print('Specific weights')
+print(lasso_min(res.x), res.x[:5])
+print(lasso_min(res2.x), res2.x[:5])
+
+# **** try out
+gnr = 'ambient'
+gnr = 'death metal'
+gnr = 'progressive power metal'
+
+
+gnr_vlus = acst_mat[gnr_ind[gnr]]
+# get 30 most similar genres
+# idx = np.argpartition(ar_cb[gnr_ind[gnr]], 30)
+idx = np.argpartition(ar_cb[gnr_ind[gnr]], range(30))
+prnts = idx[1:30]
+
+gnrs_preds = acst_mat[prnts,:].T
+
+szs = [sz_dict[gnrs[i]] for i in prnts]
+szs_log = [math.log(i) for i in szs]
+szs_log22 = np.array([i/max(szs_log) for i in szs_log])
+szs_rv = [1 - i for i in szs_log22]
+szs_xx = [1/sz_dict[gnrs[i]] for i in prnts]
+szs_xx2 = [i/max(szs_xx) for i in szs_xx]
+
+# older stuff
+# too much to estimate all for now
+# szs = [sz_dict[i] for i in gnrs]
+# szs_log = [math.log(i) for i in szs]
+
+
+preds2 = np.delete(acst_mat, gnr_ind[gnr], axis=0).T
+gnrs_pred = np.delete(np.array(gnrs), gnr_ind[gnr])
+szs2 = np.delete(np.array(szs), gnr_ind[gnr])
+szs_log = np.delete(np.array(szs_log), gnr_ind[gnr])
+szs_none = np.array([1 for i in szs_log])
+szs_log2 = np.array([i/max(szs_log) for i in szs_log])
+# maybe szs can't be > 1? 
+
+alpha = 0.016
+x0 = np.zeros(preds2.shape[1])
+
+
+# does not work with equal weights: produces different stuff
+res2 = minimize(lasso_min2, x0[0:20], args=(preds2[:,0:20], gnr_vlus, szs_none[0:20]), method='L-BFGS-B', options={'disp': True, 'maxiter':100000})
+npl(res2.x)
+
+res2 = minimize(lasso_min2, x0[0:50], args=(preds2[:,0:50], gnr_vlus, szs_log2[0:50]), method='Powell', options={'disp': True})
+npl(res2.x)
+
+# using only closest predictors (kld)
+res2 = minimize(lasso_min2, x0[0:29], args=(gnrs_preds, gnr_vlus, szs_xx2), method='Powell', options={'disp': True})
+npl(res2.x)
+[gnrs[prnts[i]] for i in np.where(res2.x>0.1)[0]]
+[gnrs[i] for i in prnts]
+
+# also does not work with original function lasso_min, same results as with rewritten function
+# uses different optimization function: coordinate descent not available for minimize, Powell looks somewhat similar
+
+
+x0 = np.zeros(50)
+y = gnr_vlus
+A = preds2[:,0:20]
+weights = [1 for i in x0]
+res3 = minimize(lasso_min, x0, method='L-BFGS-B', options={'disp': True})
+
+
+
+lasso = Lasso(0.01)
+lasso.fit(preds2[:,0:50],gnr_vlus)
+
+lasso.fit(gnrs_preds,gnr_vlus)
+npl(lasso.coef_)
+[gnrs_pred[i] for i in np.where(lasso.coef_ > 0.01)]
+# no overlap at all between using the 30 most similar with weights and everything without
+# do i need coordinate descend with weights? f
+
+# **** lasso 2-step
+
+gnr = 'ambient'
+gnr = 'Technical Death Metal'
+
+gnr_vlus = acst_mat[gnr_ind[gnr]]
+preds2 = np.delete(acst_mat, gnr_ind[gnr], axis=0).T
+gnrs_pred = np.delete(np.array(gnrs), gnr_ind[gnr])
+
+lasso = Lasso(0.00001, precompute=True, max_iter = 30000)
+lasso.fit(preds2,gnr_vlus)
+npl(lasso.coef_)
+las_res = [(gnrs_pred[i], lasso.coef_[i]) for i in np.where(lasso.coef_ > 0.01)[0]]
+
+las_res2 = []
+for i in las_res:
+    sz = sz_dict[i[0]]
+    prnt_szx = sz * i[1]
+    las_res2.append((i) + (sz, prnt_szx,))
+
+las_res_gnrs = [i[0] for i in las_res2]
+las_res3 = [i[3] for i in las_res2]
+
+nps(las_res_gnrs, las_res3, las_res3)
+nps(las_res_gnrs, [i[1] for i in las_res], 1)
+res_df = pd.DataFrame(las_res2, columns = ['gnr', 'coef', 'sz', 'sz2'])
+
+
+# *** plotting klds, maybe they also have scree-plot like stuff
+
+
+valid_ids = np.where(ar_cb[gnr_ind[gnr]] < math.inf)[0]
+xs = [gnrs[i] for i in valid_ids]
+ys = [ar_cb[gnr_ind[gnr],i] for i in valid_ids]
+
+
+res2_df = pd.DataFrame(xs, columns = ['genre'])
+res2_df['kld'] = ys
+
+v1 = res2_df.sort_values('kld')['kld']
+v2 = res2_df.sort_values('kld')['genre']
+
+nps(v2, v1, 1)
+# hm might actually work, there's a turn right at the start
+
+s1 = res2_df.sort_values('kld')['kld']
+s1_diff1 = s1[0:50].diff().diff()
+
+nps(range(50),s1_diff1, 1)
+
+s1_diff1 = s1_diff1.reset_index()
+npl(s1_diff1['kld'])
+# probably needs some smoothing, then find max of second differencing? 
+
+
+
+# ** artist genres
 # see if there's a clear distinction in terms of features
 
 
