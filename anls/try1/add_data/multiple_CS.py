@@ -228,6 +228,9 @@ SELECT usr, mbid, cnt FROM (
 usr_trk_lnks = client.execute(usr_string)
 
 # don't like how long loading data into python takes...
+# also the amount of memory jesus
+
+
 
 usrs = [i[0] for i in usr_trk_lnks]
 unq_usrs = np.unique(usrs)
@@ -238,7 +241,7 @@ plcnt = g_usrs.new_edge_property('int')
 g_usrs_id = g_usrs.add_edge_list(usr_trk_lnks, hashed = True, string_vals = True, eprops = [plcnt])
 g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs_id)
 
-N_SAMPLE = 100
+N_SAMPLE = 300
 
 usrs_sample = sample(list(unq_usrs), N_SAMPLE)
 sample_ids = [g_usrs_vd[i] for i in usrs_sample]
@@ -270,9 +273,11 @@ elx = []
 for i in zip(one_mode1[0], one_mode1[1]):
     nd1 = i[0]
     nd2 = i[1]
-    
-    lnk = (usrs_sample[nd1], usrs_sample[nd2], cmn_ar[nd1, nd2])
-    elx.append(lnk)
+    vlu = cmn_ar[nd1, nd2]
+
+    if vlu > 20:
+        lnk = (usrs_sample[nd1], usrs_sample[nd2], vlu)
+        elx.append(lnk)
 
 g_usrs_1md = Graph(directed=False)
 g_usrs_1md_strng = g_usrs_1md.new_edge_property('int')
@@ -283,21 +288,46 @@ tx1 = time.time()
 state = minimize_blockmodel_dl(g_usrs_1md, state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
 tx2 = time.time()
 
+# tinkering with the features
+state = minimize_blockmodel_dl(g_usrs_1md, B_min = 3, B_max = 6,
+                               state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
 
+# 321 sec for 1k
 # 40 sec for 400
 # 4 sec for 100
+# 6 for 300 with min songs in common = 20
+# 
 
-# look at settings
+tx1 = time.time()
+state_hrc = minimize_nested_blockmodel_dl(g_usrs_1md, state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
+tx2 = time.time()
+# hiearchical takes so much longer
+# 100: 21 sec
+# 300, min common 20: 21
+#
+
+
+
+# look at settings of minimize_blockmodel_dl
+# maybe hierachical to reduce things? 
 
 e = state.get_matrix()
 plt.matshow(e.todense())
 plt.show()
+
+blks = state.get_blocks()
+blks_vlus = [blks[i] for i in g_usrs_1md.vertices()]
+Counter(blks_vlus)
+
 
 
 
 
 strngs = [g_usrs_1md_strng[e] for e in g_usrs_1md.edges()]
 nph(strngs)
+
+nph(np.log(strngs))
+
 
 
 # could translate into 1 mode graph by getting number of common vertices
@@ -321,8 +351,9 @@ state = minimize_blockmodel_dl(g)
 # pointless, has to be put into 1 mode first, also allows more fine-tuning
 # also weights work so not much information lost
 
-state2 = minimize_blockmodel_dl(g_usrs_flt)
+# 
 
+state2 = minimize_blockmodel_dl(g_usrs_flt)
 
 state = gt.minimize_nested_blockmodel_dl(g, state_args=dict(recs=[g.ep.weight], rec_types=["discrete-binomial"]))
 
