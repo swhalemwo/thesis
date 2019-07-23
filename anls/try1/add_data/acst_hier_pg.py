@@ -755,33 +755,110 @@ print(coeff_used)
 # *** lasso tags
 
 lasso_el = []
+
+
+ways of filtering:
+- weight is under above max*x, 0.5< x <0.8
+- adding weights from highest to lowest, coef is added before cumulative sum reaches sum(coefs) *x
+
+
+mthds = ['addtv', 'avg']
+coef_cols = ['coef', 'coef_log_vol']
+thds_dict = {'addtv':[0.5, 0.6, 0.7, 0.8], 'avg':[0.1, 0.25, 0.4, 0.55]}
+
 las_scrs = []
 
-for gnr in gnrs:
+res_dict= {}
+for m in mthds:
+    res_dict[m] = {}
+    for cc in coef_cols:
+        res_dict[m][cc] = {}
+        
+        thds = thds_dict[m]
+        for thd in thds:
+            res_dict[m][cc][thd] = []
+
+# for gnr in gnrs:
+for gnr in sample(gnrs, 200):
 
     gnr_vlus = acst_mat[gnr_ind[gnr]]
     preds2 = np.delete(acst_mat, gnr_ind[gnr], axis=0).T
 
     gnrs_pred = np.delete(np.array(gnrs), gnr_ind[gnr])
 
-    lasso = Lasso(0.016)
+    lasso = Lasso(0.00001, max_iter = 30000, positive = True, precompute = True)
     lasso.fit(preds2,gnr_vlus)
-    coef_used = np.where(lasso.coef_!=0)
-    print(len(coef_used[0]))
-
-    # [print(gnrs_pred[i], lasso.coef_[i]) for i in coef_used[0]]
-    # hm that's kinda weird parents sometimes
-    # need to test overall tho
 
     las_scrs.append(lasso.score(preds2, gnr_vlus))
 
-    gnr_el = []
-    for i in coef_used[0]:
-        prnt_pr = (gnrs_pred[i], gnr, lasso.coef_[i])
-        gnr_el.append(prnt_pr)
 
-    lasso_el = lasso_el + gnr_el
+    las_res = [(gnrs_pred[i], lasso.coef_[i], sz_dict[gnrs_pred[i]], vol_dict[gnrs_pred[i]])
+               for i in np.where(lasso.coef_ > 0.01)[0]]
     
+    res_df = pd.DataFrame(las_res, columns = ['gnr', 'coef', 'sz', 'vol'])
+    res_df['coef_log_sz'] = np.array(res_df['coef']) * np.log(np.array(res_df['sz']))
+    res_df['coef_log_vol'] = np.array(res_df['coef']) * np.log(np.array(res_df['vol']))
+
+    
+    # allows to iterate easier over different weights
+
+    for cc in coef_cols:
+        
+        res_df = res_df.sort_values(cc, ascending=False)
+        
+        for m in mthds:
+
+            thds = thds_dict[m]
+            sum_coefs = sum(res_df[cc])
+            max_coef = max(res_df[cc])
+
+            for thd in thds:
+
+                gnr_el = []
+                cur_frac = 0
+
+                for i in res_df[cc]:
+
+                    if m == 'addtv':
+                        cur_frac = cur_frac + i
+                        # print(i, cur_frac, sum_coefs*thd, cur_frac > sum_coefs*thd)
+
+                        if cur_frac < sum_coefs*thd:
+
+                            # print('good')
+                            row_pos = np.where(res_df[cc]==i)[0][0]
+                            rel_gnr = list(res_df['gnr'])[row_pos]
+                            rel_coef = list(res_df[cc])[row_pos]
+
+                            prnt_rip = (rel_gnr, gnr, rel_coef)
+                            gnr_el.append(prnt_rip)
+
+                    if m == 'avg':
+                        if i > max_coef*thd:
+                            row_pos = np.where(res_df[cc]==i)[0][0]
+                            rel_gnr = list(res_df['gnr'])[row_pos]
+                            rel_coef = list(res_df[cc])[row_pos]
+
+                            prnt_rip = (rel_gnr, gnr, rel_coef)
+                            gnr_el.append(prnt_rip)
+
+                # print(cc, m, thd, len(gnr_el))
+
+                res_dict[m][cc][thd] = res_dict[m][cc][thd] + gnr_el
+
+
+for m in mthds:
+    for cc in coef_cols:
+        thds = thds_dict[m]
+        for thd in thds:
+            print(m, cc, thd, len(res_dict[m][cc][thd]))
+
+stuff to evaluate:
+- average degree (in/out)
+- degree concentration
+
+nph(las_scrs)
+
 
 g_las = Graph()
 g_las_waet = g_las.new_edge_property('float')
@@ -789,7 +866,12 @@ g_las_waet = g_las.new_edge_property('float')
 g_las_id = g_las.add_edge_list(lasso_el, string_vals = True, hashed = True, eprops = [g_las_waet])
 g_las_vd, g_las_vd_rv = vd_fer(g_las, g_las_id)
 
-graph_pltr(g_las, g_las_id, 'lasso_spc1.pdf', 1)
+graph_pltr(g_las, g_las_id, 'lasso_spc2.pdf', 1)
+
+# other cutoff: see how much you need to explain X
+
+
+# **** first results, weird stuff probably due to high alpha values; increasing it makes aggressive disappear in most cases (and removes high out_degree nodes overall)
 
 # hmmm
 # rock all over the place
@@ -804,6 +886,14 @@ graph_pltr(g_las, g_las_id, 'lasso_spc1.pdf', 1)
 # also general genres (rock, metal) are basically irrelevant
 # also fuccking "aggressive"
 
+# npl(res_df.reset_index()['coef'])
+# print(gnr, len(coef_used[0]))
+
+# [print(gnrs_pred[i], lasso.coef_[i]) for i in coef_used[0]]
+# hm that's kinda weird parents sometimes
+# need to test overall tho
+
+
 
 # other stuff: weigh
 # - lasso cutoff by size of genre: can't see a substantial reason for it
@@ -813,6 +903,14 @@ graph_pltr(g_las, g_las_id, 'lasso_spc1.pdf', 1)
   
 
 # it's a plausible model of constructing tho
+
+# **** try out elastic net? might be more fine-tuned filtering
+
+# elnet = ElasticNet(alpha = 0.0001, l1_ratio = 0.01, positive = True, precompute = True, max_iter = 30000)
+# elnet.fit(preds2,gnr_vlus)
+# elnet.coef_[np.where(elnet.coef_ > 0.001)]
+# lasso.coef_[np.where(lasso.coef_ > 0.001)]
+
 
 
 # *** lasso weighted
@@ -943,6 +1041,7 @@ npl(lasso.coef_)
 
 gnr = 'ambient'
 gnr = 'Technical Death Metal'
+gnr = 'Progressive metal'
 
 gnr_vlus = acst_mat[gnr_ind[gnr]]
 preds2 = np.delete(acst_mat, gnr_ind[gnr], axis=0).T
@@ -959,13 +1058,21 @@ for i in las_res:
     prnt_szx = sz * i[1]
     las_res2.append((i) + (sz, prnt_szx,))
 
-las_res_gnrs = [i[0] for i in las_res2]
-las_res3 = [i[3] for i in las_res2]
+res_df = pd.DataFrame(las_res2, columns = ['gnr', 'coef', 'sz', 'coef_sz_prud'])
+res_df['coef_sz_log_prud'] = np.array(res_df.coef) * np.array(np.log(res_df.sz))
 
-nps(las_res_gnrs, las_res3, las_res3)
-nps(las_res_gnrs, [i[1] for i in las_res], 1)
-res_df = pd.DataFrame(las_res2, columns = ['gnr', 'coef', 'sz', 'sz2'])
+npl(res_df.sort_values('coef').reset_index()['coef'])
+npl(res_df.sort_values('coef_sz_prud').reset_index()['coef_sz_prud'])
+npl(res_df.sort_values('coef_sz_log_prud').reset_index()['coef_sz_log_prud'])
 
+
+s1 = res_df.sort_values('coef').reset_index()['coef']
+s1_rlmn = s1.rolling(5).mean()
+npl(s1_rlmn)
+s1_dif1 = s1_rlmn.diff()
+npl(s1_dif1)
+s1_dif2 = s1_dif1.diff()
+npl(s1_dif2)
 
 # *** plotting klds, maybe they also have scree-plot like stuff
 
@@ -985,13 +1092,31 @@ nps(v2, v1, 1)
 # hm might actually work, there's a turn right at the start
 
 s1 = res2_df.sort_values('kld')['kld']
-s1_diff1 = s1[0:50].diff().diff()
+s1_dif1 = s1[0:50].diff().reset_index()['kld']
+s1_dif2 = s1_diff1.diff().reset_index()['kld']
+
+
+
+npl(s1.reset_index()['kld'][0:20])
+npl(s1_dif1)
+npl(s1_dif2)
+
+# interpretation is murky: high drop is dif1 doesn't much difference in similarity (0.025 vs 0.03)
+# it means 0 and 1 are much further apart than 1 and 2
+# hopefully gets better with lasso reg coefs
+
+
 
 nps(range(50),s1_diff1, 1)
 
 s1_diff1 = s1_diff1.reset_index()
 npl(s1_diff1['kld'])
-# probably needs some smoothing, then find max of second differencing? 
+# probably needs some smoothing, then find max of second differencing?
+
+rollx = s1_diff1.rolling(2).mean().reset_index()
+npl(rollx['kld'])
+
+
 
 
 
