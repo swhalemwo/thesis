@@ -1,227 +1,36 @@
-def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
-            min_unq_artsts, max_propx1, max_propx2, d1, d2, 
-            client, pd):
-    # still has to be adopted to be able to accommodate time slices
-    # wonder if the subsequent sorting can result in violations again?
-    
-    """retrieves acoustic data (vrbls) and tags of corresponding songs
-        queries are written to only retrieve only complete matches (songs for which both musicological data and tags are available
-    vrbls: variables for which to get musicological information
-    min_cnt: minimal playcount for song
-    min_weight: minimal absolute value for tagging to be included
-    min_rel_weight: minimal relative value for tagging to be included
-    min_tag_aprnc: minimal number of unique songs tag has to appear with
-    min_unq_artsts: minimum number of unique artists for tag
-    max_propx1: maximum percentage of songs in a genre by the largest artist
-    max_propx2: maximum volume (rel_weight * cnt) in genre by largest artist
-    """
 
-    vrbl_strs  = ", ".join(vrbls)
-    # TEST VALUES
-    # min_weight = 10
-    # min_rel_weight = 0.05
-    # min_tag_aprnc = 5
-    # min_cnt = 400
+# what if i cluster first (the sample) without concern for acoustics
+# then write the partition of each user to the usrs1k
+# then call get_dfs with just those?
 
-    # create merged df from beginning
-    # try to split it the queries into strings
-    # use temporary tables
+# means that the clusters will be based also on songs for which i don't have acoustic data
+# seems not worse: if there's bias in the acoustic data, it will at least not be in cluster construction
 
-
-    # gets the mbids that are can be used in terms of minimal playcount and acoustic data availability
-    # basic = basis for further operations
-    # probably should integrate temporal part here
-
-    mbid_tbl_basic = """
-    CREATE TEMPORARY TABLE mbids_basic
-    (
-    mbid_basic String,
-    cnt Int16,
-    artist String,
-    erl_rls Int16,
-    len_rls_lst Int8
-    )
-    """
-    # d1 = '2011-10-01'
-    # d2 = '2011-11-01'
-    
-    # filters by date
-    date_str = """SELECT mbid, cnt FROM (
-    SELECT song as abbrv, count(song) AS cnt FROM logs
-        WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-        GROUP BY song
-        HAVING cnt > """ + str(min_cnt) + """
-    ) JOIN (
-        SELECT * FROM song_info3) 
-        USING abbrv"""
-
-
-    mbid_basic_insert = """
-    INSERT INTO mbids_basic 
-    SELECT * FROM (
-        SELECT lfm_id as mbid, cnt from acstb2
-        JOIN
-        ( """ + date_str + """ ) USING mbid
-        ) JOIN ( SELECT lfm_id AS mbid, artist, erl_rls, len_rls_lst 
-        FROM addgs ) USING mbid
-    """
-
-    # join with addgs
-    
-    
-    # SELECT lfm_id AS mbid_basic, cnt, artist, erl_rls, len_rls_lst FROM addgs
-    # JOIN mbids_basic USING mbid_basic
-
-    # integrate lsnrs and plcnt from dones_tags?
-    # does not vary over time...
-    # is like looking in the future: has information from 2019 -> can't really use it to predict stuff in 2012
-    
-
-
-
-    # tags with basic requirement (in entire df)
-    tag_tbl_basic = """
-    CREATE TEMPORARY TABLE tags_basic
-    ( tag_basic String)
-    """
-
-    tag_basic_insert = """
-    INSERT INTO tags_basic
-    SELECT tag
-            FROM tag_sums 
-            WHERE (weight > """ + str(min_weight) + """) 
-            AND (rel_weight > """ + str(min_rel_weight) + """ )
-            GROUP BY tag
-            HAVING count(tag) > """ + str(min_tag_aprnc)
-
-
-    # select the tags that correspond to the relevant songs, which is not useless
-    basic_songs_tags_tbl = """
-    CREATE TEMPORARY TABLE basic_songs_tags (
-    mbid String,
-    cnt Int16,
-    tag String,
-    weight Int8,
-    rel_weight Float32, 
-    artist String, 
-    erl_rls Int16, 
-    len_rls_lst Int8
-    )
-    """
-
-    # select tags of songs that fulfil requirements generally (but maybe not in intersection)
-    basic_songs_tags = """INSERT INTO basic_songs_tags
-    SELECT mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst
-    FROM (
-        SELECT mbid, tag, weight, rel_weight 
-            FROM tag_sums
-
-         JOIN (
-            SELECT tag_basic as tag FROM tags_basic) 
-        USING tag
-        WHERE (weight > """ + str(min_weight) + """) 
-        AND (rel_weight > """ + str(min_rel_weight) + """ ))
-
-    JOIN (
-        SELECT mbid_basic as mbid, cnt, artist, erl_rls, len_rls_lst from mbids_basic)
-    USING mbid"""
-    
-    # get tags that are actually present enough in intsec
-    # no real need for separate table for this, not that big an operation and only done once
-    intsect_tags = """
-    SELECT tag from (
-        SELECT tag, cnt_tag, unq_artsts, max_cnt2, max_cnt2/cnt_tag as propx, max_sz2/szx as propx2 FROM (
-            SELECT tag, count(tag) as cnt_tag, uniqExact(artist) as unq_artsts, sum(cnt*rel_weight) as szx
-            FROM basic_songs_tags
-            GROUP BY tag
-            HAVING count(tag) > """ + str(min_tag_aprnc) + """ 
-            AND uniqExact(artist) > """ + str(min_unq_artsts) + """
-            ) 
-
-        JOIN (
-            SELECT tag, max(cnt2) as max_cnt2, max(sz2) as max_sz2 from (
-                SELECT tag, artist, count(*) as cnt2, sum(cnt*rel_weight) as sz2
-                FROM basic_songs_tags
-                GROUP BY(tag, artist)
-            )
-        GROUP BY tag)
-    USING tag
-    )
-    WHERE propx < """ + str(max_propx1) + """
-    AND propx2 < """ + str(max_propx2)
-    
-
-    # boil down basic_songs_tags to intersection requirements
-    int_sec_all = """
-    SELECT * from basic_songs_tags
-    JOIN ( """ + intsect_tags + """)
-    USING tag"""
-    
-    # make merge table by getting stuff from acstb in
-    # filtered on acstb before so should all be in there, and seems like it is
-
-    fnl_qry_table = """
-    CREATE TEMPORARY TABLE fnl_qry (
-    mbid String,
-    cnt Int16,
-    tag String,
-    weight Int8,
-    rel_weight Float32, 
-    artist String, 
-    erl_rls Int16, 
-    len_rls_lst Int8,
-    """ + ",\n".join([i + ' Float32' for i in vrbls])+ ")"
-
-    
-
-    merge_qry = """
-    INSERT INTO fnl_qry SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst, """ + vrbl_strs + """ from acstb2
-    JOIN (""" + int_sec_all + """) USING mbid"""
-    
-    drops = [
-        'drop table mbids_basic',
-        'drop table tags_basic',
-        'drop table basic_songs_tags'
-        'drop table fnl_qry']
-    for d in drops:
-        try:
-            client.execute(d)
-        except:
-            pass
-    
-    client.execute(mbid_tbl_basic)
-    client.execute(mbid_basic_insert)
-    client.execute(tag_tbl_basic)
-    client.execute(tag_basic_insert)
-    client.execute(basic_songs_tags_tbl)
-    client.execute(basic_songs_tags)
-    client.execute(fnl_qry_table)
-    client.execute(merge_qry)
-    
-
-    rows_merged = client.execute('SELECT * from fnl_qry')
-
-    dfc2 = pd.DataFrame(rows_merged, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight',
-                                               'artist', 'erl_rls', 'len_rls_lst'] + vrbls)
-    # generate string for tag data
-
-    
-    return(dfc)
-
-# get users
 usr_string = """
-SELECT usr, mbid, cnt FROM (
-    SELECT * FROM (
-        SELECT usr, song as abbrv, count(usr,song) as cnt FROM logs
-            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-            GROUP BY (usr,song)
+SELECT usr, song, count(usr,song) as cnt FROM logs
 
-        ) JOIN (
-            SELECT mbid, abbrv FROM song_info3)
-            USING abbrv
-    ) JOIN (
-        SELECT distinct(mbid) from fnl_qry
-    ) USING mbid"""
+JOIN (
+    SELECT abbrv2 as usr from usrs1k)
+    USING usr
+    WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+    GROUP BY (usr,song)
+"""
+
+
+# * get users
+# usr_string = """
+# SELECT usr, mbid, cnt FROM (
+#     SELECT * FROM (
+#         SELECT usr, song as abbrv, count(usr,song) as cnt FROM logs
+#             WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+#             GROUP BY (usr,song)
+
+#         ) JOIN (
+#             SELECT mbid, abbrv FROM song_info3)
+#             USING abbrv
+#     ) JOIN (
+#         SELECT distinct(mbid) from fnl_qry
+#     ) USING mbid"""
 
 usr_trk_lnks = client.execute(usr_string)
 
@@ -241,7 +50,8 @@ g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs_id)
 
 # usr_trk_lnks = 0
 
-N_SAMPLE = 4000
+# N_SAMPLE = 4000
+N_SAMPLE = len(unq_usrs)
 
 usrs_sample = sample(list(unq_usrs), N_SAMPLE)
 sample_ids = [g_usrs_vd[i] for i in usrs_sample]
@@ -252,6 +62,7 @@ tx1 = time.time()
 smpl_sims = vertex_similarity(g_usrs, 'dice', vertex_pairs = usr_cmps, eweight = plcnt)
 tx2 = time.time()
 # 50k/sec
+# weird, with US 1k sample it's down to 25k/sec
 # 10k usrs would take 1k secs, seems sufficient? 
 # where to split? if i restart CH server righ after getting the rows, i think i can put everything in one script
 
@@ -273,6 +84,7 @@ ovlp_ar = cmn_ar/deg_ar
 # one_mode1 = np.where(np.tril(cmn_ar) > 0)
 one_mode_drct = np.where(ovlp_ar > 0.04)
 
+
 elx = []
 
 for i in zip(one_mode_drct[0], one_mode_drct[1]):
@@ -285,9 +97,246 @@ for i in zip(one_mode_drct[0], one_mode_drct[1]):
     #     lnk = (usrs_sample[nd1], usrs_sample[nd2], vlu)
     #     elx.append(lnk)
 
+print(len(elx)/N_SAMPLE**2)
+
+
 g_usrs_1md = Graph()
 g_usrs_1md_strng = g_usrs_1md.new_edge_property('double')
 
 g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True, eprops = [g_usrs_1md_strng])
 # g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
+
+g_usrs_1md.vertex_properties['id'] = g_usrs_1md_id
+
+g_usrs_1md.save('one_mode.gt')
+
+
+# NEED WAY TO PASS VARIABLES
+# maybe something like a config_dict
+
+# ptn prep and ptning has to run before get_dfs in acst_hier
+# hm not clear how memory is looking after running feature extraction
+
+
+
+
+
+# * scrap
+# different get_dfc function that only differs in using additional temporary table that stores the results of the final query
+# idea as to select different sections
+# but if i take multiple CS seriously i can't use aggregatve and filter that, but have to built separate aggregates for each CS
+
+
+# def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
+#             min_unq_artsts, max_propx1, max_propx2, d1, d2, 
+#             client, pd):
+#     # still has to be adopted to be able to accommodate time slices
+#     # wonder if the subsequent sorting can result in violations again?
+    
+#     """retrieves acoustic data (vrbls) and tags of corresponding songs
+#         queries are written to only retrieve only complete matches (songs for which both musicological data and tags are available
+#     vrbls: variables for which to get musicological information
+#     min_cnt: minimal playcount for song
+#     min_weight: minimal absolute value for tagging to be included
+#     min_rel_weight: minimal relative value for tagging to be included
+#     min_tag_aprnc: minimal number of unique songs tag has to appear with
+#     min_unq_artsts: minimum number of unique artists for tag
+#     max_propx1: maximum percentage of songs in a genre by the largest artist
+#     max_propx2: maximum volume (rel_weight * cnt) in genre by largest artist
+#     """
+
+#     vrbl_strs  = ", ".join(vrbls)
+#     # TEST VALUES
+#     # min_weight = 10
+#     # min_rel_weight = 0.05
+#     # min_tag_aprnc = 5
+#     # min_cnt = 400
+
+#     # create merged df from beginning
+#     # try to split it the queries into strings
+#     # use temporary tables
+
+
+#     # gets the mbids that are can be used in terms of minimal playcount and acoustic data availability
+#     # basic = basis for further operations
+#     # probably should integrate temporal part here
+
+#     mbid_tbl_basic = """
+#     CREATE TEMPORARY TABLE mbids_basic
+#     (
+#     mbid_basic String,
+#     cnt Int16,
+#     artist String,
+#     erl_rls Int16,
+#     len_rls_lst Int8
+#     )
+#     """
+#     # d1 = '2011-10-01'
+#     # d2 = '2011-11-01'
+    
+#     # filters by date
+#     date_str = """SELECT mbid, cnt FROM (
+#     SELECT song as abbrv, count(song) AS cnt FROM logs
+#         WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+#         GROUP BY song
+#         HAVING cnt > """ + str(min_cnt) + """
+#     ) JOIN (
+#         SELECT * FROM song_info3) 
+#         USING abbrv"""
+
+
+#     mbid_basic_insert = """
+#     INSERT INTO mbids_basic 
+#     SELECT * FROM (
+#         SELECT lfm_id as mbid, cnt from acstb2
+#         JOIN
+#         ( """ + date_str + """ ) USING mbid
+#         ) JOIN ( SELECT lfm_id AS mbid, artist, erl_rls, len_rls_lst 
+#         FROM addgs ) USING mbid
+#     """
+
+#     # join with addgs
+    
+    
+#     # SELECT lfm_id AS mbid_basic, cnt, artist, erl_rls, len_rls_lst FROM addgs
+#     # JOIN mbids_basic USING mbid_basic
+
+#     # integrate lsnrs and plcnt from dones_tags?
+#     # does not vary over time...
+#     # is like looking in the future: has information from 2019 -> can't really use it to predict stuff in 2012
+    
+
+
+
+#     # tags with basic requirement (in entire df)
+#     tag_tbl_basic = """
+#     CREATE TEMPORARY TABLE tags_basic
+#     ( tag_basic String)
+#     """
+
+#     tag_basic_insert = """
+#     INSERT INTO tags_basic
+#     SELECT tag
+#             FROM tag_sums 
+#             WHERE (weight > """ + str(min_weight) + """) 
+#             AND (rel_weight > """ + str(min_rel_weight) + """ )
+#             GROUP BY tag
+#             HAVING count(tag) > """ + str(min_tag_aprnc)
+
+
+#     # select the tags that correspond to the relevant songs, which is not useless
+#     basic_songs_tags_tbl = """
+#     CREATE TEMPORARY TABLE basic_songs_tags (
+#     mbid String,
+#     cnt Int16,
+#     tag String,
+#     weight Int8,
+#     rel_weight Float32, 
+#     artist String, 
+#     erl_rls Int16, 
+#     len_rls_lst Int8
+#     )
+#     """
+
+#     # select tags of songs that fulfil requirements generally (but maybe not in intersection)
+#     basic_songs_tags = """INSERT INTO basic_songs_tags
+#     SELECT mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst
+#     FROM (
+#         SELECT mbid, tag, weight, rel_weight 
+#             FROM tag_sums
+
+#          JOIN (
+#             SELECT tag_basic as tag FROM tags_basic) 
+#         USING tag
+#         WHERE (weight > """ + str(min_weight) + """) 
+#         AND (rel_weight > """ + str(min_rel_weight) + """ ))
+
+#     JOIN (
+#         SELECT mbid_basic as mbid, cnt, artist, erl_rls, len_rls_lst from mbids_basic)
+#     USING mbid"""
+    
+#     # get tags that are actually present enough in intsec
+#     # no real need for separate table for this, not that big an operation and only done once
+#     intsect_tags = """
+#     SELECT tag from (
+#         SELECT tag, cnt_tag, unq_artsts, max_cnt2, max_cnt2/cnt_tag as propx, max_sz2/szx as propx2 FROM (
+#             SELECT tag, count(tag) as cnt_tag, uniqExact(artist) as unq_artsts, sum(cnt*rel_weight) as szx
+#             FROM basic_songs_tags
+#             GROUP BY tag
+#             HAVING count(tag) > """ + str(min_tag_aprnc) + """ 
+#             AND uniqExact(artist) > """ + str(min_unq_artsts) + """
+#             ) 
+
+#         JOIN (
+#             SELECT tag, max(cnt2) as max_cnt2, max(sz2) as max_sz2 from (
+#                 SELECT tag, artist, count(*) as cnt2, sum(cnt*rel_weight) as sz2
+#                 FROM basic_songs_tags
+#                 GROUP BY(tag, artist)
+#             )
+#         GROUP BY tag)
+#     USING tag
+#     )
+#     WHERE propx < """ + str(max_propx1) + """
+#     AND propx2 < """ + str(max_propx2)
+    
+
+#     # boil down basic_songs_tags to intersection requirements
+#     int_sec_all = """
+#     SELECT * from basic_songs_tags
+#     JOIN ( """ + intsect_tags + """)
+#     USING tag"""
+    
+#     # make merge table by getting stuff from acstb in
+#     # filtered on acstb before so should all be in there, and seems like it is
+
+#     fnl_qry_table = """
+#     CREATE TEMPORARY TABLE fnl_qry (
+#     mbid String,
+#     cnt Int16,
+#     tag String,
+#     weight Int8,
+#     rel_weight Float32, 
+#     artist String, 
+#     erl_rls Int16, 
+#     len_rls_lst Int8,
+#     """ + ",\n".join([i + ' Float32' for i in vrbls])+ ")"
+
+
+#     merge_qry = """
+#     INSERT INTO fnl_qry SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst, """ + vrbl_strs + """ from acstb2
+#     JOIN (""" + int_sec_all + """) USING mbid"""
+    
+#     drops = [
+#         'drop table mbids_basic',
+#         'drop table tags_basic',
+#         'drop table basic_songs_tags'
+#         'drop table fnl_qry']
+#     for d in drops:
+#         try:
+#             client.execute(d)
+#         except:
+#             pass
+    
+#     client.execute(mbid_tbl_basic)
+#     client.execute(mbid_basic_insert)
+#     client.execute(tag_tbl_basic)
+#     client.execute(tag_basic_insert)
+#     client.execute(basic_songs_tags_tbl)
+#     client.execute(basic_songs_tags)
+#     client.execute(fnl_qry_table)
+#     client.execute(merge_qry)
+    
+
+#     rows_merged = client.execute('SELECT * from fnl_qry')
+
+#     dfc2 = pd.DataFrame(rows_merged, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight',
+#                                                'artist', 'erl_rls', 'len_rls_lst'] + vrbls)
+#     # generate string for tag data
+
+    
+#     return(dfc)
+
+# dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
+#               min_unq_artsts, max_propx1, max_propx2, d1, d2,
+#               client, pd)
 
