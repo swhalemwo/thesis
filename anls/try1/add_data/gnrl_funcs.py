@@ -12,7 +12,7 @@ def weighted_avg_and_std(values, weights):
 
 
 def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
-            min_unq_artsts, max_propx1, max_propx2, d1, d2, 
+            min_unq_artsts, max_propx1, max_propx2, d1, d2, ptn,
             client, pd):
     # still has to be adopted to be able to accommodate time slices
     # wonder if the subsequent sorting can result in violations again?
@@ -27,6 +27,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     min_unq_artsts: minimum number of unique artists for tag
     max_propx1: maximum percentage of songs in a genre by the largest artist
     max_propx2: maximum volume (rel_weight * cnt) in genre by largest artist
+    ptn: partition in usrs1k
     """
 
     vrbl_strs  = ", ".join(vrbls)
@@ -45,7 +46,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # basic = basis for further operations
     # probably should integrate temporal part here
 
-    mbid_tbl_basic = """
+    mbid_tbl_basic = """ 
     CREATE TEMPORARY TABLE mbids_basic
     (
     mbid_basic String,
@@ -58,15 +59,22 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # d1 = '2011-10-01'
     # d2 = '2011-11-01'
     
-    # filters by date
+    # ptn = 1
+
+    # filters by date and usrs having the right partition
     date_str = """SELECT mbid, cnt FROM (
-    SELECT song as abbrv, count(song) AS cnt FROM logs
-        WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-        GROUP BY song
-        HAVING cnt > """ + str(min_cnt) + """
-    ) JOIN (
-        SELECT * FROM song_info3) 
-        USING abbrv"""
+        SELECT * FROM (
+            SELECT song as abbrv, count(song) as cnt FROM (
+                SELECT usr, song from logs
+                    WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+                ) JOIN (SELECT abbrv2 AS usr FROM usrs1k WHERE ptn == """ + str(ptn) + """
+                ) USING usr
+                GROUP BY song
+                HAVING cnt > """ + str(min_cnt) + """
+        ) JOIN (
+            SELECT mbid, abbrv FROM song_info) 
+            USING abbrv
+        )"""
 
 
     mbid_basic_insert = """

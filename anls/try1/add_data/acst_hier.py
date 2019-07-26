@@ -16,6 +16,8 @@ from random import sample
 from scipy.stats import entropy
 from sklearn import preprocessing
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.linear_model import Lasso
+
 
 from graph_tool.all import *
 from graph_tool import *
@@ -80,6 +82,58 @@ def gini(array):
 
 # * create acst network and all kinds of stuff
 
+
+
+def asym_sim(gx, gnrs, vdx):
+    """generates asym mat based on weights scaled by max, making more equally distributed genres more general"""
+    cmps = all_cmps_crubgs(gnrs, vdx, 'product')
+
+    all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps)
+    
+    # don't think there's much sense in weights: i have weights because i standardize in np.hist
+    # if i don't all proportionality constraints are of and larger ones will swallow small ones
+    # but if i use weights the outdegree becomes the same which makes asymmetric similarity pointless
+    # -> asymmetric similarity through overlap requires variation in out_degree
+    # all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps, eweight = w_std2)
+
+    sims_rows = np.split(all_sims, len(gnrs))
+    sims_ar = np.array(sims_rows)
+
+    # deg_vec = [gx.vertex(vdx[i]).out_degree(weight=w_std2) for i in gnrs]
+    deg_vec = [gx.vertex(vdx[i]).out_degree() for i in gnrs]
+
+    # equivalent to adding the two outdegrees together 
+    deg_ar = np.array([deg_vec]*len(gnrs))
+    deg_ar2 = (deg_ar + np.array([deg_vec]*len(gnrs)).transpose())/2
+
+    # see how much is actually in common, equivalent of multiplication with similarity
+    cmn_ar = deg_ar2*sims_ar
+
+    # see the percentage of what is in common for each genre
+    ovlp_ar = cmn_ar/deg_ar
+    return(ovlp_ar)
+
+# gx = g_trks
+# vdx = g_trks_vd
+# sims_ar = gnr_sim_ar
+
+def asym_sim2(gx, vdx, gnrs, sims_ar, wts):
+    """calculates asymmetric similarities from graph, weights similarity mat (also needs vd and gnrs)"""
+    
+    deg_vec = [gx.vertex(vdx[i]).in_degree(wts) for i in gnrs]
+
+    # equivalent to adding the two outdegrees together 
+    deg_ar = np.array([deg_vec]*len(gnrs))
+    deg_ar2 = (deg_ar + np.array([deg_vec]*len(gnrs)).transpose())/2
+
+    # see how much is actually in common, equivalent of multiplication with similarity
+    cmn_ar = deg_ar2*sims_ar
+
+    # see the percentage of what is in common for each genre
+    ovlp_ar = cmn_ar/deg_ar
+    return(ovlp_ar)
+
+
 def gnrt_acst_el(gnrs):
     """generates edge list for acoustic space network"""
     
@@ -121,59 +175,8 @@ def gnrt_acst_el(gnrs):
         
     return(el_ttl)
 
-def asym_sim(gx, gnrs, vdx):
-    """generates asym mat based on weights scaled by max, making more equally distributed genres more general"""
-    cmps = all_cmps_crubgs(gnrs, vdx, 'product')
 
-    all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps)
-    
-    # don't think there's much sense in weights: i have weights because i standardize in np.hist
-    # if i don't all proportionality constraints are of and larger ones will swallow small ones
-    # but if i use weights the outdegree becomes the same which makes asymmetric similarity pointless
-    # -> asymmetric similarity through overlap requires variation in out_degree
-    # all_sims = vertex_similarity(gx, 'dice', vertex_pairs = cmps, eweight = w_std2)
-
-    sims_rows = np.split(all_sims, len(gnrs))
-    sims_ar = np.array(sims_rows)
-
-    # deg_vec = [gx.vertex(vdx[i]).out_degree(weight=w_std2) for i in gnrs]
-    deg_vec = [gx.vertex(vdx[i]).out_degree() for i in gnrs]
-
-    # equivalent to adding the two outdegrees together 
-    deg_ar = np.array([deg_vec]*len(gnrs))
-    deg_ar2 = (deg_ar + np.array([deg_vec]*len(gnrs)).transpose())/2
-
-    # see how much is actually in common, equivalent of multiplication with similarity
-    cmn_ar = deg_ar2*sims_ar
-
-    # see the percentage of what is in common for each genre
-    ovlp_ar = cmn_ar/deg_ar
-    return(ovlp_ar)
-
-gx = g_trks
-vdx = g_trks_vd
-sims_ar = gnr_sim_ar
-
-def asym_sim2(gx, vdx, gnrs, sims_ar, wts):
-    """calculates asymmetric similarities from graph, weights similarity mat (also needs vd and gnrs)"""
-    
-    deg_vec = [gx.vertex(vdx[i]).in_degree(wts) for i in gnrs]
-
-    # equivalent to adding the two outdegrees together 
-    deg_ar = np.array([deg_vec]*len(gnrs))
-    deg_ar2 = (deg_ar + np.array([deg_vec]*len(gnrs)).transpose())/2
-
-    # see how much is actually in common, equivalent of multiplication with similarity
-    cmn_ar = deg_ar2*sims_ar
-
-    # see the percentage of what is in common for each genre
-    ovlp_ar = cmn_ar/deg_ar
-    return(ovlp_ar)
-
-
-
-
-def gnrt_acst_el_mp(gnrs, nb_cls):
+def gnrt_acst_el_mp(gnrs):
     """parallelizes the acoustic edgelist generation process"""
 
     NO_CHUNKS = 3
@@ -194,12 +197,16 @@ def gnrt_acst_el_mp(gnrs, nb_cls):
 def gnrt_sup_dicts(acst_gnr_dict,gnrs):
     sz_dict = {}
     gnr_ind = {}
+    waet_dict = {}
+    vol_dict = {}
 
     for gnr in gnrs:
         sz_dict[gnr] = len(acst_gnr_dict[gnr])
         gnr_ind[gnr] = gnrs.index(gnr)
+        waet_dict[gnr] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
+        vol_dict[gnr] = sum(np.array(acst_gnr_dict[gnr]['cnt']) * np.array(acst_gnr_dict[gnr]['rel_weight']))
         
-    return(sz_dict, gnr_ind)
+    return(sz_dict, gnr_ind, waet_dict, vol_dict)
 
 # sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
@@ -793,77 +800,81 @@ if __name__ == '__main__':
     # tprd = time_periods[20]
 
     for tprd in time_periods:
-        t1 = tprd[0].strftime('%Y-%m-%d')
-        t2 = tprd[1].strftime('%Y-%m-%d')
+        d1 = tprd[0].strftime('%Y-%m-%d')
+        d2 = tprd[1].strftime('%Y-%m-%d')
 
-        t1_dt = datetime.strptime(t1, '%Y-%m-%d')
-        t2_dt = datetime.strptime(t2, '%Y-%m-%d')
+        d1_dt = datetime.strptime(d1, '%Y-%m-%d')
+        d2_dt = datetime.strptime(d2, '%Y-%m-%d')
         base_dt = datetime(1970, 1, 1)
-        t1_int = (t1_dt - base_dt).days
-        t2_int = (t2_dt - base_dt).days
+        d1_int = (d1_dt - base_dt).days
+        d2_int = (d2_dt - base_dt).days
+
+        # CREATE PARTITIONS
 
 
         tp_id = time_periods.index(tprd)
-        tp_clm = t1 + ' -- ' + t2
+        tp_clm = d1 + ' -- ' + d2
 
         print('set parameters')
-        min_cnt = 10
+        min_cnt = 5
         min_weight = 10
         min_rel_weight = 0.075
-        min_tag_aprnc = 40
+        min_tag_aprnc = 30
         min_unq_artsts = 10
-
-        d1 = t1
-        d2 = t2
+        max_propx1 = 0.5
+        max_propx2 = 0.7
         
-
         vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
                'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
 
-        print('construct dfc')
+        ptn = 1
 
-        dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc, min_unq_artsts, d1, d2, client, pd)
+        for ptn in ptns:
 
-        gnrs = list(np.unique(dfc['tag']))
-        artsts = list(np.unique(dfc['artist']))
-        trks = list(np.unique(dfc['lfm_id']))
+            print('construct dfc')
+            dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
+                          min_unq_artsts, max_propx1, max_propx2, d1, d2, ptn,
+                          client, pd)
+            
+            gnrs = list(np.unique(dfc['tag']))
+            artsts = list(np.unique(dfc['artist']))
+            trks = list(np.unique(dfc['lfm_id']))
 
-        print('construct acst gnr dict')
+            print('construct acst gnr dict')
 
-        acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
-        sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict, gnrs)        
+            acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
+            sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
-        print('construct acoustic edge list')
-        # el_ttl = gnrt_acst_el(gnrs)
-        nbr_cls = 5
-        el_ttl = gnrt_acst_el_mp(gnrs, 5)
-        sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict,gnrs)
+            print('construct acoustic edge list')
+            # el_ttl = gnrt_acst_el(gnrs)
+            el_ttl = gnrt_acst_el_mp(gnrs)
+
+            print('construct acoustic graph')
+            gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
+
+            print('construct acoustic mat')
+            acst_mat = acst_arfy(el_ttl, vrbls, 3)
+
+            t1 = time.time()
+            print('construct kld mat')
+            ar_cb = kld_mat_crubgs(gnrs)
+            t2 = time.time()
+
+            print('construct kld 3 parent edgelist')
+            # could loop over npr 1-5, add prnt to column names? 
+            npr = 4
+            kld2_el = kld_n_prnts(ar_cb, npr)
+
+            print('construct kld graph')
+            g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+
+            print('extract features')
+            # could be parallelized as well
+            tx1 = time.time()
+            df_res = ftr_extrct(gnrs)
+            tx2 = time.time()
 
 
-        print('construct acoustic graph')
-        gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
-
-        print('construct acoustic mat')
-        acst_mat = acst_arfy(el_ttl, vrbls, 3)
-
-        t1 = time.time()
-        print('construct kld mat')
-        ar_cb = kld_mat_crubgs(gnrs)
-        t2 = time.time()
-
-        print('construct kld 3 parent edgelist')
-        # could loop over npr 1-5, add prnt to column names? 
-        npr = 4
-        kld2_el = kld_n_prnts(ar_cb, npr)
-
-        print('construct kld graph')
-        g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-
-        print('extract features')
-        # could be parallelized as well
-        tx1 = time.time()
-        df_res = ftr_extrct(gnrs)
-        tx2 = time.time()
 
         df_res['t1'] = t1
         df_res['t2'] = t2
