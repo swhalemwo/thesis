@@ -230,13 +230,8 @@ usr_trk_lnks = client.execute(usr_string)
 # don't like how long loading data into python takes...
 # also the amount of memory jesus
 
-
-
-usrs = [i[0] for i in usr_trk_lnks]
-unq_usrs = np.unique(usrs)
-
+unq_usrs = np.unique([i[0] for i in usr_trk_lnks])
 unq_trks = np.unique([i[1] for i in usr_trk_lnks])
-
 
 
 g_usrs = Graph()
@@ -247,11 +242,10 @@ g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs_id)
 
 # usr_trk_lnks = 0
 
-N_SAMPLE = 1000
+N_SAMPLE = 4000
 
 usrs_sample = sample(list(unq_usrs), N_SAMPLE)
 sample_ids = [g_usrs_vd[i] for i in usrs_sample]
-
 
 usr_cmps = list(itertools.combinations(sample_ids, 2))
 
@@ -260,7 +254,7 @@ smpl_sims = vertex_similarity(g_usrs, 'dice', vertex_pairs = usr_cmps, eweight =
 tx2 = time.time()
 # 50k/sec
 # 10k usrs would take 1k secs, seems sufficient? 
-
+# where to split? if i restart CH server righ after getting the rows, i think i can put everything in one script
 
 # how to put into np array
 
@@ -292,11 +286,11 @@ for i in zip(one_mode_drct[0], one_mode_drct[1]):
     #     lnk = (usrs_sample[nd1], usrs_sample[nd2], vlu)
     #     elx.append(lnk)
 
-g_usrs_1md = Graph(directed=False)
+g_usrs_1md = Graph()
 g_usrs_1md_strng = g_usrs_1md.new_edge_property('double')
 
 g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True, eprops = [g_usrs_1md_strng])
-g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
+# g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
 
 
 tx1 = time.time()
@@ -326,6 +320,19 @@ print(Counter(blks_vlus))
 # 1k users, 28k edges ((ovlp > 0.04): 12 secs; blocks still somewhat equaly sized
 # 1k users, 19k edges ((ovlp > 0.05): 9 secs; blocks still somewhat equaly sized
 # like 0.04 better for some reason
+# 4k users, 464k edges (ovlp > 0.04): 496 sec, probably because memory full
+# nope not due to memory issue: closing everything else, still takes 480 secs
+# memory consumption moderate over all, but seems to go up in the end
+
+# annoy surfsara a bit more? now i could really use all that power
+# JUST use 4/5k people? still bigger than most surveys tbh
+
+
+
+# should outsource stuff to different scripts
+# the gt operations are somewhat self-contained, so should be rather easy to outsource
+# interface is main problem: how
+
 
 e = state.get_matrix()
 plt.matshow(e.todense())
@@ -398,6 +405,8 @@ ptn_dfc_qry = """SELECT * FROM fnl_qry JOIN ptn_table USING mbid"""
 
 client.execute("SELECT * FROM fnl_qry limit 1")
 
+client.execute("SELECT * FROM fnl_qry limit 1")
+
 
 ptn_rows = client.execute(ptn_dfc_qry)
 
@@ -441,7 +450,11 @@ for i in gnrs_ptn[0:30]:
     # could also be that sum of groups produces less than complete dfc if some borderline genres are spread -> not fulfilled in either
     # should i still keep them in? do they really exist? not really if i assume that classification systems live in the minds of the people in the partitions
     # then those split genres are like data artifacts i guess
-    
+
+    # does it even make sense then to use more users in total than i can put in a SBM?
+    # would be sooo nice to have surfsara access but don't
+    # but is question on its own
+    # don't think so: dfc is just some agglomerate of different CS, has no substantive meaning
     
 
     el_ttl = gnrt_acst_el_mp(gnrs, 5)
