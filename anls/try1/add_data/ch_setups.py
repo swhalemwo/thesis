@@ -37,6 +37,39 @@ alter table usr_info update abbrv2=concat(gender, abbrv) where playcount > 0
 
 # abbrv2 has to be based on gender (since usr_info is partitioned by it
 
+# ** samples
+# *** sample 1k
+uuids = client.execute("""
+SELECT uuid, abbrv2 from(
+    SELECT distinct(usr) AS abbrv2 FROM logs)
+    JOIN usr_info USING abbrv2
+    WHERE country = 'US'
+"""
+)
+
+some_uuids = random.sample(uuids, 1000)
+
+c = 0
+uuid_rows = []
+for i in some_uuids:
+    uuid_row = (i[0], i[1], c % 10)
+    uuid_rows.append(uuid_row)
+    c +=1
+
+client.execute('DROP TABLE usrs1k')
+    
+client.execute("""CREATE TABLE usrs1k
+(uuid String,
+abbrv2 String,
+rndm Int8)
+engine = MergeTree()
+PARTITION BY rndm
+ORDER BY tuple()""")
+
+client.execute('INSERT INTO usrs1k VALUES', uuid_rows)
+
+
+
 
 # * playcount testing #
 
@@ -63,7 +96,6 @@ for i in range(1000):
 
 client.execute('insert into tests values', testl)
 client.execute('insert into tests2 values', list(set(testl)))
-
 
 
 client.execute('select xx, count(xx) as Frequency from tests group by xx')
