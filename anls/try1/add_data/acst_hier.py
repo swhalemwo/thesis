@@ -468,7 +468,6 @@ def ftr_extrct_mp(gnrs):
     cmps_rel, sim_v = gnr_span_prep(vrbls)
 
     for gnr in gnrs:
-        tx1 = time.time()
         # generate a whole bunch of measures
 
         gv = g_kld2.vertex(vd_kld2[gnr])
@@ -481,13 +480,6 @@ def ftr_extrct_mp(gnrs):
         for i in zip(thd_names, thd_res):
             res_dict[gnr][i[0]] = i[1]
 
-        tx2 = time.time()
-
-        res_dict[gnr]['prnt_odg'] = prnt_odg
-        res_dict[gnr]['prnt_odg_wtd'] = prnt_odg_wtd
-
-        tx3 = time.time()
-        
         # cohorts
         cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr)
         res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
@@ -521,7 +513,7 @@ def prnt_stats(gv):
     prnt3_dvrgs: sum of divergences from parents, 
     clst_prnt: distance to closest parent, 
     mean_prnt_dvrg: how far prnts are apart, 
-    prnt_odg, prnt_odg_wtd: outdegree of parents (unweighted and weighted by distance)
+    prnt_odg, prnt_odg_wtd: out-degree of parents (unweighted and weighted by distance)
     """
     
     prnt3_dvrg = gv.in_degree(kld_sim)
@@ -810,7 +802,10 @@ if __name__ == '__main__':
         d2_int = (d2_dt - base_dt).days
 
         # CREATE PARTITIONS
-
+        # make separate script called with d1/d2
+        # how to oscillate between partitioning and feature computation/extraction? 
+        # all the original acst_hier stuff has to run in separate script too to release memory when done
+        # i think the partitioning can run in one process, don't take that much memory
 
         tp_id = time_periods.index(tprd)
         tp_clm = d1 + ' -- ' + d2
@@ -829,7 +824,9 @@ if __name__ == '__main__':
 
         ptn = 1
 
+        pnt_obj_dict = {}
         for ptn in ptns:
+            pnt_obj_dict[ptn] = {}
 
             print('construct dfc')
             dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
@@ -874,7 +871,12 @@ if __name__ == '__main__':
             df_res = ftr_extrct(gnrs)
             tx2 = time.time()
 
+            # is there more efficient way to cluster?
+            # musicological features?
+            # alternatives to blockmodel? 
+            # AHC of cosines?
 
+            
 
         df_res['t1'] = t1
         df_res['t2'] = t2
@@ -887,177 +889,12 @@ if __name__ == '__main__':
         # raise Exception('done')
 
 # * xprtl
-# ** binarize weights
-
-x1 = [1,2,3]
-x2 = [1,3,4]
-
-x1 = {'a':0.5,'b':0.2,'c':0.3}
-x2 = {'a':0.3,'b':0.2,'d':0.5}
-
-hellinger(x1,x2)
-
-correlation between matrix triangles as measure of asymmetry?
-
-tri1 = np.tril(ovlp_ar, k=-1)
-
-# np always extracts rowise -> need to transpose to get correct order of items
-ovlpt = ovlp_ar.transpose()
-
-tri_vlus1 = ovlp_ar[np.where(tri1 > 0)]
-tri_vlus2 = ovlpt[np.where(tri1 > 0)]
 
 np.corrcoef(tri_vlus1, tri_vlus2)
 
 
-# ** compositionality (cps)
 
-gnr = 'atmospheric black metal'
-cps_el = []
-for gnr in gnrs_l:
-    gnr_cpnts_tual = []
-
-    gnr_cpnts = gnr.split()
-
-    if gnr_cpnts == [gnr]:
-        continue
-    
-    if len(gnr_cpnts) > 2:
-        gnr_cpnts2 = list(itertools.permutations(gnr_cpnts, 2))
-        gnr_cpnts2_strs = [i[0] + " " + i[1] for i in gnr_cpnts2]
-        gnr_cpnts = gnr_cpnts + gnr_cpnts2_strs
-
-        
-    for cpnt in gnr_cpnts:
-        if gnr != cpnt:
-            try:
-                cpnt_tual = gnrs_l[gnrs_l.index(cpnt)]
-                gnr_cpnts_tual.append((cpnt_tual, gnr))
-            except:
-                pass
-        
-    cps_el = cps_el + gnr_cpnts_tual
-
-# plotting
-
-g_cps = Graph()
-g_cps_id = g_cps.add_edge_list(cps_el, hashed=True, string_vals = True)
-g_cps_vd,g_cps_vd_rv = vd_fer(g_cps, g_cps_id)
-
-g_cps_out = g_cps.degree_property_map('out')
-
-graph_pltr(g_cps, g_cps_id, 'cps_rels1.pdf', 1)
-
-# feature extraction
-cps_res_dict = {}
-for gnr in gnrs_l:
-    cps_res_dict[gnr] = {}
-
-for gnr in gnrs:
-    gnr = gnr.lower()
-
-    try:
-        gv = g_cps.vertex(g_cps_vd[gnr])
-        
-        # 1 atm just means it's involved in composing (in graph), not that it's a composite
-        # can infer that from cps_idg > 0 tho so should be fine
-        cpst = 1
-        cps_idg = gv.in_degree()
-
-        if cps_idg > 0:
-            cps_prnt_sz = np.mean([g_cps_out[i] for i in gv.in_neighbors()])
-            cps_prnt_sz_sd = np.std([g_cps_out[i] for i in gv.in_neighbors()])
-        else:
-            cps_prnt_sz, cps_prnt_sz_sd = 0
-            # need some brokerage of parents
-        
-    except:
-        cpst = cps_idg = cps_prnt_sz = cps_prnt_sz_sd = 0
-        
-
-    cps_vrbl_names = ['cpst','cps_idg','cps_prnt_sz','cps_prnt_sz_sd']
-    cps_vlus = [cpst,cps_idg,cps_prnt_sz,cps_prnt_sz_sd]
-
-    cps_res_dict[gnr]    
-
-
-
-# there are some very generic terms between rock and metal: instrumental, alternative, symphonic, depressive, post, christian, progressive, industrial, southern, power, dark
-
-# adjectives are flexible who'd have thunk
-# look up how to do brokerage; maybe relevant as well as degree
-
-# any compositionality measures are conditional on there being compositionality in the first place
-# dummy + interaction?
-
-# it seems to turns into different kinds of hierarchical links
-# - acoustic
-# - compositional
-# - tag co-occurence
-
-    
-# power: is component for composites, but doesn't have a genre on it's own
-# is power pop to pop what power metal is to metal?
-# can you just assume the components exist independently?
-# Hannan: multiple categorization only when each component is stand-alone concept
-# this is not about multiple categorization tho, it's about categories on their own
-# dew it
-# problem with "classic": huh actually seems they distinguish between classic + x and classicAL
-
-
-cps2_el = []
-# gnr = 'underground hip-hop'
-for gnr in gnrs_l:
-    gnr_cpnts_el = []
-    
-    gnr_cpnts_splt1 = gnr.split()
-    gnr_cpnts_splt2 = [i.split('-') for i in gnr_cpnts_splt1]
-
-    gnr_cpnts_splt3 = list(itertools.chain.from_iterable(gnr_cpnts_splt2))
-    
-    for i in gnr_cpnts_splt3:
-        if i != gnr:
-            gnr_cpnts_el.append((i, gnr))
-
-    cps2_el = cps2_el + gnr_cpnts_el
-    
-g_cps2 = Graph()
-g_cps2_id = g_cps2.add_edge_list(cps2_el, hashed=True, string_vals = True)
-g_cps2_vd,g_cps2_vd_rv = vd_fer(g_cps2, g_cps2_id)
-
-g_cps2_out = g_cps2.degree_property_map('out')
-
-graph_pltr(g_cps2, g_cps2_id, 'cps_rels2.pdf', 1)
-# OMEGALUL
-# it's beautiful
-# looks like a supernova of sorts
-# "second row" is interesting: it's all the words used to describe
-# there are specific and general components: second row is specific, middle is general (generic?)
-# is that a qualitative distinction? i.e. different variables?
-# don't think so tbh
-# question is how popular the components are: more popular -> more generic
-# shapes by whether node is stand-alone genre ?
-
-can quantify for each genre how much inherited from
-- other genres
-- non-genre components
-
-example "power jazz"
-- jazz: genre, quite popular
-- power: component: decently popular
-
-but what about "alternative jazz"
-alternative is yuge type of rock
-do i need to distinguish betwee alternative the genre and alternative the modifier?
-how do i know how taggers used it?
-
-X not conceptualized corresponds to X has no genre on its own
-still no solution:
-- alternative the composite functions as one would expect of a composite, resulting in alternative rock, hip-hop,   metal, rap, country, country, folk,
-- alternative the genre: not clear whats there: -> need: "songs that are tagged alternative are also tagged XYZ"
-  -> song-genre network/exepmlar stuff 
-
-## ** tag_song network
+# ** tag_song network
 
 trk_gnr_el = [i for i in zip(dfc['lfm_id'], dfc['tag'], dfc['rel_weight'], dfc['cnt'], dfc['rel_weight']*dfc['cnt'])]
 
@@ -1106,8 +943,124 @@ simsFrom = np.where(gnr_sim_ar2[gnr_ind['alternative']] > 0.2)
 
     
 
+# ** different clusterings
+# AHC of acst_usr mat
+
+# cosine_similarity is fast at least, 8m/sec
+# would take 6sec for 10k users
+
+# not clear how long acoustic mat construction would take
+# CH has quantile functions, not sure how fast they are
+
+
+
+usr_qnt_tbl = """CREATE TEMPORARY TABLE usr_qntls (
+    usr String,
+    lfm_id String,
+    cnt UInt16, 
+    """ + ",\n".join([i + ' Float32' for i in vrbls])+ ")"
+
+
+d1 = '2010-08-28'
+d2 = '2010-11-20'
+vrbl_strs  = ", ".join(vrbls)
+
+
+usr_qnt_insert = """
+INSERT INTO usr_qntls
+SELECT * FROM (
+    SELECT usr, mbid as lfm_id, cnt FROM (
+        SELECT usr, song as abbrv, count(usr,song) as cnt FROM logs
+        WHERE time_d BETWEEN '"""  + d1 + """' and '""" + d2 + """'
+        GROUP BY (usr,song)
+    ) JOIN (SELECT mbid, abbrv FROM song_info) USING abbrv
+) JOIN (SELECT lfm_id, """ + vrbl_strs +""" FROM acstb) USING lfm_id"""
+
+
+client.execute('drop table usr_qntls')
+client.execute(usr_qnt_tbl)
+client.execute(usr_qnt_insert)
+
+
+
+# nph(some_vlus)
+# npl(ch_hist[0][0])
+
+# nps(ch_hist[0][0], range(11), 1)
+
+# x = pd.DataFrame(ch_hist[0][0], columns = ['asdf'])
+
+
+# maybe manual hist is easier?
+# count(songs) * cnt _cnt group by user divided by ttl  count for user
+# problem is then to account for users who have no values and therefore don't get added to grouping
+
+NBR_CHNKS = 10
+
+qnt_brdrs = [(i,i + 1/NBR_CHNKS) for i in np.arange(0,1,1/NBR_CHNKS)]
+
+# using 10 chunks probably results in song duplicates
+
+unq_usrs = client.execute('SELECT DISTINCT usr from usr_qntls')
+unq_usrs = [i[0] for i in unq_usrs]
+
+qnt_dict = {}
+for u in unq_usrs:
+    qnt_dict[u] = []
+
+for vrbl in vrbls:
+
+    for brd in qnt_brdrs:
+        prent_usrs = []
+
+        qnt_qry = """SELECT usr, sum(cnt) from usr_qntls 
+        where """ + vrbl + """ BETWEEN """ + str(brd[0]) + " and " + str(brd[1]) + " GROUP BY usr"
+
+        qnt_vlus = client.execute(qnt_qry)
+        for qv in qnt_vlus:
+            qnt_dict[qv[0]].append(qv[1])
+            prent_usrs.append(qv[0])
+
+        # handle missing users
+        mis_usrs = set(unq_usrs) - set(prent_usrs)
+        for mu in mis_usrs:
+            qnt_dict[mu].append(0)
+
+
+
+usr_acst_ar = pd.DataFrame(qnt_dict).T
+sums = usr_acst_ar.sum(axis = 1)/len(vrbls)
+
+sum_ar = np.array([sums] * len(vrbls)*NBR_CHNKS).T
+
+usr_acst_probs = usr_acst_ar/sum_ar
+
+
+from sklearn.metrics.pairwise import cosine_similarity
+x = cosine_similarity(usr_acst_probs)
+x[np.where(x == 0)] = 0.001
+
+dist_mat = -np.log(x)
+nph(dist_mat)
+
+from sklearn.cluster import AgglomerativeClustering
+
+cluster = AgglomerativeClustering(n_clusters = 4, affinity='precomputed', linkage ='complete')
+clstrs = cluster.fit_predict(dist_mat)
+Counter(clstrs)
+
+# fuck everything too similar
+
+
+# maybe use some minimum amount of songs that persons needs? 
+
+
+
+
+
+
 # * scrap
-## ** time durations
+# ** time durations
 
 # ch_qry = 'SELECT time_d, count(time_d) FROM logs GROUP BY time_d'
 # time_cnts = client.execute(ch_qry)
@@ -1151,3 +1104,17 @@ simsFrom = np.where(gnr_sim_ar2[gnr_ind['alternative']] > 0.2)
 
 # KLD is fucking fast with broadcasting
 # feature extraction also parallelized
+
+
+# ** trying to use CH functionality for usr histogram, but not working
+how to convert CDF to histogram? 
+relative change?
+i want buckets/cutoffs
+
+i now know there is the 
+SELECT usr, quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,cnt) FROM usr_qntls GROUP BY usr
+
+some_vlus = client.execute("select dncblt from usr_qntls where usr = 'f18621'")
+ch_hist = client.execute("SELECT quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
+
+ch_hist = client.execute("SELECT quantilesExactWeighted(0, 0.1, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8,0.9,1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
