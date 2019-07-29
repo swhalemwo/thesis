@@ -6,16 +6,47 @@
 # means that the clusters will be based also on songs for which i don't have acoustic data
 # seems not worse: if there's bias in the acoustic data, it will at least not be in cluster construction
 
+# should be rewritten with either TEMPORARY TABLES or proper string composition 
+
 usr_string = """
-SELECT usr, song, count(usr,song) as cnt FROM logs
+SELECT usr,song, cnt FROM (
+    SELECT usr, song, count(usr,song) as cnt FROM (
 
-JOIN (
-    SELECT abbrv2 as usr from usrs1k)
-    USING usr
-    WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-    GROUP BY (usr,song)
-"""
+        SELECT * FROM (
+            SELECT usr, song, time_d FROM logs
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+        )
 
+        JOIN (SELECT song, count(song) as song_cnt FROM logs
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+            GROUP BY song
+            HAVING song_cnt > 10
+            ) USING song
+
+    ) JOIN (SELECT abbrv2 as usr from usrs1k)
+            USING usr
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+            GROUP BY (usr,song)
+) JOIN (SELECT song, count(song) as song_cnt2 FROM ( 
+
+    SELECT usr, song, count(usr,song) as cnt FROM (
+
+        SELECT * FROM (
+            SELECT usr, song, time_d FROM logs
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+        )
+
+        JOIN (SELECT song, count(song) as song_cnt FROM logs
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+            GROUP BY song
+            HAVING song_cnt > 10
+            ) USING song
+
+    ) JOIN (SELECT abbrv2 as usr from usrs1k)
+            USING usr
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+            GROUP BY (usr,song)
+) GROUP BY song HAVING song_cnt2 > 5 )  USING song"""
 
 # * get users
 # usr_string = """
@@ -48,6 +79,10 @@ plcnt = g_usrs.new_edge_property('int')
 g_usrs_id = g_usrs.add_edge_list(usr_trk_lnks, hashed = True, string_vals = True, eprops = [plcnt])
 g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs_id)
 
+for i in sample(list(unq_trks),5):
+    print(i, g_usrs.vertex(g_usrs_vd[i]).in_degree())
+
+    
 # usr_trk_lnks = 0
 
 # N_SAMPLE = 4000
@@ -58,9 +93,9 @@ sample_ids = [g_usrs_vd[i] for i in usrs_sample]
 
 usr_cmps = list(itertools.combinations(sample_ids, 2))
 
-tx1 = time.time()
-smpl_sims = vertex_similarity(g_usrs, 'dice', vertex_pairs = usr_cmps, eweight = plcnt)
-tx2 = time.time()
+t1 = time.time()
+smpl_sims = vertex_similarity(g_usrs, 'jaccard', vertex_pairs = usr_cmps, eweight = plcnt)
+t2 = time.time()
 # 50k/sec
 # weird, with US 1k sample it's down to 25k/sec
 # 10k usrs would take 1k secs, seems sufficient? 
@@ -73,6 +108,7 @@ tri[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
 
 tri.T[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
 
+
 # get common matrix 
 deg_vec = [g_usrs.vertex(i).out_degree(plcnt) for i in sample_ids]
 deg_ar = np.array([deg_vec]*N_SAMPLE)
@@ -81,29 +117,37 @@ deg_ar2 = (deg_ar + np.array([deg_vec]*N_SAMPLE).transpose())/2
 cmn_ar = deg_ar2*tri
 ovlp_ar = cmn_ar/deg_ar
 
-# one_mode1 = np.where(np.tril(cmn_ar) > 0)
-one_mode_drct = np.where(ovlp_ar > 0.04)
+# would be best to 'melt' the ovlp array into long lists
+# maybe add small stuff to be able to select
 
+mod_ovlp_ar = ovlp_ar+0.0123
+
+l1 = mod_ovlp_ar[np.where(np.triu(mod_ovlp_ar, k=1) > 0)] - 0.0123
+l2 = mod_ovlp_ar.T[np.where(np.triu(mod_ovlp_ar.T, k=1) > 0)] - 0.0123
+
+l_ar = np.concatenate([l1[:,None],l2[:,None]], axis=1)
+
+pos_mins = np.argmin(l_ar, axis=1)
+
+l_mins = l_ar[np.arange(l_ar.shape[0]),pos_mins]
+
+usr_lnks = np.where(l_mins > 0.02)
+
+
+# can also just use cutoff for smpl_sims? 
+# usr_lnks_sim = np.where(smpl_sims > 0.0253)
+# x = set(usr_lnks_sim[0]) - set(usr_lnks[0]) # not exactly the same edges, 1500/10k not there
+# usr_lnks = np.where(smpl_sims > 0.014)
 
 elx = []
-
-for i in zip(one_mode_drct[0], one_mode_drct[1]):
-    nd1 = usrs_sample[i[0]]
-    nd2 = usrs_sample[i[1]]
-    vlu = ovlp_ar[i[0], i[1]]
-    elx.append((nd1, nd2, vlu))
+for i in usr_lnks[0]:
+    rel_e =usr_cmps[i]
+    elx.append((g_usrs_vd_rv[rel_e[0]], g_usrs_vd_rv[rel_e[1]]))
     
-    # if vlu > 20:
-    #     lnk = (usrs_sample[nd1], usrs_sample[nd2], vlu)
-    #     elx.append(lnk)
-
-print(len(elx)/N_SAMPLE**2)
-
 
 g_usrs_1md = Graph()
-g_usrs_1md_strng = g_usrs_1md.new_edge_property('double')
 
-g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True, eprops = [g_usrs_1md_strng])
+g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
 # g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
 
 g_usrs_1md.vertex_properties['id'] = g_usrs_1md_id
@@ -325,8 +369,6 @@ g_usrs_1md.save('one_mode.gt')
 #     client.execute(basic_songs_tags)
 #     client.execute(fnl_qry_table)
 #     client.execute(merge_qry)
-    
-
 #     rows_merged = client.execute('SELECT * from fnl_qry')
 
 #     dfc2 = pd.DataFrame(rows_merged, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight',
@@ -340,3 +382,51 @@ g_usrs_1md.save('one_mode.gt')
 #               min_unq_artsts, max_propx1, max_propx2, d1, d2,
 #               client, pd)
 
+## ** debug how different thresholds effect edge and v count
+
+v_cnts = []
+e_cnts = []
+for thd in np.arange(0, 0.05, 0.0005):
+    print(thd)
+
+    # use amount of links 
+    # usr_lnks = np.where(l_mins > thd)
+
+    # use dice similarity
+    usr_lnks = np.where(smpl_sims > thd)
+
+    elx = []
+    for i in usr_lnks[0]:
+        rel_e =usr_cmps[i]
+        elx.append((g_usrs_vd_rv[rel_e[0]], g_usrs_vd_rv[rel_e[1]]))
+
+    g_usrs_1md = Graph()
+
+    g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
+    v_cnt = len(list(g_usrs_1md.vertices()))
+    e_cnt = len(list(g_usrs_1md.edges()))
+    v_cnts.append(v_cnt)
+    e_cnts.append(e_cnt)
+
+npl(v_cnts)
+npl(e_cnts)
+
+
+
+
+# ** directed links
+# one_mode_drct = np.where(ovlp_ar > 0.04) 
+
+# elx = []
+
+# for i in zip(one_mode_drct[0], one_mode_drct[1]):
+#     nd1 = usrs_sample[i[0]]
+#     nd2 = usrs_sample[i[1]]
+#     vlu = ovlp_ar[i[0], i[1]]
+#     elx.append((nd1, nd2, vlu))
+    
+#     # if vlu > 20:
+#     #     lnk = (usrs_sample[nd1], usrs_sample[nd2], vlu)
+#     #     elx.append(lnk)
+
+# print(len(elx)/N_SAMPLE**2)
