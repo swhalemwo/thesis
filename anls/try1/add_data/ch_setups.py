@@ -5,9 +5,14 @@ import csv
 from clickhouse_driver import Client
 client = Client(host='localhost', password='anudora', database='frrl')
 
-# * logs
+# * logs and song_info
+
 client.execute('drop table logs')
 client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
+
+client.execute('drop table song_info')
+client.execute('create table song_info (mbid String, abbrv String, rndm Int) engine=MergeTree() Partition by rndm order by tuple()')
+
 
 # * usr info
 client.execute("""
@@ -119,30 +124,6 @@ client.execute('drop table tests3')
 
 
 
-# * actual playcount calculation
-
-
-client.execute('drop table song_info2')
-client.execute('create table song_info2 (song String, cnt Int32, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
-
-# song_infoer(dd)
-
-# client.execute('select song, count(*), count(*) % 30 from logs group by song limit 3')
-
-# add random shit
-client.execute("""insert into song_info2 
-select song, count(*), count(*) % 30 from logs group by song""")
-
-
-# could probably also just select 1 or any number
-
-client.execute('drop table song_info3')
-
-client.execute('create table song_info3 (mbid String, abbrv String, rndm Int32, cnt Int32) engine=MergeTree() partition by rndm order by tuple()')
-
-
-client.execute("""insert into song_info3 select * from song_info join
-(select song as abbrv, cnt from song_info2) using (abbrv)""")
 
 
 
@@ -398,3 +379,29 @@ with open(acstb_file, 'r') as fi:
 
 
 
+# * scrap
+# ** actual playcount calculation
+# now calculated dynamically
+
+
+# client.execute('drop table song_info2')
+# client.execute('create table song_info2 (song String, cnt Int32, rndm Int32) engine=MergeTree() partition by rndm order by tuple()')
+
+# # song_infoer(dd)
+
+# # client.execute('select song, count(*), count(*) % 30 from logs group by song limit 3')
+
+# # add random shit
+# client.execute("""insert into song_info2 
+# select song, count(*), count(*) % 30 from logs group by song""")
+
+
+# # could probably also just select 1 or any number
+
+# client.execute('drop table song_info3')
+
+# client.execute('create table song_info3 (mbid String, abbrv String, rndm Int32, cnt Int32) engine=MergeTree() partition by rndm order by tuple()')
+
+
+# client.execute("""insert into song_info3 select * from song_info join
+# (select song as abbrv, cnt from song_info2) using (abbrv)""")
