@@ -28,7 +28,7 @@ from gnrl_funcs import dict_gnrgs
 # from gnrl_funcs import gini
 # from gnrl_funcs import weighted_avg_and_std
 
-import collections
+from collections import Counter
 
 client = Client(host='localhost', password='anudora', database='frrl')
 
@@ -944,14 +944,13 @@ simsFrom = np.where(gnr_sim_ar2[gnr_ind['alternative']] > 0.2)
     
 
 # ** different clusterings
-# AHC of acst_usr mat
+# *** AHC of acst_usr mat
 
 # cosine_similarity is fast at least, 8m/sec
 # would take 6sec for 10k users
 
 # not clear how long acoustic mat construction would take
 # CH has quantile functions, not sure how fast they are
-
 
 
 usr_qnt_tbl = """CREATE TEMPORARY TABLE usr_qntls (
@@ -981,7 +980,7 @@ client.execute('drop table usr_qntls')
 client.execute(usr_qnt_tbl)
 client.execute(usr_qnt_insert)
 
-
+# client.execute('select count(*) from usr_qntls')
 
 # nph(some_vlus)
 # npl(ch_hist[0][0])
@@ -995,7 +994,7 @@ client.execute(usr_qnt_insert)
 # count(songs) * cnt _cnt group by user divided by ttl  count for user
 # problem is then to account for users who have no values and therefore don't get added to grouping
 
-NBR_CHNKS = 10
+NBR_CHNKS = 9
 
 qnt_brdrs = [(i,i + 1/NBR_CHNKS) for i in np.arange(0,1,1/NBR_CHNKS)]
 
@@ -1037,26 +1036,117 @@ usr_acst_probs = usr_acst_ar/sum_ar
 
 
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import euclidean_distances
+
 x = cosine_similarity(usr_acst_probs)
+x = euclidean_distances(usr_acst_probs)
 x[np.where(x == 0)] = 0.001
 
 dist_mat = -np.log(x)
 nph(dist_mat)
 
-from sklearn.cluster import AgglomerativeClustering
 
-cluster = AgglomerativeClustering(n_clusters = 4, affinity='precomputed', linkage ='complete')
+from sklearn.cluster import AgglomerativeClustering
+from collections import Counter
+
+cluster = AgglomerativeClustering(n_clusters = 8, affinity='precomputed', linkage ='complete')
+clstrs = cluster.fit_predict(dist_mat)
+clstrs_eucld = cluster.fit_predict(x)
+Counter(clstrs)
+Counter(clstrs_eucld)
+
+# fuck everything too similar
+# how can it be that users most users who have less than 4% of songs in common have basically the same sound profile
+# because all music sounds the same? 
+
+# maybe use some minimum amount of songs that persons needs? not much impact
+
+# cluster overlap matrix? think i did that
+# yup, only one cluster
+# maybe there really is just one?
+# but how to explain the graphtool clustering then?
+# it is reliable over multiple clustering, so not a random partition of one group
+# maybe gt clustering is just the only way to go?
+# see if gt clustering can be tweaked to be faster
+
+
+
+# *** cluster users based on the tags
+
+usr_tag_tbl = """CREATE TEMPORARY TABLE usr_tag_tbl (
+usr String,
+tag String,
+vol Float32)"""
+
+usr_tag_qry = """
+INSERT INTO usr_tag_tbl SELECT usr, tag, sum(vol) FROM (
+    SELECT usr, tag, cnt*rel_weight as vol FROM (
+        SELECT usr, song as abbrv, count(usr, song) as cnt FROM logs
+        WHERE time_d BETWEEN '""" + d1 + """' AND '""" + d2 + """'
+        GROUP BY (usr, song)
+    ) JOIN (
+        SELECT mbid, abbrv, tag, rel_weight FROM (
+            SELECT mbid, tag, rel_weight FROM tag_sums
+            JOIN (
+                SELECT tag FROM tag_sums WHERE rel_weight > 0.075 
+                GROUP BY tag
+                HAVING count(tag) > 40
+            ) USING tag
+        )
+        JOIN (SELECT mbid, abbrv FROM song_info) USING mbid
+        WHERE rel_weight > """ + str(min_rel_weight) + """
+    ) USING abbrv
+) GROUP BY (usr, tag)"""
+
+# tag_sums
+
+print(usr_tag_qry)
+client.execute('drop table usr_tag_tbl')
+client.execute(usr_tag_tbl)
+client.execute(usr_tag_qry)
+
+usr_tag_lnks = client.execute('SELECT * FROM usr_tag_tbl')
+unq_usrs = client.execute('select distinct usr from usr_tag_tbl')
+unq_usrs = [i[0] for i in unq_usrs]
+
+g_usr_tag = Graph()
+usr_tag_vol = g_usr_tag.new_edge_property('float')
+
+g_usr_tag_id = g_usr_tag.add_edge_list(usr_tag_lnks, hashed=True, string_vals=True, eprops = [usr_tag_vol])
+g_usr_tag_vd, g_usr_tag_vd_rv = vd_fer(g_usr_tag, g_usr_tag_id)
+
+unq_usrs_ids = [g_usr_tag_vd[i] for i in unq_usrs]
+usr_comps = list(itertools.combinations(unq_usrs_ids, 2))
+
+smpl_sims = vertex_similarity(g_usr_tag, 'jaccard', vertex_pairs = usr_comps, eweight = usr_tag_vol)
+
+
+N_SAMPLE = len(unq_usrs)
+tri = np.zeros((N_SAMPLE, N_SAMPLE))
+tri[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
+tri.T[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
+
+nph(tri)
+
+dist_mat = -np.log(tri)
+actual_max = np.max(dist_mat[np.where(dist_mat < math.inf)])
+dist_mat[np.where(dist_mat > actual_max)] = actual_max + 2
+
+nph(dist_mat)
+
+from sklearn.cluster import AgglomerativeClustering
+cluster = AgglomerativeClustering(n_clusters = 5, affinity='precomputed', linkage ='complete')
 clstrs = cluster.fit_predict(dist_mat)
 Counter(clstrs)
 
-# fuck everything too similar
+# somewhat better (get two clusters with 5, but stillmany super small ones)
 
 
-# maybe use some minimum amount of songs that persons needs? 
+# ** more GT: tweak settings
 
-
-
-
+GT operates on massively trimmed graph in that most people are assumed to be unconnected
+is that justifiable? 
+is that transferable to other forms? 
 
 
 # * scrap
