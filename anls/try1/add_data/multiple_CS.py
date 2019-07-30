@@ -1,7 +1,450 @@
 
 
+# ** induce hierarchy for a block
+subset dfc?
+need new playcount
+
+maybe best to make new temp table and merge with mbid_id
+
+ptn = 0
+one_md_usrs = [g_usrs_1md_id[i] for i in g_usrs_1md.vertices()]
+ptn_usrs = np.array(one_md_usrs)[np.where(np.array(blks_vlus) == ptn)]
+
+
+rel_stuff = [list(g_usrs.vertex(g_usrs_vd[i]).out_edges()) for i in ptn_usrs]
+rel_edges = list(itertools.chain.from_iterable(rel_stuff))
+
+rel_edges2 = [(g_usrs_id[e.source()], g_usrs_id[e.target()], plcnt[e]) for e in rel_edges]
+
+df_ptn = pd.DataFrame(rel_edges2, columns = ['usr', 'mbid', 'plcnt'])
+df_ptn_grp = df_ptn[['mbid', 'plcnt']].groupby('mbid').sum()
+
+
+# maybe vertex maps faster for subsetting? 
+# also need to consider the weights
+
+ptn_table = """
+CREATE TEMPORARY TABLE ptn_table (
+mbid String,
+plcnt_ptn Int16
+)
+"""
+client.execute('drop table ptn_table')
+client.execute(ptn_table)
+
+chnk_sz = 10000
+chnk = []
+c = 0
+for i in df_ptn_grp.itertuples():
+
+    chnk.append((i.Index, i.plcnt))
+    c +=1
+    if c == chnk_sz:
+        client.execute('INSERT INTO ptn_table VALUES', chnk)
+        chnk = []
+        c = 0
+
+client.execute('INSERT INTO ptn_table VALUES', chnk)
+
+
+client.execute('select count(*) from ptn_table limit 1')
+client.execute('select count(*) from fnl_qry limit 1')
+
+ptn_dfc_qry = """SELECT * FROM fnl_qry JOIN ptn_table USING mbid"""
+
+client.execute("SELECT * FROM fnl_qry limit 1")
+
+client.execute("SELECT * FROM fnl_qry limit 1")
+
+
+ptn_rows = client.execute(ptn_dfc_qry)
+
+dont select cnt, just use ptn_clnt as cnt
+
+dfc_ptn = pd.DataFrame(ptn_rows, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight',
+                                               'artist', 'erl_rls', 'len_rls_lst'] + vrbls + ['ptn_plcnt'])
+
+gnrs_ptn = list(np.unique(dfc_ptn['tag']))
+# artsts = list(np.unique(dfc['artist']))
+# trks = list(np.unique(dfc['lfm_id']))
+
+acst_gnr_dict_ptn = dict_gnrgs(dfc_ptn, gnrs_ptn, pd)
+for i in gnrs_ptn[0:30]:
+    print(len(acst_gnr_dict_ptn[i]))
+
+    # i have to rewrite so many functions that now rely on globals
+    - gnr_sup_dicts
+    # and what's it worth? 
+    sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict_ptn, gnrs_ptn)
+
+    szs = [sz_dict[i] for i in gnrs_ptn]
+
+    # should i drop genres under thresholds?
+    # then it'd be easier to rewrite get_dfs take into only the links of each partition
+    # am i doing circular reasoning? first have to create general dfc from which i than build specifics?
+
+    # nope not really
+    # users are just merged at the end, and don't have impact on dfc construction
+    # guess dfc/fnl_qry_table could be seen as preparing the ground on which the different groups then battle it out
+    # NOPE NOPE NOPE
+    # if i subset early in dfc construction by only selecting the users in partition
+    # i need two: because i still need to get the general dfc to get (the songs to get) the users in the first place
+
+    # but that's no excuse to select from dfc for each partition if i care about gnr_criteria (size, concentration)
+    # can gnr criteria even be the same with different partition sizes?
+    # yeah think so, they're minimal requirements
+
+    # but if i want to be sure they are adhered to i have to join people early
+    # will probably also result in variation in gnrs?
+    # could also be that sum of groups produces less than complete dfc if some borderline genres are spread -> not fulfilled in either
+    # should i still keep them in? do they really exist? not really if i assume that classification systems live in the minds of the people in the partitions
+    # then those split genres are like data artifacts i guess
+
+    # does it even make sense then to use more users in total than i can put in a SBM?
+    # would be sooo nice to have surfsara access but don't
+    # but is question on its own
+    # don't think so: dfc is just some agglomerate of different CS, has no substantive meaning
+    
+
+    el_ttl = gnrt_acst_el_mp(gnrs, 5)
+
+
+
+
+# *** consistency/reliability check
+
+csist_res = []
+
+for i in range(6):
+
+    t1 = time.time()
+    # state = minimize_blockmodel_dl(g_usrs_1md, B_min = 4, B_max = 4)
+    # state = minimize_blockmodel_dl(g_usrs_1md, state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
+
+
+    state = minimize_blockmodel_dl(g_one_mode,
+                                   # B_min = 3, B_max = 3,
+                                   bisection_args = bisection_args,
+                                   mcmc_args  = mcmc_args,
+                                   mcmc_equilibrate_args = mcmc_equilibrate_args,
+                                   shrink_args = shrink_args,
+                                   deg_corr = True)
+    
+    t2 = time.time()
+    print(t2-t1)
+
+    blks = state.get_blocks()
+    blks_vlus = [blks[i] for i in g_one_mode.vertices()]
+    print(Counter(blks_vlus))
+    
+    unq_blks = np.unique(blks_vlus)
+    run_res = []
+
+    for k in unq_blks: run_res.append([])
+    
+    c = 0
+    for x in blks_vlus:
+        run_res[x].append(c)
+        c+=1
+
+    csist_res.append(run_res)
+
+# for i in range(10):
+#     csist_res.append(run_res)
+
+all_grps_len = len(list(itertools.chain.from_iterable(csist_res)))
+
+res_mat = np.zeros((all_grps_len,all_grps_len))
+
+
+c1 = 0
+for i in csist_res:
+    for i2 in csist_res[csist_res.index(i)]:
+        # print(len(i2))
+
+        
+        c2 = 0
+        for k in csist_res:
+            for k2 in csist_res[csist_res.index(k)]:
+                ovlp = 2*len(set(i2) & set(k2))/(len(set(i2)) + len(set(k2)))
+                # print(c1, c2, ovlp)
+                res_mat[c1,c2] = ovlp
+                c2+=1
+
+        c1 +=1
+
+# plt.matshow(res_mat)
+# plt.show()
+# how 
+
+# from sklearn.cluster.bicluster import SpectralBiclustering
+
+clust_mdl = SpectralBiclustering(n_clusters = 3)
+clust1 = clust_mdl.fit(res_mat)
+
+col_lbls = clust1.column_labels_
+col_ord = [list(np.where(col_lbls ==i)[0]) for i in unq_blks]
+col_ord2 = list(itertools.chain.from_iterable(col_ord))
+
+row_lbls = clust1.row_labels_
+row_ord = [list(np.where(row_lbls ==i)[0]) for i in unq_blks]
+row_ord2 = list(itertools.chain.from_iterable(row_ord))
+
+res_mat2 = res_mat[row_ord2,:][:,col_ord2]
+
+# plt.matshow(res_mat)
+plt.matshow(res_mat2)
+plt.show()
+
+
+# clearly 4 clusters, 3 or 5 produce nonsenical results
+# i guess that counts as reliabilty?
+
+# NOW NOT GOOD
+# I think blocks are supposed to be of same size
+# could also be that parameters in ptn_prep are wrong; still quite NOT GOOD when using default settings
+# maybe directed links needed
+# check 1k with varying cutoffs
+
+# 1k, 0,04, 4 clusters: at least reliable
+# but probably could cluster as well into 2: one well connected, one sparse connected
+# yeah but it then muddles the distinctions to quite some degree
+# 4 looks best tbh
+# there is lack of overlap between two of non-sparse clusters
+
+# might be that 0.04 produces more clear cut results than 0.02? 
+# yup: 0.02 produces more internal high ones, but also more confusion, and large cluster only has 12 (not 15)
+
+# i think speedy partitioning might be bad
+# 0.02: one cluster very blurry
+# 0.04: clusters not correctly extracted
+# 0.04: slow
+
+# WTH now (0.02, unmodified) no methods provides proper clustering?
+
+# SIM graph provides very nice reliable clustering
+# increasing speed reduces quality, still recognizable, but imo not worth the risk
+# setting exact to True increases quality, but imo still worse than slow
+
+# does number of edges matter?
+# yup: 30k edges take about twice as long as 10k with almost same number of nodes
+# minimizing number of edges would be nice
+# high cutoffs
+# just select N highest edges for each user
+# maybe square? like if you have 100 edges  originally, you're allowed to keep 10, if 25, 5
+
+# how to do it for each user but not keep it undirected?
+# idk, i guess i'll just have to live with it? could adjust the strength of the sorting for each edge
+
+# loop over edges and delete them with probability depending on source/target?
+# keep or delete?
+# don't like it it's so random
+
+# where to sample
+# - CH: nope doesn't work technically
+# - in usr graph: technically works, but it feels a bit weird, also weird results
+# - in two-mode graph: could sample till out_degree is under sqrt(outdegree)
+
+
+el_smpl = []
+for v in g_one_mode.vertices():
+    v_nbrs = list(v.out_neighbors())
+
+    max_nbrs = math.floor(np.sqrt(len(v_nbrs)) + 2)
+    print(max_nbrs)
+    
+
+smpl_ep = g_one_mode.new_edge_property('bool')
+
+for e in g_one_mode.edges():
+    smpl_ep[e] = True
+
+es = list(g_one_mode.edges())
+random.shuffle(es)
+
+for e in es:
+    src = e.source()
+    tgt = e.target()
+
+    org_src_deg = src.out_degree()
+    org_tgt_deg = tgt.out_degree()
+
+    alctd_src_deg = math.floor(np.sqrt(org_src_deg)+2)
+    alctd_tgt_deg = math.floor(np.sqrt(org_tgt_deg)+2)
+
+    cur_src_deg = src.out_degree(smpl_ep)
+    cur_tgt_deg = tgt.out_degree(smpl_ep)
+
+    if cur_src_deg > alctd_src_deg  and cur_tgt_deg > alctd_tgt_deg:
+        smpl_ep[e] = False
+    
+deg_org = []
+deg_new = []
+
+for v in g_one_mode.vertices():
+    deg_org.append(v.out_degree())
+    deg_new.append(v.out_degree(smpl_ep))
+
+
+g_one_mode = Graph(GraphView(g_one_mode, efilt = smpl_ep), prune=True)
+
+
+t1 = time.time()
+statex = minimize_blockmodel_dl(g_one_mode2)
+t2 = time.time()
+
+
+
+# *** general clustering check
+
+col_ord = [list(np.where(col_lbls ==i)[0]) for i in unq_blks]
+col_ord2 = list(itertools.chain.from_iterable(col_ord))
+
+row_lbls = clust1.row_labels_
+row_ord = [list(np.where(row_lbls ==i)[0]) for i in unq_blks]
+row_ord2 = list(itertools.chain.from_iterable(row_ord))
+
+
+
+# *** reorder with SBM results
+
+adj_mat = adjacency(GraphView(g_one_mode, directed=False)).toarray()
+
+state = minimize_blockmodel_dl(g_one_mode,
+                               B_min = 3, B_max = 3,
+                               bisection_args = bisection_args,
+                               mcmc_args  = mcmc_args,
+                               mcmc_equilibrate_args = mcmc_equilibrate_args,
+                               shrink_args = shrink_args,
+                               deg_corr = True)
+
+blks = state.get_blocks()
+blks_vlus = [blks[i] for i in g_one_mode.vertices()]
+print(Counter(blks_vlus))
+    
+unq_blks = np.unique(blks_vlus)
+
+col_lbls = row_lbls = blks_vlus
+
+col_ord = [list(np.where(col_lbls ==i)[0]) for i in unq_blks]
+col_ord2 = list(itertools.chain.from_iterable(col_ord))
+
+row_ord = [list(np.where(row_lbls ==i)[0]) for i in unq_blks]
+row_ord2 = list(itertools.chain.from_iterable(row_ord))
+
+res_mat2 = adj_mat[row_ord2,:][:,col_ord2]
+
+# plt.matshow(adj_mat)
+plt.matshow(res_mat2)
+plt.show()
+
+
+
+# ** SBM
+
+# *** tut
+
+import graph_tool as gt
+
+g = gt.collection.data["football"]
+state = minimize_blockmodel_dl(g)
+
+
+
+# *** actual
+
+# pointless, has to be put into 1 mode first, also allows more fine-tuning
+# also weights work so not much information lost
+
+# 
+
+state2 = minimize_blockmodel_dl(g_usrs_flt)
+
+state = gt.minimize_nested_blockmodel_dl(g, state_args=dict(recs=[g.ep.weight], rec_types=["discrete-binomial"]))
+
+# *** hiearchical: expensive
+
+
+tx1 = time.time()
+state_hrc = minimize_nested_blockmodel_dl(g_usrs_1md, state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
+tx2 = time.time()
+# hiearchical takes so much longer
+# 100: 21 sec
+# 300, min common 20: 21
+# don't want it anyways
+
+# weights also expensive 
+# tinkering with the features
+state = minimize_blockmodel_dl(g_usrs_1md, B_min = 3, B_max = 6),
+                               state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
+
+
+# ** AHC
+
+
+dist_mat = -np.log(tri)
+actual_max = np.max(dist_mat[np.where(dist_mat < math.inf)])
+dist_mat[np.where(dist_mat > actual_max)] = actual_max + 2
+
+nph(dist_mat)
+
+
+
+from sklearn.cluster import AgglomerativeClustering
+
+cluster = AgglomerativeClustering(n_clusters = 5, affinity='precomputed', linkage ='complete')
+clstrs = cluster.fit_predict(dist_mat)
+Counter(clstrs)
+
+# use graph tool clustering? need to check how expensive
+# for genre structure? think not: don't want latent communities, but hierachical order of existing nodes
+
+https://graph-tool.skewed.de/static/doc/demos/inference/inference.html
+
+
+# joining with fnl_qry basically halves the size
+# memory consumption is not good at all
+
+# ** some filtering
+# kinda useless, rather need 1 mode transformation
+
+sample_bin_vp = g_usrs.new_vertex_property('bool')
+
+sample_nbrs = []
+for i in sample_ids:
+    sample_nbrs = sample_nbrs + [int(i) for i in g_usrs.vertex(i).out_neighbors()]
+
+uniq_sample_nbrs = np.unique(sample_nbrs)
+
+for i in sample_ids + list(uniq_sample_nbrs):
+    sample_bin_vp[g_usrs.vertex(i)] = True
+
+
+# g_usrs_flt = GraphView(g_usrs, vfilt = sample_bin_v)
+
+
+# ** check the matrix thing for graphs generally with SpectralBiclustering
+
+adj_mat = adjacency(GraphView(g_one_mode, directed=False)).toarray()
+adj_clst = clust_mdl.fit(adj_mat)
+
+col_lbls = adj_clst.column_labels_
+col_ord = [list(np.where(col_lbls ==i)[0]) for i in unq_blks]
+col_ord2 = list(itertools.chain.from_iterable(col_ord))
+
+row_lbls = adj_clst.row_labels_
+row_ord = [list(np.where(row_lbls ==i)[0]) for i in unq_blks]
+row_ord2 = list(itertools.chain.from_iterable(row_ord))
+
+plt.matshow(adj_mat)
+plt.show()
+
+# * scrap
+
+# ** old dfc function
+
 def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
-            min_unq_artsts, max_propx1, max_propx2, d1, d2, 
+            min_unq_artss, tmax_propx1, max_propx2, d1, d2, 
             client, pd):
     # still has to be adopted to be able to accommodate time slices
     # wonder if the subsequent sorting can result in violations again?
@@ -210,6 +653,95 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     
     return(dfc)
 
+
+# ** clustering SBM  partition
+# clustring without constraint and then clustering those 30+ with AHC results in largest position taking up 90+% of vertices
+# *** cluster SBM partitions
+# maybe group without limitation, and then group the clusters together in second turn?
+# not really optimistic: shows the same pattern as the previous clustering attemps: gradient of well-connectedness
+# that's kinda because of the usr-song distribution (exponential) which causes skewed usr degree distribution, with the voracious people being well connected
+
+# ahhh fuckkkk
+# possible explanations:
+# - sample just fundamentally biased towards omnivores
+# - too many items, weights: maybe just focus on top 1k songs, unweighted? 
+
+usr_degs = [g_usrs.vertex(g_usrs_vd[i]).out_degree(plcnt) for i in unq_usrs]
+# nph(usr_degs)
+
+# degs = [i.out_degree() for i in GraphView(g_one_mode, directed=False).vertices()]
+# nph(degs)
+
+
+e = state.get_matrix().toarray()
+plt.matshow(e)
+plt.show()
+
+# that's overlap mat
+# sorenson dice similarity?
+
+deg_vec = np.sum(e, axis=0)
+
+deg_col_ar = np.array([deg_vec]*len(deg_vec))
+deg_row_ar = deg_col_ar.T
+
+deg_ar = deg_col_ar + deg_row_ar
+
+sim_ar = 2*e/deg_ar
+
+plt.matshow(dist_ar)
+plt.show()
+
+tual_min = np.min(sim_ar[np.where(sim_ar > 0)])
+
+dist_ar = -np.log(sim_ar+tual_min/2)
+
+
+cluster = AgglomerativeClustering(n_clusters = 3, affinity='precomputed', linkage ='average')
+clstrs = cluster.fit_predict(dist_ar)
+Counter(clstrs)
+
+import scipy.cluster.hierarchy as sch
+
+sch.dendrogram(sch.linkage(dist_ar, method='average'))
+plt.show()
+
+
+col_lbls = row_lbls = clstrs
+unq_blks = list(np.unique(clstrs))
+
+col_ord = [list(np.where(col_lbls ==i)[0]) for i in unq_blks]
+col_ord2 = list(itertools.chain.from_iterable(col_ord))
+
+row_ord = [list(np.where(row_lbls ==i)[0]) for i in unq_blks]
+row_ord2 = list(itertools.chain.from_iterable(row_ord))
+
+res_mat2 = sim_ar[row_ord2,:][:,col_ord2]
+
+plt.matshow(res_mat2)
+plt.show()
+
+# maybe just 3 partitions is best?
+# *** get partition info back
+
+clstrs_lrg = {}
+for i in unq_blks:
+    clstrs_lrg[i] = []
+
+c = 0
+for i in clstrs:
+    clstrs_lrg[c] = i
+    c +=1
+
+blks_lrg = g_one_mode.new_vertex_property('int')
+for v in g_one_mode.vertices():
+    blks_lrg[v] = clstrs_lrg[blks[v]]
+
+blks_lrg_vlus = [blks_lrg[blks[v]] for v in g_one_mode.vertices()]
+# SO FUCKED RIGHT NOW
+
+# ** old code, now optimized in other files
+
 # get users
 usr_string = """
 SELECT usr, mbid, cnt FROM (
@@ -338,7 +870,6 @@ e = state.get_matrix()
 plt.matshow(e.todense())
 plt.show()
 
-
 blks = state.get_blocks()
 blks_vlus = [blks[i] for i in g_usrs_1md.vertices()]
 Counter(blks_vlus)
@@ -349,273 +880,3 @@ nph(strngs)
 nph(np.log(strngs))
 
 
-
-
-# ** induce hierarchy for a block
-subset dfc?
-need new playcount
-
-maybe best to make new temp table and merge with mbid_id
-
-ptn = 0
-one_md_usrs = [g_usrs_1md_id[i] for i in g_usrs_1md.vertices()]
-ptn_usrs = np.array(one_md_usrs)[np.where(np.array(blks_vlus) == ptn)]
-
-
-rel_stuff = [list(g_usrs.vertex(g_usrs_vd[i]).out_edges()) for i in ptn_usrs]
-rel_edges = list(itertools.chain.from_iterable(rel_stuff))
-
-rel_edges2 = [(g_usrs_id[e.source()], g_usrs_id[e.target()], plcnt[e]) for e in rel_edges]
-
-df_ptn = pd.DataFrame(rel_edges2, columns = ['usr', 'mbid', 'plcnt'])
-df_ptn_grp = df_ptn[['mbid', 'plcnt']].groupby('mbid').sum()
-
-
-# maybe vertex maps faster for subsetting? 
-# also need to consider the weights
-
-ptn_table = """
-CREATE TEMPORARY TABLE ptn_table (
-mbid String,
-plcnt_ptn Int16
-)
-"""
-client.execute('drop table ptn_table')
-client.execute(ptn_table)
-
-chnk_sz = 10000
-chnk = []
-c = 0
-for i in df_ptn_grp.itertuples():
-
-    chnk.append((i.Index, i.plcnt))
-    c +=1
-    if c == chnk_sz:
-        client.execute('INSERT INTO ptn_table VALUES', chnk)
-        chnk = []
-        c = 0
-
-client.execute('INSERT INTO ptn_table VALUES', chnk)
-
-
-client.execute('select count(*) from ptn_table limit 1')
-client.execute('select count(*) from fnl_qry limit 1')
-
-ptn_dfc_qry = """SELECT * FROM fnl_qry JOIN ptn_table USING mbid"""
-
-client.execute("SELECT * FROM fnl_qry limit 1")
-
-client.execute("SELECT * FROM fnl_qry limit 1")
-
-
-ptn_rows = client.execute(ptn_dfc_qry)
-
-dont select cnt, just use ptn_clnt as cnt
-
-dfc_ptn = pd.DataFrame(ptn_rows, columns = ['lfm_id','cnt', 'tag', 'weight', 'rel_weight',
-                                               'artist', 'erl_rls', 'len_rls_lst'] + vrbls + ['ptn_plcnt'])
-
-gnrs_ptn = list(np.unique(dfc_ptn['tag']))
-# artsts = list(np.unique(dfc['artist']))
-# trks = list(np.unique(dfc['lfm_id']))
-
-acst_gnr_dict_ptn = dict_gnrgs(dfc_ptn, gnrs_ptn, pd)
-for i in gnrs_ptn[0:30]:
-    print(len(acst_gnr_dict_ptn[i]))
-
-    # i have to rewrite so many functions that now rely on globals
-    - gnr_sup_dicts
-    # and what's it worth? 
-    sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict_ptn, gnrs_ptn)
-
-    szs = [sz_dict[i] for i in gnrs_ptn]
-
-    # should i drop genres under thresholds?
-    # then it'd be easier to rewrite get_dfs take into only the links of each partition
-    # am i doing circular reasoning? first have to create general dfc from which i than build specifics?
-
-    # nope not really
-    # users are just merged at the end, and don't have impact on dfc construction
-    # guess dfc/fnl_qry_table could be seen as preparing the ground on which the different groups then battle it out
-    # NOPE NOPE NOPE
-    # if i subset early in dfc construction by only selecting the users in partition
-    # i need two: because i still need to get the general dfc to get (the songs to get) the users in the first place
-
-    # but that's no excuse to select from dfc for each partition if i care about gnr_criteria (size, concentration)
-    # can gnr criteria even be the same with different partition sizes?
-    # yeah think so, they're minimal requirements
-
-    # but if i want to be sure they are adhered to i have to join people early
-    # will probably also result in variation in gnrs?
-    # could also be that sum of groups produces less than complete dfc if some borderline genres are spread -> not fulfilled in either
-    # should i still keep them in? do they really exist? not really if i assume that classification systems live in the minds of the people in the partitions
-    # then those split genres are like data artifacts i guess
-
-    # does it even make sense then to use more users in total than i can put in a SBM?
-    # would be sooo nice to have surfsara access but don't
-    # but is question on its own
-    # don't think so: dfc is just some agglomerate of different CS, has no substantive meaning
-    
-
-    el_ttl = gnrt_acst_el_mp(gnrs, 5)
-
-
-
-
-
-# *** consistency/reliability check
-
-csist_res = []
-
-for i in range(10):
-
-    tx1 = time.time()
-    state = minimize_blockmodel_dl(g_usrs_1md, B_min = 4, B_max = 4)
-    # state = minimize_blockmodel_dl(g_usrs_1md, state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
-    tx2 = time.time()
-
-    blks = state.get_blocks()
-    blks_vlus = [blks[i] for i in g_usrs_1md.vertices()]
-    print(Counter(blks_vlus))
-    
-    unq_blks = np.unique(blks_vlus)
-    run_res = []
-
-    for k in unq_blks: run_res.append([])
-    
-    c = 0
-    for x in blks_vlus:
-        run_res[x].append(c)
-        c+=1
-
-    csist_res.append(run_res)
-
-res_mat = np.zeros((40,40))
-
-
-# need to test consistency
-
-c1 = 0
-for i in csist_res:
-    for i2 in csist_res[csist_res.index(i)]:
-        # print(len(i2))
-
-        
-        c2 = 0
-        for k in csist_res:
-            for k2 in csist_res[csist_res.index(k)]:
-                ovlp = len(set(i2) & set(k2))
-                print(c1, c2, ovlp)
-                res_mat[c1,c2] = ovlp
-                c2+=1
-
-        c1 +=1
-
-plt.matshow(res_mat)
-plt.show()
-# how 
-
-from sklearn.cluster.bicluster import SpectralBiclustering
-
-clust_mdl = SpectralBiclustering(n_clusters = 4)
-clust1 = clust_mdl.fit(res_mat)
-
-col_lbls = clust1.column_labels_
-col_ord = [list(np.where(col_lbls ==i)[0]) for i in unq_blks]
-col_ord2 = list(itertools.chain.from_iterable(col_ord))
-
-row_lbls = clust1.row_labels_
-row_ord = [list(np.where(row_lbls ==i)[0]) for i in unq_blks]
-row_ord2 = list(itertools.chain.from_iterable(row_ord))
-
-res_mat2 = res_mat[row_ord2,:][:,col_ord2]
-
-plt.matshow(res_mat2)
-plt.show()
-
-
-# clearly 4 clusters, 3 or 5 produce nonsenical results
-# i guess that counts as reliabilty?
-
-
-
-# ** SBM
-
-# *** tut
-
-import graph_tool as gt
-
-g = gt.collection.data["football"]
-state = minimize_blockmodel_dl(g)
-
-
-
-# *** actual
-
-# pointless, has to be put into 1 mode first, also allows more fine-tuning
-# also weights work so not much information lost
-
-# 
-
-state2 = minimize_blockmodel_dl(g_usrs_flt)
-
-state = gt.minimize_nested_blockmodel_dl(g, state_args=dict(recs=[g.ep.weight], rec_types=["discrete-binomial"]))
-
-# *** hiearchical: expensive
-
-
-tx1 = time.time()
-state_hrc = minimize_nested_blockmodel_dl(g_usrs_1md, state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
-tx2 = time.time()
-# hiearchical takes so much longer
-# 100: 21 sec
-# 300, min common 20: 21
-# don't want it anyways
-
-# weights also expensive 
-# tinkering with the features
-state = minimize_blockmodel_dl(g_usrs_1md, B_min = 3, B_max = 6),
-                               state_args=dict(recs=[g_usrs_1md_strng], rec_types=["real-exponential"]))
-
-
-# ** AHC
-
-dist_mat = -np.log(tri)
-actual_max = np.max(dist_mat[np.where(dist_mat < math.inf)])
-dist_mat[np.where(dist_mat > actual_max)] = actual_max + 2
-
-nph(dist_mat)
-
-
-
-from sklearn.cluster import AgglomerativeClustering
-
-cluster = AgglomerativeClustering(distance_threshold = 5, n_clusters = None, affinity='precomputed', linkage ='complete')
-clstrs = cluster.fit_predict(dist_mat)
-Counter(clstrs)
-
-# use graph tool clustering? need to check how expensive
-# for genre structure? think not: don't want latent communities, but hierachical order of existing nodes
-
-https://graph-tool.skewed.de/static/doc/demos/inference/inference.html
-
-
-# joining with fnl_qry basically halves the size
-# memory consumption is not good at all
-
-# ** some filtering
-# kinda useless, rather need 1 mode transformation
-
-sample_bin_vp = g_usrs.new_vertex_property('bool')
-
-sample_nbrs = []
-for i in sample_ids:
-    sample_nbrs = sample_nbrs + [int(i) for i in g_usrs.vertex(i).out_neighbors()]
-
-uniq_sample_nbrs = np.unique(sample_nbrs)
-
-for i in sample_ids + list(uniq_sample_nbrs):
-    sample_bin_vp[g_usrs.vertex(i)] = True
-
-
-g_usrs_flt = GraphView(g_usrs, vfilt = sample_bin_v
