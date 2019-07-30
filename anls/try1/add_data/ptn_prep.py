@@ -8,82 +8,91 @@
 
 # should be rewritten with either TEMPORARY TABLES or proper string composition 
 
+
+sel_str ="""INSERT INTO el SELECT usr, song, count(usr,song) as cnt FROM (
+
+        SELECT * FROM (
+            SELECT usr, song, time_d FROM logs
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+        )
+
+        JOIN (SELECT song, count(song) as song_cnt FROM logs
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+            GROUP BY song
+            HAVING song_cnt > 10
+            ) USING song
+
+    ) JOIN (SELECT abbrv2 as usr from usrs4k)
+            USING usr
+            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+            GROUP BY (usr,song)"""
+
+
+client.execute('drop table el')
+client.execute("CREATE TEMPORARY TABLE el (usr String, song String, cnt Int16)")
+client.execute(sel_str)
+client.execute("select count(*) from el")
+
+
 usr_string = """
-SELECT usr,song, cnt FROM (
-    SELECT usr, song, count(usr,song) as cnt FROM (
-
-        SELECT * FROM (
-            SELECT usr, song, time_d FROM logs
-            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-        )
-
-        JOIN (SELECT song, count(song) as song_cnt FROM logs
-            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-            GROUP BY song
-            HAVING song_cnt > 10
-            ) USING song
-
-    ) JOIN (SELECT abbrv2 as usr from usrs1k)
-            USING usr
-            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-            GROUP BY (usr,song)
-) JOIN (SELECT song, count(song) as song_cnt2 FROM ( 
-
-    SELECT usr, song, count(usr,song) as cnt FROM (
-
-        SELECT * FROM (
-            SELECT usr, song, time_d FROM logs
-            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-        )
-
-        JOIN (SELECT song, count(song) as song_cnt FROM logs
-            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-            GROUP BY song
-            HAVING song_cnt > 10
-            ) USING song
-
-    ) JOIN (SELECT abbrv2 as usr from usrs1k)
-            USING usr
-            WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-            GROUP BY (usr,song)
-) GROUP BY song HAVING song_cnt2 > 5 )  USING song"""
+SELECT usr, song, cnt FROM (
+    SELECT usr,song, cnt FROM el
+    JOIN (SELECT song, count(song) as song_cnt2 FROM el
+    GROUP BY song HAVING song_cnt2 > 5 )  USING song
+) JOIN ( SELECT usr, count(usr) FROM (
+    SELECT usr,song, cnt FROM el
+        JOIN (SELECT song, count(song) as song_cnt2 FROM el
+        GROUP BY song HAVING song_cnt2 > 5 )  USING song
+)
+GROUP BY usr HAVING count(usr) > 50) USING usr
+"""
 
 # * get users
-# usr_string = """
-# SELECT usr, mbid, cnt FROM (
-#     SELECT * FROM (
-#         SELECT usr, song as abbrv, count(usr,song) as cnt FROM logs
-#             WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-#             GROUP BY (usr,song)
-
-#         ) JOIN (
-#             SELECT mbid, abbrv FROM song_info3)
-#             USING abbrv
-#     ) JOIN (
-#         SELECT distinct(mbid) from fnl_qry
-#     ) USING mbid"""
 
 usr_trk_lnks = client.execute(usr_string)
 
 # don't like how long loading data into python takes...
-# also the amount of memory jesus
-
+# also the amount of memory Jesus
+# focus only on most relevant songs reduces resources needed, also makes similarity calculations faster
 
 unq_usrs = np.unique([i[0] for i in usr_trk_lnks])
 unq_trks = np.unique([i[1] for i in usr_trk_lnks])
 
-
 g_usrs = Graph()
-plcnt = g_usrs.new_edge_property('int')
+g_usrs.edge_properties['plcnt'] = g_usrs.new_edge_property('int')
 
-g_usrs_id = g_usrs.add_edge_list(usr_trk_lnks, hashed = True, string_vals = True, eprops = [plcnt])
-g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs_id)
+g_usrs.vp['id'] = g_usrs.add_edge_list(usr_trk_lnks, hashed = True, string_vals = True, eprops = [g_usrs.ep.plcnt])
+g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs.vp.id)
+smpl_ep = g_usrs.new_edge_property('bool')
 
-for i in sample(list(unq_trks),5):
-    print(i, g_usrs.vertex(g_usrs_vd[i]).in_degree())
+# x = [g_usrs.vertex(g_usrs_vd[v]).out_degree() for v in unq_usrs]
 
+# song sampling
+for u in unq_usrs:
+
+    vu = g_usrs.vertex(g_usrs_vd[u])
+    # u_dg_org = vu.out_degree(g_usrs.ep.plcnt)
+    u_dg_org = vu.out_degree()
+    # alctd_dg = u_dg_org**0.5
+    alctd_dg = u_dg_org*0.25
+
+    new_deg = 0
     
-# usr_trk_lnks = 0
+    sngs_el = list(vu.out_edges())
+    random.shuffle(sngs_el)
+
+    # filter CH query with user count
+    for e in sngs_el:
+        
+        new_deg = new_deg + 1
+        # g_usrs.ep.plcnt[e]
+        smpl_ep[e] = True
+        
+        if new_deg > alctd_dg:
+            break
+
+g_usrs = Graph(GraphView(g_usrs, efilt = smpl_ep), prune=True)
+g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs.vp.id)
 
 # N_SAMPLE = 4000
 N_SAMPLE = len(unq_usrs)
@@ -94,50 +103,19 @@ sample_ids = [g_usrs_vd[i] for i in usrs_sample]
 usr_cmps = list(itertools.combinations(sample_ids, 2))
 
 t1 = time.time()
-smpl_sims = vertex_similarity(g_usrs, 'jaccard', vertex_pairs = usr_cmps, eweight = plcnt)
+smpl_sims = vertex_similarity(g_usrs, 'dice', vertex_pairs = usr_cmps, eweight = g_usrs.ep.plcnt)
 t2 = time.time()
 # 50k/sec
 # weird, with US 1k sample it's down to 25k/sec
 # 10k usrs would take 1k secs, seems sufficient? 
 # where to split? if i restart CH server righ after getting the rows, i think i can put everything in one script
 
-# how to put into np array
-
-tri = np.zeros((N_SAMPLE, N_SAMPLE))
-tri[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
-
-tri.T[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
-
-
-# get common matrix 
-deg_vec = [g_usrs.vertex(i).out_degree(plcnt) for i in sample_ids]
-deg_ar = np.array([deg_vec]*N_SAMPLE)
-deg_ar2 = (deg_ar + np.array([deg_vec]*N_SAMPLE).transpose())/2
-
-cmn_ar = deg_ar2*tri
-ovlp_ar = cmn_ar/deg_ar
-
-# would be best to 'melt' the ovlp array into long lists
-# maybe add small stuff to be able to select
-
-mod_ovlp_ar = ovlp_ar+0.0123
-
-l1 = mod_ovlp_ar[np.where(np.triu(mod_ovlp_ar, k=1) > 0)] - 0.0123
-l2 = mod_ovlp_ar.T[np.where(np.triu(mod_ovlp_ar.T, k=1) > 0)] - 0.0123
-
-l_ar = np.concatenate([l1[:,None],l2[:,None]], axis=1)
-
-pos_mins = np.argmin(l_ar, axis=1)
-
-l_mins = l_ar[np.arange(l_ar.shape[0]),pos_mins]
-
-usr_lnks = np.where(l_mins > 0.02)
 
 
 # can also just use cutoff for smpl_sims? 
 # usr_lnks_sim = np.where(smpl_sims > 0.0253)
 # x = set(usr_lnks_sim[0]) - set(usr_lnks[0]) # not exactly the same edges, 1500/10k not there
-# usr_lnks = np.where(smpl_sims > 0.014)
+usr_lnks = np.where(smpl_sims > 0.02)
 
 elx = []
 for i in usr_lnks[0]:
@@ -145,14 +123,16 @@ for i in usr_lnks[0]:
     elx.append((g_usrs_vd_rv[rel_e[0]], g_usrs_vd_rv[rel_e[1]]))
     
 
-g_usrs_1md = Graph()
+g_usrs_1md = Graph(directed=False)
 
 g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
 # g_usrs_1md_id = g_usrs_1md.add_edge_list(elx, hashed=True, string_vals=True)
 
 g_usrs_1md.vertex_properties['id'] = g_usrs_1md_id
 
-g_usrs_1md.save('one_mode.gt')
+# g_usrs_1md.save('one_mode1k_dice_005.gt')
+# g_usrs_1md.save('one_mode1k_dice_0025_smpl.gt')
+g_usrs_1md.save('one_mode4k_dice_002_smpl_l025.gt')
 
 
 # NEED WAY TO PASS VARIABLES
@@ -390,10 +370,10 @@ for thd in np.arange(0, 0.05, 0.0005):
     print(thd)
 
     # use amount of links 
-    # usr_lnks = np.where(l_mins > thd)
+    usr_lnks = np.where(l_mins > thd)
 
     # use dice similarity
-    usr_lnks = np.where(smpl_sims > thd)
+    # usr_lnks = np.where(smpl_sims > thd)
 
     elx = []
     for i in usr_lnks[0]:
@@ -414,6 +394,8 @@ npl(e_cnts)
 
 
 
+
+
 # ** directed links
 # one_mode_drct = np.where(ovlp_ar > 0.04) 
 
@@ -430,3 +412,51 @@ npl(e_cnts)
 #     #     elx.append(lnk)
 
 # print(len(elx)/N_SAMPLE**2)
+
+
+# ** old usr similarity calculation that uses ovlp, is more parsimonious to just use DICE sim
+# how to put into np array
+
+tri = np.zeros((N_SAMPLE, N_SAMPLE))
+tri[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
+
+tri.T[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
+
+# get common matrix 
+deg_vec = [g_usrs.vertex(i).out_degree(plcnt) for i in sample_ids]
+deg_ar = np.array([deg_vec]*N_SAMPLE)
+deg_ar2 = (deg_ar + np.array([deg_vec]*N_SAMPLE).transpose())/2
+
+cmn_ar = deg_ar2*tri
+ovlp_ar = cmn_ar/deg_ar
+
+# would be best to 'melt' the ovlp array into long lists
+# maybe add small stuff to be able to select
+
+mod_ovlp_ar = ovlp_ar+0.0123
+
+l1 = mod_ovlp_ar[np.where(np.triu(mod_ovlp_ar, k=1) > 0)] - 0.0123
+l2 = mod_ovlp_ar.T[np.where(np.triu(mod_ovlp_ar.T, k=1) > 0)] - 0.0123
+
+l_ar = np.concatenate([l1[:,None],l2[:,None]], axis=1)
+
+pos_mins = np.argmin(l_ar, axis=1)
+
+l_mins = l_ar[np.arange(l_ar.shape[0]),pos_mins]
+
+usr_lnks = np.where(l_mins > 0.02)
+
+# ** old usr string
+# usr_string = """
+# SELECT usr, mbid, cnt FROM (
+#     SELECT * FROM (
+#         SELECT usr, song as abbrv, count(usr,song) as cnt FROM logs
+#             WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+#             GROUP BY (usr,song)
+
+#         ) JOIN (
+#             SELECT mbid, abbrv FROM song_info3)
+#             USING abbrv
+#     ) JOIN (
+#         SELECT distinct(mbid) from fnl_qry
+#     ) USING mbid"""
