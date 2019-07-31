@@ -8,6 +8,8 @@ import time
 import matplotlib.pyplot as plt
 import itertools
 from multiprocessing import Pool
+from functools import partial
+
 import operator
 from datetime import datetime
 from datetime import timedelta
@@ -134,20 +136,15 @@ def asym_sim2(gx, vdx, gnrs, sims_ar, wts):
     return(ovlp_ar)
 
 
-def gnrt_acst_el(gnrs):
+def gnrt_acst_el(acst_gnr_dict, nbr_cls, gnrs):
     """generates edge list for acoustic space network"""
     
     el_ttl = []
     
     for gnr in gnrs:
-    #     print(gnr)
-        
-        # dfc = get_df_cbmd(gnr)
-        # gnr_ind[gnr] = gnrz.index(gnr)
         dfcx = acst_gnr_dict[gnr]
 
         gnr_cnt = len(dfcx)
-        sz_dict[gnr] = gnr_cnt
         
         el_gnr = []
         # print(len(el_gnr))
@@ -176,18 +173,30 @@ def gnrt_acst_el(gnrs):
     return(el_ttl)
 
 
-def gnrt_acst_el_mp(gnrs):
+def gnrt_acst_el_mp(gnrs, acst_gnr_dict, nbr_cls):
     """parallelizes the acoustic edgelist generation process"""
+
+    # iterable = [1, 2, 3, 4, 5]
+    # pool = multiprocessing.Pool()
+    # a = "hi"
+    # b = "there"
+    # func = partial(f, a, b)
+    # pool.map(func, iterable)
+    # pool.close()
+    # pool.join()
 
     NO_CHUNKS = 3
     gnr_chnks = list(split(gnrs, NO_CHUNKS))
 
+    func = partial(gnrt_acst_el, acst_gnr_dict, nbr_cls)
+
     t1 = time.time()
     p = Pool(processes=NO_CHUNKS)
-    data = p.map(gnrt_acst_el, [i for i in gnr_chnks])
+    data = p.map(func, [i for i in gnr_chnks])
     t2=time.time()
 
     p.close()
+    p.join()
 
     el_ttl = list(itertools.chain.from_iterable(data))
     return(el_ttl)
@@ -272,7 +281,8 @@ def kld_thrshld(el_acst):
     return(ghrac, sim_vlu, ghrac_id, vd_hr, vd_hr_rv)
 
 
-def acst_arfy(el_ttl, vrbls, el_pos):
+def acst_arfy(el_ttl, vrbls, el_pos, gnrs, nbr_cls):
+    """converts edge list to matrix"""
 
     acst_mat = np.empty([len(gnrs), len(vrbls)*nbr_cls])
 
@@ -282,10 +292,8 @@ def acst_arfy(el_ttl, vrbls, el_pos):
         itempos = [ypos, xpos]
         # have to make sure to select right one here
         vlu = i[el_pos]
-        # print(vlu)
 
         acst_mat[ypos, xpos] = vlu
-        # print(itempos)
 
         xpos+=1
 
@@ -308,7 +316,7 @@ def split(a, n):
 
 
 
-def kld_mp2(chnk):
+def kld_mp2(acst_mat, gnrs, chnk):
     """ improved kdl with https://www.oipapio.com/question-4293090, no more inf fixing but shouldn't be needed it it's proper subsets, """
     # comparison with previous shows that places which are now also infinite are generally super high
 
@@ -327,15 +335,17 @@ def kld_mp2(chnk):
 # t2 = time.time()
 # increasing number of elements only slowly increases time (10*elements: twice as slow): logarithmic? 
 
-def kld_mat_crubgs(gnrs):
+def kld_mat_crubgs(gnrs, acst_mat):
     """multiproccesses acst_mat to create kld mat"""
     NO_CHUNKS = 3
     gnr_chnks = list(split(gnrs, NO_CHUNKS))
 
+    func2 = partial(kld_mp2, acst_mat, gnrs)
+
     p = Pool(processes=NO_CHUNKS)
 
     t1=time.time()
-    data = p.map(kld_mp2, [i for i in gnr_chnks])
+    data = p.map(func2, [i for i in gnr_chnks])
     t2=time.time()
 
     # t1=time.time()
@@ -343,6 +353,7 @@ def kld_mat_crubgs(gnrs):
     # t2=time.time()
 
     p.close()
+    p.join()
 
     # ar_lst = [np.array(i) for i in data2]
     # ar_cb = np.concatenate(ar_lst, axis=0)
@@ -358,9 +369,11 @@ def kld_mat_crubgs(gnrs):
 
 # *** get N closest parents
 
-def kld_n_prnts(ar_cb, npr):
+def kld_n_prnts(ar_cb, npr, gnrs, gnr_ind):
     """generates edgelist by taking npr (number of parents) lowest values of row of asym kld mat"""
 
+    npr = npr + 1
+    
     kld2_el = []
 
     for i in gnrs:
@@ -368,8 +381,8 @@ def kld_n_prnts(ar_cb, npr):
         sims = ar_cb[i_id]
 
         idx = np.argpartition(sims, npr)
-        prnts = idx[0:4]
-        vlus = sims[idx[0:4]]
+        prnts = idx[0:npr]
+        vlus = sims[idx[0:npr]]
 
         for k in zip(prnts, vlus):
             if k[0] == i_id:
@@ -379,7 +392,8 @@ def kld_n_prnts(ar_cb, npr):
                 
     return(kld2_el)
 
-oprtr = operator.lt
+# oprtr = operator.lt
+
 def asym_n_prnts(asym_ar, oprtr, npr):
     elx = []
 
@@ -394,10 +408,11 @@ def asym_n_prnts(asym_ar, oprtr, npr):
 def kld_proc(kld2_el):
     
     g_kld2 = Graph()
-    kld_sim = g_kld2.new_edge_property('double')
-    g_kld2_id = g_kld2.add_edge_list(kld2_el, hashed=True, string_vals=True, eprops = [kld_sim])
+    
+    g_kld2.ep['kld_sim'] = g_kld2.new_edge_property('double')
+    g_kld2.vp['id'] = g_kld2.add_edge_list(kld2_el, hashed=True, string_vals=True, eprops = [g_kld2.ep.kld_sim])
 
-    vd_kld2,vd_kld2_rv = vd_fer(g_kld2, g_kld2_id)
+    vd_kld2,vd_kld2_rv = vd_fer(g_kld2, g_kld2.vp.id)
 
     # get int e_vp for plotting
     # kld_sim_int = g_kld2.new_edge_property('int16_t')
@@ -406,7 +421,7 @@ def kld_proc(kld2_el):
 
     # graph_pltr(g_kld2, g_kld2_id, 'acst_spc5.pdf', kld_sim_int)
 
-    return(g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv)
+    return(g_kld2, vd_kld2, vd_kld2_rv)
 
 
 def all_cmps_crubgs(gnrs, vd, type):
@@ -433,6 +448,8 @@ def ftr_extrct(gnrs):
 
     NO_CHUNKS = 3
     chnks = list(split(gnrs, NO_CHUNKS))
+
+    func3 = partial(ftr_extrct_mp, )
     
     p = Pool(processes=NO_CHUNKS)
     res_data = p.map(ftr_extrct_mp, [i for i in chnks])
@@ -455,7 +472,7 @@ def ftr_extrct(gnrs):
 
 
 
-def ftr_extrct_mp(gnrs):
+def ftr_extrct_mp(gnrs, nbr_cls, vd, w, gnr_ind, ar_cb, g_kld2):
     # seems to sometimes require self, somtimes not??
     """extracts features like a boss"""
 
@@ -465,36 +482,40 @@ def ftr_extrct_mp(gnrs):
     for gnr in gnrs:
         res_dict[gnr] = {}
 
-    cmps_rel, sim_v = gnr_span_prep(vrbls)
+    print('prep spanning')
+    cmps_rel, sim_v = gnr_span_prep(vrbls, nbr_cls, vd, w)
 
+    print('start iterating')
     for gnr in gnrs:
         # generate a whole bunch of measures
 
         gv = g_kld2.vertex(vd_kld2[gnr])
 
-        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv)
+        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb)
         for i in zip(prnt_stats_names, prnt_stats_vlus):
             res_dict[gnr][i[0]] = i[1]
 
-        thd_res, thd_names = ar_cb_proc(gnr)
+        thd_res, thd_names = ar_cb_proc(gnr, gnr_ind, ar_cb)
         for i in zip(thd_names, thd_res):
             res_dict[gnr][i[0]] = i[1]
 
         # cohorts
-        cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr)
+        cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr, g_kld2, gnr_ind)
         res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
         res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
 
         tx4 = time.time()
 
         # spanningness
-        spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v)
+        spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd)
         res_dict[gnr]['spngns'] = spngns
         
         tx5 = time.time()
         
+        # CHECK IF ARGUMETNS OF SPECIFIC EXTRACTION FUNCTIONS ARE ALL IN MAIN EXTRACTION FUNCTION
+
         # dfcx stuff
-        dfcx_names, dfcx_vlus = dfcx_proc(gnr)
+        dfcx_names, dfcx_vlus = dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int)
         for i in zip(dfcx_names, dfcx_vlus):
             res_dict[gnr][i[0]] = i[1]
 
@@ -502,13 +523,14 @@ def ftr_extrct_mp(gnrs):
         # add to dfcx_proc
         # from original data, might be interesting to weigh/add sds
         res_dict[gnr]['sz_raw'] = sz_dict[gnr]
+        res_dict[gnr]['volm'] = vol_dict[gnr]
         res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
 
         tx7 = time.time()
     return(res_dict)
 
 # ** prnt stats
-def prnt_stats(gv):
+def prnt_stats(gv, gnr_ind, ar_cb):
     """calculates parent stats: 
     prnt3_dvrgs: sum of divergences from parents, 
     clst_prnt: distance to closest parent, 
@@ -516,10 +538,10 @@ def prnt_stats(gv):
     prnt_odg, prnt_odg_wtd: out-degree of parents (unweighted and weighted by distance)
     """
     
-    prnt3_dvrg = gv.in_degree(kld_sim)
-    clst_prnt = min([kld_sim[v] for v in gv.in_edges()])
+    prnt3_dvrg = gv.in_degree(g_kld2.ep.kld_sim)
+    clst_prnt = min([g_kld2.ep.kld_sim[v] for v in gv.in_edges()])
 
-    prnts = [g_kld2_id[i] for i in gv.in_neighbors()]
+    prnts = [g_kld2.vp.id[i] for i in gv.in_neighbors()]
     prnt_vs = [i for i in gv.in_neighbors()]
     prnt_ids = [gnr_ind[i] for i in prnts]
 
@@ -532,7 +554,7 @@ def prnt_stats(gv):
     # may have to divide by 1 (or other thing to get distance), not quite clear now
     
     prnt_odg = np.mean([prnt_v.out_degree() for prnt_v in prnt_vs])
-    prnt_odg_wtd = np.mean([prnt_v.out_degree() * kld_sim[g_kld2.edge(prnt_v,gv)] for prnt_v in prnt_vs])
+    prnt_odg_wtd = np.mean([prnt_v.out_degree() * g_kld2.ep.kld_sim[g_kld2.edge(prnt_v,gv)] for prnt_v in prnt_vs])
 
     prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_dvrg', 'prnt_odg', 'prnt_odg_wtd']
     prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_dvrg, prnt_odg, prnt_odg_wtd]
@@ -544,7 +566,7 @@ def prnt_stats(gv):
 # ** amount of musical space spanning
 # use similar logic of omnivorousness
 
-def gnr_span_prep(vrbls):
+def gnr_span_prep(vrbls, nbr_cls, vd, w):
     """prepares feature similarity matrix, needed to see how well genres span"""
     # not sure if good:
     # weight
@@ -580,7 +602,7 @@ def gnr_span_prep(vrbls):
 # cmps_rel, sim_v = gnr_span_prep(vrbls)
 
 
-def gnr_mus_spc_spng(gnr, cmps_rel, sim_v):
+def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd):
     """calculates sum of dissimilarities for a gnr from a vector of relative comparisons and given similarities between genres"""
     # relies on feature nodes always being returned in the same order so that sim_v applies across genres
 
@@ -622,7 +644,7 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v):
 
 
 # ** cohort processing
-def chrt_proc(gnr):
+def chrt_proc(gnr, g_kld2, gnr_ind):
 
     gv = g_kld2.vertex(vd_kld2[gnr])
     prnts = list(gv.in_neighbors())
@@ -635,7 +657,7 @@ def chrt_proc(gnr):
         cht_dists = []
         for v_cp in cht:
             if v_cp != gv:
-                distx = ar_cb[gnr_ind[gnr],gnr_ind[g_kld2_id[v_cp]]]
+                distx = ar_cb[gnr_ind[gnr],gnr_ind[g_kld2.vp.id[v_cp]]]
                 cht_dists.append(distx)
 
         pos_non_inf = np.where(np.array(cht_dists) < math.inf)
@@ -653,7 +675,7 @@ def chrt_proc(gnr):
     return(cohrt_pct_inf, cohrt_mean_non_inf)
 
 # ** ar_cb processing
-def ar_cb_proc(gnr):
+def ar_cb_proc(gnr, gnr_ind, ar_cb):
     """collects information about potential (penl) parents and children"""
     # would probably go easier but not really expensive
     
@@ -695,7 +717,7 @@ def ar_cb_proc(gnr):
 
 # ** dfcx processing
 
-def dfcx_proc(gnr):
+def dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int):
     """generates a number of measures based on song data:
     - unq_artsts: number of unique artists in period
     - gnr_gini: see how unequally size (cnt * rel_weight) is distributed along artists
@@ -726,11 +748,11 @@ def dfcx_proc(gnr):
     gnr_gini = gini(np.array(dfcx_grpd['sz']))
     
     # age of songs:
-    agex = t2_int - dfcx['erl_rls']
+    agex = d2_int - dfcx['erl_rls']
     avg_age, age_sd = weighted_avg_and_std(np, agex[np.where(agex > 0)[0]], weights = dfcx['sz'][np.where(agex > 0)[0]])
     
     # new releases: number, size, proportion to overall size
-    rlss_tprd = dfcx[(dfcx['erl_rls'] > t1_int) & (dfcx['erl_rls'] < t2_int)]
+    rlss_tprd = dfcx[(dfcx['erl_rls'] > d1_int) & (dfcx['erl_rls'] < d2_int)]
 
     nbr_rlss_tprd = len(rlss_tprd)
     
@@ -781,6 +803,64 @@ def gnr_t_prds(tdlt):
 
     return(time_periods)
 
+def ptn_proc(ptn):
+    """generates g_kld and df_res for a partition"""
+    
+    print('construct dfc')
+    dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
+                  min_unq_artsts, max_propx1, max_propx2, d1, d2, ptn,
+                  client, pd)
+
+    gnrs = list(np.unique(dfc['tag']))
+    artsts = list(np.unique(dfc['artist']))
+    trks = list(np.unique(dfc['lfm_id']))
+
+    print('construct acst gnr dict')
+
+    nbr_cls = 5
+    acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
+    sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
+
+    print('construct acoustic edge list')
+
+    el_ttl = gnrt_acst_el_mp(gnrs, acst_gnr_dict, nbr_cls)
+
+    print('construct acoustic graph')
+    gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
+
+    print('construct acoustic mat')
+    acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
+
+    t1 = time.time()
+    print('construct kld mat')
+    ar_cb = kld_mat_crubgs(gnrs, acst_mat)
+    t2 = time.time()
+
+    print('construct kld 3 parent edgelist')
+    # could loop over npr 1-5, add prnt to column names? 
+    npr = 3
+    kld2_el = kld_n_prnts(ar_cb, npr, gnrs, gnr_ind)
+
+    print('construct kld graph')
+    g_kld2,  vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+
+    print('extract features')
+    # could be parallelized as well
+    tx1 = time.time()
+    # df_res = ftr_extrct(gnrs)
+
+    # get it working first with mp part, less passing arguments around
+    df_res = ftr_extrct_mp(gnrs[0:10], nbr_cls, vd, w)
+    tx2 = time.time()
+
+    df_res['t1'] = t1
+    df_res['t2'] = t2
+    df_res['tp_id'] = tp_id
+
+    ret_dict = {'g_kld2':g_kld2, 'df_res':df_res}
+
+    return(ret_dict)
+
 
 # * actual program
 
@@ -788,107 +868,74 @@ if __name__ == '__main__':
     time_periods = gnr_t_prds(28*3)
 
     res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
+    print('set parameters')
+    min_cnt = 5
+    min_weight = 8
+    min_rel_weight = 0.075
+    min_tag_aprnc = 15
+    min_unq_artsts = 8
+    max_propx1 = 0.5
+    max_propx2 = 0.7
+    ptn = 1        
+
+    vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
+           'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
-    # tprd = time_periods[20]
+    tprd = time_periods[20]
 
     for tprd in time_periods:
         d1 = tprd[0].strftime('%Y-%m-%d')
         d2 = tprd[1].strftime('%Y-%m-%d')
-
         d1_dt = datetime.strptime(d1, '%Y-%m-%d')
         d2_dt = datetime.strptime(d2, '%Y-%m-%d')
         base_dt = datetime(1970, 1, 1)
         d1_int = (d1_dt - base_dt).days
         d2_int = (d2_dt - base_dt).days
-
-        # CREATE PARTITIONS
-        # make separate script called with d1/d2
-        # how to oscillate between partitioning and feature computation/extraction? 
-        # all the original acst_hier stuff has to run in separate script too to release memory when done
-        # i think the partitioning can run in one process, don't take that much memory
-
         tp_id = time_periods.index(tprd)
         tp_clm = d1 + ' -- ' + d2
-
-        print('set parameters')
-        min_cnt = 5
-        min_weight = 10
-        min_rel_weight = 0.075
-        min_tag_aprnc = 30
-        min_unq_artsts = 10
-        max_propx1 = 0.5
-        max_propx2 = 0.7
         
-        vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
-               'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
+        # CREATE PARTITIONS
 
-        ptn = 1
-
+        ptns = list(range(3))
+        
         pnt_obj_dict = {}
+
         for ptn in ptns:
-            pnt_obj_dict[ptn] = {}
-
-            print('construct dfc')
-            dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
-                          min_unq_artsts, max_propx1, max_propx2, d1, d2, ptn,
-                          client, pd)
+            ptn_obj_dict[ptn] = ptn_proc(ptn)
             
-            gnrs = list(np.unique(dfc['tag']))
-            artsts = list(np.unique(dfc['artist']))
-            trks = list(np.unique(dfc['lfm_id']))
+        ptn_gnrs = []
 
-            print('construct acst gnr dict')
+            # pnt_obj_dict[ptn] = {}
 
-            acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
-            sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
-            print('construct acoustic edge list')
-            # el_ttl = gnrt_acst_el(gnrs)
-            el_ttl = gnrt_acst_el_mp(gnrs)
-
-            print('construct acoustic graph')
-            gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
-
-            print('construct acoustic mat')
-            acst_mat = acst_arfy(el_ttl, vrbls, 3)
-
-            t1 = time.time()
-            print('construct kld mat')
-            ar_cb = kld_mat_crubgs(gnrs)
-            t2 = time.time()
-
-            print('construct kld 3 parent edgelist')
-            # could loop over npr 1-5, add prnt to column names? 
-            npr = 4
-            kld2_el = kld_n_prnts(ar_cb, npr)
-
-            print('construct kld graph')
-            g_kld2, kld_sim, g_kld2_id, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-
-            print('extract features')
-            # could be parallelized as well
-            tx1 = time.time()
-            df_res = ftr_extrct(gnrs)
-            tx2 = time.time()
-
-            # is there more efficient way to cluster?
-            # musicological features?
-            # alternatives to blockmodel? 
-            # AHC of cosines?
-
-            
-
-        df_res['t1'] = t1
-        df_res['t2'] = t2
-        df_res['tp_id'] = tp_id
                 
-        print(df_res.shape)
-        print('print to csv')
-        df_res.to_csv(res_dir + tp_clm + '.csv')
+        # print(df_res.shape)
+        # print('print to csv')
+        # df_res.to_csv(res_dir + tp_clm + '.csv')
 
         # raise Exception('done')
 
 # * xprtl
+
+# ** ptn partitioning sketch
+    # gnrs = list(np.unique(dfc['tag']))
+    # ptn_gnrs.append(gnrs)
+
+# gnr comparison
+NBR_PTNS =3
+
+ptn_ovlp = np.zeros((NBR_PTNS,NBR_PTNS))
+for i1 in range(NBR_PTNS):
+    i1_ptn = ptn_gnrs[i1]
+    for i2 in range(NBR_PTNS):
+        i2_ptn = ptn_gnrs[i2]
+
+        ovlp = len(list(set(i1_ptn) & set(i2_ptn)))
+        ptn_ovlp[i1,i2] = ovlp
+
+all_gnrs = set(list(itertools.chain.from_iterable(ptn_gnrs)))
+
+
 
 np.corrcoef(tri_vlus1, tri_vlus2)
 
