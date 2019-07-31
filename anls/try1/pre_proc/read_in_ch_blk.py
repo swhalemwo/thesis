@@ -156,17 +156,10 @@ def chunk_prep(chnk):
             ab_uid,
             i[1]) for i in logx]
 
-        # some logs are reverse: earliest first
-        if int(logx[0][0]) > int(logx[-1][0]):
-
-            min_dts.append(logx2[-1][0])
-            max_dts.append(logx2[0][0])
-
-            logx2.reverse()
-
-        else:
-            min_dts.append(logx2[0][0])
-            max_dts.append(logx2[-1][0])
+        log_dts = [i[0] for i in logx2]
+        min_dts.append(min(log_dts))
+        max_dts.append(max(log_dts))
+        
 
         all_logs = all_logs + logx2
         valid_uuids.append(ab_uid)
@@ -191,11 +184,13 @@ if __name__ == '__main__':
     start_fldr = args.start_fldr
     end_fldr = args.end_fldr
     
-    # base_dir = '/home/johannes/mlhd/us/'
+    base_dir = '/home/johannes/mlhd/us/'
     # missing: 10-19, 218/219
 
-    start_fldr = 1
-    end_fldr = 300
+    start_fldr = 36
+    end_fldr = 150
+    # done: 1-35, not clear how boundaries are handled
+    # 36-150: works until chunk 370 
 
     # seems to work, and should given previous cleaning in downloading stage
     usr_abbrvs = client.execute('select uuid, abbrv2 from usr_info')
@@ -240,8 +235,8 @@ if __name__ == '__main__':
 
         for i in buckets.keys():
             # client.execute('insert into tests2 values', buckets[i])
-            print('would insert now but dont')
             client.execute('insert into logs values', buckets[i])
+
 # * tests
 
 # abbrvs = []
@@ -249,3 +244,17 @@ if __name__ == '__main__':
 #     uuid = l[-43:-7]
 #     abbrv = usr_abbrv_dict[uuid]
 #     abbrvs.append(abbrv)
+# * scrap
+
+# ** old chunk_prep
+# some logs are reverse: earliest first
+# if int(logx[0][0]) > int(logx[-1][0]):
+#     print('dddd', logx2[-1][0])
+#     min_dts.append(logx2[-1][0])
+#     max_dts.append(logx2[0][0])
+
+#     logx2.reverse()
+
+# else:
+#     min_dts.append(logx2[0][0])
+#     max_dts.append(logx2[-1][0])
