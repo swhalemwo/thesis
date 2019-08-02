@@ -4,17 +4,16 @@ import csv
 from graph_tool.all import *
 from graph_tool import *
 import matplotlib.pyplot as plt
-import random
+from random import sample
 import time
 import itertools
 
-
-import sklearn.decomposition.LatentDirichletAllocation
+from sklearn.model_selection import GridSearchCV
 from sklearn.decomposition import LatentDirichletAllocation
 
 
-from sklearn.datasets import make_multilabel_classification
-X, _ = make_multilabel_classification(random_state=0)
+# from sklearn.datasets import make_multilabel_classification
+# X, _ = make_multilabel_classification(random_state=0)
 
 
 def vd_fer(g, idx):
@@ -48,11 +47,11 @@ g_usrs_vd, g_usrs_vd_rv = vd_fer(g_usrs, g_usrs.vp.id)
 usr_ids = [g_usrs_vd[i] for i in unq_usrs]
 
 # ** sampling
-smpl_prop = 1
+smpl_prop = 0.3
 smpl_ep = g_usrs.new_edge_property('bool')
 smpl_vp = g_usrs.new_vertex_property('bool')
 
-usr_smpl = random.sample(set(unq_usrs), 2000)
+usr_smpl = random.sample(set(unq_usrs), 3212)
 
 for u in usr_smpl:
 
@@ -81,18 +80,40 @@ smpl_ids = [g_usr_smpl_vd[i] for i in usr_smpl]
 
 ad_mat = graph_tool.spectral.adjacency(g_usrs2, weight = g_usrs2.ep.plcnt)
 ad_mat2 = ad_mat[:,smpl_ids].T
-col_sums = np.sum(ad_mat2, axis = 0)
-rel_cols = np.where(col_sums > 100)[1]
+
+col_nonzs = np.count_nonzero(ad_mat2.toarray(), axis=0)
+rel_cols = np.where(col_nonzs > 12)[0]
+
 ad_mat3 = ad_mat2[:,rel_cols]
+
+col_sums = np.sum(ad_mat3, axis = 0)
+rel_cols2 = np.where(col_sums > 18)[1]
+
+ad_mat4 = ad_mat2[:,rel_cols2]
+
+# save_npz(diag_dir + 'mat_edge_smpl.csv', ad_mat4)
+
 
 # ** no sampling
 
 ad_mat = graph_tool.spectral.adjacency(g_usrs, weight = g_usrs.ep.plcnt)
 ad_mat2 = ad_mat[:,usr_ids].T
 
-col_sums = np.sum(ad_mat2, axis = 0)
-rel_cols = np.where(col_sums > 5)[1]
+col_nonzs = np.count_nonzero(ad_mat2.toarray(), axis=0)
+rel_cols = np.where(col_nonzs > 15)[0]
+
 ad_mat3 = ad_mat2[:,rel_cols]
+
+col_sums = np.sum(ad_mat3, axis = 0)
+rel_cols2 = np.where(col_sums > 50)[1]
+
+ad_mat4 = ad_mat3[:,rel_cols2]
+
+# save_npz(diag_dir + 'mat_cutofs', ad_mat4)
+
+ad_mat5 = ad_mat4[:,sample(range(ad_mat4.shape[1]), 10100)]
+save_npz(diag_dir + 'mat_song_smpl', ad_mat5)
+
 
 # * lda
 
@@ -101,7 +122,7 @@ ad_mat3 = ad_mat2[:,rel_cols]
 lda = LatentDirichletAllocation(n_components=4,random_state=0, n_jobs = 3, max_iter = 100)
 
 t1 = time.time()
-lda_res = lda.fit(ad_mat3)
+lda_res = lda.fit(ad_mat4)
 t2 = time.time()
 
 # 1k users, 9.5k songs: 8.2 secs
@@ -124,29 +145,53 @@ t2 = time.time()
 
 lda_res.components_[0:5,0:5]
 
-lda_scrs = lda.score(ad_mat3)
+lda_scrs = lda.score(ad_mat4)
 
-usr_grp = lda.transform(ad_mat3)
+usr_grp = lda.transform(ad_mat4)
 
-from sklearn.model_selection import GridSearchCV
 
 # search_params = {'n_components': [4, 6, 8], 'doc_topic_prior':[0.1, 0.2, 0.4, 0.8, 2, 4], 'topic_word_prior':[0.1, 0.2, 0.4, 0.8, 2, 4]}
-# model_bu = model
-model_bu2 = 
 
 # search_params = {'n_components': [2,3,4], 'topic_word_prior':[0.1, 0.8, 2, 4, 8]}
 
-search_params = {'n_components': [2,3], 'topic_word_prior':[0.1, 2, 8]}
+# search_params = {'n_components': [2,3], 'topic_word_prior':[0.1, 2, 8]}
 
-# 'learning_decay': [.5, .7], 
-lda = LatentDirichletAllocation(n_jobs = 4, learning_method='online')
-model = GridSearchCV(lda, param_grid=search_params, verbose=2)
-model.fit(ad_mat3)
+# search_params = {'max_iter': [10, 20, 30, 40, 50, 60]}
+
+#  test different impact of alpha and beta conditional on number of topics
+# search_params = {'doc_topic_prior': [0.033, 0.1, 0.4, 0.8, 1.2, 2], 'topic_word_prior': [0.033, 0.1, 0.4, 0.8, 1.2, 2]}
+
+
+# search_params = {'topic_word_prior': [0.033, 0.1, 0.4, 0.8, 1.2, 2]}
+# search_params = {'topic_word_prior': [0.1, 0.25, 0.4, 0.55, 0.7]}
+
+search_params = {'topic_word_prior': [0.1, 0.175, 0.25, 0.325, 0.4, 0.475, 0.55]}
+search_params = {'doc_topic_prior': [0.1, 0.175, 0.25, 0.325, 0.4, 0.475, 0.55]}
+
+search_params = {'max_iter':[10, 30, 40, 50, 75, 100]}
+
+search_params = {'max_iter':[10, 15, 20, 25, 30, 10, 15, 20, 25, 30, 10, 15, 20, 25, 30]}
+
+# topic_word_prior = 0.2
+lda = LatentDirichletAllocation(learning_method='batch', n_jobs = 4, n_components = 5, max_iter = 30, topic_word_prior = 0.45)
+model = GridSearchCV(lda, param_grid=search_params, verbose=2, cv =[(slice(None), slice(None))],
+                     return_train_score = True, refit = False)
+model.fit(ad_mat4)
+
+npl(model.cv_results_['mean_test_score'])
+
+# ordr = [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4,  9, 14]
+# npl(model.cv_results_['mean_test_score'][ordr])
+
+
+# 1k people, 1 sampling, min plcnt 100 -> 1.6k songs: looks like there is no systematic increase after 30 iterations? 
+# test with more people
+# 3.2k people, full sampling, 24k songs, min plcnt 50: 40 best, largest improvement by going from 10 to 20
 
 best_lda_model = model.best_estimator_
 print("Best Model's Params: ", model.best_params_)
 print("Best Log Likelihood Score: ", model.best_score_)
-print("Model Perplexity: ", best_lda_model.perplexity(ad_mat3))
+print("Model Perplexity: ", best_lda_model.perplexity(ad_mat4))
 
 n_topics = [4,6,8]
 
@@ -162,9 +207,10 @@ for i in zip(model.cv_results_['params'], model.cv_results_['mean_test_score']):
 res_df = pd.DataFrame(res_df_prep)
 
 
-grp_vrbl = 'n_components'
+# grp_vrbl = 'n_components'
+grp_vrbl = 'topic_word_prior'
 # x_vrbl = 'doc_topic_prior'
-x_vrbl = 'topic_word_prior'
+x_vrbl = 'doc_topic_prior'
 
 res_sum = res_df[[grp_vrbl, x_vrbl, 'score']].groupby([grp_vrbl, x_vrbl]).mean()
 
@@ -196,8 +242,6 @@ plt.show()
 
 # relevant parameters:
 - number of topics
-- batch size
-
 - doc_topic_prior: alpha: default 1/nbr_components: prior of document topic distribtuion
 - topic_word_prior: beta/eta: default 1/nbr_components: prior of tpic word distribution
 Close to 1 seems to represent lack of knowledge:
@@ -229,17 +273,18 @@ distribution in middle; otherwise in the corners -> vary between 0.1, 0.2, 0.4, 
 # impact of usrs and songs: what is more expensive? 
 
 
-lda2 = LatentDirichletAllocation(n_components=3, n_jobs = 4, topic_word_prior = 2, max_iter = 50)
+lda2 = LatentDirichletAllocation(n_components=4, n_jobs = 4, topic_word_prior = 0.45, max_iter = 50)
 # online seems slower? 109 vs 88
 
-res_ar = np.empty((ad_mat3.shape[0],0))
+res_ar = np.empty((ad_mat4.shape[0],0))
 
 for i in range(4):
     t1 = time.time()
-    lda_res = lda2.fit(ad_mat3)
+    lda_res = lda2.fit(ad_mat4)
     t2 = time.time()
+    print(t2-t1)
 
-    usr_grp = lda2.transform(ad_mat3)
+    usr_grp = lda2.transform(ad_mat4)
 
     res_ar = np.concatenate((res_ar, usr_grp), axis=1)
 
@@ -252,7 +297,7 @@ plt.show()
 from sklearn.cluster.bicluster import SpectralBiclustering
 from sklearn.metrics.pairwise import cosine_similarity
 
-clust_mdl = SpectralBiclustering(n_clusters = 3)
+clust_mdl = SpectralBiclustering(n_clusters = 4)
 clust1 = clust_mdl.fit(cor_mat)
 
 col_lbls = clust1.column_labels_
@@ -280,22 +325,3 @@ plt.show()
 # g_usrs.vertex(g_usrs_vd[u]).out_degree(g_usrs.ep.plcnt)
 
 
-
-for gscore in model.cv_results_:
-    print(gscore)
-
-log_likelyhoods_5 = [round(gscore.mean_validation_score)  if gscore.params['learning_decay']==0.5]
-log_likelyhoods_7 = [round(gscore.mean_test_score) for gscore in model.cv_results_ if gscore.parameters['learning_decay']==0.7]
-
-len(model.cv_results_['params'])
-
-log_likelyhoods_5 = []
-log_likelyhoods_7 = []
-
-
-
-# res_doc_topic = res_plt[4]
-res_topic_word = res_plt[4]
-
-res_plt = {}
-res_plt2 = {}
