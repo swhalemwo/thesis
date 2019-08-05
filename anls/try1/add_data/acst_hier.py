@@ -444,15 +444,21 @@ def all_cmps_crubgs(gnrs, vd, type):
 
 # * feature extraction
 
-def ftr_extrct(gnrs):
+def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict):
 
     NO_CHUNKS = 3
     chnks = list(split(gnrs, NO_CHUNKS))
+    print(chnks)
 
-    func3 = partial(ftr_extrct_mp, )
+    print('prep spanning')
+    cmps_rel, sim_v = gnr_span_prep(gac, vrbls, nbr_cls, vd, w)
+    print('prep spanning done')
+
+
+    func3 = partial(ftr_extrct_mp, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, cmps_rel, sim_v)
     
     p = Pool(processes=NO_CHUNKS)
-    res_data = p.map(ftr_extrct_mp, [i for i in chnks])
+    res_data = p.map(func3, [i for i in chnks])
     p.close()
 
     super_dict = {}
@@ -472,7 +478,7 @@ def ftr_extrct(gnrs):
 
 
 
-def ftr_extrct_mp(gnrs, nbr_cls, vd, w, gnr_ind, ar_cb, g_kld2):
+def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, cmps_rel, sim_v, gnrs):
     # seems to sometimes require self, somtimes not??
     """extracts features like a boss"""
 
@@ -482,8 +488,6 @@ def ftr_extrct_mp(gnrs, nbr_cls, vd, w, gnr_ind, ar_cb, g_kld2):
     for gnr in gnrs:
         res_dict[gnr] = {}
 
-    print('prep spanning')
-    cmps_rel, sim_v = gnr_span_prep(vrbls, nbr_cls, vd, w)
 
     print('start iterating')
     for gnr in gnrs:
@@ -491,7 +495,7 @@ def ftr_extrct_mp(gnrs, nbr_cls, vd, w, gnr_ind, ar_cb, g_kld2):
 
         gv = g_kld2.vertex(vd_kld2[gnr])
 
-        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb)
+        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb, g_kld2)
         for i in zip(prnt_stats_names, prnt_stats_vlus):
             res_dict[gnr][i[0]] = i[1]
 
@@ -500,14 +504,14 @@ def ftr_extrct_mp(gnrs, nbr_cls, vd, w, gnr_ind, ar_cb, g_kld2):
             res_dict[gnr][i[0]] = i[1]
 
         # cohorts
-        cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr, g_kld2, gnr_ind)
+        cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb)
         res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
         res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
 
         tx4 = time.time()
 
         # spanningness
-        spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd)
+        spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std)
         res_dict[gnr]['spngns'] = spngns
         
         tx5 = time.time()
@@ -527,10 +531,11 @@ def ftr_extrct_mp(gnrs, nbr_cls, vd, w, gnr_ind, ar_cb, g_kld2):
         res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
 
         tx7 = time.time()
+    
     return(res_dict)
 
 # ** prnt stats
-def prnt_stats(gv, gnr_ind, ar_cb):
+def prnt_stats(gv, gnr_ind, ar_cb, g_kld2):
     """calculates parent stats: 
     prnt3_dvrgs: sum of divergences from parents, 
     clst_prnt: distance to closest parent, 
@@ -566,11 +571,12 @@ def prnt_stats(gv, gnr_ind, ar_cb):
 # ** amount of musical space spanning
 # use similar logic of omnivorousness
 
-def gnr_span_prep(vrbls, nbr_cls, vd, w):
+def gnr_span_prep(gac, vrbls, nbr_cls, vd, w):
     """prepares feature similarity matrix, needed to see how well genres span"""
     # not sure if good:
     # weight
-    
+
+    print('strt spanning prep')
     vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,nbr_cls + 1)] for vrbl in vrbls]
     vrbl_nd_strs = list(itertools.chain.from_iterable(vrbl_nd_strs_raw))
 
@@ -580,6 +586,7 @@ def gnr_span_prep(vrbls, nbr_cls, vd, w):
     vrbl_sims = vertex_similarity(GraphView(gac, reversed=True), 'dice', vertex_pairs = vrbl_cmprs, eweight = w)
     vrbl_sim_rows = np.split(vrbl_sims, len(vrbl_nd_strs))
     vrbl_sim_ar = np.array(vrbl_sim_rows)
+
 
     # plt.imshow(1-vrbl_sim_ar, cmap='hot', interpolation='nearest')
     # plt.show()
@@ -593,16 +600,17 @@ def gnr_span_prep(vrbls, nbr_cls, vd, w):
     for i in vrbl_nds:
         vrbl_mat_ids[i] = vrbl_nds.index(i) 
 
+
     cmps_rel = list(itertools.combinations(vrbl_nds, 2))
 
     sim_v = [1-vrbl_sim_ar[vrbl_mat_ids[i[0]],vrbl_mat_ids[i[1]]] for i in cmps_rel]
-    
+
     return(cmps_rel, sim_v)
 
 # cmps_rel, sim_v = gnr_span_prep(vrbls)
 
 
-def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd):
+def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std):
     """calculates sum of dissimilarities for a gnr from a vector of relative comparisons and given similarities between genres"""
     # relies on feature nodes always being returned in the same order so that sim_v applies across genres
 
@@ -644,7 +652,8 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd):
 
 
 # ** cohort processing
-def chrt_proc(gnr, g_kld2, gnr_ind):
+def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb):
+    """generates all kinds of measures related to cohorts"""
 
     gv = g_kld2.vertex(vd_kld2[gnr])
     prnts = list(gv.in_neighbors())
@@ -805,6 +814,9 @@ def gnr_t_prds(tdlt):
 
 def ptn_proc(ptn):
     """generates g_kld and df_res for a partition"""
+    # do i need other things too?
+    # acst_mat: assess degree of acoustic similarity
+    # gnr_ind: process stuffz
     
     print('construct dfc')
     dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
@@ -842,7 +854,7 @@ def ptn_proc(ptn):
     kld2_el = kld_n_prnts(ar_cb, npr, gnrs, gnr_ind)
 
     print('construct kld graph')
-    g_kld2,  vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+    g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
 
     print('extract features')
     # could be parallelized as well
@@ -850,14 +862,15 @@ def ptn_proc(ptn):
     # df_res = ftr_extrct(gnrs)
 
     # get it working first with mp part, less passing arguments around
-    df_res = ftr_extrct_mp(gnrs[0:10], nbr_cls, vd, w)
+
+    df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict)
     tx2 = time.time()
 
     df_res['t1'] = t1
     df_res['t2'] = t2
     df_res['tp_id'] = tp_id
 
-    ret_dict = {'g_kld2':g_kld2, 'df_res':df_res}
+    ret_dict = {'g_kld2':g_kld2, 'df_res':df_res, 'gnr_ind':gnr_ind, 'acst_mat':acst_mat}
 
     return(ret_dict)
 
@@ -881,7 +894,7 @@ if __name__ == '__main__':
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
-    tprd = time_periods[20]
+    # tprd = time_periods[20]
 
     for tprd in time_periods:
         d1 = tprd[0].strftime('%Y-%m-%d')
@@ -896,16 +909,20 @@ if __name__ == '__main__':
         
         # CREATE PARTITIONS
 
-        ptns = list(range(3))
+        ptns = list(range(5))
         
-        pnt_obj_dict = {}
+        t1 = time.time()
+        ptn_obj_dict = {}
 
         for ptn in ptns:
             ptn_obj_dict[ptn] = ptn_proc(ptn)
             
+        t2 = time.time()
         ptn_gnrs = []
 
-            # pnt_obj_dict[ptn] = {}
+        
+
+        # pnt_obj_dict[ptn] = {}
 
 
                 
@@ -914,6 +931,84 @@ if __name__ == '__main__':
         # df_res.to_csv(res_dir + tp_clm + '.csv')
 
         # raise Exception('done')
+
+# ** ptn eval
+
+all_gnrs = [ptn_obj_dict[i]['gnr_ind'].keys() for i in ptns]
+all_gnrs2 = itertools.chain.from_iterable(all_gnrs)
+all_gnrs3 = set(all_gnrs2)
+
+[print(len(ptn_obj_dict[i]['gnr_ind'])) for i in ptns]
+
+
+for gnr in all_gnrs3:
+    # gnr = 'hard rock'
+
+    rel_ptns = []
+    for ptn in ptns:
+        if gnr in ptn_obj_dict[ptn]['gnr_ind'].keys():
+            rel_ptns.append(ptn)
+
+    nbr_cls = 5
+    gnr_acsts = np.zeros((nbr_cls*len(vrbls),len(rel_ptns)))
+
+    gnr_prnts = []
+    gnr_chirn = []
+    
+    len(rel_ptns)
+
+    # maybe first get all relevant partions? 
+    for ptn in rel_ptns:
+        # acoustic information
+        gnr_id = ptn_obj_dict[ptn]['gnr_ind'][gnr]
+        gnr_acst = ptn_obj_dict[ptn]['acst_mat'][gnr_id]
+        gnr_acsts[:,ptn]= gnr_acst
+        
+        # parent (prnt) information
+        g_kld2 = ptn_obj_dict[2]['g_kld2']
+        g_kld2_vd, g_kld2_vd_rv = vd_fer(g_kld2, g_kld2.vp.id)
+        prnt_nds = list(g_kld2.vertex(g_kld2_vd[gnr]).in_neighbors())
+        prnt_ids = [g_kld2.vp.id[i] for i in prnt_nds]
+        gnr_prnts.append(prnt_ids)
+
+        # children (chirn) information
+        chirn_nds = list(g_kld2.vertex(g_kld2_vd[gnr]).out_neighbors())
+        chirn_ids = [g_kld2.vp.id[i] for i in chirn_nds]
+        gnr_chirn.append(chirn_ids)
+
+    
+    acst_cor = np.corrcoef(gnr_acsts.T)
+    cor_vlus = acst_cor[np.where(np.triu(acst_cor,k=1)> 0)]
+    mean_cor = np.mean(cor_vlus)
+    cor_sd = np.std(cor_vlus)
+
+    prnt_sims = np.mean(mult_dice(gnr_prnts))
+    chirn_sims = np.mean(mult_dice(gnr_chirn))
+
+
+
+
+def mult_dice(ll_of_lls):
+    """calculates all pairwise dice similarities for a list of lists"""
+    x_sims = []
+    c =0
+    for i1 in range(len(ll_of_lls)):
+        for i2 in range(c, len(ll_of_lls)):
+            if i1 == i2:
+                pass
+            else:
+                # print(i1,i2)
+                s1 = set(ll_of_lls[i1])
+                s2 = set(ll_of_lls[i2])
+                sim = (2*len(s1.intersection(s2)))/(len(s1)+len(s2))
+                x_sims.append(sim)
+        c+=1
+    return(x_sims)
+
+    
+
+
+    
 
 # * xprtl
 
