@@ -866,13 +866,140 @@ def ptn_proc(ptn):
     df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict)
     tx2 = time.time()
 
-    df_res['t1'] = t1
-    df_res['t2'] = t2
-    df_res['tp_id'] = tp_id
 
     ret_dict = {'g_kld2':g_kld2, 'df_res':df_res, 'gnr_ind':gnr_ind, 'acst_mat':acst_mat}
 
     return(ret_dict)
+
+def mult_dice(ll_of_lls):
+    """calculates all pairwise dice similarities for a list of lists"""
+    x_sims = []
+    c =0
+    
+    if len(ll_of_lls) ==1:
+        return(1)
+    
+    for i1 in range(len(ll_of_lls)):
+        for i2 in range(c, len(ll_of_lls)):
+            if i1 == i2:
+                pass
+            else:
+                # print(i1,i2)
+                s1 = set(ll_of_lls[i1])
+                s2 = set(ll_of_lls[i2])
+                if len(s1) > 0 and len(s2) > 0:
+                    sim = (2*len(s1.intersection(s2)))/(len(s1)+len(s2))
+                else:
+                    sim = 0
+                x_sims.append(sim)
+        c+=1
+    
+    return(x_sims)
+
+
+def ptn_eval(ptns, ptn_obj_dict):
+
+    all_gnrs = [ptn_obj_dict[i]['gnr_ind'].keys() for i in ptns]
+    all_gnrs2 = itertools.chain.from_iterable(all_gnrs)
+    all_gnrs3 = set(all_gnrs2)
+
+    [print(len(ptn_obj_dict[i]['gnr_ind'])) for i in ptns]
+
+
+
+
+    gnr_proc_dict= {}
+
+    for gnr in all_gnrs3:
+        print(gnr)
+
+        rel_ptns = []
+        for ptn in ptns:
+            if gnr in ptn_obj_dict[ptn]['gnr_ind'].keys():
+                rel_ptns.append(ptn)
+
+        nbr_cls = 5
+        gnr_acsts = np.zeros((nbr_cls*len(vrbls),len(rel_ptns)))
+
+        gnr_prnts = []
+        gnr_chirn = []
+
+        ord_var_dict = {}
+        ord_vars = ptn_obj_dict[0]['df_res'].columns
+        for i in ord_vars:
+            ord_var_dict[i] = []
+
+        ptn_waets = []
+
+        # maybe first get all relevant partions? 
+        for ptn in rel_ptns:
+            # get weights
+            
+            ptn_waets.append(ptn_obj_dict[ptn]['df_res'].T[gnr]['volm'])
+            
+            # acoustic information
+            gnr_id = ptn_obj_dict[ptn]['gnr_ind'][gnr]
+            gnr_acst = ptn_obj_dict[ptn]['acst_mat'][gnr_id]
+            gnr_acsts[:,rel_ptns.index(ptn)]= gnr_acst
+
+            # parent (prnt) information
+            g_kld2 = ptn_obj_dict[ptn]['g_kld2']
+            g_kld2_vd, g_kld2_vd_rv = vd_fer(g_kld2, g_kld2.vp.id)
+            prnt_nds = list(g_kld2.vertex(g_kld2_vd[gnr]).in_neighbors())
+            prnt_ids = [g_kld2.vp.id[i] for i in prnt_nds]
+            gnr_prnts.append(prnt_ids)
+
+            # children (chirn) information
+            chirn_nds = list(g_kld2.vertex(g_kld2_vd[gnr]).out_neighbors())
+            chirn_ids = [g_kld2.vp.id[i] for i in chirn_nds]
+            gnr_chirn.append(chirn_ids)
+
+            # already present variables
+            df_res = ptn_obj_dict[ptn]['df_res']
+            for vrbl in ord_vars:
+                ord_var_dict[vrbl].append(df_res.T[gnr][vrbl])
+
+        # sd might not be super meaningful because number of genres differs a lot between partitions
+        # meaningful tho for metrics that don't depend on the sizes, which are still quite many
+        ord_var_prcsd = {}
+        for i in ord_vars:
+            ord_var_mean = i+'_mean'
+            ord_var_sd = i + '_sd'
+            tual_vlus = weighted_avg_and_std(np, ord_var_dict[i], ptn_waets)
+
+            ord_var_prcsd[ord_var_mean] = tual_vlus[0]
+            ord_var_prcsd[ord_var_sd] = tual_vlus[1]
+
+        prent = len(rel_ptns)
+
+        acst_cor = np.corrcoef(gnr_acsts.T)
+        if prent > 1:
+            cor_vlus = acst_cor[np.where(np.triu(acst_cor,k=1)> 0)]
+        else:
+            cor_vlus = acst_cor
+
+        mean_cor = np.mean(cor_vlus)
+        cor_sd = np.std(cor_vlus)
+
+        prnt_sims = np.mean(mult_dice(gnr_prnts))
+        chirn_sims = np.mean(mult_dice(gnr_chirn))
+
+        ord_var_prcsd['acst_cor_mean'] = mean_cor
+        ord_var_prcsd['acst_cor_sd'] = cor_sd
+        ord_var_prcsd['prnt_sims'] = prnt_sims
+        ord_var_prcsd['chirn_sims'] = chirn_sims
+        ord_var_prcsd['nbr_ptns'] = prent
+
+        gnr_proc_dict[gnr] = ord_var_prcsd
+
+    df_ttl = pd.DataFrame(gnr_proc_dict).T
+
+    df_ttl['t1'] = t1
+    df_ttl['t2'] = t2
+    df_ttl['tp_id'] = tp_id
+
+    return(df_ttl)
+
 
 
 # * actual program
@@ -908,24 +1035,35 @@ if __name__ == '__main__':
         tp_clm = d1 + ' -- ' + d2
         
         # CREATE PARTITIONS
+        min_usr_cnt = 25
+        # song has to be listened to by at least that many users
+        min_usr_plcnt = 50
+        # user has to play at least that many (unique) songs (which in turn have at least min_usr_cnt
+
+        t1 = time.time()
+        
+        ptn_vars = " ".join([str(i) for i in [d1, d2, min_cnt, min_usr_cnt, min_usr_plcnt]])
+        ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
+        os.system(ptn_str)
 
         ptns = list(range(5))
-        
-        t1 = time.time()
+
+        t2 = time.time()
+
         ptn_obj_dict = {}
 
         for ptn in ptns:
             ptn_obj_dict[ptn] = ptn_proc(ptn)
             
-        t2 = time.time()
-        ptn_gnrs = []
+        t3 = time.time()
 
+        df_ttl = ptn_eval(ptns, ptn_obj_dict)
+        df_ttl.to_csv(res_dir + tp_clm + '.csv')
         
-
+        t4 = time.time()
+        
         # pnt_obj_dict[ptn] = {}
 
-
-                
         # print(df_res.shape)
         # print('print to csv')
         # df_res.to_csv(res_dir + tp_clm + '.csv')
@@ -934,78 +1072,9 @@ if __name__ == '__main__':
 
 # ** ptn eval
 
-all_gnrs = [ptn_obj_dict[i]['gnr_ind'].keys() for i in ptns]
-all_gnrs2 = itertools.chain.from_iterable(all_gnrs)
-all_gnrs3 = set(all_gnrs2)
-
-[print(len(ptn_obj_dict[i]['gnr_ind'])) for i in ptns]
-
-
-for gnr in all_gnrs3:
-    # gnr = 'hard rock'
-
-    rel_ptns = []
-    for ptn in ptns:
-        if gnr in ptn_obj_dict[ptn]['gnr_ind'].keys():
-            rel_ptns.append(ptn)
-
-    nbr_cls = 5
-    gnr_acsts = np.zeros((nbr_cls*len(vrbls),len(rel_ptns)))
-
-    gnr_prnts = []
-    gnr_chirn = []
-    
-    len(rel_ptns)
-
-    # maybe first get all relevant partions? 
-    for ptn in rel_ptns:
-        # acoustic information
-        gnr_id = ptn_obj_dict[ptn]['gnr_ind'][gnr]
-        gnr_acst = ptn_obj_dict[ptn]['acst_mat'][gnr_id]
-        gnr_acsts[:,ptn]= gnr_acst
-        
-        # parent (prnt) information
-        g_kld2 = ptn_obj_dict[2]['g_kld2']
-        g_kld2_vd, g_kld2_vd_rv = vd_fer(g_kld2, g_kld2.vp.id)
-        prnt_nds = list(g_kld2.vertex(g_kld2_vd[gnr]).in_neighbors())
-        prnt_ids = [g_kld2.vp.id[i] for i in prnt_nds]
-        gnr_prnts.append(prnt_ids)
-
-        # children (chirn) information
-        chirn_nds = list(g_kld2.vertex(g_kld2_vd[gnr]).out_neighbors())
-        chirn_ids = [g_kld2.vp.id[i] for i in chirn_nds]
-        gnr_chirn.append(chirn_ids)
-
-    
-    acst_cor = np.corrcoef(gnr_acsts.T)
-    cor_vlus = acst_cor[np.where(np.triu(acst_cor,k=1)> 0)]
-    mean_cor = np.mean(cor_vlus)
-    cor_sd = np.std(cor_vlus)
-
-    prnt_sims = np.mean(mult_dice(gnr_prnts))
-    chirn_sims = np.mean(mult_dice(gnr_chirn))
 
 
 
-
-def mult_dice(ll_of_lls):
-    """calculates all pairwise dice similarities for a list of lists"""
-    x_sims = []
-    c =0
-    for i1 in range(len(ll_of_lls)):
-        for i2 in range(c, len(ll_of_lls)):
-            if i1 == i2:
-                pass
-            else:
-                # print(i1,i2)
-                s1 = set(ll_of_lls[i1])
-                s2 = set(ll_of_lls[i2])
-                sim = (2*len(s1.intersection(s2)))/(len(s1)+len(s2))
-                x_sims.append(sim)
-        c+=1
-    return(x_sims)
-
-    
 
 
     
