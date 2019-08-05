@@ -27,8 +27,10 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     min_unq_artsts: minimum number of unique artists for tag
     max_propx1: maximum percentage of songs in a genre by the largest artist
     max_propx2: maximum volume (rel_weight * cnt) in genre by largest artist
-    ptn: partition in usrs1k
+    ptn: partition in usrsNk/ptn
     """
+
+    # ptn = 1
 
     vrbl_strs  = ", ".join(vrbls)
     # TEST VALUES
@@ -50,7 +52,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     CREATE TEMPORARY TABLE mbids_basic
     (
     mbid_basic String,
-    cnt Int16,
+    cnt Float32,
     artist String,
     erl_rls Int16,
     len_rls_lst Int8
@@ -62,23 +64,47 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # ptn = 1
 
     # filters by date and usrs having the right partition
-    date_str = """SELECT mbid, cnt FROM (
-        SELECT * FROM (
-            SELECT song as abbrv, count(song) as cnt FROM (
-                SELECT usr, song from logs
-                    WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-                ) JOIN (SELECT abbrv2 AS usr FROM usrs1k WHERE ptn == """ + str(ptn) + """
-                ) USING usr
-                GROUP BY song
-                HAVING cnt > """ + str(min_cnt) + """
-        ) JOIN (
-            SELECT mbid, abbrv FROM song_info) 
-            USING abbrv
-        )"""
+    # date_str = """SELECT mbid, cnt FROM (
+    #     SELECT * FROM (
+    #         SELECT song as abbrv, count(song) as cnt FROM (
+    #             SELECT usr, song from logs
+    #                 WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
+    #             ) JOIN (SELECT abbrv2 AS usr FROM usrs4k WHERE ptn == """ + str(ptn) + """
+    #             ) USING usr
+    #             GROUP BY song
+    #             HAVING cnt > """ + str(min_cnt) + """
+    #     ) JOIN (
+    #         SELECT mbid, abbrv FROM song_info) 
+    #         USING abbrv
+    #     )"""
+
+
+    # SELECT usr, song, cnt, mbrshp, cnt*mbrshp as cnt_mbrshp  FROM (
+    date_str = """
+    SELECT mbid, cnt_mbrshp as cnt FROM (
+        SELECT song as abbrv, SUM(cnt*mbrshp) as cnt_mbrshp  FROM (
+            SELECT usr, song, count(song) as cnt FROM (
+                SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
+                JOIN (SELECT usr from ptn) USING usr
+            GROUP BY (usr, song)
+        ) JOIN (SELECT usr, ptn"""+ str(ptn) + """ as mbrshp from ptn
+        ) USING usr
+        GROUP BY song
+        HAVING cnt_mbrshp > """ + str(min_cnt) + """
+    ) JOIN (
+        SELECT mbid, abbrv FROM song_info) 
+        USING abbrv
+        """
+
+# now i've partioned users and songs, but i don't use the coefficients of songs
+# but what about the songs that are not used for partioning
+# didn't have that problem in networks because of one-mode conversion, but now i have data
+# i could limit myself to the songs that i use to partition the usrs, but would mean dropping many
+# acoustic info is cheap, so no reason to throw stuff away
 
 
     mbid_basic_insert = """
-    INSERT INTO mbids_basic 
+    INSERT INTO mbids_basic
     SELECT * FROM (
         SELECT lfm_id as mbid, cnt from acstb2
         JOIN
