@@ -1,5 +1,9 @@
 library(ggplot2)
+library(PerformanceAnalytics)
+library(texreg)
+library(psych)
 
+## * stuff from elsewhere
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(tidyverse, survival, ggfortify, survminer, plotly, gridExtra, 
                Epi, KMsurv, gnm, cmprsk, mstate, flexsurv, splines, epitools, 
@@ -43,9 +47,9 @@ su_obj <- Surv(orca$time, orca$all)
 str(su_obj)
 
 
-## * lets merge data together
+## * merge data together
 
-res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/24_weeks/'
+res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/12_weeks_moar/'
 res_files = list.files(res_dir)
 
 dfc <- read.csv(paste0(res_dir, res_files[1]))
@@ -73,7 +77,7 @@ gnr_inf2 <- aggregate(dfc$tp_id, list(dfc$X), max)
 ## 364 failed
 ## that's not nothing but not nearly as much as i wish
 
-ded_gnrs <- gnr_inf2[which(gnr_inf2$x < 14),]$Group.1
+ded_gnrs <- gnr_inf2[which(gnr_inf2$x < max(gnr_inf2$x)),]$Group.1
 
 gnr_inf3 <- aggregate(dfc$tp_id, list(dfc$X), length)
 
@@ -92,10 +96,9 @@ length(which(ded_gnrs %!in% cheese_gnrs))
 ## i mean still have 244 complete ded gnrs
 
 dfc2 <- dfc[which(dfc$X %!in% cheese_gnrs),]
-
 ded_gnrs2 <- unique(dfc2$X)[which(unique(dfc2$X) %in% ded_gnrs)]
 
-## i = 'Bleach'
+## set dying out for ded genres
 for (i in ded_gnrs2){
 
     dfx <- dfc2[which(dfc2$X ==i),]
@@ -108,28 +111,170 @@ for (i in ded_gnrs2){
 deds <- aggregate(dfc2$event, list(dfc2$tp_id), sum)
 barplot(deds[,2])
 
-## ** reg tes
-coxph(formula = Surv(tstart, tstop, infect) ~ treat + inherit + steroids +cluster(id), data = newcgd)
+## * variable construction
+## ** informativeness
+dfc2$inftns <- dfc2$prnt3_dvrg_mean
+
+## ** distinctiveness
+dfc2$disctns <- dfc2$cohrt_pct_inf_mean
+
+## ALSO USE THE penl_chirns here
+
+## *** potential parents
+
+len_vars = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", "len_penl_prnts_0.2_mean", "len_penl_prnts_0.3_mean")
+
+len_vars_addgs = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", "len_penl_prnts_0.2_mean", "len_penl_prnts_0.3_mean", 'inftns', 'disctns')
+
+chart.Correlation(dfc2[,len_vars_addgs])
+# len 0.1-0.3 highly correlated (0.7-.9)
+## moderate/high correlations between inftns/distcns and the len variables
+## -> more potential parents <-> less informativeness/distinctive; makes kinda sense tbh: closer KLDs means there are more of them in the different cutoff rates
+
+mean_vars_addgs = c("mean_penl_prnts_100_mean", "mean_penl_prnts_0.1_mean", "mean_penl_prnts_0.2_mean", "mean_penl_prnts_0.3_mean", 'inftns', 'disctns')
+chart.Correlation(dfc2[,mean_vars_addgs])
+## values are weird
+## negative/small positive correlations between 100 and 0.1, 0.2, 0.3
+
+sum_vars_addgs = c("sum_penl_prnts_100_mean", "sum_penl_prnts_0.1_mean", "sum_penl_prnts_0.2_mean", "sum_penl_prnts_0.3_mean", 'inftns', 'disctns')
+chart.Correlation(dfc2[,sum_vars_addgs])
+## similar patterns as with means
+## tbh i can't see the meaning of sums: adding a bunch of divergences together doesn't make something more/less distinct
+## can also be many small/few big ones -> stick with lens adn means so far
+
+penl_parnt_vars_addgs = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", "len_penl_prnts_0.2_mean", "len_penl_prnts_0.3_mean", "mean_penl_prnts_100_mean", "mean_penl_prnts_0.1_mean", "mean_penl_prnts_0.2_mean", "mean_penl_prnts_0.3_mean", 'inftns', 'disctns')
+chart.Correlation(dfc2[,penl_parnt_vars_addgs])
+## stronger correlations within lens than sums for 0.1-0.3
+## len_penl_prnts_100 doesn't correlate highly with anything,
+## mean_penl_prnts_100 with informmativeness (0.8) and the lens 0.1-0.3 (-0.65-0.75)
+
+## i need a theory of what they mean
+## len_pnl_prnts_100 is basically a measure of how isolated a genre is overall
+## but so is mean_pnl_prnts
+## it's quite abstract tho.. maybe it should be weighted by size, but that would make it even more complex
+
+## maybe len_pnl_prnts is fine due to simplicty
+## also good for not being correlated with inftns/distcns, although it kinda is supposed to measure distcns? 
+## different theoretical justification? distcns is just to cohornt, len_pnl_prnts_100 is to overall?
+## the 100 parts are maybe also preferable over the other cutoffs due to no large amount of zeroes, i.e. nicer dists
+
+## the fact that mean_penl_prnts_100 is highly correlated with inftns (prnt3_dvrg_mean) is quite telling
+## it means you can predict how similar it is to all by just taking (the mean of) the 3 closest
+
+## anyways just use len_penl_prnts_100 for now
+
+
+## ** parent size
+dfc2$prnt_sz <- dfc2$prnt_odg_mean
+
+## ** salience
+dfc2$salnc <- dfc2$avg_weight_rel_mean
+
+## ** agreement
+
+ag_vars  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
+chart.Correlation(dfc2[,ag_vars])
+
+## nbr_prnts unrelated to acst_cor_mean, prtn_sims, chirn_sims
+## they are sufficient on their own tho
+## tbh don't like prtn_sims and chrin_sims because they are effectively conditional on having at least two partitions having the genre
+## but so is acst_cor: if just 1 partition, correlation is 1
+## also not so nice distribtutions
+## tbh negative correlations not that bad, just should be high
+## more partitions lead to slightly less acst_correlations huh
+## well more comparisons -> more space for disagreement
+
+
+
+agr_w_nbr_ptns <- principal(dfc2[,c('nbr_ptns','acst_cor_mean', 'prnt_sims', 'chirn_sims')])
+agr_wo_nbr_ptns <- principal(dfc2[,c('acst_cor_mean', 'prnt_sims', 'chirn_sims')])
+## nbr_prnts  decreases fit, but would probably still pass
+
+dfc2$agr_w_nbr_ptns <- agr_w_nbr_ptns$scores
+dfc2$agr_wo_nbr_ptns <- agr_wo_nbr_ptns$scores
+
+## quite similar tbh, 97 cor
+
+## *** sds
+
+## hmm not exactly clear what to make of it, so many variables
+## maybe break into related groups? could mirror the other topics
+## agreement might vary depending on the topic
+
+var_set1 <- c("prnt3_dvrg_sd","mean_prnt_dvrg_sd","prnt_odg_sd","cohrt_pct_inf_sd","gnr_gini_sd")
+## "unq_artsts_sd" doesn't fit so well
+var_set2 <- c("avg_age_sd", "age_sd_sd", "nbr_rlss_tprd_sd", "ttl_size_sd", "prop_rls_size_sd", "volm_sd")
+
+chart.Correlation(dfc2[,var_set2])
+
+pcax <- principal(dfc2[,var_set2])
+
+
+## ** size
+var_set_sz <- c('unq_artsts_mean', 'volm_mean', 'sz_raw_mean', 'nbr_rlss_tprd_mean')
+chart.Correlation(dfc2[,var_set_sz])
+
+sz_cmpst <- principal(dfc2[,var_set_sz])
+hist(sz_cmpst$scores, breaks=100)
+sz_rscld <- scales::rescale(sz_cmpst$scores, to=c(0.1, 10))
+sz_cmpst_log <- log(sz_rscld)
+hist(sz_cmpst_log, breaks=100)
+
+dfc2$sz_cmpst <- sz_cmpst$scores
+dfc2$sz_cmpst_log <- sz_cmpst_log
+
+## ** controls
+var_set_crols = c('spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
+chart.Correlation(dfc2[,var_set_crols])
+
+## all seems sufficiently uncorrelated
+
+## ** rel variables
+all_vars = c('inftns', 'disctns', 'len_penl_prnts_100_mean', 'prnt_sz', 'salnc', 'agr_wo_nbr_ptns', 'nbr_ptns', 'sz_cmpst', 'sz_cmpst_log', 'spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
+
+
+## could add log size
+## size negatively related to distinctiveness and informativeness: kinda like that stuff that's closer together is bigger; more distant things don't grow so well
+## not clear if distinctivenss on its own makes so much sense without a strict hierarchy
+
+chart.Correlation(dfc2[,all_vars])
+
+## * reg test
+
+## ??
+## newcgd <- tmerge(data1=cgd0[, 1:13], data2=cgd0, id=id, tstop=futime)
+## coxph(formula = Surv(tstart, tstop, infect) ~ treat + inherit + steroids +cluster(id), data = newcgd)
+
 
 dfc2$tp_id2 <- dfc2$tp_id+1
 
-dfc3 <- dfc2[-which(dfc2$prnt_odg_wtd==Inf),]
+## dfc3 <- dfc2[-which(dfc2$prnt_odg_wtd==Inf),]
+## dfc3 <- dfc2[-0,]
 
-dfc4 <- dfc2[-10,]
+## dfc4 <- dfc2[-10,]
 
-fit <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel + cohrt_pct_inf + sz_raw + prnt3_dvrg + prnt_odg + prnt_odg_wtd + spngns + spngns_std + cluster(X), data= dfc3)
+fit1 <- coxph(Surv(tp_id, tp_id2, event) ~ inftns + disctns + cluster(X), data=dfc2)
+fit1 <- coxph
+
+
+
+
+
+
+
+fit <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel_mean + cohrt_pct_inf_mean + sz_raw_mean + prnt3_dvrg_mean + prnt_odg_mean + prnt_odg_wtd_mean + spngns_mean + spngns_std_mean + cluster(X), data= dfc2)
 ## size is fairly obvious
 ## prnt3_dvrg is more interesting tbh: more informative -> more likely to die
 
-fit2 <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel + cohrt_pct_inf + cohrt_mean_non_inf + 
-                 sz_raw + prnt3_dvrg + prnt_odg + prnt_odg_wtd +
-                 spngns + spngns_std + cluster(X), data= dfc3)
+fit2 <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel_mean + cohrt_pct_inf_mean + 
+                 sz_raw_mean + prnt3_dvrg_mean + prnt_odg_mean + prnt_odg_wtd_mean +
+                 spngns_mean + spngns_std_mean + cluster(X), data= dfc2)
 ## including cohrt_mean_non_inf and deleting a bunch -> cohrt_pct_inf suddenly significant, prnt3 dvrg not anymore
 
 
-fit3 <- coxph(Surv(tp_id, tp_id2, event) ~ cohrt_pct_inf + prnt3_dvrg + I(prnt3_dvrg^2)+
-                 sz_raw +  prnt_odg + prnt_odg_wtd +
-                 spngns + spngns_std + cluster(X), data= dfc3)
+fit3 <- coxph(Surv(tp_id, tp_id2, event) ~ cohrt_pct_inf_mean + prnt3_dvrg_mean + I(prnt3_dvrg_mean^2)+
+                 sz_raw_mean +  prnt_odg_mean + prnt_odg_wtd_mean +
+                 spngns_mean + spngns_std_mean + cluster(X), data= dfc3)
 
 
 fit_cheat <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel + cohrt_pct_inf + sz_raw + prnt3_dvrg + prnt_odg + prnt_odg_wtd + spngns + spngns_std, data= dfc3)
