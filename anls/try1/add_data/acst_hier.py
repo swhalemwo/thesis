@@ -656,7 +656,17 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std):
 
 # ** cohort processing
 def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
-    """generates all kinds of measures related to cohorts"""
+    """generates all kinds of measures related to cohorts
+    - cohrt_pct_inf: mean (of each cohort) of proportion of cohort members to which KLD is infinite
+    - cohrt_mean_non_inf: average mean of the KLDs that are not infinite
+    - cohrt_mean_cos_dists_wtd: volume-weighted mean of acst_mat cosine distance between genre and cohort members
+    - cohrt_mean_cos_dists_uwtd: unweighted mean of acst_mat cosine distance between genre and cohort members
+    - cohrt_len: number of genres in all cohorts
+    - cohrt_vol_sum: sum of cohorts members volume
+    - cohrt_vol_mean: mean of cohort members volume
+    - cohrt_vol_sd: sd of cohort members volume
+    """
+    
 
     gv = g_kld2.vertex(vd_kld2[gnr])
     prnts = list(gv.in_neighbors())
@@ -718,7 +728,13 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     # neither lol
     cohrt_pct_inf = np.mean(cohrt_pcts_inf)
     cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
+
+    if len(cohrt_sizes_sum) ==0:
+        cohrt_mean_cos_dists_wtd = cohrt_mean_cos_dists_uwtd = [0]
+        cohrt_sizes_sum = [1]
+
     cohrt_mean_cos_dists_wtd = np.average(cohrt_mean_cos_dists_wtd, weights=cohrt_sizes_sum)
+            
     cohrt_mean_cos_dists_uwtd = np.mean(cohrt_mean_cos_dists_uwtd)
     cohrt_len = len(cohrt_sizes_all)
     cohrt_vol_sum = sum(cohrt_sizes_sum)
@@ -730,6 +746,10 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     cohrt_vlus = [cohrt_pct_inf, cohrt_mean_non_inf, cohrt_mean_cos_dists_wtd, cohrt_mean_cos_dists_uwtd, cohrt_len, cohrt_vol_sum, cohrt_vol_mean, cohrt_vol_sd]
 
     return(cohrt_vlu_names, cohrt_vlus)
+
+# how to handle case where all parents have only gnr as child
+# set stuff to 0? 
+
 
 # ** ar_cb processing
 def ar_cb_proc(gnr, gnr_ind, ar_cb):
@@ -952,9 +972,6 @@ def ptn_eval(ptns, ptn_obj_dict):
 
     [print(len(ptn_obj_dict[i]['gnr_ind'])) for i in ptns]
 
-
-
-
     gnr_proc_dict= {}
 
     for gnr in all_gnrs3:
@@ -1041,8 +1058,8 @@ def ptn_eval(ptns, ptn_obj_dict):
 
     df_ttl = pd.DataFrame(gnr_proc_dict).T
 
-    df_ttl['t1'] = t1
-    df_ttl['t2'] = t2
+    df_ttl['d1'] = d1
+    df_ttl['d2'] = d2
     df_ttl['tp_id'] = tp_id
 
     return(df_ttl)
@@ -1059,7 +1076,7 @@ if __name__ == '__main__':
     min_cnt = 5
     min_weight = 8
     min_rel_weight = 0.075
-    min_tag_aprnc = 15
+    min_tag_aprnc = 25
     min_unq_artsts = 8
     max_propx1 = 0.5
     max_propx2 = 0.7
@@ -1083,18 +1100,21 @@ if __name__ == '__main__':
         tp_clm = d1 + ' -- ' + d2
         
         # CREATE PARTITIONS
-        min_usr_cnt = 25
+        min_song_cnt = 25
         # song has to be listened to by at least that many users
         min_usr_plcnt = 50
         # user has to play at least that many (unique) songs (which in turn have at least min_usr_cnt
 
-        t1 = time.time()
+
         
+        # d1 = str(time_periods[0][0])
+        # d2 = str(time_periods[-1][1])
         ptn_vars = " ".join([str(i) for i in [d1, d2, min_cnt, min_usr_cnt, min_usr_plcnt]])
         ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
         os.system(ptn_str)
-        # t2 = time.time()
 
+
+        t1 = time.time()
         ptns = list(range(5))
 
         ptn_obj_dict = {}
@@ -1103,12 +1123,10 @@ if __name__ == '__main__':
         for ptn in ptns:
             ptn_obj_dict[ptn] = ptn_proc(ptn)
             
-        t3 = time.time()
-
         df_ttl = ptn_eval(ptns, ptn_obj_dict)
         df_ttl.to_csv(res_dir + tp_clm + '.csv')
-        
-        t4 = time.time()
+        t2 = time.time()        
+
         
         # pnt_obj_dict[ptn] = {}
 
