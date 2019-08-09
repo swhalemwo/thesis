@@ -1,0 +1,7 @@
+* Master thesis: genre abandonment
+
+collection of the scripts used to collect, process and analyze the data
+scripts
+- gnrl_funcs.py: mostly used to construct dfc
+- acst_hier.py: workhorse for processing time chunks 
+- 
