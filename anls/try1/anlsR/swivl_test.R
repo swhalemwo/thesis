@@ -2,12 +2,13 @@ library(ggplot2)
 library(PerformanceAnalytics)
 library(texreg)
 library(psych)
-
-## * stuff from elsewhere
-if (!require(pacman)) install.packages("pacman")
+'%!in%' <- function(x,y)!('%in%'(x,y))
 pacman::p_load(tidyverse, survival, ggfortify, survminer, plotly, gridExtra, 
                Epi, KMsurv, gnm, cmprsk, mstate, flexsurv, splines, epitools, 
                eha, shiny, ctqr, scales)
+
+## * stuff from elsewhere
+if (!require(pacman)) install.packages("pacman")
 
 orca <- read.table("http://www.stats4life.se/data/oralca.txt")
 
@@ -109,7 +110,7 @@ for (i in ded_gnrs2){
 }
 
 deds <- aggregate(dfc2$event, list(dfc2$tp_id), sum)
-barplot(deds[,2])
+## barplot(deds[,2])
 
 ## * variable construction
 ## ** informativeness
@@ -126,24 +127,26 @@ len_vars = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", "len_penl_prn
 
 len_vars_addgs = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", "len_penl_prnts_0.2_mean", "len_penl_prnts_0.3_mean", 'inftns', 'disctns')
 
-chart.Correlation(dfc2[,len_vars_addgs])
+## chart.Correlation(dfc2[,len_vars_addgs])
+
 # len 0.1-0.3 highly correlated (0.7-.9)
 ## moderate/high correlations between inftns/distcns and the len variables
 ## -> more potential parents <-> less informativeness/distinctive; makes kinda sense tbh: closer KLDs means there are more of them in the different cutoff rates
 
 mean_vars_addgs = c("mean_penl_prnts_100_mean", "mean_penl_prnts_0.1_mean", "mean_penl_prnts_0.2_mean", "mean_penl_prnts_0.3_mean", 'inftns', 'disctns')
-chart.Correlation(dfc2[,mean_vars_addgs])
+## chart.Correlation(dfc2[,mean_vars_addgs])
 ## values are weird
 ## negative/small positive correlations between 100 and 0.1, 0.2, 0.3
 
 sum_vars_addgs = c("sum_penl_prnts_100_mean", "sum_penl_prnts_0.1_mean", "sum_penl_prnts_0.2_mean", "sum_penl_prnts_0.3_mean", 'inftns', 'disctns')
-chart.Correlation(dfc2[,sum_vars_addgs])
+
+## chart.Correlation(dfc2[,sum_vars_addgs])
 ## similar patterns as with means
 ## tbh i can't see the meaning of sums: adding a bunch of divergences together doesn't make something more/less distinct
 ## can also be many small/few big ones -> stick with lens adn means so far
 
 penl_parnt_vars_addgs = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", "len_penl_prnts_0.2_mean", "len_penl_prnts_0.3_mean", "mean_penl_prnts_100_mean", "mean_penl_prnts_0.1_mean", "mean_penl_prnts_0.2_mean", "mean_penl_prnts_0.3_mean", 'inftns', 'disctns')
-chart.Correlation(dfc2[,penl_parnt_vars_addgs])
+## chart.Correlation(dfc2[,penl_parnt_vars_addgs])
 ## stronger correlations within lens than sums for 0.1-0.3
 ## len_penl_prnts_100 doesn't correlate highly with anything,
 ## mean_penl_prnts_100 with informmativeness (0.8) and the lens 0.1-0.3 (-0.65-0.75)
@@ -164,6 +167,8 @@ chart.Correlation(dfc2[,penl_parnt_vars_addgs])
 ## anyways just use len_penl_prnts_100 for now
 
 
+
+
 ## ** parent size
 dfc2$prnt_sz <- dfc2$prnt_odg_mean
 
@@ -173,7 +178,7 @@ dfc2$salnc <- dfc2$avg_weight_rel_mean
 ## ** agreement
 
 ag_vars  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
-chart.Correlation(dfc2[,ag_vars])
+## chart.Correlation(dfc2[,ag_vars])
 
 ## nbr_prnts unrelated to acst_cor_mean, prtn_sims, chirn_sims
 ## they are sufficient on their own tho
@@ -183,7 +188,6 @@ chart.Correlation(dfc2[,ag_vars])
 ## tbh negative correlations not that bad, just should be high
 ## more partitions lead to slightly less acst_correlations huh
 ## well more comparisons -> more space for disagreement
-
 
 
 agr_w_nbr_ptns <- principal(dfc2[,c('nbr_ptns','acst_cor_mean', 'prnt_sims', 'chirn_sims')])
@@ -201,52 +205,255 @@ dfc2$agr_wo_nbr_ptns <- agr_wo_nbr_ptns$scores
 ## maybe break into related groups? could mirror the other topics
 ## agreement might vary depending on the topic
 
-var_set1 <- c("prnt3_dvrg_sd","mean_prnt_dvrg_sd","prnt_odg_sd","cohrt_pct_inf_sd","gnr_gini_sd")
+sd_set1 <- c("prnt3_dvrg_sd","mean_prnt_dvrg_sd","prnt_odg_sd","cohrt_pct_inf_sd","gnr_gini_sd")
 ## "unq_artsts_sd" doesn't fit so well
-var_set2 <- c("avg_age_sd", "age_sd_sd", "nbr_rlss_tprd_sd", "ttl_size_sd", "prop_rls_size_sd", "volm_sd")
+sd_set2 <- c("avg_age_sd", "age_sd_sd", "nbr_rlss_tprd_sd", "ttl_size_sd", "prop_rls_size_sd", "volm_sd")
 
-chart.Correlation(dfc2[,var_set2])
+sd_pca <- principal(dfc2[,c(sd_set1, sd_set2)], nfactors=3)
 
-pcax <- principal(dfc2[,var_set2])
+## does taking the mean make measures invalid?
+chart.Correlation(dfc2[,c(sd_set1, sd_set2)])
+
+## chart.Correlation(dfc2[,var_set2])
+
+## pcax <- principal(dfc2[,var_set2])
 
 
 ## ** size
 var_set_sz <- c('unq_artsts_mean', 'volm_mean', 'sz_raw_mean', 'nbr_rlss_tprd_mean')
-chart.Correlation(dfc2[,var_set_sz])
+## chart.Correlation(dfc2[,var_set_sz])
 
 sz_cmpst <- principal(dfc2[,var_set_sz])
-hist(sz_cmpst$scores, breaks=100)
+## hist(sz_cmpst$scores, breaks=100)
 sz_rscld <- scales::rescale(sz_cmpst$scores, to=c(0.1, 10))
 sz_cmpst_log <- log(sz_rscld)
-hist(sz_cmpst_log, breaks=100)
+## hist(sz_cmpst_log, breaks=100)
 
 dfc2$sz_cmpst <- sz_cmpst$scores
 dfc2$sz_cmpst_log <- sz_cmpst_log
 
 ## ** controls
 var_set_crols = c('spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
-chart.Correlation(dfc2[,var_set_crols])
+## chart.Correlation(dfc2[,var_set_crols])
 
 ## all seems sufficiently uncorrelated
 
 ## ** rel variables
 all_vars = c('inftns', 'disctns', 'len_penl_prnts_100_mean', 'prnt_sz', 'salnc', 'agr_wo_nbr_ptns', 'nbr_ptns', 'sz_cmpst', 'sz_cmpst_log', 'spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
 
+all_vars2 <- c('inftns', 'disctns', 'len_penl_prnts_100_mean', 'prnt_sz', 'I(prnt_sz^2)', 'salnc', 'agr_wo_nbr_ptns', 'nbr_ptns', 'sz_cmpst_log', 'spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
+
+dfc2$tp_id2 <- dfc2$tp_id+1
+
+inf_vars <- c('inftns',  'disctns')
+inf_vars2 <- c('inftns', 'I(inftns^2)', 'disctns') 
+
+agr_vars <- c('agr_wo_nbr_ptns', 'nbr_ptns')
+
+leg_vars <- c('prnt_sz')
+leg_vars2 <- c('prnt_sz', 'I(prnt_sz^2)')
+
+ctrl_vars <- c('salnc', 'len_penl_prnts_100_mean', 'sz_cmpst_log', 'spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
+
+
+
+## standardizing
+dfc3 <- as.data.frame(scale(dfc2[,all_vars]))
+dfc3 <- cbind(dfc3, dfc2[,c('tp_id', 'tp_id2', 'event')])
 
 ## could add log size
 ## size negatively related to distinctiveness and informativeness: kinda like that stuff that's closer together is bigger; more distant things don't grow so well
 ## not clear if distinctivenss on its own makes so much sense without a strict hierarchy
 
-chart.Correlation(dfc2[,all_vars])
+# chart.Correlation(dfc2[,all_vars])
+## * extraction function
+
+phreg_mdlr <- function(mdl, imprvmnt){
+    vrbls <- mdl$covars
+    coefs <- mdl$coefficients
+    vars <- diag(mdl$var)
+    ses <- sqrt(vars)
+    pvlus <- 2*pnorm(abs(coefs/ses), lower.tail = FALSE)
+    
+    gof.vlus <- c(mdl$events, mdl$ttr, max(mdl$loglik))
+    ## maybe add  model improvement? could do manually later
+    ## anova doesn't like 
+                  
+    gof.names <- c('events', 'genre-timeperiods', 'max. log. likelihood')
+    
+
+    res <- createTexreg(coef.names = vrbls,
+                 coef = coefs,
+                 se = ses,
+                 pvalues = pvlus,
+                 gof.names = gof.names,
+                 gof = gof.vlus
+                 )
+    return(res)
+}
+
+## logdiff = 2*(-1075.196 + 1239.430)
+## pchisq(logdiff, df=2, lower.tail=FALSE)
+
 
 ## * reg test
+
+
+dv <- 'Surv(tp_id, tp_id2, event)'
+
+## dv2 <- 'Surv(tp_id, event)' is used for stuff without time-variation i think
+## fit1 <- coxph(f, data=dfc2)
+## fit1_reg <- coxreg(f, data=dfc2)
+
+
+## ** controls
+ctrl_vars_cbnd <- paste(ctrl_vars, collapse = ' + ')
+f_ctrl <- as.formula(paste(c(dv, ctrl_vars_cbnd), collapse = ' ~ '))
+fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+
+res_ctrl <- phreg_mdlr(fit_ctrl, None)
+screenreg(list(res_ctrl))
+
+## ** informativeness
+inf_ctrl_vars <- paste(c(inf_vars, ctrl_vars), collapse = ' + ')
+f_inf_ctrl <- as.formula(paste(c(dv, inf_ctrl_vars), collapse = ' ~ '))
+fit_inf_ctrl <- phreg(f_inf_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+
+res_inf_ctrl <- phreg_mdlr(fit_inf_ctrl)
+
+screenreg(list(res_ctrl, res_inf_ctrl))
+# res_inf
+
+## ** agreement
+
+agr_ctrl_vars <- paste(c(agr_vars, ctrl_vars), collapse = ' + ')
+f_agr_ctrl <- as.formula(paste(c(dv, agr_ctrl_vars), collapse = ' ~ '))
+fit_agr_ctrl <- phreg(f_agr_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+
+res_agr_ctrl <- phreg_mdlr(fit_agr_ctrl)
+screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl))
+
+## ** legitimation
+leg_ctrl_vars <- paste(c(leg_vars2, ctrl_vars), collapse = ' + ')
+f_leg_ctrl <- as.formula(paste(c(dv, leg_ctrl_vars), collapse = ' ~ '))
+fit_leg_ctrl <- phreg(f_leg_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+res_leg_ctrl <- phreg_mdlr(fit_leg_ctrl)
+
+
+screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl))
+## ** all
+all_vars_cbnd <- paste(c(all_vars2), collapse = ' + ')
+f_all_vars <- as.formula(paste(c(dv, all_vars_cbnd), collapse = ' ~ '))
+fit_all_vars <- phreg(f_all_vars, data=dfc3, cuts = seq(1,28),dist = 'pch')
+res_all_vars <- phreg_mdlr(fit_all_vars)
+
+screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars))
+
+## strongest impact of agreement
+## more partitions: less likely to disappear
+## but more agreement -> more likely to die out? check if in correct direction
+## higher informativeness: more likely to die out -> add quadratic term
+## no influence of distinctiveness, but is shitty measurement atm
+## prnt_sze: small effect
+
+is there straightforward link between informativeness and density? don't think so
+
+
+
+
+
+## summary(fit2_cuts)
+## plot(fit2_cuts)
+## plot(fit2_cuts, 'haz')
+
+## check.dist(fit1_reg, fit2_cuts)
+## ttl <- aggregate(dfc2$X, list(dfc2$tp_id), length)
+
+## ratio_man <- deds$x/ttl$x
+## plot(seq(0,28),ratio_man, type='s')
+## cum_man <- cumsum(ratio_man)
+## plot(cum_man, type='l')
+
+## x <- as.data.frame(cbind(t(t(ratio_man)), t(fit2_cuts$hazards)))
+
+
+
+
+## hmm manual hazard ratio and that by function produces different results
+## same shapes, but manual one is 40% higher
+## i think it's due to lag in manual?
+## nope, changing type of plotting doesn't change it overall
+## in partitcular the 4 last columns: manual last4 to last 2 are somewhat similar, while in fit the third last is much higher
+## whatever m8
+## adding I(inftns^2) changes hazard function, makes it more similar to manual wrt to last 4 spells
+
+## plot(fit2_no_cuts)
+# not specifying cuts makes plots look weird
+## fit2_frcd <- as(fit2, 'phreg', strict=TRUE)
+
+## wonder if i should correct times to proper duration
+## can also probably just ADD AGE adn be fine
+
+## pchreg produces ugly result, stick with phreg
+##
+
+
+fit3_breaks <- pchreg(f, data=dfc2, breaks = 35)
+fit3_no_breaks <- pchreg(f, data=dfc2[which(dfc2$tp_id > 0),])
+
+plot(fit3_breaks)
+
+
+       
+
+## * testing
+## ** documentation of pchreg
+n <- 1000
+x <- runif(n)
+time <- rnorm(n, 1 + x, 1 + x)
+cens <- rnorm(n,2,2)
+y <- pmin(time,cens) # censored variable
+d <- (time <= cens) # indicator of the event
+
+model <- pchreg(Surv(y,d) ~ x, breaks = 20)
+
+
+## ** bromstrom
+require(eha)
+data(fert)
+f12 <- fert[fert$parity == 1, ]
+f12$Y <- Surv(f12$next.ivl, f12$event)
+head(f12)
+
+
+fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, data = f12, dist = "pch", cuts = c(4, 8, 12))
+fit.c <- coxreg(Surv(next.ivl, event) ~ age + year + ses,data = f12)
+fit.pch2 <- phreg(Surv(next.ivl, event) ~ age + year + ses, data = f12, dist = "pch", cuts = 1:13)
+
+fit.pch
+check.dist(fit.c, fit.pch2)
+## apparently should compare between parametric (phreg) and semi-parametric coxreg models?
+
+plot(fit.pch2, fn = "haz")
+
+plot(fit.pch)
+plot(fit.pch2)
+
+
+check.dist(fit2, fit2)
+## search for
+## - repeated measures
+## - time-varying covariates
+
+
+
 
 ## ??
 ## newcgd <- tmerge(data1=cgd0[, 1:13], data2=cgd0, id=id, tstop=futime)
 ## coxph(formula = Surv(tstart, tstop, infect) ~ treat + inherit + steroids +cluster(id), data = newcgd)
 
 
-dfc2$tp_id2 <- dfc2$tp_id+1
+
 
 ## dfc3 <- dfc2[-which(dfc2$prnt_odg_wtd==Inf),]
 ## dfc3 <- dfc2[-0,]
