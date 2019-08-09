@@ -110,15 +110,18 @@ if __name__ == "__main__":
     v = DictVectorizer()
     X = v.fit_transform(usr_song_dicts)
 
-    usr_sums = X.sum(axis=1)
+    # usr_sums = X.sum(axis=1)
     song_sums = np.array(X.sum(axis=0))[0]
 
     rnd_sel = choice(range(X.shape[1]), 5000)
     X2_rnd = X[:,rnd_sel]
+    usr_trk_lnks = 0
+
+    t1= time.time()
 
     ldax = LatentDirichletAllocation(n_jobs = 3,
                                      n_components=5, 
-                                     max_iter = 50,
+                                     max_iter = 60,
                                      doc_topic_prior = 0.1,
                                      topic_word_prior = 0.4,
                                      verbose=3)
@@ -126,7 +129,7 @@ if __name__ == "__main__":
     scr = ldax.score(X2_rnd)
 
     mbrshp = ldax.transform(X2_rnd)
-
+    t2= time.time()
 
     ptn_str = """CREATE table ptn (usr String, 
     """ + ', '.join(['ptn' + str(i) + ' Float32' for i in range(mbrshp.shape[1])]) + """,
@@ -165,11 +168,12 @@ if __name__ == "__main__":
 # ** seeing which whether random or weighted selection gets better indegree correlation
 # wtd_sel = choice(range(X.shape[1]), 5000, p = song_sums/sum(song_sums))
 
-# X2_rnd = X[:,rnd_sel]
+# # X2_rnd = X[:,rnd_sel]
 # X2_wtd = X[:,wtd_sel]
 
 # x1 = np.concatenate((usr_sums, X2_rnd.sum(axis=1)), axis =1)
 # x2 = np.concatenate((usr_sums, X2_wtd.sum(axis=1)), axis =1)
 
+# np.corrcoef(x1.T)
 # np.corrcoef(x2.T)
 # random selection gives higher corcoef, better user degree
