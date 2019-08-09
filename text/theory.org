@@ -1,15 +1,3 @@
-#+latex_class: article_usual2
-# erases make title
-#+BIND: org-export-latex-title-command ""
-
-# fucks all the maketitlestuff just to be sure
-#+OPTIONS: num:nil
-#+OPTIONS: toc:nil
-# #+OPTIONS: toc:nil#+TITLE: #+AUTHOR: #+DATE: 
-#+OPTIONS: h:5
-
-# -*- org-export-babel-evaluate: nil -*-
-
 
 * theory/IRC final :noexport:
 
@@ -61,7 +49,7 @@ somewhat fuzzy: many 100s, some non 100s
 
 very fuzzy: many non 100s
 
-the lower the average weight, the fuzzier the category? 
+the lower the average weight, the fuzzier the category? t
 
 electronic: will be more fuzzy than syncwave-electrofunk
 but that's accurate isn't it? 
@@ -239,10 +227,12 @@ The classical view makes a number of assumptions.
 # 
 First, it argues that concepts are definitions which can be clearly defined with a list of necessary and/or jointly sufficient features. 
 # 
-Inspired by set theory, a necessary consequence of this assumption is to view category membership as clear cut as objects are either complete members of categories, or they are not members at all. 
+Inspired by set theory, a necessary consequence of this assumption is to view category membership as clear cut:
+# 
+Objects are either complete members of categories, or they are not members at all. 
 # 
 In turn, this assumes that all objects that exactly fulfill the membership conditions are equally good members (p.15).  
-# 
+# NOPE
 Second, concepts at different levels of abstraction are seen as forming a logically ordered and explicitly stored hierarchy. 
 # 
 If a concept is a sub-concept of another concept, all members of the sub-concept are also members of the super ordinate concept, resulting in membership being transitive [[parencite:Murphy_2004_concepts][p.27]]. 
@@ -290,7 +280,7 @@ textcite:Wittgenstein_1968_investigations argues that while we have an understan
 If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail. (p.31)
 #+end_quote
 
-Following Wittgenstein's argument in regard to inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. [fn::It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms that attempt to make sense of social action. As these blurry boundaries are a feature of classification systems generally, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs.]
+Following Wittgenstein's argument in regard to inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. [fn\::It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms that attempt to make sense of social action. As these blurry boundaries are a feature of classification systems generally, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs.]
 # 
 
 # ~One might argue that it is possible to construct crisp definitions in some cases~. 
@@ -528,7 +518,7 @@ Mammals as a term for taxonomic classification would be in a cohort with concept
 #
 As such a dog is not a hybrid in the same sense as a romantic comedy is as the concepts belong to different "visions of division" [[parencite:Bourdieu_1989_space][p.17]] where different things are at stake [[parencite:Fligstein_2015_fields][p.27]]. 
 # 
-These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannan_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
+These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannanq_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
 
 
 *** caveat classical view
@@ -682,111 +672,6 @@ At first, an established, but rarely imitated genre provides much potential for 
 However, the more sub-genres are formed, the higher the competition for the region of the musical space spanned by the superordinate genre. 
 
 
-
-
-
-** duality,- audience
-# """audience composition matters"""
-
-While concepts for analytical purposes can be considered as entities on their own, they do not exist only in feature or conceptual spaces. 
-# 
-Instead, drawing on a tradition of duality which stresses the mutual constitutiveness of for example persons and groups parencite:Breiger_1974_duality, culture and practice parencite:Mohr_1997_duality or niche and organizational form parencite:Mohr_2010_niche, I argue that genres need to be considered as "partially constituted by the audiences that support them" [[parencite:dimaggio1987classification][p.441]]. 
-#
-DiMaggio elaborates that "genres represent socially constructed organizing principles that imbue artworks with significance /beyond their thematic content/ and are in turn, responsive to structurally generated demand for cultural information and affiliation" (ibid., emphasis added). 
-#
-It is therefore crucial to not only consider the conceptual features and the relations between genres based on them, but furthermore go beyond the thematic content and focus on the social motivations for genre support. 
-# actually is as much about forms of financing, not class determinism
-# maybe bourdieu? 
-The prime example is again by textcite:Dimaggio_1982_entrepreneur, who argues that the institutionalization of fine arts did not follow on grounds of "qualities inherent to the work of art" (p.33), but was driven by the demand of the upper middle classes to isolate and differentiate high from popular culture. 
-
-# 
-
-*** consumption styles (omnivorism, purism) beyond thematic content? 
-# 
-Next to fundamental social boundaries such as class that are clear 'beyond thematic content' of genres, what other audience characteristics might play a role in genre survival? 
-# 
-It seems to me that consumption styles are certainly worthy of consideration. 
-#
-These are 
-- omnivorism cite:Lizardo_2014_holes
-- taste for atypicality cite:Goldberg_2016_span
-- taste for popularity cite:Lieberson_2003_popularity,Kovacs_2014_paradox 
-# 
-These consumption styles are in one way or another based on overall consumption pattern as well as item properties. 
-#
-Nevertheless, I argue that they constitute "transposable form of the aesthetic disposition" [[textcite:Lizardo_2012_reconcept][p.263, for omnivorism]] and can therefore reasonably assumed to influence genre survival chances. 
-
-# am i doing circular argument with popularity? 
-# DV will be based on playcounts
-# think not: taste for popularity is reflection in similar way as atypicality thing
-
-*** conceptualizing omnivorousness
-# What mechanism of cultural information and affiliation can we expect to be present in early 21st century music consumption? 
-# 
-# Certainly boundaries over genres in the informal, ~detached/autonomous~ realm of last.fm are not limited to the (~reified~) distinctions of highbrow and lowbrow. 
-# 
-The notion of omnivorism has been an influential concept in the research on cultural consumption. 
-# 
-The original study by textcite:peterson1996changing posits a relation between socioeconomic status and breadth of cultural tastes - or more precisely, openness to variety (p.904). 
-# 
-However, omnivorousness has become a rather blurry concept in itself:
-# 
-textcite:Sonnett_2016_ambivalence notes that next to the of volume of cultural consumption, it can refer to a range of concepts such as eclecticism, expertise, voraciousness and cosmopolitanism (p.39). 
-#
-Despite (or perhaps due to) its ambiguity, omnivorism has remained a key concept in characterizing cultural consumption. 
-# 
-While subjected to substantial criticism, parencite:coulangeon2007distinction,Warde_2008_omnivorous,Savage_2011_unravelling, this continued use has allowed theoretical advancements parencite:Warde_2008_omnivorous,Lizardo_2012_reconcept  without requiring the introduction of new typologies.  
-# 
-Particularly noteworthy is the notion of capturing the diversity of taste profile through an composition rather than an exclusive focus on the mere volume. 
-# 
-textcite:Lizardo_2014_holes therefore argues for a measure of "effective omnivorousness" that captures the "extent to which a person's cultural choices allow her to bridge across cultural worlds that are only weakly connected to one other or constrain her in a cultural network composed of redundant attachment to cultural forms with overlapping audiences" (p. 396). 
-# 
-Given the omnivorism of omnivorism with socio-economic status, it seems reasonable that genres that can attract omnivores fare better as the status of omnivores reflects back onto them. 
-# 
-*H_A1*: The more omnivorous a genre's audience is, the greater are its survival chances. 
-#
-# While omnivores do not have a strict ~dedication~ to any particular genre, they are reliant on the existence of genre boundaries which they can then span across. 
-
-
-*** Taste for typicality
-# 
-textcite:Goldberg_2016_span integrate approaches from organizational and cultural and therefore take the properties of items into account (they employ much of the same terminology that has been used to elaborate concepts).[fn::This constitutes a key distinction from the conceptualization of omnivorism, which requires the choices by other audience members to estimate a individuals omnivorousness, whereas the taste for typicality can be deduced from chosen items' position in the feature space]
-# 
-Specifically they distinguish boundary /spanning/ (which is captured by the here employed notion of omnivorousness) from boundary /blurring/, which describes the extent to which objects adhere to established classification frameworks. 
-# 
-Audiences with a  preference for typical objects, the so-called purists, are argued to "play a boundary-policing role" (p.233). 
-# 
-It therefore seems reasonably to argue that genres increase their survival chances by the extent to which they can attract such a purist audience. 
-#
-*H_A2*: The more purist a genre's audience is, the greater are its survival chances. 
-
-
-*** taste for popularity: still elaboration needed
-# implication: a genre is more likely to survive if it has an audience that likes popular stuff
-# but isn't it the other way around? a person that likes popular stuff is not going to listen to things that have a chance of dying out
-# could you say that if a genre manages to attract/capture people who only like popular stuff it is more likely to survive? 
-# hmm popularity -> survivavl definitely holds
-# but survival  -> popularity not necessarily: there are many things that exist that are not popular
-
-# 
-Audiences furthermore vary in the degree to which they value popularity parencite:Lieberson_2003_popularity,Kovacs_2014_paradox. 
-# 
-Such variation in second-order preferences parencite:Vaisey_2018_decision has been found to influence first names parencite:Lieberson_2003_popularity, song parencite:Salganik_2008_herd and book ratings parencite:Kovacs_2014_paradox. 
-# 
-Variation in taste for popularity has been found to produce fashion dynamics parencite:Zuckerman_2012_valuations
-# 
-[...]
-# 
-*H_A3*: The higher the taste for popularity of a genre's audiences, the higher are its chances of survival. 
-# 
-
-high TfP are ~conservative~: want general validation
-
-It might be argued that the causal path runs in the other direction, as genres with a high taste for popularity only chose items of genres that are already established. 
-# 
-It is certainly true in a trivial sense as genres that have not survived are also not popular. 
-
-However, numerous obscure genres exist which are unlikely to have an audience with a high taste for popularity, which seems to indicate that survival does not necessarily result in popularity. 
 
 
 
