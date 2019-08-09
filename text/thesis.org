@@ -1,0 +1,162 @@
+#+latex_class: article_usual2
+# erases make title
+#+BIND: org-export-latex-title-command ""
+
+# fucks all the maketitlestuff just to be sure
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+# #+OPTIONS: toc:nil#+TITLE: #+AUTHOR: #+DATE: 
+#+OPTIONS: h:5
+
+# -*- org-export-babel-evaluate: nil -*-
+
+* text
+** Introduction
+
+** Theory
+*** The structure of concepts 
+
+
+**** Features
+**** Hierarchical Relations -> informativeness, distinctiveness
+
+*** Ecology
+
+**** general: model group, focus on selection instead of adaption
+
+A ecological approach integrates insights from demography and organization ecology and applies them in the conceptual realm. 
+
+
+The ecological paradigm stresses furthermore the importance of selection on organizations. 
+#
+Rather than flexibly adapting, organizations are seen as heavily constrained by their initial structures. 
+
+
+**** legitimation and competition
+# 
+As classification frameworks provide a framework to which understand a specific set of phenomena, they are shaped by cognitive environmental constraints. 
+# 
+While a highly complex framework might be very precise, it is also costly to acquire. 
+# 
+Given such a cognitive economy, mental capacity can be considered a limited resource that different categories compete over. 
+# 
+This similarity between organizations and ideas has lead to the import of organizational ecology parencite:Hannan_1977_ecology,hannan89_organ,Hannan_1992_dynamics,Singh_1991_change into the realm of organizational forms parencite:Ruef_2000_emergence,Ruef_2004_demise,van_Venrooij_2015_ecology. 
+# mention original research program? 
+The original research program focused primarily on long-term industry developments parencite:Hannan_1992_dynamics,Hannan_1977_ecology. 
+# 
+Here the primary forces that are seen to shape the survival chances of an organization are legitimation and competition. 
+#
+textcite:Hannan_1977_ecology has argued that both of these can be inferred from density, which described the number of organizations at a given point in time. 
+# 
+While the specific operationalization has been both critiqued on theoretical grounds parencite:Zucker_1989_legitimacy and lost relevance due to increasing inclusion of actual measurements of legitimation parencite:Zuckerman_1999_illegitimacy,Rao_1994_reputation,Rao_2005_crossing, the overarching theoretical importance of considering competition and legitimation has remained central to studies of organizational populations and classification systems parencite:Piazzai_concepts,van_Venrooij_2015_classifications. 
+#
+
+
+
+
+*** Multiple Classification Systems
+
+Given the high detail of the concepts in question, it is implausible to assume that each user of the service is familiar with every single concept. 
+#
+In other words, the universality parencite:dimaggio1987classification of the different categories may vary, both in terms of awareness as well as agreement of what kind of music a genre is supposed to capture. 
+# 
+To some extent, this partitioning also corresponds to the call of textcite:Lizardo_2016_improving to specify the location of cultural structures and processes. 
+#
+cite:Lizardo_2016_improving distinguishes primarily between public and private culture, the latter of which is further divided into declarative (explicitly articulated through symbols) and non-declarative (e.g. unreflexive and/or embodied habits and modes of perception) culture. 
+#
+Not considering different classification systems would assume the genres to be public culture, which is highly implausible given the large number of concepts they include as well as the generative process of collaborative labeling by users which can be expected to reflect underlying taste differences parencite:Lizardo_2009_comparative. 
+
+
+** Data and Methods
+*** About last.fm
+
+*** User partitioning
+#
+I partition the users ~for each time point~ using Latent Dirichlet Allocation (LDA) [fn::While it would also be possible to partition users with their entire listening histories, this would assume that both general user topics as well as individual user tastes stay constant over time. Both assumptions can be regarded as plausible, but ]
+~is actually preferable now with large sample because takes so fucking long~
+#
+While LDA is primarily known for its use in  topic modeling of documents parencite:DiMaggio_2013_affinities or protocols parencite:Fligstein_2017, it also seems well suited for sparse cultural networks due to what textcite:DiMaggio_2013_affinities call polysemy and heteroglossia. 
+# 
+First, polysemy refers to the possibility multiple (i.e. gradient) membership of songs in the topics, which allows to account for the fact that a song might be not exclusively associated by one ~framework~, but might be associated with multiple partitions where its meaning changes depending on the other songs in the respective groupings. 
+#
+Second, heteroglossia ('multiple voices') refers to the fact that unlike other network community detection algorithms parencite:beckett2016improved,Peixoto_2017_Bayesian, LDA accounts for gradient membership of users in the latent partitions and can therefore better corresponds to the probabilistic framework as it eschews clear-cut membership [fn::It is also preferable in terms of processing power as the network-based measures are orders of magnitude more comptutationally expensive].
+# 
+With all its potential, it is important to stress that LDA an magic or effortless solution. 
+#
+Rather it requires substantial consideration of the number of topics, which have to be set in advance, as well as the hyperparameters \alpha and \beta that guide the allocation of users to clusters. 
+# 
+In terms of partitions, I decided apriori to generate five. 
+# 
+This is certainly much lower than what is typical for topic modeling using documents, where rarely less than 30 topics are extracted, and values above 100 are not rare either. 
+# 
+As such, fit indices (log likelihood) could certainly be improved by more topics. 
+# 
+However, since my primary interest lies in a general partitioning of users to get a measurement of consensus about genres rather than to investigate the intricacies of latent partitions, I assume that five partitions are sufficient. 
+#
+The \alpha and \beta parameters shape the topics to be extracted, and have to be chosen in respect to prior knowledge about the distribution of topics: 
+# 
+\alpha influences the extent to which a document is constructed from multiple topics, with high values resulting in each document containing a mixture of most topics, whereas low alpha values results in documents containing only few topics. 
+# 
+\beta influences the number of in each topic songs with high values resulting in topics which share a substantial amount of songs, whereas for low values each topic contains just a few words exclusive to that topic. 
+# 
+With the default values of ~python's sklearn implementation~ being 1/number of topics for both alpha and beta, I ran a number of tests with different values for \alpha and \beta ~appendix~.
+# 
+Guided by these simulations with the goal of a rather strict partitioning of users, I chose an \alpha value of 0.1 and a \beta values of 0.4. 
+# 
+Due to computational limitations, I partition the users with a subset of ~5000~ songs. 
+# 
+Do to do not use the song membership values directly and instead use the user values to weigh the contribution of each user to the respective partition, the exact process of which I now turn to. 
+
+*** AcousticBrainz and Prototype construction
+
+*** Hierarchy construction
+
+*** Key Variables
+**** Dependent Variable: Genre Abandonment
+# 
+However, while the death of organizations such as companies parencite:Rao_1994_reputation,Kennedy_2008_counted or voluntary associations parencite:Singh_1991_change is straightforward to demarcate by formal events such as declaration of bankruptcy, no such explicit event exists for organizational forms (for an exception in the case of single organizational form see textcite:Ruef_2004_demise). 
+# 
+This is even more the case for weakly institutionalized or informal concepts as are investigated here. 
+#
+
+
+*** Survival Analysis
+
+** Results
+
+
+** Discussion
+
+** Conclusion
+
+
+
+* data
+#+include: "~/Dropbox/gsss/thesis/text/data.org"
+
+
+
+
+* refs :ignhead:
+#+Latex: \begin{sloppypar}
+#+Latex: \printbibliography
+#+Latex: \end{sloppypar}
+
+** export :noexport:
+#+BEGIN_SRC emacs-lisp
+  (org-babel-tangle)
+  (defun delete-org-comments (backend)
+    (loop for comment in (reverse (org-element-map (org-element-parse-buffer)
+                      'comment 'identity))
+      do
+      (setf (buffer-substring (org-element-property :begin comment)
+                  (org-element-property :end comment))
+            "")))
+
+  (let ((org-export-before-parsing-hook '(delete-org-comments)))
+    (switch-to-buffer (org-latex-export-to-pdf)))
+#+END_SRC
+
+#+RESULTS:
+: #<buffer /home/johannes/Dropbox/gsss/thesis/text/thesis.pdf>
+
