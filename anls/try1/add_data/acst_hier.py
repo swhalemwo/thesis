@@ -18,6 +18,9 @@ from random import sample
 from scipy.stats import entropy
 from sklearn import preprocessing
 from sklearn.metrics.pairwise import euclidean_distances
+from scipy.spatial.distance import cosine
+from sklearn.metrics.pairwise import cosine_similarity
+
 from sklearn.linear_model import Lasso
 
 
@@ -444,7 +447,7 @@ def all_cmps_crubgs(gnrs, vd, type):
 
 # * feature extraction
 
-def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict):
+def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat):
 
     NO_CHUNKS = 3
     chnks = list(split(gnrs, NO_CHUNKS))
@@ -455,11 +458,12 @@ def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std
     print('prep spanning done')
 
 
-    func3 = partial(ftr_extrct_mp, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, cmps_rel, sim_v)
+    func3 = partial(ftr_extrct_mp, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v)
     
     p = Pool(processes=NO_CHUNKS)
     res_data = p.map(func3, [i for i in chnks])
     p.close()
+    p.join()
 
     super_dict = {}
     for d in res_data:
@@ -478,7 +482,7 @@ def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std
 
 
 
-def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, cmps_rel, sim_v, gnrs):
+def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, gnrs):
     # seems to sometimes require self, somtimes not??
     """extracts features like a boss"""
 
@@ -495,7 +499,7 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
 
         gv = g_kld2.vertex(vd_kld2[gnr])
 
-        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb, g_kld2)
+        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat)
         for i in zip(prnt_stats_names, prnt_stats_vlus):
             res_dict[gnr][i[0]] = i[1]
 
@@ -504,11 +508,9 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
             res_dict[gnr][i[0]] = i[1]
 
         # cohorts
-        cohrt_pct_inf, cohrt_mean_non_inf = chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb)
-        res_dict[gnr]['cohrt_pct_inf'] = cohrt_pct_inf
-        res_dict[gnr]['cohrt_mean_non_inf'] = cohrt_mean_non_inf
-
-        tx4 = time.time()
+        cohrt_vlu_names, cohrt_vlus = chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict)
+        for i in zip(cohrt_vlu_names, cohrt_vlus):
+            res_dict[gnr][i[0]] = i[1]
 
         # spanningness
         spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std)
@@ -535,7 +537,7 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
     return(res_dict)
 
 # ** prnt stats
-def prnt_stats(gv, gnr_ind, ar_cb, g_kld2):
+def prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat):
     """calculates parent stats: 
     prnt3_dvrgs: sum of divergences from parents, 
     clst_prnt: distance to closest parent, 
@@ -550,19 +552,20 @@ def prnt_stats(gv, gnr_ind, ar_cb, g_kld2):
     prnt_vs = [i for i in gv.in_neighbors()]
     prnt_ids = [gnr_ind[i] for i in prnts]
 
-    
     prnt_cmps = list(itertools.permutations(prnt_ids,2))
 
-    prnt_sims = [ar_cb[i] for i in prnt_cmps]
-    mean_prnt_dvrg = np.mean(prnt_sims)
+    prnt_sims_mat = cosine_similarity(acst_mat[prnt_ids])
+    prnt_sims = prnt_sims_mat[np.where(np.triu(prnt_sims_mat, k=1) > 0,)]
+    
+    mean_prnt_sim = np.mean(prnt_sims)
 
     # may have to divide by 1 (or other thing to get distance), not quite clear now
     
     prnt_odg = np.mean([prnt_v.out_degree() for prnt_v in prnt_vs])
     prnt_odg_wtd = np.mean([prnt_v.out_degree() * g_kld2.ep.kld_sim[g_kld2.edge(prnt_v,gv)] for prnt_v in prnt_vs])
 
-    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_dvrg', 'prnt_odg', 'prnt_odg_wtd']
-    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_dvrg, prnt_odg, prnt_odg_wtd]
+    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_sim', 'prnt_odg', 'prnt_odg_wtd']
+    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_sim, prnt_odg, prnt_odg_wtd]
 
     return(prnt_stats_names, prnt_stats_vlus)
 
@@ -652,36 +655,81 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std):
 
 
 # ** cohort processing
-def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb):
+def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     """generates all kinds of measures related to cohorts"""
 
     gv = g_kld2.vertex(vd_kld2[gnr])
     prnts = list(gv.in_neighbors())
     cohrts = [list(pr.out_neighbors()) for pr in prnts]
 
+    # cohrt_ids = [[gnr_ind[g_kld2.vp.id[i]] for i in c] for c in cohrts]
+    
     cohrt_pcts_inf = []
     cohrt_means_non_inf = []
+    cohrt_mean_cos_dists_wtd = []
+    cohrt_cos_dists_sd_wtd =  []
+    cohrt_mean_cos_dists_uwtd = []
+    cohrt_sizes_mean = []
+    cohrt_sizes_sum = []
+    cohrt_sizes_all = []
+
+    # why should weight matter for cosine distance?
+    # because if cohort is dominated by one genre, that's what matters
+    # just do both duh
+            
+
+    # think should distinguish between total mean of all cohort members and mean of cohorts
+    # not sure if really different but whatever
+    
 
     for cht in cohrts:
-        cht_dists = []
-        for v_cp in cht:
-            if v_cp != gv:
-                distx = ar_cb[gnr_ind[gnr],gnr_ind[g_kld2.vp.id[v_cp]]]
-                cht_dists.append(distx)
+        if len(cht) > 1:
+            cht_klds = []
+            cht_sizes = []
+            cht_cos_dists =  []
 
-        pos_non_inf = np.where(np.array(cht_dists) < math.inf)
+            for v_cp in cht:
+                if v_cp != gv:
+                    kldx = ar_cb[gnr_ind[gnr],gnr_ind[g_kld2.vp.id[v_cp]]]
+                    cht_klds.append(kldx)
 
-        pct_non_inf = len(pos_non_inf[0])/len(cht)
-        mean_non_inf = np.mean([cht_dists[i] for i in pos_non_inf[0]])
+                    cos_dist = cosine(acst_mat[gnr_ind[gnr]], acst_mat[gnr_ind[g_kld2.vp.id[v_cp]]])
+                    cht_cos_dists.append(cos_dist)
 
-        cohrt_pcts_inf.append(1-pct_non_inf)
-        cohrt_means_non_inf.append(mean_non_inf)
+                    cht_sizes.append(vol_dict[g_kld2.vp.id[v_cp]])
+                    cohrt_sizes_all.append(vol_dict[g_kld2.vp.id[v_cp]])
+
+            pos_non_inf = np.where(np.array(cht_klds) < math.inf)
+            pct_non_inf = len(pos_non_inf[0])/len(cht)
+            mean_non_inf = np.mean([cht_klds[i] for i in pos_non_inf[0]])
+
+            mean_cos_dist_wtd, sd_cos_dist_wtd  = weighted_avg_and_std(np, cht_cos_dists, cht_sizes)
+            mean_cos_dist_uwtd = np.mean(cht_cos_dists)
+
+            cohrt_pcts_inf.append(1-pct_non_inf)
+            cohrt_means_non_inf.append(mean_non_inf)
+            cohrt_mean_cos_dists_wtd.append(mean_cos_dist_wtd)
+            cohrt_cos_dists_sd_wtd.append(sd_cos_dist_wtd)
+            cohrt_mean_cos_dists_uwtd.append(mean_cos_dist_uwtd)
+            cohrt_sizes_mean.append(np.mean(cht_sizes))
+            cohrt_sizes_sum.append(np.sum(cht_sizes))
 
     # possible to weight by distance to parent of cohort, cohort size, both,
-    # neither
+    # neither lol
     cohrt_pct_inf = np.mean(cohrt_pcts_inf)
     cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
-    return(cohrt_pct_inf, cohrt_mean_non_inf)
+    cohrt_mean_cos_dists_wtd = np.average(cohrt_mean_cos_dists_wtd, weights=cohrt_sizes_sum)
+    cohrt_mean_cos_dists_uwtd = np.mean(cohrt_mean_cos_dists_uwtd)
+    cohrt_len = len(cohrt_sizes_all)
+    cohrt_vol_sum = sum(cohrt_sizes_sum)
+    cohrt_vol_mean = np.mean(cohrt_sizes_all)
+    cohrt_vol_sd = np.std(cohrt_sizes_all)
+
+    cohrt_vlu_names = ['cohrt_pct_inf', 'cohrt_mean_non_inf', 'cohrt_mean_cos_dists_wtd', 'cohrt_mean_cos_dists_uwtd', 'cohrt_len', 'cohrt_vol_sum', 'cohrt_vol_mean', 'cohrt_vol_sd']
+    
+    cohrt_vlus = [cohrt_pct_inf, cohrt_mean_non_inf, cohrt_mean_cos_dists_wtd, cohrt_mean_cos_dists_uwtd, cohrt_len, cohrt_vol_sum, cohrt_vol_mean, cohrt_vol_sd]
+
+    return(cohrt_vlu_names, cohrt_vlus)
 
 # ** ar_cb processing
 def ar_cb_proc(gnr, gnr_ind, ar_cb):
@@ -860,10 +908,9 @@ def ptn_proc(ptn):
     # could be parallelized as well
     tx1 = time.time()
     # df_res = ftr_extrct(gnrs)
-
     # get it working first with mp part, less passing arguments around
 
-    df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict)
+    df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat)
     tx2 = time.time()
 
 
@@ -1016,7 +1063,7 @@ if __name__ == '__main__':
     min_unq_artsts = 8
     max_propx1 = 0.5
     max_propx2 = 0.7
-    ptn = 1        
+    # ptn = 1        
 
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
@@ -1024,6 +1071,7 @@ if __name__ == '__main__':
     # tprd = time_periods[20]
 
     for tprd in time_periods:
+        client = Client(host='localhost', password='anudora', database='frrl')
         d1 = tprd[0].strftime('%Y-%m-%d')
         d2 = tprd[1].strftime('%Y-%m-%d')
         d1_dt = datetime.strptime(d1, '%Y-%m-%d')
@@ -1045,12 +1093,12 @@ if __name__ == '__main__':
         ptn_vars = " ".join([str(i) for i in [d1, d2, min_cnt, min_usr_cnt, min_usr_plcnt]])
         ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
         os.system(ptn_str)
+        # t2 = time.time()
 
         ptns = list(range(5))
 
-        t2 = time.time()
-
         ptn_obj_dict = {}
+        client = Client(host='localhost', password='anudora', database='frrl')
 
         for ptn in ptns:
             ptn_obj_dict[ptn] = ptn_proc(ptn)
@@ -1069,8 +1117,6 @@ if __name__ == '__main__':
         # df_res.to_csv(res_dir + tp_clm + '.csv')
 
         # raise Exception('done')
-
-# ** ptn eval
 
 
 
@@ -1246,7 +1292,7 @@ sum_ar = np.array([sums] * len(vrbls)*NBR_CHNKS).T
 usr_acst_probs = usr_acst_ar/sum_ar
 
 
-from sklearn.metrics.pairwise import cosine_similarity
+
 from sklearn.metrics.pairwise import euclidean_distances
 
 x = cosine_similarity(usr_acst_probs)
