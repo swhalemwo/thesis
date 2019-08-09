@@ -18,30 +18,129 @@ Empirically, textcite:Anand_2000_sensemaking,Anand_2006_charting have shown how 
 
 
 
-
+** LDA
+# 
+Given the high detail of the concepts in question, it is implausible to assume that each user of the service is familiar with every single concept. 
+#
+# 
+In other words, the universality parencite:dimaggio1987classification of the different categories may vary, both in terms of awareness as well as agreement of what kind of music a genre is supposed to capture. 
+#
+I therefore partitioned the users for each time point using Latent Dirichlet Allocation (LDA). 
+#
+While LDA is primarily known for its use in  topic modeling of documents parencite:DiMaggio_2013_affinities or protocols parencite:Fligstein_2017, it also seems well suited for sparse cultural networks due to what textcite:DiMaggio_2013_affinities call polysemy and heteroglossia. 
+# 
+First, polysemy refers to the possibility multiple (i.e. gradient) membership of songs in the topics, which allows to account for the fact that a song might be not exclusively associated by one ~framework~, but might be associated with multiple partitions where its meaning changes depending on the other songs in the respective groupings. 
+#
+Second, heteroglossia ('multiple voices') refers to the fact that unlike other network community detection algorithms parencite:beckett2016improved,Peixoto_2017_Bayesian, LDA accounts for gradient membership of users in the latent partitions and can therefore better corresponds to the probabilistic framework as it eschews clear-cut membership [fn::It is also preferable in terms of processing power as the network-based measures are orders of magnitude more comptutationally expensive].
+# 
+With all its potential, it is important to stress that LDA an magic or effortless solution. 
+#
+Rather it requires substantial consideration of the number of topics, which have to be set in advance, as well as the hyperparameters \alpha and \beta that guide the allocation of users to clusters. 
+# 
+In terms of partitions, I decided apriori to generate five. 
+# 
+This is certainly much lower than what is typical for topic modeling using documents, where rarely less than 30 topics are extracted, and values above 100 are not rare either. 
+# 
+As such, fit indices (log likelihood) could certainly be improved by more topics. 
+# 
+However, since my primary interest lies in a general partitioning of users to get a measurement of consensus about genres rather than to investigate the intricacies of latent partitions, I assume that five partitions are sufficient. 
+#
+The \alpha and \beta parameters shape the topics to be extracted, and have to be chosen in respect to prior knowledge about the distribution of topics: 
+# 
+\alpha influences the extent to which a document is constructed from multiple topics, with high values resulting in each document containing a mixture of most topics, whereas low alpha values results in documents containing only few topics. 
+# 
+\beta influences the number of in each topic songs with high values resulting in topics which share a substantial amount of songs, whereas for low values each topic contains just a few words exclusive to that topic. 
+# 
+With the default values of ~python's sklearn implementation~ being 1/number of topics for both alpha and beta, I ran a number of tests with different values for \alpha and \beta ~appendix~.
+# 
+Guided by these simulations with the goal of a rather strict partitioning of users, I chose an \alpha value of 0.1 and a \beta values of 0.4. 
+# 
+Due to computational limitations, I partition the users with a subset of ~5000~ songs. 
+# 
+Do to do not use the song membership values directly and instead use the user values to weigh the contribution of each user to the respective partition, the exact process of which I now turn to. 
 
 ** hierarchy construction
-Prototypes are constructed using the musicological data from AcousticBrainz. 
+*** features used
+To evaluate genres in terms of their informativeness, distinctiveness and other feature-related characteristics I construct prototypes using musicological features of the tracks provided by AcousticBrainz (https://acousticbrainz.org).
 # 
-For analytical purposes, the continuous dimensions ranging from zero to one are discretized into ranges with a width 0.1 by calculating a histogram for each dimensions. 
+AcousticBrainz is a joint project of the Music Technology Group at Universitat Pompeu Fabra in Barcelona and the MusicBrainz project which aims to provide detailed acoustic information on a large number of tracks. 
+#
+AcousticBrainz provides information on two levels: 
 # 
-Tracks are weighted by both the relative weight and their playcount in the time period to reflect the relative importance of tracks in terms of association with the genre as well as popularity. 
+Low-level data is comprised of more technical characteristics such as frequency distributions, keys andscales (which can be extracted from tracks with specific programs), whereas high-level data consists of a handful summarizing constructs based on the low-level data. 
+# 
+I assume that the high-level data is closer to the human perception of music which would likely be overwhelmed by the hundreds of dimensions which are present in the low-level data. 
+#
+I hence use 12 dimensions of the high-level data which describe each track in terms of danceability, gender (of vocals), timbre, tonality, voice (vs instrumental), acousticness (vs non-acoustic), aggressiveness, electronic-ness (vs non-electronic), happiness, party-ness, relaxed-ness, and sadness to construct my genre prototypes. 
+#
+Each of the dimension ranges from 0 to 1. 
+# 
+During preliminary investigation, it became clear that the classifiers which produce the high level dimensions are geared towards producing unambiguous classifications of tracks, which results in bimodal distributions where most tracks are situated on the extremes of the scales. 
+# NOT CONVINCING
+Instead of using a single measurement for each dimension, I therefore split each dimension into five discrete ranges to better capture the probability distribution of a genre over the dimensions. ~example figure~
+# 
+
+*** weighting procedure
+~example needed? latex notation?~
+For each partition, links between user and aggregate song playcount of the period are weighted by partition membership: 
+# 
+For example, if user X listened to track Y 10 times, and has a values 0.8 for LDA partition a and 0.1 for LDA partition b, the link gets weighted eight times stronger in partition a then partition b. 
+# 
+These weights allows genres to differ in meaning (i.e. in  different acoustic features) between partitions (or be not present at all). 
+# 
+The resulting user-track links with partition-weighted playcount are joined to the lastfm tags, and then aggregated to the genre-song level, thereby summing up the partition-weighted playcounts which now become also weighted with the lastfm song tag weight. 
+#
+This results in genre-song links whose weight reflects highly detailed the absolute importance of each song (as songs can have multiple tags, many are used for multiple genres, albeit generally with varying weights as their last fm tag weights often differ). 
+#
+The process involves a number of cutoffs which are further discussed in the technical appendix. 
+
 # need to argue more that KLD is good to infer hierarchical structure
-To infer the hierarchical structure, the resulting 120 features are used to calculate the Kullback-Leibler Divergence between all genres. 
+
+*** g_kld2
+**** hierarchy construction threshold
+# 
+To infer the hierarchical structure, the resulting 60 features are used to calculate the Kullback-Leibler Divergence between all genres. 
 # 
 Since this measure captures the asymmetry of hierarchical relationships, ~this~ results in an asymetric quadratic matrix. 
 # 
 A judgement call has to be made how these divergences constitute concept-subconcept relationships. 
 # 
-It might be possible to set a certain threshold under which every relation is a concept-subconcept relations. 
+It might be possible to set a fixed threshold under which every relation is considered a concept-subconcept relations, but this proved to be an unsatifying: 
 # maybe in footnote? separate sentences
-However this approach either results either in large numbers of genres (~50%) being excluded for further analysis as their lowest KLD lay above their threshold or, if the threshold is increased sufficiently to include all or most genres, in the more typical genres to have dozes to hundreds of parent-child relations (resulting in network densities of up to 0.2)
-# p
-Another approach is to select for each genre those genres as roots which the genre has the least divergence from. 
+
+If a rather low threshold is chosen (KLD < 0.1), it is possible to achieve a plausible set of concept-subconcept relations, however large numbers of genres (~50%) are being excluded for further analysis as their lowest KLD lay above their threshold. 
 # 
-While this allows to gain information on all genres (particularly atypical ones), therefore captures more variation in typicality and avoids the problem of unrealistically high amounts of genre-subgenre relations, it requires to set the number of parents for each genre in advance. 
+However, if the threshold is increased sufficiently to include all or most genres (KLD > 0.3), parent-child relationship increase by order of magnitudes, resulting in network densities (the number of actual links divided by the number of possible links) of up to 0.2. 
+# 
+While it is plausible for the most general genres (in this case, rock and metal) to have dozes of children, it is implausible that many genres have dozens of parents, which is inadvertently the case when using a high threshold. 
+# 
+While it is certainly possible for genres to have multiple parents, it seems implausible that the hybrids would still be meaningful concepts if they were influenced by dozens of parents [fn::A ironic play on this large amount of parents is the genre 'industrial jungle pussy punk', which was deliberately coined by the group Mindless Self Indulgence to parody overly specific genres, but yet incorporates much fewer genres than most genres would under a high KLD threshold]
+
+
+
+**** hierarchy construction parents
+# 
+However, when taking into account that a concept is rated most similar to its superordinate [[parencite:Smith_1981_categories][p.118]] it is possible to select as parent(s) for each genre the genre(s) which the genre has the least divergence from. 
+# 
+While it requires to set the number of parents for each genre in advance, it is possible to avoid the problem of unrealistically high amounts of genre-subgenre relations - or more precisely, unrealistically high amounts of parents. 
+# 
+It also allows to gain information on all genres (particularly atypical ones), which is crucial genres constitute the unit of analysis in the final model, and hence to capture more variation in typicality and avoid bias towards genres similar to their parents. 
+#
+To be able to account for hybrids, which I assume constitute the vast amount of the genres, I have set the number of parents to three for all genres. 
+# 
+While there are losses in accuracy for genres that clearly diverge (this is most apparent in the most general genres such as rock and metal, which now also are forced to have three parents each), the benefits of this trade-off - information on all genres and variation in typicality - appear to me to be worth the cost.
+
+
+
+
+
 
 # 
+Nethertheless, this seems t
 ~so i did it with 1-4 and it was all the same~
 
+# footnote about alternatives to KLD
+as[fn::It is worth pointing out that in this case the links between features and genres are unrealistic as every genre has the same features and the same total weight for them, with differences depending solely on how the probability mass is distributed. Genres, as all concepts, can be expected to vary substantially in the amount of features associated with them parencite:Rosch_1975_family, resulting in variation of length in feature sets and hence also in the amount of information. However, there are little alternatives when processing millions of songs in a highly standardized format. On the other hand, the consistent use of features over songs makes it possible to employ KLD which the preferred approach by textcite:Hannan_2019_concepts (similarity judgments based on features overlap do not result in the (desired) asymmetric links as the asymmetry depends on variation in the size of feature sets).
 
+# link between features and overlap
+# can i skip all the 
