@@ -10,6 +10,7 @@ import itertools
 from multiprocessing import Pool
 from functools import partial
 
+import os
 import operator
 from datetime import datetime
 from datetime import timedelta
@@ -1029,10 +1030,16 @@ def ptn_eval(ptns, ptn_obj_dict):
         for i in ord_vars:
             ord_var_mean = i+'_mean'
             ord_var_sd = i + '_sd'
+            ord_var_max = i + '_max'
+            ord_var_min = i + '_min'
+            
             tual_vlus = weighted_avg_and_std(np, ord_var_dict[i], ptn_waets)
 
             ord_var_prcsd[ord_var_mean] = tual_vlus[0]
             ord_var_prcsd[ord_var_sd] = tual_vlus[1]
+            ord_var_prcsd[ord_var_max] = max(ord_var_dict[i])
+            ord_var_prcsd[ord_var_min] = min(ord_var_dict[i])
+            
 
         prent = len(rel_ptns)
 
@@ -1076,7 +1083,7 @@ if __name__ == '__main__':
     min_cnt = 5
     min_weight = 8
     min_rel_weight = 0.075
-    min_tag_aprnc = 25
+    min_tag_aprnc = 20
     min_unq_artsts = 8
     max_propx1 = 0.5
     max_propx2 = 0.7
@@ -1100,19 +1107,19 @@ if __name__ == '__main__':
         tp_clm = d1 + ' -- ' + d2
         
         # CREATE PARTITIONS
-        min_song_cnt = 25
+        # min_usr_cnt = 25
         # song has to be listened to by at least that many users
-        min_usr_plcnt = 50
+        # min_usr_plcnt = 50
         # user has to play at least that many (unique) songs (which in turn have at least min_usr_cnt
 
-
-        
         # d1 = str(time_periods[0][0])
         # d2 = str(time_periods[-1][1])
-        ptn_vars = " ".join([str(i) for i in [d1, d2, min_cnt, min_usr_cnt, min_usr_plcnt]])
-        ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
-        os.system(ptn_str)
+        # ptn_vars = " ".join([str(i) for i in [d1, d2, min_cnt, min_usr_cnt, min_usr_plcnt]])
+        # ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
+        # os.system(ptn_str)
 
+        ptn_str = 'python3.6 ptn_lda2.py ' + d1 + ' ' + d2
+        os.system(ptn_str)
 
         t1 = time.time()
         ptns = list(range(5))
@@ -1138,348 +1145,348 @@ if __name__ == '__main__':
 
 
 
-
+# break
 
 
     
 
-# * xprtl
+# # * xprtl
 
-# ** ptn partitioning sketch
-    # gnrs = list(np.unique(dfc['tag']))
-    # ptn_gnrs.append(gnrs)
+# # ** ptn partitioning sketch
+#     # gnrs = list(np.unique(dfc['tag']))
+#     # ptn_gnrs.append(gnrs)
 
-# gnr comparison
-NBR_PTNS =3
+# # gnr comparison
+# NBR_PTNS =3
 
-ptn_ovlp = np.zeros((NBR_PTNS,NBR_PTNS))
-for i1 in range(NBR_PTNS):
-    i1_ptn = ptn_gnrs[i1]
-    for i2 in range(NBR_PTNS):
-        i2_ptn = ptn_gnrs[i2]
+# ptn_ovlp = np.zeros((NBR_PTNS,NBR_PTNS))
+# for i1 in range(NBR_PTNS):
+#     i1_ptn = ptn_gnrs[i1]
+#     for i2 in range(NBR_PTNS):
+#         i2_ptn = ptn_gnrs[i2]
 
-        ovlp = len(list(set(i1_ptn) & set(i2_ptn)))
-        ptn_ovlp[i1,i2] = ovlp
+#         ovlp = len(list(set(i1_ptn) & set(i2_ptn)))
+#         ptn_ovlp[i1,i2] = ovlp
 
-all_gnrs = set(list(itertools.chain.from_iterable(ptn_gnrs)))
-
-
-
-np.corrcoef(tri_vlus1, tri_vlus2)
+# all_gnrs = set(list(itertools.chain.from_iterable(ptn_gnrs)))
 
 
 
-# ** tag_song network
+# np.corrcoef(tri_vlus1, tri_vlus2)
 
-trk_gnr_el = [i for i in zip(dfc['lfm_id'], dfc['tag'], dfc['rel_weight'], dfc['cnt'], dfc['rel_weight']*dfc['cnt'])]
 
-g_trks = Graph()
-g_trks_waet = g_trks.new_edge_property('float')
-g_trks_cnt = g_trks.new_edge_property('float')
-g_trks_sz = g_trks.new_edge_property('float')
 
-g_trks_id = g_trks.add_edge_list(trk_gnr_el, hashed = True, string_vals = True, eprops = [g_trks_waet, g_trks_cnt, g_trks_sz])
-g_trks_vd, g_trks_id_rv = vd_fer(g_trks, g_trks_id)
+# # ** tag_song network
 
-gnr = 'alternative'
-# comparing genres is easier than for loop
+# trk_gnr_el = [i for i in zip(dfc['lfm_id'], dfc['tag'], dfc['rel_weight'], dfc['cnt'], dfc['rel_weight']*dfc['cnt'])]
 
-gnr_comps = all_cmps_crubgs(gnrs, g_trks_vd, 'product')
+# g_trks = Graph()
+# g_trks_waet = g_trks.new_edge_property('float')
+# g_trks_cnt = g_trks.new_edge_property('float')
+# g_trks_sz = g_trks.new_edge_property('float')
 
-gnr_sims = vertex_similarity(GraphView(g_trks, reversed = True), 'dice', vertex_pairs = gnr_comps, eweight = g_trks_waet)
+# g_trks_id = g_trks.add_edge_list(trk_gnr_el, hashed = True, string_vals = True, eprops = [g_trks_waet, g_trks_cnt, g_trks_sz])
+# g_trks_vd, g_trks_id_rv = vd_fer(g_trks, g_trks_id)
 
-gnr_sim_ar = np.array(np.split(gnr_sims, len(gnrs)))
+# gnr = 'alternative'
+# # comparing genres is easier than for loop
 
-gnr_sim_ar2 = asym_sim2(g_trks, g_trks_vd, gnrs, gnr_sim_ar, g_trks_waet)
+# gnr_comps = all_cmps_crubgs(gnrs, g_trks_vd, 'product')
 
-# len(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)]) # 1845
-nph(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)][np.where(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)] < 1)])
+# gnr_sims = vertex_similarity(GraphView(g_trks, reversed = True), 'dice', vertex_pairs = gnr_comps, eweight = g_trks_waet)
 
-nph(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.01)])
+# gnr_sim_ar = np.array(np.split(gnr_sims, len(gnrs)))
 
-# look what alternative is actually similar to
-# am i looking at to or from? 
+# gnr_sim_ar2 = asym_sim2(g_trks, g_trks_vd, gnrs, gnr_sim_ar, g_trks_waet)
 
-# gnr_sim_ar2[:,gnr_ind['alternative']][
+# # len(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)]) # 1845
+# nph(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)][np.where(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.3)] < 1)])
+
+# nph(gnr_sim_ar2[np.where(gnr_sim_ar2 > 0.01)])
+
+# # look what alternative is actually similar to
+# # am i looking at to or from? 
+
+# # gnr_sim_ar2[:,gnr_ind['alternative']][
     
-# stuff that is similar to alternative
-simsTo = np.where(gnr_sim_ar2[:,gnr_ind['alternative']] > 0.05)
-[print(gnrs[i]) for i in simsTo[0]]
+# # stuff that is similar to alternative
+# simsTo = np.where(gnr_sim_ar2[:,gnr_ind['alternative']] > 0.05)
+# [print(gnrs[i]) for i in simsTo[0]]
 
-# stuff alternative is similar to
-# it's actually weird: alternative is so big, it's kinda surprising that there is that much that alternative is similar to
-# maybe it's really the other way around?  yeaaaah pretty sure 
-simsFrom = np.where(gnr_sim_ar2[gnr_ind['alternative']] > 0.2)
-[print(gnrs[i]) for i in simsFrom[0]]
+# # stuff alternative is similar to
+# # it's actually weird: alternative is so big, it's kinda surprising that there is that much that alternative is similar to
+# # maybe it's really the other way around?  yeaaaah pretty sure 
+# simsFrom = np.where(gnr_sim_ar2[gnr_ind['alternative']] > 0.2)
+# [print(gnrs[i]) for i in simsFrom[0]]
 
 
-# welp at least i don't have the problem of undiscriminatorily high similarity values FUCK ME
-# add weights to asym_sim2 and nothing substantially over 1; lovely
+# # welp at least i don't have the problem of undiscriminatorily high similarity values FUCK ME
+# # add weights to asym_sim2 and nothing substantially over 1; lovely
 
     
 
-# ** different clusterings
-# *** AHC of acst_usr mat
+# # ** different clusterings
+# # *** AHC of acst_usr mat
 
-# cosine_similarity is fast at least, 8m/sec
-# would take 6sec for 10k users
+# # cosine_similarity is fast at least, 8m/sec
+# # would take 6sec for 10k users
 
-# not clear how long acoustic mat construction would take
-# CH has quantile functions, not sure how fast they are
+# # not clear how long acoustic mat construction would take
+# # CH has quantile functions, not sure how fast they are
 
 
-usr_qnt_tbl = """CREATE TEMPORARY TABLE usr_qntls (
-    usr String,
-    lfm_id String,
-    cnt UInt16, 
-    """ + ",\n".join([i + ' Float32' for i in vrbls])+ ")"
+# usr_qnt_tbl = """CREATE TEMPORARY TABLE usr_qntls (
+#     usr String,
+#     lfm_id String,
+#     cnt UInt16, 
+#     """ + ",\n".join([i + ' Float32' for i in vrbls])+ ")"
 
 
-d1 = '2010-08-28'
-d2 = '2010-11-20'
-vrbl_strs  = ", ".join(vrbls)
+# d1 = '2010-08-28'
+# d2 = '2010-11-20'
+# vrbl_strs  = ", ".join(vrbls)
 
 
-usr_qnt_insert = """
-INSERT INTO usr_qntls
-SELECT * FROM (
-    SELECT usr, mbid as lfm_id, cnt FROM (
-        SELECT usr, song as abbrv, count(usr,song) as cnt FROM logs
-        WHERE time_d BETWEEN '"""  + d1 + """' and '""" + d2 + """'
-        GROUP BY (usr,song)
-    ) JOIN (SELECT mbid, abbrv FROM song_info) USING abbrv
-) JOIN (SELECT lfm_id, """ + vrbl_strs +""" FROM acstb) USING lfm_id"""
+# usr_qnt_insert = """
+# INSERT INTO usr_qntls
+# SELECT * FROM (
+#     SELECT usr, mbid as lfm_id, cnt FROM (
+#         SELECT usr, song as abbrv, count(usr,song) as cnt FROM logs
+#         WHERE time_d BETWEEN '"""  + d1 + """' and '""" + d2 + """'
+#         GROUP BY (usr,song)
+#     ) JOIN (SELECT mbid, abbrv FROM song_info) USING abbrv
+# ) JOIN (SELECT lfm_id, """ + vrbl_strs +""" FROM acstb) USING lfm_id"""
 
 
-client.execute('drop table usr_qntls')
-client.execute(usr_qnt_tbl)
-client.execute(usr_qnt_insert)
+# client.execute('drop table usr_qntls')
+# client.execute(usr_qnt_tbl)
+# client.execute(usr_qnt_insert)
 
-# client.execute('select count(*) from usr_qntls')
+# # client.execute('select count(*) from usr_qntls')
 
-# nph(some_vlus)
-# npl(ch_hist[0][0])
+# # nph(some_vlus)
+# # npl(ch_hist[0][0])
 
-# nps(ch_hist[0][0], range(11), 1)
+# # nps(ch_hist[0][0], range(11), 1)
 
-# x = pd.DataFrame(ch_hist[0][0], columns = ['asdf'])
+# # x = pd.DataFrame(ch_hist[0][0], columns = ['asdf'])
 
 
-# maybe manual hist is easier?
-# count(songs) * cnt _cnt group by user divided by ttl  count for user
-# problem is then to account for users who have no values and therefore don't get added to grouping
+# # maybe manual hist is easier?
+# # count(songs) * cnt _cnt group by user divided by ttl  count for user
+# # problem is then to account for users who have no values and therefore don't get added to grouping
 
-NBR_CHNKS = 9
+# NBR_CHNKS = 9
 
-qnt_brdrs = [(i,i + 1/NBR_CHNKS) for i in np.arange(0,1,1/NBR_CHNKS)]
+# qnt_brdrs = [(i,i + 1/NBR_CHNKS) for i in np.arange(0,1,1/NBR_CHNKS)]
 
-# using 10 chunks probably results in song duplicates
+# # using 10 chunks probably results in song duplicates
 
-unq_usrs = client.execute('SELECT DISTINCT usr from usr_qntls')
-unq_usrs = [i[0] for i in unq_usrs]
+# unq_usrs = client.execute('SELECT DISTINCT usr from usr_qntls')
+# unq_usrs = [i[0] for i in unq_usrs]
 
-qnt_dict = {}
-for u in unq_usrs:
-    qnt_dict[u] = []
+# qnt_dict = {}
+# for u in unq_usrs:
+#     qnt_dict[u] = []
 
-for vrbl in vrbls:
+# for vrbl in vrbls:
 
-    for brd in qnt_brdrs:
-        prent_usrs = []
+#     for brd in qnt_brdrs:
+#         prent_usrs = []
 
-        qnt_qry = """SELECT usr, sum(cnt) from usr_qntls 
-        where """ + vrbl + """ BETWEEN """ + str(brd[0]) + " and " + str(brd[1]) + " GROUP BY usr"
+#         qnt_qry = """SELECT usr, sum(cnt) from usr_qntls 
+#         where """ + vrbl + """ BETWEEN """ + str(brd[0]) + " and " + str(brd[1]) + " GROUP BY usr"
 
-        qnt_vlus = client.execute(qnt_qry)
-        for qv in qnt_vlus:
-            qnt_dict[qv[0]].append(qv[1])
-            prent_usrs.append(qv[0])
+#         qnt_vlus = client.execute(qnt_qry)
+#         for qv in qnt_vlus:
+#             qnt_dict[qv[0]].append(qv[1])
+#             prent_usrs.append(qv[0])
 
-        # handle missing users
-        mis_usrs = set(unq_usrs) - set(prent_usrs)
-        for mu in mis_usrs:
-            qnt_dict[mu].append(0)
+#         # handle missing users
+#         mis_usrs = set(unq_usrs) - set(prent_usrs)
+#         for mu in mis_usrs:
+#             qnt_dict[mu].append(0)
 
 
 
-usr_acst_ar = pd.DataFrame(qnt_dict).T
-sums = usr_acst_ar.sum(axis = 1)/len(vrbls)
+# usr_acst_ar = pd.DataFrame(qnt_dict).T
+# sums = usr_acst_ar.sum(axis = 1)/len(vrbls)
 
-sum_ar = np.array([sums] * len(vrbls)*NBR_CHNKS).T
+# sum_ar = np.array([sums] * len(vrbls)*NBR_CHNKS).T
 
-usr_acst_probs = usr_acst_ar/sum_ar
+# usr_acst_probs = usr_acst_ar/sum_ar
 
 
 
-from sklearn.metrics.pairwise import euclidean_distances
+# from sklearn.metrics.pairwise import euclidean_distances
 
-x = cosine_similarity(usr_acst_probs)
-x = euclidean_distances(usr_acst_probs)
-x[np.where(x == 0)] = 0.001
+# x = cosine_similarity(usr_acst_probs)
+# x = euclidean_distances(usr_acst_probs)
+# x[np.where(x == 0)] = 0.001
 
-dist_mat = -np.log(x)
-nph(dist_mat)
+# dist_mat = -np.log(x)
+# nph(dist_mat)
 
 
-from sklearn.cluster import AgglomerativeClustering
-from collections import Counter
+# from sklearn.cluster import AgglomerativeClustering
+# from collections import Counter
 
-cluster = AgglomerativeClustering(n_clusters = 8, affinity='precomputed', linkage ='complete')
-clstrs = cluster.fit_predict(dist_mat)
-clstrs_eucld = cluster.fit_predict(x)
-Counter(clstrs)
-Counter(clstrs_eucld)
+# cluster = AgglomerativeClustering(n_clusters = 8, affinity='precomputed', linkage ='complete')
+# clstrs = cluster.fit_predict(dist_mat)
+# clstrs_eucld = cluster.fit_predict(x)
+# Counter(clstrs)
+# Counter(clstrs_eucld)
 
-# fuck everything too similar
-# how can it be that users most users who have less than 4% of songs in common have basically the same sound profile
-# because all music sounds the same? 
+# # fuck everything too similar
+# # how can it be that users most users who have less than 4% of songs in common have basically the same sound profile
+# # because all music sounds the same? 
 
-# maybe use some minimum amount of songs that persons needs? not much impact
+# # maybe use some minimum amount of songs that persons needs? not much impact
 
-# cluster overlap matrix? think i did that
-# yup, only one cluster
-# maybe there really is just one?
-# but how to explain the graphtool clustering then?
-# it is reliable over multiple clustering, so not a random partition of one group
-# maybe gt clustering is just the only way to go?
-# see if gt clustering can be tweaked to be faster
+# # cluster overlap matrix? think i did that
+# # yup, only one cluster
+# # maybe there really is just one?
+# # but how to explain the graphtool clustering then?
+# # it is reliable over multiple clustering, so not a random partition of one group
+# # maybe gt clustering is just the only way to go?
+# # see if gt clustering can be tweaked to be faster
 
 
 
-# *** cluster users based on the tags
+# # *** cluster users based on the tags
 
-usr_tag_tbl = """CREATE TEMPORARY TABLE usr_tag_tbl (
-usr String,
-tag String,
-vol Float32)"""
+# usr_tag_tbl = """CREATE TEMPORARY TABLE usr_tag_tbl (
+# usr String,
+# tag String,
+# vol Float32)"""
 
-usr_tag_qry = """
-INSERT INTO usr_tag_tbl SELECT usr, tag, sum(vol) FROM (
-    SELECT usr, tag, cnt*rel_weight as vol FROM (
-        SELECT usr, song as abbrv, count(usr, song) as cnt FROM logs
-        WHERE time_d BETWEEN '""" + d1 + """' AND '""" + d2 + """'
-        GROUP BY (usr, song)
-    ) JOIN (
-        SELECT mbid, abbrv, tag, rel_weight FROM (
-            SELECT mbid, tag, rel_weight FROM tag_sums
-            JOIN (
-                SELECT tag FROM tag_sums WHERE rel_weight > 0.075 
-                GROUP BY tag
-                HAVING count(tag) > 40
-            ) USING tag
-        )
-        JOIN (SELECT mbid, abbrv FROM song_info) USING mbid
-        WHERE rel_weight > """ + str(min_rel_weight) + """
-    ) USING abbrv
-) GROUP BY (usr, tag)"""
+# usr_tag_qry = """
+# INSERT INTO usr_tag_tbl SELECT usr, tag, sum(vol) FROM (
+#     SELECT usr, tag, cnt*rel_weight as vol FROM (
+#         SELECT usr, song as abbrv, count(usr, song) as cnt FROM logs
+#         WHERE time_d BETWEEN '""" + d1 + """' AND '""" + d2 + """'
+#         GROUP BY (usr, song)
+#     ) JOIN (
+#         SELECT mbid, abbrv, tag, rel_weight FROM (
+#             SELECT mbid, tag, rel_weight FROM tag_sums
+#             JOIN (
+#                 SELECT tag FROM tag_sums WHERE rel_weight > 0.075 
+#                 GROUP BY tag
+#                 HAVING count(tag) > 40
+#             ) USING tag
+#         )
+#         JOIN (SELECT mbid, abbrv FROM song_info) USING mbid
+#         WHERE rel_weight > """ + str(min_rel_weight) + """
+#     ) USING abbrv
+# ) GROUP BY (usr, tag)"""
 
-# tag_sums
+# # tag_sums
 
-print(usr_tag_qry)
-client.execute('drop table usr_tag_tbl')
-client.execute(usr_tag_tbl)
-client.execute(usr_tag_qry)
+# print(usr_tag_qry)
+# client.execute('drop table usr_tag_tbl')
+# client.execute(usr_tag_tbl)
+# client.execute(usr_tag_qry)
 
-usr_tag_lnks = client.execute('SELECT * FROM usr_tag_tbl')
-unq_usrs = client.execute('select distinct usr from usr_tag_tbl')
-unq_usrs = [i[0] for i in unq_usrs]
+# usr_tag_lnks = client.execute('SELECT * FROM usr_tag_tbl')
+# unq_usrs = client.execute('select distinct usr from usr_tag_tbl')
+# unq_usrs = [i[0] for i in unq_usrs]
 
-g_usr_tag = Graph()
-usr_tag_vol = g_usr_tag.new_edge_property('float')
+# g_usr_tag = Graph()
+# usr_tag_vol = g_usr_tag.new_edge_property('float')
 
-g_usr_tag_id = g_usr_tag.add_edge_list(usr_tag_lnks, hashed=True, string_vals=True, eprops = [usr_tag_vol])
-g_usr_tag_vd, g_usr_tag_vd_rv = vd_fer(g_usr_tag, g_usr_tag_id)
+# g_usr_tag_id = g_usr_tag.add_edge_list(usr_tag_lnks, hashed=True, string_vals=True, eprops = [usr_tag_vol])
+# g_usr_tag_vd, g_usr_tag_vd_rv = vd_fer(g_usr_tag, g_usr_tag_id)
 
-unq_usrs_ids = [g_usr_tag_vd[i] for i in unq_usrs]
-usr_comps = list(itertools.combinations(unq_usrs_ids, 2))
+# unq_usrs_ids = [g_usr_tag_vd[i] for i in unq_usrs]
+# usr_comps = list(itertools.combinations(unq_usrs_ids, 2))
 
-smpl_sims = vertex_similarity(g_usr_tag, 'jaccard', vertex_pairs = usr_comps, eweight = usr_tag_vol)
+# smpl_sims = vertex_similarity(g_usr_tag, 'jaccard', vertex_pairs = usr_comps, eweight = usr_tag_vol)
 
 
-N_SAMPLE = len(unq_usrs)
-tri = np.zeros((N_SAMPLE, N_SAMPLE))
-tri[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
-tri.T[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
+# N_SAMPLE = len(unq_usrs)
+# tri = np.zeros((N_SAMPLE, N_SAMPLE))
+# tri[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
+# tri.T[np.triu_indices(N_SAMPLE, 1)] = smpl_sims
 
-nph(tri)
+# nph(tri)
 
-dist_mat = -np.log(tri)
-actual_max = np.max(dist_mat[np.where(dist_mat < math.inf)])
-dist_mat[np.where(dist_mat > actual_max)] = actual_max + 2
+# dist_mat = -np.log(tri)
+# actual_max = np.max(dist_mat[np.where(dist_mat < math.inf)])
+# dist_mat[np.where(dist_mat > actual_max)] = actual_max + 2
 
-nph(dist_mat)
+# nph(dist_mat)
 
-from sklearn.cluster import AgglomerativeClustering
-cluster = AgglomerativeClustering(n_clusters = 5, affinity='precomputed', linkage ='complete')
-clstrs = cluster.fit_predict(dist_mat)
-Counter(clstrs)
+# from sklearn.cluster import AgglomerativeClustering
+# cluster = AgglomerativeClustering(n_clusters = 5, affinity='precomputed', linkage ='complete')
+# clstrs = cluster.fit_predict(dist_mat)
+# Counter(clstrs)
 
-# somewhat better (get two clusters with 5, but stillmany super small ones)
+# # somewhat better (get two clusters with 5, but stillmany super small ones)
 
 
-# ** more GT: tweak settings
+# # ** more GT: tweak settings
 
-GT operates on massively trimmed graph in that most people are assumed to be unconnected
-is that justifiable? 
-is that transferable to other forms? 
+# GT operates on massively trimmed graph in that most people are assumed to be unconnected
+# is that justifiable? 
+# is that transferable to other forms? 
 
 
-# * scrap
-# ** time durations
+# # * scrap
+# # ** time durations
 
-# ch_qry = 'SELECT time_d, count(time_d) FROM logs GROUP BY time_d'
-# time_cnts = client.execute(ch_qry)
-# time_pnts = [i[0] for i in time_cnts]
-# cnts = [i[1] for i in time_cnts]
+# # ch_qry = 'SELECT time_d, count(time_d) FROM logs GROUP BY time_d'
+# # time_cnts = client.execute(ch_qry)
+# # time_pnts = [i[0] for i in time_cnts]
+# # cnts = [i[1] for i in time_cnts]
 
-# ax = plt.axes()
-# ax.plot(time_pnts, cnts)
-# plt.show()
+# # ax = plt.axes()
+# # ax.plot(time_pnts, cnts)
+# # plt.show()
 
-# qry = 'select time_d, uniq(usr) from logs group by time_d'
-# time_cnts = client.execute(qry)
-# time_pnts = [i[0] for i in time_cnts]
-# unq_usrs = [i[1] for i in time_cnts]
+# # qry = 'select time_d, uniq(usr) from logs group by time_d'
+# # time_cnts = client.execute(qry)
+# # time_pnts = [i[0] for i in time_cnts]
+# # unq_usrs = [i[1] for i in time_cnts]
 
-# ax = plt.axes()
-# ax.plot(time_pnts, unq_usrs)
-# plt.show()
+# # ax = plt.axes()
+# # ax.plot(time_pnts, unq_usrs)
+# # plt.show()
 
 
-# ** speed up implementations
-# *** dict_gnrs: not primarily important
+# # ** speed up implementations
+# # *** dict_gnrs: not primarily important
 
-# is dict_gnrs (produces acst_gnr_dict) parallelizable?
-# in principle yeah: can split pandas df, process rows separately,
-# merging into one in the end is a bit work but not too much tbh
+# # is dict_gnrs (produces acst_gnr_dict) parallelizable?
+# # in principle yeah: can split pandas df, process rows separately,
+# # merging into one in the end is a bit work but not too much tbh
 
-# takes 10 sec, 30sec for 6 months
-# idk that's like 10% of the time (5 min), but kinda neglible against
-# el_acst_mp: even with multiprocessing still 46 second -> 90 sec saved
-# kld time: even when paralellized, still takes for fucking ever: 250 sec,
-# tbh firefox took up a lot but still
+# # takes 10 sec, 30sec for 6 months
+# # idk that's like 10% of the time (5 min), but kinda neglible against
+# # el_acst_mp: even with multiprocessing still 46 second -> 90 sec saved
+# # kld time: even when paralellized, still takes for fucking ever: 250 sec,
+# # tbh firefox took up a lot but still
 
 
 
-## *** fucking done
-# gnrt_acst_el is single core, can be parallelized tho, might be worth it
-# kld mat also takes quite some time
-# wonder if custom cython function would be faster
-# seems to be already heavily using C funcs, so don't really think there's much to improve
+# ## *** fucking done
+# # gnrt_acst_el is single core, can be parallelized tho, might be worth it
+# # kld mat also takes quite some time
+# # wonder if custom cython function would be faster
+# # seems to be already heavily using C funcs, so don't really think there's much to improve
 
-# KLD is fucking fast with broadcasting
-# feature extraction also parallelized
+# # KLD is fucking fast with broadcasting
+# # feature extraction also parallelized
 
 
-# ** trying to use CH functionality for usr histogram, but not working
-how to convert CDF to histogram? 
-relative change?
-i want buckets/cutoffs
+# # ** trying to use CH functionality for usr histogram, but not working
+# how to convert CDF to histogram? 
+# relative change?
+# i want buckets/cutoffs
 
-i now know there is the 
-SELECT usr, quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,cnt) FROM usr_qntls GROUP BY usr
+# i now know there is the 
+# SELECT usr, quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,cnt) FROM usr_qntls GROUP BY usr
 
-some_vlus = client.execute("select dncblt from usr_qntls where usr = 'f18621'")
-ch_hist = client.execute("SELECT quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
+# some_vlus = client.execute("select dncblt from usr_qntls where usr = 'f18621'")
+# ch_hist = client.execute("SELECT quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
 
-ch_hist = client.execute("SELECT quantilesExactWeighted(0, 0.1, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8,0.9,1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
+# ch_hist = client.execute("SELECT quantilesExactWeighted(0, 0.1, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8,0.9,1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
