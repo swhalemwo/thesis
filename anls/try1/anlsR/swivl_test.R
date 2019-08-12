@@ -1,11 +1,46 @@
+## * libs
+q
 library(ggplot2)
 library(PerformanceAnalytics)
 library(texreg)
 library(psych)
+library(texreg)
+
 '%!in%' <- function(x,y)!('%in%'(x,y))
+len = length
 pacman::p_load(tidyverse, survival, ggfortify, survminer, plotly, gridExtra, 
                Epi, KMsurv, gnm, cmprsk, mstate, flexsurv, splines, epitools, 
                eha, shiny, ctqr, scales)
+
+## extraction functions
+
+phreg_mdlr <- function(mdl, imprvmnt){
+    vrbls <- mdl$covars
+    coefs <- mdl$coefficients
+    vars <- diag(mdl$var)
+    ses <- sqrt(vars)
+    pvlus <- 2*pnorm(abs(coefs/ses), lower.tail = FALSE)
+    
+    gof.vlus <- c(mdl$events, mdl$ttr, max(mdl$loglik))
+    ## maybe add  model improvement? could do manually later
+    ## anova doesn't like 
+                  
+    gof.names <- c('events', 'genre-timeperiods', 'max. log. likelihood')
+    
+
+    res <- createTexreg(coef.names = vrbls,
+                 coef = coefs,
+                 se = ses,
+                 pvalues = pvlus,
+                 gof.names = gof.names,
+                 gof = gof.vlus
+                 )
+    return(res)
+}
+
+## logdiff = 2*(-1075.196 + 1239.430)
+## pchisq(logdiff, df=2, lower.tail=FALSE)
+
 
 ## * stuff from elsewhere
 if (!require(pacman)) install.packages("pacman")
@@ -50,7 +85,7 @@ str(su_obj)
 
 ## * merge data together
 
-res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/12_weeks_moar/'
+res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/12_weeks_26k_full_min20/'
 res_files = list.files(res_dir)
 
 dfc <- read.csv(paste0(res_dir, res_files[1]))
@@ -61,12 +96,20 @@ for (i in res_files[2:length(res_files)]){
     dfc <- rbind(dfc, dfx)
 }
 
+dfc[which(is.na(dfc$acst_cor_mean)),]$acst_cor_mean <- 1
+
 
 ## just rbind everything together
 ## check consistency with length of range: more range covered than periods -> inconsistent
 ## for those that are consistent: if max range < max(range for unit) -> failure at that time
 ## not sure if that lags properly but whatever
 
+## df_cut <- dfc[-which(dfc$sz_raw_mean < 30 & dfc$sz_raw_sd == 0),]
+## dfc <- df_cut
+
+## cut run ptn_proc with max and min to be able to filter better
+## that's p-hacking
+## can re-use partition matrices tho
 
 dfc$X <- as.factor(dfc$X)
 dfc <- dfc[order(dfc$X, dfc$tp_id),]
@@ -78,29 +121,40 @@ gnr_inf2 <- aggregate(dfc$tp_id, list(dfc$X), max)
 ## 364 failed
 ## that's not nothing but not nearly as much as i wish
 
-ded_gnrs <- gnr_inf2[which(gnr_inf2$x < max(gnr_inf2$x)),]$Group.1
+ded_gnrs <- gnr_inf2[which(gnr_inf2$x < max(gnr_inf2$x)-1),]$Group.1
 
 gnr_inf3 <- aggregate(dfc$tp_id, list(dfc$X), length)
 
 ## see which are complete
 
 df_gnrs <- cbind(gnr_inf, gnr_inf2$x, gnr_inf3$x)
-names(df_gnrs) <- c('gnr', 'min', 'max', 'nb_entrs')
+names(df_gnrs) <- c('X', 'min', 'max', 'nb_entrs')
+
 
 df_gnrs$max2 <- df_gnrs$max +1
 df_gnrs$chk <- df_gnrs$max2 - df_gnrs$nb_entrs
 
 ## cheese genres due to holes like swiss cheese
-cheese_gnrs <- df_gnrs[which(df_gnrs$min != df_gnrs$chk),'gnr']
+cheese_gnrs <- df_gnrs[which(df_gnrs$min != df_gnrs$chk),'X']
+usbl_cheese_gnrs <- df_gnrs[df_gnrs$X %in% cheese_gnrs & df_gnrs$max <= max(df_gnrs$max)-3 ,]$X
+
 
 length(which(ded_gnrs %!in% cheese_gnrs))
-## i mean still have 244 complete ded gnrs
+## i mean still have 233 complete ded gnrs
 
-dfc2 <- dfc[which(dfc$X %!in% cheese_gnrs),]
+## dfc2 <- dfc[which(dfc$X %!in% cheese_gnrs),]
+
+dfc2 <- merge(dfc, df_gnrs, by = 'X')
+
+dfc2$gnr_age <- dfc2$tp_id - dfc2$min
+
 ded_gnrs2 <- unique(dfc2$X)[which(unique(dfc2$X) %in% ded_gnrs)]
+ded_gnrs2 <- ded_gnrs[which(ded_gnrs %!in% cheese_gnrs)]
+
+ded_gnrs3 <- paste(c(as.character(ded_gnrs2), as.character(usbl_cheese_gnrs)))
 
 ## set dying out for ded genres
-for (i in ded_gnrs2){
+for (i in ded_gnrs3){
 
     dfx <- dfc2[which(dfc2$X ==i),]
     max_tp <- max(dfx$tp)
@@ -110,14 +164,48 @@ for (i in ded_gnrs2){
 }
 
 deds <- aggregate(dfc2$event, list(dfc2$tp_id), sum)
+
 ## barplot(deds[,2])
+## ** more filtering: make min_tag_apprnc a bit higher? 
+## min_szs <- aggregate(dfc2$sz_raw_mean, list(dfc2$X), min)
+
+## min_szs <- aggregate(dfc2[which(dfc2$X %in% ded_gnrs2),]$sz_raw_mean, list(dfc2[which(dfc2$X %in% ded_gnrs2),]$X), min)
+
+## dfc2[which(dfc2$X in ded_gnrs2)]$sz_raw_mean
+
+## don't think it would lead to more dead gnrs:
+## might at most decrease the percentage of ded genres among cheese gnrs if cheese gnrs are more among under 30/35/X than dead genres
+##  but that doesn't turn cheese genres into real ded gnrs, but rather removes whole lot of dead genres
+
+## but ACKUALLY it might turn alive gnrs ded
+## not super clean: gnr can have sz_raw_min under new threshold but still be alive if shared by multiple groups
+## just remove those with sz_raw_sd = 0
+
+
 
 ## * variable construction
 ## ** informativeness
 dfc2$inftns <- dfc2$prnt3_dvrg_mean
+dfc2$inftns_sqrd <- dfc2$inftns^2
 
 ## ** distinctiveness
-dfc2$disctns <- dfc2$cohrt_pct_inf_mean
+
+dfc2$disctns <- dfc2$cohrt_mean_cos_dists_wtd_mean
+dfc2$cohrt_vol <- dfc2$cohrt_vol_sum_mean
+
+## what's the reasoning behind using min/max?
+## vast majority of genres (93%) that die out just have 1 ptn -> min/max makes no difference
+## is more for p-hacking the sample i guess
+
+
+
+## cohrt_vars = c("cohrt_mean_non_inf_mean","cohrt_mean_cos_dists_wtd_mean","cohrt_mean_cos_dists_uwtd_mean","cohrt_len_mean", "cohrt_vol_sum_mean", "cohrt_vol_mean_mean", "cohrt_vol_sd_mean")
+
+## chart.Correlation(dfc2[,cohrt_vars])
+
+## main things are cohort distance and cohort volume,
+## cohort_len is same as prnt_sz (prnt_odg_mean)
+
 
 ## ALSO USE THE penl_chirns here
 
@@ -172,13 +260,11 @@ penl_parnt_vars_addgs = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", 
 ## ** parent size
 dfc2$prnt_sz <- dfc2$prnt_odg_mean
 
-## ** salience
-dfc2$salnc <- dfc2$avg_weight_rel_mean
 
 ## ** agreement
 
-ag_vars  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
-## chart.Correlation(dfc2[,ag_vars])
+ag_vars_set  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
+## chart.Correlation(dfc2[,ag_vars_set])
 
 ## nbr_prnts unrelated to acst_cor_mean, prtn_sims, chirn_sims
 ## they are sufficient on their own tho
@@ -190,14 +276,17 @@ ag_vars  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
 ## well more comparisons -> more space for disagreement
 
 
-agr_w_nbr_ptns <- principal(dfc2[,c('nbr_ptns','acst_cor_mean', 'prnt_sims', 'chirn_sims')])
-agr_wo_nbr_ptns <- principal(dfc2[,c('acst_cor_mean', 'prnt_sims', 'chirn_sims')])
+## agr_w_nbr_ptns <- principal(dfc2[,c('nbr_ptns','acst_cor_mean', 'prnt_sims', 'chirn_sims')])
+## agr_wo_nbr_ptns <- principal(dfc2[,c('acst_cor_mean', 'prnt_sims', 'chirn_sims')])
 ## nbr_prnts  decreases fit, but would probably still pass
 
-dfc2$agr_w_nbr_ptns <- agr_w_nbr_ptns$scores
-dfc2$agr_wo_nbr_ptns <- agr_wo_nbr_ptns$scores
-
+## dfc2$agr_w_nbr_ptns <- agr_w_nbr_ptns$scores
+## dfc2$agr_wo_nbr_ptns <- agr_wo_nbr_ptns$scores
 ## quite similar tbh, 97 cor
+
+
+## don't think i should use PCA: demands too much, also don't control for clustering
+## just use acst_cor_mean, nbr_ptns, prnt_similarity on their own
 
 ## *** sds
 
@@ -218,85 +307,58 @@ chart.Correlation(dfc2[,c(sd_set1, sd_set2)])
 
 ## pcax <- principal(dfc2[,var_set2])
 
-
 ## ** size
 var_set_sz <- c('unq_artsts_mean', 'volm_mean', 'sz_raw_mean', 'nbr_rlss_tprd_mean')
 ## chart.Correlation(dfc2[,var_set_sz])
 
-sz_cmpst <- principal(dfc2[,var_set_sz])
+## sz_cmpst <- principal(dfc2[,var_set_sz])
 ## hist(sz_cmpst$scores, breaks=100)
-sz_rscld <- scales::rescale(sz_cmpst$scores, to=c(0.1, 10))
-sz_cmpst_log <- log(sz_rscld)
+## sz_rscld <- scales::rescale(sz_cmpst$scores, to=c(0.1, 10))
+## sz_cmpst_log <- log(sz_rscld)
 ## hist(sz_cmpst_log, breaks=100)
 
-dfc2$sz_cmpst <- sz_cmpst$scores
-dfc2$sz_cmpst_log <- sz_cmpst_log
+dfc2$sz <- log(dfc2$volm_mean)
+dfc2$new_rlss <- log(dfc2$nbr_rlss_tprd_mean+1)
+
+## no PCA, just use logs of vol and new_rlss as indicators
 
 ## ** controls
-var_set_crols = c('spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
+ctrl_vars = c('avg_weight_rel_mean','spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean', 'cohrt_vol',  'len_penl_prnts_100_mean', 'sz', 'new_rlss', 'gnr_age')
 ## chart.Correlation(dfc2[,var_set_crols])
 
 ## all seems sufficiently uncorrelated
 
 ## ** rel variables
-all_vars = c('inftns', 'disctns', 'len_penl_prnts_100_mean', 'prnt_sz', 'salnc', 'agr_wo_nbr_ptns', 'nbr_ptns', 'sz_cmpst', 'sz_cmpst_log', 'spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
-
-all_vars2 <- c('inftns', 'disctns', 'len_penl_prnts_100_mean', 'prnt_sz', 'I(prnt_sz^2)', 'salnc', 'agr_wo_nbr_ptns', 'nbr_ptns', 'sz_cmpst_log', 'spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
 
 dfc2$tp_id2 <- dfc2$tp_id+1
 
-inf_vars <- c('inftns',  'disctns')
-inf_vars2 <- c('inftns', 'I(inftns^2)', 'disctns') 
+## inf_vars <- c('inftns',  'disctns')
+inf_vars <- c('inftns', 'inftns_sqrd', 'disctns') 
 
-agr_vars <- c('agr_wo_nbr_ptns', 'nbr_ptns')
+agr_vars <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims')
 
 leg_vars <- c('prnt_sz')
-leg_vars2 <- c('prnt_sz', 'I(prnt_sz^2)')
+## leg_vars2 <- c('prnt_sz', 'I(prnt_sz^2)')
 
-ctrl_vars <- c('salnc', 'len_penl_prnts_100_mean', 'sz_cmpst_log', 'spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean')
+## is there even a separate legitimation thing ?
 
+all_vars <- c(inf_vars, agr_vars, leg_vars, ctrl_vars)
 
 
 ## standardizing
-dfc3 <- as.data.frame(scale(dfc2[,all_vars]))
-dfc3 <- cbind(dfc3, dfc2[,c('tp_id', 'tp_id2', 'event')])
+not_scale <- c('nbr_ptns', 'gnr_age')
+
+dfc3 <- as.data.frame(scale(dfc2[,all_vars[all_vars %!in% not_scale]]))
+dfc3 <- cbind(dfc3, dfc2[,c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
 
 ## could add log size
 ## size negatively related to distinctiveness and informativeness: kinda like that stuff that's closer together is bigger; more distant things don't grow so well
 ## not clear if distinctivenss on its own makes so much sense without a strict hierarchy
 
 # chart.Correlation(dfc2[,all_vars])
-## * extraction function
-
-phreg_mdlr <- function(mdl, imprvmnt){
-    vrbls <- mdl$covars
-    coefs <- mdl$coefficients
-    vars <- diag(mdl$var)
-    ses <- sqrt(vars)
-    pvlus <- 2*pnorm(abs(coefs/ses), lower.tail = FALSE)
-    
-    gof.vlus <- c(mdl$events, mdl$ttr, max(mdl$loglik))
-    ## maybe add  model improvement? could do manually later
-    ## anova doesn't like 
-                  
-    gof.names <- c('events', 'genre-timeperiods', 'max. log. likelihood')
-    
-
-    res <- createTexreg(coef.names = vrbls,
-                 coef = coefs,
-                 se = ses,
-                 pvalues = pvlus,
-                 gof.names = gof.names,
-                 gof = gof.vlus
-                 )
-    return(res)
-}
-
-## logdiff = 2*(-1075.196 + 1239.430)
-## pchisq(logdiff, df=2, lower.tail=FALSE)
 
 
-## * reg test
+## * phreg
 
 
 dv <- 'Surv(tp_id, tp_id2, event)'
@@ -305,14 +367,14 @@ dv <- 'Surv(tp_id, tp_id2, event)'
 ## fit1 <- coxph(f, data=dfc2)
 ## fit1_reg <- coxreg(f, data=dfc2)
 
-
 ## ** controls
 ctrl_vars_cbnd <- paste(ctrl_vars, collapse = ' + ')
 f_ctrl <- as.formula(paste(c(dv, ctrl_vars_cbnd), collapse = ' ~ '))
-fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(10,15),dist = 'pch')
 
 res_ctrl <- phreg_mdlr(fit_ctrl, None)
 screenreg(list(res_ctrl))
+
 
 ## ** informativeness
 inf_ctrl_vars <- paste(c(inf_vars, ctrl_vars), collapse = ' + ')
@@ -334,20 +396,21 @@ res_agr_ctrl <- phreg_mdlr(fit_agr_ctrl)
 screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl))
 
 ## ** legitimation
-leg_ctrl_vars <- paste(c(leg_vars2, ctrl_vars), collapse = ' + ')
+leg_ctrl_vars <- paste(c(leg_vars, ctrl_vars), collapse = ' + ')
 f_leg_ctrl <- as.formula(paste(c(dv, leg_ctrl_vars), collapse = ' ~ '))
 fit_leg_ctrl <- phreg(f_leg_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
 res_leg_ctrl <- phreg_mdlr(fit_leg_ctrl)
 
-
 screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl))
 ## ** all
-all_vars_cbnd <- paste(c(all_vars2), collapse = ' + ')
+all_vars_cbnd <- paste(c(all_vars), collapse = ' + ')
 f_all_vars <- as.formula(paste(c(dv, all_vars_cbnd), collapse = ' ~ '))
 fit_all_vars <- phreg(f_all_vars, data=dfc3, cuts = seq(1,28),dist = 'pch')
 res_all_vars <- phreg_mdlr(fit_all_vars)
 
+
 screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars))
+
 
 ## strongest impact of agreement
 ## more partitions: less likely to disappear
@@ -356,10 +419,7 @@ screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars)
 ## no influence of distinctiveness, but is shitty measurement atm
 ## prnt_sze: small effect
 
-is there straightforward link between informativeness and density? don't think so
-
-
-
+## is there straightforward link between informativeness and density? don't think so
 
 
 ## summary(fit2_cuts)
@@ -404,7 +464,67 @@ fit3_no_breaks <- pchreg(f, data=dfc2[which(dfc2$tp_id > 0),])
 plot(fit3_breaks)
 
 
+## * coxph
+
+
+f_ctrl_coxph <- as.formula(paste(c(dv, paste(c(ctrl_vars_cbnd, 'cluster(X)'), collapse = '+')), collapse = ' ~ '))
+
+res_coxph_ctrl <- coxph(f_ctrl_coxph, data=dfc3)
+## ## res_coxreg <- coxreg(f_ctrl_coxreg, data=dfc3)
+## screenreg(res_coxph)
+
+## coxreg takes forever -> not good
+
+
+
+f_all_coxph <- as.formula(paste(c(dv, paste(c(all_vars_cbnd, 'cluster(X)'), collapse = ' + ')), collapse = ' ~' ))
+res_coxph_all <- coxph(f_all_coxph, data = dfc3)
+screenreg(list(res_coxph_ctrl,res_coxph_all))
+
+
        
+
+## * plm
+
+library(plm)
+
+
+## ** controls
+ctrl_vars_plm <- ctrl_vars[ctrl_vars %!in% c('sz', 'new_rlss')]
+dv_plm <- 'sz'
+
+ctrl_vars_plm_cbnd <- paste(ctrl_vars_plm, collapse = ' + ')
+f_plm_ctrl <- as.formula(paste(c(dv_plm, ctrl_vars_plm_cbnd), collapse = ' ~ '))
+fit_ctrl_plm <- plm(f_plm_ctrl, data = dfc3, effect = 'twoways', model = 'within', index = c('X', 'tp_id'))
+summary(fit_ctrl_plm)
+screenreg(fit_ctrl_plm)
+
+## FE: time-invariant ommitted variables
+## well there's on statistical trick against omitted variables
+
+
+## ** all 
+
+dfc3$len_penl_prnts <- dfc3$len_penl_prnts_100_mean
+
+all_vars_cbnd <- paste(c(all_vars[all_vars %!in% c('sz', 'new_rlss')]), collapse = ' + ')
+all_vars_cbnd <- "inftns + inftns_sqrd + disctns + acst_cor_mean + nbr_ptns + prnt_sims + prnt_sz + avg_weight_rel_mean + spngns_std_mean + dist_mean_mean + gnr_gini_mean + avg_age_mean + cohrt_vol + len_penl_prnts"
+
+f_all_plm <- as.formula(paste(c(dv_plm, all_vars_cbnd), collapse = ' ~ '))
+fit_ctrl_plm <- plm(f_all_plm, data = dfc3, effect = 'twoways', model = 'within', index = c('X', 'tp_id'))
+summary(fit_ctrl_plm)
+screenreg(fit_ctrl_plm)
+
+# GNR AGE
+## x <- fixef(fit_ctrl_plm,effect="")
+
+
+## fit_ctrl_pglm <- pglm(f_plm_ctrl, data = dfc3, effect = 'twoways', model = 'pooling', index = c('X', 'tp_id'), family = poisson, R = 1000)
+## fit_ctrl_pglm
+## screenreg(fit_ctrl_pglm)
+
+
+
 
 ## * testing
 ## ** documentation of pchreg
@@ -768,5 +888,9 @@ fit.x3 <- coxph(Surv(agegrp2, agegrp, event) ~ sex + civ + region, data = om1)
 7
 
 
+
+
+
+## * stuff
 
 
