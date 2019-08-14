@@ -500,7 +500,7 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
 
         gv = g_kld2.vertex(vd_kld2[gnr])
 
-        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat)
+        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat, vol_dict)
         for i in zip(prnt_stats_names, prnt_stats_vlus):
             res_dict[gnr][i[0]] = i[1]
 
@@ -524,6 +524,7 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
         # dfcx stuff
         dfcx_names, dfcx_vlus = dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int)
         for i in zip(dfcx_names, dfcx_vlus):
+            print(i)
             res_dict[gnr][i[0]] = i[1]
 
         tx6 = time.time()
@@ -532,18 +533,20 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
         res_dict[gnr]['sz_raw'] = sz_dict[gnr]
         res_dict[gnr]['volm'] = vol_dict[gnr]
         res_dict[gnr]['avg_weight_rel'] = np.mean(acst_gnr_dict[gnr]['rel_weight'])
+        res_dict[gnr]['avg_weight_rel_wtd'] = np.average(acst_gnr_dict[gnr]['rel_weight'], weights = acst_gnr_dict[gnr]['cnt'])
 
         tx7 = time.time()
     
     return(res_dict)
 
 # ** prnt stats
-def prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat):
+def prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat, vol_dict):
     """calculates parent stats: 
     prnt3_dvrgs: sum of divergences from parents, 
     clst_prnt: distance to closest parent, 
     mean_prnt_dvrg: how far prnts are apart, 
     prnt_odg, prnt_odg_wtd: out-degree of parents (unweighted and weighted by distance)
+    prnt_plcnt: playcount of parents, with sd
     """
     
     prnt3_dvrg = gv.in_degree(g_kld2.ep.kld_sim)
@@ -552,6 +555,9 @@ def prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat):
     prnts = [g_kld2.vp.id[i] for i in gv.in_neighbors()]
     prnt_vs = [i for i in gv.in_neighbors()]
     prnt_ids = [gnr_ind[i] for i in prnts]
+
+    prnt_plcnt = np.sum([vol_dict[i] for i in prnts])
+    prnt_plcnt_sd = np.std([vol_dict[i] for i in prnts])
 
     prnt_cmps = list(itertools.permutations(prnt_ids,2))
 
@@ -565,8 +571,8 @@ def prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat):
     prnt_odg = np.mean([prnt_v.out_degree() for prnt_v in prnt_vs])
     prnt_odg_wtd = np.mean([prnt_v.out_degree() * g_kld2.ep.kld_sim[g_kld2.edge(prnt_v,gv)] for prnt_v in prnt_vs])
 
-    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_sim', 'prnt_odg', 'prnt_odg_wtd']
-    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_sim, prnt_odg, prnt_odg_wtd]
+    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_sim', 'prnt_odg', 'prnt_odg_wtd', 'prnt_plcnt', 'prnt_plcnt_sd']
+    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_sim, prnt_odg, prnt_odg_wtd, prnt_plcnt, prnt_plcnt_sd]
 
     return(prnt_stats_names, prnt_stats_vlus)
 
@@ -668,83 +674,59 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     - cohrt_vol_sd: sd of cohort members volume
     """
     
-
     gv = g_kld2.vertex(vd_kld2[gnr])
     prnts = list(gv.in_neighbors())
     cohrts = [list(pr.out_neighbors()) for pr in prnts]
-
+    cohrt_mbrs_dupl = list(itertools.chain.from_iterable(cohrts))
+    cohrt_mbrs = list(np.unique(cohrt_mbrs_dupl))
+    
     # cohrt_ids = [[gnr_ind[g_kld2.vp.id[i]] for i in c] for c in cohrts]
     
-    cohrt_pcts_inf = []
-    cohrt_means_non_inf = []
-    cohrt_mean_cos_dists_wtd = []
-    cohrt_cos_dists_sd_wtd =  []
-    cohrt_mean_cos_dists_uwtd = []
-    cohrt_sizes_mean = []
-    cohrt_sizes_sum = []
-    cohrt_sizes_all = []
-
     # why should weight matter for cosine distance?
     # because if cohort is dominated by one genre, that's what matters
     # just do both duh
             
-
     # think should distinguish between total mean of all cohort members and mean of cohorts
     # not sure if really different but whatever
     
 
-    for cht in cohrts:
-        if len(cht) > 1:
-            cht_klds = []
-            cht_sizes = []
-            cht_cos_dists =  []
+    # for cht in cohrts:
+    #     if len(cht) > 1:
+    cht_klds = []
+    cht_sizes = []
+    cht_cos_dists =  []
 
-            for v_cp in cht:
-                if v_cp != gv:
-                    kldx = ar_cb[gnr_ind[gnr],gnr_ind[g_kld2.vp.id[v_cp]]]
-                    cht_klds.append(kldx)
+    for v_cp in cohrt_mbrs:
+        kldx = ar_cb[gnr_ind[gnr],gnr_ind[g_kld2.vp.id[v_cp]]]
+        cht_klds.append(kldx)
 
-                    cos_dist = cosine(acst_mat[gnr_ind[gnr]], acst_mat[gnr_ind[g_kld2.vp.id[v_cp]]])
-                    cht_cos_dists.append(cos_dist)
+        cos_dist = cosine(acst_mat[gnr_ind[gnr]], acst_mat[gnr_ind[g_kld2.vp.id[v_cp]]])
+        cht_cos_dists.append(cos_dist)
 
-                    cht_sizes.append(vol_dict[g_kld2.vp.id[v_cp]])
-                    cohrt_sizes_all.append(vol_dict[g_kld2.vp.id[v_cp]])
+        cht_sizes.append(vol_dict[g_kld2.vp.id[v_cp]])
 
-            pos_non_inf = np.where(np.array(cht_klds) < math.inf)
-            pct_non_inf = len(pos_non_inf[0])/len(cht)
-            mean_non_inf = np.mean([cht_klds[i] for i in pos_non_inf[0]])
+    pos_non_inf = np.where(np.array(cht_klds) < math.inf)
+    pct_non_inf = len(pos_non_inf[0])/len(cht_klds)
+    mean_non_inf = np.mean([cht_klds[i] for i in pos_non_inf[0]])
 
-            mean_cos_dist_wtd, sd_cos_dist_wtd  = weighted_avg_and_std(np, cht_cos_dists, cht_sizes)
-            mean_cos_dist_uwtd = np.mean(cht_cos_dists)
+    mean_cos_dist_wtd, sd_cos_dist_wtd  = weighted_avg_and_std(np, cht_cos_dists, cht_sizes)
+    mean_cos_dist_uwtd = np.mean(cht_cos_dists)
 
-            cohrt_pcts_inf.append(1-pct_non_inf)
-            cohrt_means_non_inf.append(mean_non_inf)
-            cohrt_mean_cos_dists_wtd.append(mean_cos_dist_wtd)
-            cohrt_cos_dists_sd_wtd.append(sd_cos_dist_wtd)
-            cohrt_mean_cos_dists_uwtd.append(mean_cos_dist_uwtd)
-            cohrt_sizes_mean.append(np.mean(cht_sizes))
-            cohrt_sizes_sum.append(np.sum(cht_sizes))
+    cohrt_mean_non_inf = np.mean(mean_non_inf)
 
-    # possible to weight by distance to parent of cohort, cohort size, both,
-    # neither lol
-    cohrt_pct_inf = np.mean(cohrt_pcts_inf)
-    cohrt_mean_non_inf = np.mean(cohrt_means_non_inf)
-
-    if len(cohrt_sizes_sum) ==0:
-        cohrt_mean_cos_dists_wtd = cohrt_mean_cos_dists_uwtd = [0]
-        cohrt_sizes_sum = [1]
-
-    cohrt_mean_cos_dists_wtd = np.average(cohrt_mean_cos_dists_wtd, weights=cohrt_sizes_sum)
-            
-    cohrt_mean_cos_dists_uwtd = np.mean(cohrt_mean_cos_dists_uwtd)
-    cohrt_len = len(cohrt_sizes_all)
-    cohrt_vol_sum = sum(cohrt_sizes_sum)
-    cohrt_vol_mean = np.mean(cohrt_sizes_all)
-    cohrt_vol_sd = np.std(cohrt_sizes_all)
-
-    cohrt_vlu_names = ['cohrt_pct_inf', 'cohrt_mean_non_inf', 'cohrt_mean_cos_dists_wtd', 'cohrt_mean_cos_dists_uwtd', 'cohrt_len', 'cohrt_vol_sum', 'cohrt_vol_mean', 'cohrt_vol_sd']
+    cohrt_mean_cos_dists_wtd = np.average(cht_cos_dists, weights=cht_sizes)
+    cohrt_mean_cos_dists_uwtd = np.mean(cht_cos_dists)
     
-    cohrt_vlus = [cohrt_pct_inf, cohrt_mean_non_inf, cohrt_mean_cos_dists_wtd, cohrt_mean_cos_dists_uwtd, cohrt_len, cohrt_vol_sum, cohrt_vol_mean, cohrt_vol_sd]
+    cohrt_len = len(cht_sizes)
+    cohrt_vol_sum = sum(cht_sizes)
+    cohrt_vol_mean = np.mean(cht_sizes)
+    cohrt_vol_sd = np.std(cht_sizes)
+
+    cohrt_ovlp = 1-(len(cohrt_mbrs)/len(cohrt_mbrs_dupl))
+
+    cohrt_vlu_names = ['pct_non_inf', 'cohrt_mean_non_inf', 'cohrt_mean_cos_dists_wtd', 'cohrt_mean_cos_dists_uwtd', 'cohrt_len', 'cohrt_vol_sum', 'cohrt_vol_mean', 'cohrt_vol_sd', 'cohrt_ovlp']
+
+    cohrt_vlus = [pct_non_inf, cohrt_mean_non_inf, cohrt_mean_cos_dists_wtd, cohrt_mean_cos_dists_uwtd, cohrt_len, cohrt_vol_sum, cohrt_vol_mean, cohrt_vol_sd, cohrt_ovlp]
 
     return(cohrt_vlu_names, cohrt_vlus)
 
@@ -842,18 +824,30 @@ def dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int):
     # average euclidean distance
     # sample for large genres
     if len(dfcx) > 1000:
-        ids = sample(range(len(dfcx)), 1000)
+        ids = sample(range(len(dfcx)), 750)
 
         dfcx = dfcx.iloc[ids]
 
-    distsx = euclidean_distances(dfcx[vrbls])
+    size_mat = np.array([dfcx['sz']]*len(dfcx))
+    size_mat2 = size_mat + size_mat.T
 
-    dist_mean = np.mean(distsx[np.where(np.tril(distsx) > 0)])
-    dist_sd = np.std(distsx[np.where(np.tril(distsx) > 0)])
+    dists_euc = euclidean_distances(dfcx[vrbls])
+
+    dist_euc_mean_uwtd = np.mean(dists_euc[np.where(np.tril(dists_euc) > 0)])
+    dist_euc_mean_wtd = np.average(dists_euc[np.where(np.tril(dists_euc) > 0)],
+                                   weights = size_mat2[np.where(np.tril(dists_euc) > 0)])
+    dist_euc_sd = np.std(dists_euc[np.where(np.tril(dists_euc) > 0)])
+    
+    cos_sims = cosine_similarity(dfcx[vrbls])
+
+    cos_sims_mean_uwtd = np.mean(cos_sims[np.where(np.tril(cos_sims) > 0)])
+    cos_sims_mean_wtd = np.average(cos_sims[np.where(np.tril(cos_sims) > 0)],
+                               weights = size_mat2[np.where(np.tril(cos_sims) > 0)])
 
     dfcx_names=['unq_artsts','gnr_gini','avg_age','age_sd','nbr_rlss_tprd','ttl_size','prop_rls_size',
-                'dist_mean','dist_sd']
-    dfcx_vlus = [unq_artsts, gnr_gini, avg_age, age_sd, nbr_rlss_tprd, ttl_size, prop_rls_size, dist_mean, dist_sd]
+                'dist_euc_mean_uwtd', 'dist_euc_mean_wtd', 'dist_euc_sd', 'cos_sims_mean_uwtd', 'cos_sims_mean_wtd']
+    dfcx_vlus = [unq_artsts, gnr_gini, avg_age, age_sd, nbr_rlss_tprd, ttl_size, prop_rls_size,
+                 dist_euc_mean_uwtd, dist_euc_mean_wtd, dist_euc_sd, cos_sims_mean_uwtd, cos_sims_mean_wtd]
 
     return(dfcx_names, dfcx_vlus)
 
@@ -983,7 +977,7 @@ def ptn_eval(ptns, ptn_obj_dict):
             if gnr in ptn_obj_dict[ptn]['gnr_ind'].keys():
                 rel_ptns.append(ptn)
 
-        nbr_cls = 5
+        nbr_cls = 1
         gnr_acsts = np.zeros((nbr_cls*len(vrbls),len(rel_ptns)))
 
         gnr_prnts = []
@@ -1087,12 +1081,12 @@ if __name__ == '__main__':
     min_unq_artsts = 8
     max_propx1 = 0.5
     max_propx2 = 0.7
-    # ptn = 1        
+    ptn = '_all'
 
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
-    # tprd = time_periods[20]
+    # tprd = time_periods[2]
 
     for tprd in time_periods:
         client = Client(host='localhost', password='anudora', database='frrl')
@@ -1118,22 +1112,26 @@ if __name__ == '__main__':
         # ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
         # os.system(ptn_str)
 
-        ptn_str = 'python3.6 ptn_lda2.py ' + d1 + ' ' + d2
-        os.system(ptn_str)
+        # ptn_str = 'python3.6 ptn_lda2.py ' + d1 + ' ' + d2
+        # os.system(ptn_str)
 
-        t1 = time.time()
-        ptns = list(range(5))
-
+        # ptns = list(range(5))
+        ptns = ['_all']
+        
         ptn_obj_dict = {}
         client = Client(host='localhost', password='anudora', database='frrl')
 
         for ptn in ptns:
             ptn_obj_dict[ptn] = ptn_proc(ptn)
-            
-        df_ttl = ptn_eval(ptns, ptn_obj_dict)
-        df_ttl.to_csv(res_dir + tp_clm + '.csv')
-        t2 = time.time()        
+        
+        df_ttl = ptn_obj_dict[ptn]['df_res']
 
+        df_ttl['d1'] = d1
+        df_ttl['d2'] = d2
+        df_ttl['tp_id'] = tp_id
+
+        # df_ttl = ptn_eval(ptns, ptn_obj_dict)
+        df_ttl.to_csv(res_dir + tp_clm + '.csv')
         
         # pnt_obj_dict[ptn] = {}
 
