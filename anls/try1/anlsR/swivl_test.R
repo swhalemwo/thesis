@@ -1,5 +1,5 @@
 ## * libs
-q
+
 library(ggplot2)
 library(PerformanceAnalytics)
 library(texreg)
@@ -42,50 +42,9 @@ phreg_mdlr <- function(mdl, imprvmnt){
 ## pchisq(logdiff, df=2, lower.tail=FALSE)
 
 
-## * stuff from elsewhere
-if (!require(pacman)) install.packages("pacman")
-
-orca <- read.table("http://www.stats4life.se/data/oralca.txt")
-
-orca_mut <- orca %>%
-    mutate(
-        text = paste("Subject ID = ", id, "<br>", "Time = ", time, "<br>", "Event = ",  
-                     event, "<br>", "Age = ", round(age, 2), "<br>", "Stage = ", stage)
-    )
-
-ggplot(orca_mut, aes(x = id, y = time, text = text)) +
-    geom_linerange(aes(ymin = 0, ymax = time)) +
-    geom_point(aes(shape = event, color = event), stroke = 1, cex = 2) +
-    scale_shape_manual(values = c(1, 3, 4)) +
-    labs(y = "Time (years)", x = "Subject ID", tooltip = "text")+
-    coord_flip() + theme_classic() 
-
-
-
-grid.arrange(
-  ggplot(orca, aes(x = id, y = time)) +
-  geom_linerange(aes(ymin = 0, ymax = time)) +
-  geom_point(aes(shape = event, color = event), stroke = 1, cex = 2) +
-  scale_shape_manual(values = c(1, 3, 4)) + guides(shape = F, color = F) +
-  labs(y = "Time (years)", x = "Subject ID") + coord_flip() + theme_classic(),
-  orca %>%
-  mutate(age_orig = age,
-         age_end = age + time) %>%
-  ggplot(aes(x = id, y = age_end)) +
-  geom_linerange(aes(ymin = age_orig, ymax = age_end)) +
-  geom_point(aes(shape = event, color = event), stroke = 1, cex = 2) +
-  scale_shape_manual(values = c(1, 3, 4)) + guides(fill = FALSE) +
-  labs(y = "Age (years)", x = "Subject ID") + coord_flip() + theme_classic(),
-  ncol = 2
-)
-
-su_obj <- Surv(orca$time, orca$all)
-str(su_obj)
-
-
 ## * merge data together
 
-res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/12_weeks_26k_full_min20/'
+res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/no_ptns_xxx/'
 res_files = list.files(res_dir)
 
 dfc <- read.csv(paste0(res_dir, res_files[1]))
@@ -98,6 +57,7 @@ for (i in res_files[2:length(res_files)]){
 
 dfc[which(is.na(dfc$acst_cor_mean)),]$acst_cor_mean <- 1
 
+## dfc <- dfc[which(dfc$sz_raw > 50),]
 
 ## just rbind everything together
 ## check consistency with length of range: more range covered than periods -> inconsistent
@@ -185,13 +145,37 @@ deds <- aggregate(dfc2$event, list(dfc2$tp_id), sum)
 
 ## * variable construction
 ## ** informativeness
-dfc2$inftns <- dfc2$prnt3_dvrg_mean
+## dfc2$inftns <- dfc2$prnt3_dvrg_mean
+## dfc2$inftns_sqrd <- dfc2$inftns^2
+
+## need to rename if i don't do partitions
+
+## *** no partitioning
+dfc2$inftns <- dfc2$prnt3_dvrg
 dfc2$inftns_sqrd <- dfc2$inftns^2
 
 ## ** distinctiveness
 
-dfc2$disctns <- dfc2$cohrt_mean_cos_dists_wtd_mean
-dfc2$cohrt_vol <- dfc2$cohrt_vol_sum_mean
+## dfc2$disctns <- dfc2$cohrt_mean_cos_dists_wtd_mean
+## dfc2$cohrt_vol <- dfc2$cohrt_vol_sum_mean
+
+## *** just one partition
+
+dfc2$disctns <- dfc2$cohrt_mean_cos_dists_wtd
+
+dfc2$cohrt_dom <- log(dfc2$volm/dfc2$cohrt_vol_sum)
+
+
+## cohrt_rel_sz <- dfc2$volm/dfc2$cohrt_vol_mean
+## doesn't seem so nice,
+## can't control for genre size
+
+cohrt_vol_mean <- dfc2$cohrt_vol_sum/dfc2$cohrt_len
+
+dfc2$cohrt_rel_sz <- log(dfc2$volm/tru_cohrt_vol_mean)
+
+
+
 
 ## what's the reasoning behind using min/max?
 ## vast majority of genres (93%) that die out just have 1 ptn -> min/max makes no difference
@@ -258,12 +242,17 @@ penl_parnt_vars_addgs = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", 
 
 
 ## ** parent size
-dfc2$prnt_sz <- dfc2$prnt_odg_mean
 
+## *** no partitions
+dfc2$prnt_sz <- log(dfc2$prnt_plcnt)
+dfc2$prnt_sz_sqrd <- dfc2$prnt_sz^2
+dfc2$prnt_sz_sd <- log(dfc2$prnt_plcnt_sd)
 
 ## ** agreement
 
-ag_vars_set  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
+## ag_vars_set  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
+
+
 ## chart.Correlation(dfc2[,ag_vars_set])
 
 ## nbr_prnts unrelated to acst_cor_mean, prtn_sims, chirn_sims
@@ -294,21 +283,35 @@ ag_vars_set  <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims', 'chirn_sims')
 ## maybe break into related groups? could mirror the other topics
 ## agreement might vary depending on the topic
 
-sd_set1 <- c("prnt3_dvrg_sd","mean_prnt_dvrg_sd","prnt_odg_sd","cohrt_pct_inf_sd","gnr_gini_sd")
-## "unq_artsts_sd" doesn't fit so well
-sd_set2 <- c("avg_age_sd", "age_sd_sd", "nbr_rlss_tprd_sd", "ttl_size_sd", "prop_rls_size_sd", "volm_sd")
+## sd_set1 <- c("prnt3_dvrg_sd","mean_prnt_dvrg_sd","prnt_odg_sd","cohrt_pct_inf_sd","gnr_gini_sd")
+## ## "unq_artsts_sd" doesn't fit so well
+## sd_set2 <- c("avg_age_sd", "age_sd_sd", "nbr_rlss_tprd_sd", "ttl_size_sd", "prop_rls_size_sd", "volm_sd")
 
-sd_pca <- principal(dfc2[,c(sd_set1, sd_set2)], nfactors=3)
+## sd_pca <- principal(dfc2[,c(sd_set1, sd_set2)], nfactors=3)
 
-## does taking the mean make measures invalid?
-chart.Correlation(dfc2[,c(sd_set1, sd_set2)])
+## ## does taking the mean make measures invalid?
+## chart.Correlation(dfc2[,c(sd_set1, sd_set2)])
 
 ## chart.Correlation(dfc2[,var_set2])
 
 ## pcax <- principal(dfc2[,var_set2])
 
+## ** density
+
+## *** no partition
+
+
+dfc2$dens_vol <- log(dfc2$cohrt_vol_sum + dfc2$volm)
+dfc2$dens_len <- dfc2$cohrt_len
+
+dfc2$dens_vol_sqrd <- dfc2$dens_vol^2
+dfc2$dens_len_sqrd <- dfc2$dens_len^2
+
+## worth to distinguish between len and vol because might be that amount of genres or playcounts matters
+## also no no high correlation
+
 ## ** size
-var_set_sz <- c('unq_artsts_mean', 'volm_mean', 'sz_raw_mean', 'nbr_rlss_tprd_mean')
+## var_set_sz <- c('unq_artsts_mean', 'volm_mean', 'sz_raw_mean', 'nbr_rlss_tprd_mean')
 ## chart.Correlation(dfc2[,var_set_sz])
 
 ## sz_cmpst <- principal(dfc2[,var_set_sz])
@@ -317,15 +320,24 @@ var_set_sz <- c('unq_artsts_mean', 'volm_mean', 'sz_raw_mean', 'nbr_rlss_tprd_me
 ## sz_cmpst_log <- log(sz_rscld)
 ## hist(sz_cmpst_log, breaks=100)
 
-dfc2$sz <- log(dfc2$volm_mean)
-dfc2$new_rlss <- log(dfc2$nbr_rlss_tprd_mean+1)
+## dfc2$sz <- log(dfc2$volm_mean)
+## dfc2$new_rlss <- log(dfc2$nbr_rlss_tprd_mean+1)
+
+## *** no partitions
+dfc2$sz <- log(dfc2$volm)
+dfc2$new_rlss <- log(dfc2$nbr_rlss_tprd+1)
+
 
 ## no PCA, just use logs of vol and new_rlss as indicators
 
 ## ** controls
-ctrl_vars = c('avg_weight_rel_mean','spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean', 'cohrt_vol',  'len_penl_prnts_100_mean', 'sz', 'new_rlss', 'gnr_age')
-## chart.Correlation(dfc2[,var_set_crols])
+## ctrl_vars = c('avg_weight_rel_mean','spngns_std_mean', 'dist_mean_mean', 'gnr_gini_mean', 'avg_age_mean', 'cohrt_vol',  'len_penl_prnts_100_mean', 'sz', 'new_rlss', 'gnr_age')
 
+## *** one partition
+
+ctrl_vars <- c('avg_weight_rel_wtd','spngns_std', 'cos_sims_mean_wtd', 'gnr_gini', 'avg_age', 'len_penl_prnts_100', 'sz', 'new_rlss', 'gnr_age')
+
+## chart.Correlation(dfc2[,var_set_crols])
 ## all seems sufficiently uncorrelated
 
 ## ** rel variables
@@ -333,22 +345,35 @@ ctrl_vars = c('avg_weight_rel_mean','spngns_std_mean', 'dist_mean_mean', 'gnr_gi
 dfc2$tp_id2 <- dfc2$tp_id+1
 
 ## inf_vars <- c('inftns',  'disctns')
-inf_vars <- c('inftns', 'inftns_sqrd', 'disctns') 
 
-agr_vars <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims')
+## inf_vars <- c('inftns', 'inftns_sqrd', 'disctns') 
 
-leg_vars <- c('prnt_sz')
+## agr_vars <- c('acst_cor_mean', 'nbr_ptns', 'prnt_sims')
+
+## leg_vars <- c('prnt_sz')
 ## leg_vars2 <- c('prnt_sz', 'I(prnt_sz^2)')
 
 ## is there even a separate legitimation thing ?
 
-all_vars <- c(inf_vars, agr_vars, leg_vars, ctrl_vars)
+## all_vars <- c(inf_vars, agr_vars, leg_vars, ctrl_vars)
 
+## *** no partitions
+
+inf_vars <- c('inftns', 'inftns_sqrd', 'disctns')
+dens_vars <- c('dens_vol', 'dens_len', 'dens_vol_sqrd', 'dens_len_sqrd', 'cohrt_dom', 'cohrt_rel_sz')
+prnt_vars <- c('prnt_sz', 'prnt_sz_sqrd')
+
+all_vars <- c(inf_vars, dens_vars,  prnt_vars, ctrl_vars)
 
 ## standardizing
-not_scale <- c('nbr_ptns', 'gnr_age')
+## not_scale <- c('nbr_ptns', 'gnr_age')
+not_scale <- c('gnr_age')
 
-dfc3 <- as.data.frame(scale(dfc2[,all_vars[all_vars %!in% not_scale]]))
+## scale(dfc2[,all_vars[all_vars %!in% not_scale]], center = FALSE, scale = apply(dfc2[,all_vars[all_vars %!in% not_scale]], 2, sd, na.rm = T))
+
+
+dfc3 <- as.data.frame(scale(dfc2[,all_vars[all_vars %!in% not_scale]], center=FALSE, scale = apply(dfc2[,all_vars[all_vars %!in% not_scale]], 2, sd, na.rm = T)))
+
 dfc3 <- cbind(dfc3, dfc2[,c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
 
 ## could add log size
@@ -356,7 +381,6 @@ dfc3 <- cbind(dfc3, dfc2[,c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
 ## not clear if distinctivenss on its own makes so much sense without a strict hierarchy
 
 # chart.Correlation(dfc2[,all_vars])
-
 
 ## * phreg
 
@@ -370,11 +394,10 @@ dv <- 'Surv(tp_id, tp_id2, event)'
 ## ** controls
 ctrl_vars_cbnd <- paste(ctrl_vars, collapse = ' + ')
 f_ctrl <- as.formula(paste(c(dv, ctrl_vars_cbnd), collapse = ' ~ '))
-fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(10,15),dist = 'pch')
+fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
 
 res_ctrl <- phreg_mdlr(fit_ctrl, None)
 screenreg(list(res_ctrl))
-
 
 ## ** informativeness
 inf_ctrl_vars <- paste(c(inf_vars, ctrl_vars), collapse = ' + ')
@@ -388,20 +411,34 @@ screenreg(list(res_ctrl, res_inf_ctrl))
 
 ## ** agreement
 
-agr_ctrl_vars <- paste(c(agr_vars, ctrl_vars), collapse = ' + ')
-f_agr_ctrl <- as.formula(paste(c(dv, agr_ctrl_vars), collapse = ' ~ '))
-fit_agr_ctrl <- phreg(f_agr_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+## agr_ctrl_vars <- paste(c(agr_vars, ctrl_vars), collapse = ' + ')
+## f_agr_ctrl <- as.formula(paste(c(dv, agr_ctrl_vars), collapse = ' ~ '))
+## fit_agr_ctrl <- phreg(f_agr_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
 
-res_agr_ctrl <- phreg_mdlr(fit_agr_ctrl)
-screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl))
+## res_agr_ctrl <- phreg_mdlr(fit_agr_ctrl)
+## screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl))
 
 ## ** legitimation
-leg_ctrl_vars <- paste(c(leg_vars, ctrl_vars), collapse = ' + ')
-f_leg_ctrl <- as.formula(paste(c(dv, leg_ctrl_vars), collapse = ' ~ '))
-fit_leg_ctrl <- phreg(f_leg_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
-res_leg_ctrl <- phreg_mdlr(fit_leg_ctrl)
+## leg_ctrl_vars <- paste(c(leg_vars, ctrl_vars), collapse = ' + ')
+## f_leg_ctrl <- as.formula(paste(c(dv, leg_ctrl_vars), collapse = ' ~ '))
+## fit_leg_ctrl <- phreg(f_leg_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+## res_leg_ctrl <- phreg_mdlr(fit_leg_ctrl)
 
-screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl))
+## screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl))
+
+## ** density
+dens_ctrl_vars <- paste(c(dens_vars, ctrl_vars), collapse = ' + ')
+f_dens_ctrl <- as.formula(paste(c(dv, dens_ctrl_vars), collapse = ' ~ '))
+fit_dens_ctrl <- phreg(f_dens_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+res_dens_ctrl <- phreg_mdlr(fit_dens_ctrl)
+
+## ** prnt vars
+prnt_ctrl_vars <- paste(c(prnt_vars, ctrl_vars), collapse = ' + ')
+f_prnt_ctrl <- as.formula(paste(c(dv, prnt_ctrl_vars),  collapse = ' ~  '))
+fit_prnt_ctrl <- phreg(f_prnt_ctrl, data=dfc3, cuts = seq(1,28),dist = 'pch')
+res_prnt_ctrl <- phreg_mdlr(fit_prnt_ctrl)
+
+
 ## ** all
 all_vars_cbnd <- paste(c(all_vars), collapse = ' + ')
 f_all_vars <- as.formula(paste(c(dv, all_vars_cbnd), collapse = ' ~ '))
@@ -409,7 +446,11 @@ fit_all_vars <- phreg(f_all_vars, data=dfc3, cuts = seq(1,28),dist = 'pch')
 res_all_vars <- phreg_mdlr(fit_all_vars)
 
 
-screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars))
+## screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars))
+screenreg(list(res_ctrl, res_inf_ctrl, res_dens_ctrl, res_prnt_ctrl, res_all_vars))
+## dens_vol positive, dens_len negative
+## squred ones reversed
+## does it make sense to do it without size controls? 
 
 
 ## strongest impact of agreement
@@ -420,7 +461,6 @@ screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars)
 ## prnt_sze: small effect
 
 ## is there straightforward link between informativeness and density? don't think so
-
 
 ## summary(fit2_cuts)
 ## plot(fit2_cuts)
@@ -435,7 +475,6 @@ screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars)
 ## plot(cum_man, type='l')
 
 ## x <- as.data.frame(cbind(t(t(ratio_man)), t(fit2_cuts$hazards)))
-
 
 
 
@@ -458,19 +497,275 @@ screenreg(list(res_ctrl, res_inf_ctrl, res_agr_ctrl, res_leg_ctrl, res_all_vars)
 ##
 
 
-fit3_breaks <- pchreg(f, data=dfc2, breaks = 35)
-fit3_no_breaks <- pchreg(f, data=dfc2[which(dfc2$tp_id > 0),])
+## fit3_breaks <- pchreg(f, data=dfc2, breaks = 35)
+## fit3_no_breaks <- pchreg(f, data=dfc2[which(dfc2$tp_id > 0),])
 
-plot(fit3_breaks)
+## plot(fit3_breaks)
 
 
+
+
+## * predicted probability
+## need them to see u-shape effect effect of informativeness
+## just group event by informativeness?
+
+seqx <- seq(-2, 3)
+
+dfc3$inftns_disc <- round(dfc3$inftns)
+dfc3$inftns_disc2 <- round(dfc3$inftns,1)
+
+mfx_cheap <- as.data.frame.matrix(table(dfc3$inftns_disc, dfc3$event))
+
+mfx_cheap$ratio <- mfx_cheap[,'1']/mfx_cheap[,'0']
+
+
+## ** custom AAP
+## /*takes each individual in the data in turn, treats them as they if were a man 
+## (regardless of the actual gender of the individual) leaving the values of all other 
+## independent variables as observed; computes probability of this individual having a
+## job; then repeats but this time treating individual as if they were a woman.
+## Takes the average of the predictions for women and men*/
+
+## -> for all values in range, give them to cases, mean/sd for each 
+
+colnames = fit_inf_ctrl$covars
+dfc3_ap <- dfc3[,colnames]
+
+squared = FALSE
+vrbl <- 'sz'
+if (squared == TRUE){
+    vrbl_sqrd <- paste0(vrbl, '_sqrd')
+    sqr_sclr <- mean(dfc3_ap[,vrbl_sqrd]/dfc3[,vrbl]^2)
+}
+
+coef_vec <- fit_inf_ctrl$coefficients
+coef_mat <- t(replicate(nrow(dfc3), coef_vec))
+
+mean_vec <- colMeans(dfc3_ap)
+colnames(coef_mat) <- colnames
+names(coef_vec) <- colnames
+
+coef_ses <- sqrt(diag(fit_inf_ctrl$var))
+se_rel <- coef_ses[names(coef_ses) == vrbl]
+
+## coef_mat_lo <- coef_mat_hi <- coef_mat
+## coef_mat_lo[,vrbl] <- coef_mat_lo[,vrbl]-se_rel
+## coef_mat_hi[,vrbl] <- coef_mat_hi[,vrbl]+se_rel
+
+coef_vec_hi <- coef_vec_lo <- coef_vec
+coef_vec_hi[vrbl]  <- coef_vec_hi[vrbl]+ 1.96*se_rel
+coef_vec_lo[vrbl]  <- coef_vec_lo[vrbl] - 1.96*se_rel
+
+if (squared == TRUE){
+    se_rel_sqrd <- coef_ses[names(coef_ses) == vrbl_sqrd]
+    coef_mat_lo[,vrbl_sqrd] <- coef_mat_lo[,vrbl_sqrd]-se_rel_sqrd
+    coef_mat_hi[,vrbl_sqrd] <- coef_mat_hi[,vrbl_sqrd]+se_rel_sqrd
+}
+
+# can't just standardize again, need way to get squared variables to proper values
+## base_rate <- mean(rowSums(dfc3_ap * coef_mat))
+## base_rate_lo <- mean(rowSums(dfc3_ap * coef_mat_lo))
+## base_rate_hi <- mean(rowSums(dfc3_ap * coef_mat_hi))
+base_rate <- sum(mean_vec*coef_vec)
+base_rate_lo <- sum(mean_vec*coef_vec_lo)
+base_rate_hi <- sum(mean_vec*coef_vec_hi)
+
+vrbl_vlus <- seq(from=min(dfc3_ap[,vrbl]), to=max(dfc3_ap[,vrbl]), length.out = 15)
+
+
+res <- c()
+res_lo <- c()
+res_hi <- c()
+
+
+for (i in vrbl_vlus){
+    dfc3_ap[,vrbl] <- i
+
+    if (squared == TRUE){
+        dfc3_ap[,vrbl_sqrd] <- (i^2)*sqr_sclr
+    }
+
+    predx <- dfc3_ap * coef_mat
+    predx2 <- rowSums(predx)
+    resids <- dfc2$event - exp(predx2)
+    se_x <- sqrt(t(as.matrix(predx)) %*% fit_inf_ctrl$var %*% as.data.frame(predx))
+
+    
+    ## pred_hi <- rowSums(dfc3_ap*coef_mat_hi)
+    ## pred_lo <- rowSums(dfc3_ap*coef_mat_lo)
+
+    ## res <- c(res, mean(predx2))
+    ## res_hi <- c(res_hi, mean(pred_hi))
+    ## res_lo <- c(res_lo, mean(pred_lo))
+
+    mean_vec[vrbl] <- i
+    resx <- sum(mean_vec*coef_vec)
+
+    res_lox <- sum(mean_vec*coef_vec_lo)
+    res_hix <- sum(mean_vec*coef_vec_hi)
+
+    res <- c(res, resx)
+    res_hi <- c(res_hi, res_hix)
+    res_lo <- c(res_lo, resx_lox)
+    
+}
+
+## resx is log of hazards function: f(t)/S(t):
+## risk of dying while having survived so far
+## exp(resx) is actual hazard function: 0.69 chance of dying for smallest genres
+## still seems like you should divide by baserate, like value for mean (0.0267 chance)
+## -> small genres are 26.4x more likely to die
+
+## what happens at 1?
+## you get there when exp(res) and exp(base_rate) are same, i.e. at mean
+## i think it's because mean is the comparison
+## and the hi/lo things are also estimated with the mean
+
+
+## stata does for each individual
+## with error thing
+## but would take up 25gb ram
+## noo way
+
+
+
+
+res_df <- as.data.frame(cbind(exp(res)/exp(base_rate),
+                              exp(res_lo)/exp(base_rate_lo),
+                              exp(res_hi)/exp(base_rate_hi),
+                              vrbl_vlus))
+
+
+
+## res_df_inftns <- res_df
+
+names(res_df) <- c('res', 'lo', 'hi', 'vlus')
+
+res_df$hi2 <- apply(res_df, 1, function(x){max(x['hi'],x['lo'])})
+res_df$lo2 <- apply(res_df, 1, function(x){min(x['hi'],x['lo'])})
+
+res_df$vrbl <- vrbl
+res_df_c <- rbind(res_df_inftns, res_df)
+
+res_df_c$vrbl2 <- res_df_c$vrbl
+
+res_df_c$xs <- rep(seq(1:15),2)
+
+## for some reason difference becomes 0 at 1
+## , group = vrbl2
+
+ggplot(res_df_inftns, aes(x=xs, y = res)) + 
+    geom_line()+
+    geom_ribbon(aes(ymin=lo2, ymax=hi2), alpha=0.25) + 
+    ## ylim(0, 12)+
+    theme_bw()
+
+
+df2 <- data.frame(supp=rep(c("VC", "OJ"), each=3),
+                dose=rep(c("D0.5", "D1", "D2"),2),
+                len=c(6.8, 15, 33, 4.2, 10, 29.5))
+
+head(df2)
+
+## idk if it makes much sense without CIs.. would be kinda pointless to not have CIs to also visually show why some things don't matter
+
+ggplot(data=df2, aes(x=dose, y=len, group=supp)) +
+  geom_line()
+
+## ** avg_age
+plot(vrbl_vlus,unlist(lapply(vrbl_vlus, function(x){exp(-0.062*x)})), type = 'l')
+lines(vrbl_vlus,unlist(lapply(vrbl_vlus, function(x){exp((-0.062-0.049)*x)})), type = 'l')
+lines(vrbl_vlus,unlist(lapply(vrbl_vlus, function(x){exp((-0.062+0.049)*x)})), type = 'l')
+
+## ** size
+
+plot(vrbl_vlus,unlist(lapply(vrbl_vlus, function(x){exp(-1.818*x)})), type = 'l')
+lines(vrbl_vlus,unlist(lapply(vrbl_vlus, function(x){exp((-1.818-0.152)*x)})), type = 'l')
+lines(vrbl_vlus,unlist(lapply(vrbl_vlus, function(x){exp((-1.818+0.152)*x)})), type = 'l')
+
+## ** inftns
+
+plot(vrbl_vlus, unlist(lapply(vrbl_vlus, function(x){exp(0.563*x) * exp((-0.255)*sqr_sclr*x^2)})), type='l')
+plot(vrbl_vlus, unlist(lapply(vrbl_vlus, function(x){exp((0.563+0.222)*x) * exp((-0.255+0.157)*sqr_sclr*x^2)})), type='l')
+lines(vrbl_vlus, unlist(lapply(vrbl_vlus, function(x){exp((0.563-0.222)*x) * exp((-0.255-0.157)*sqr_sclr*x^2)})), type='l')
+
+plot(unlist(lapply(seq(30), function(x){exp((0.563+0.222)*x) * exp((-0.255+0.157)*sqr_sclr*x^2)})), type='l')
+
+
+
+
+## bootstrapping?
+## sounds quite expensive tbh
+## also unclear what's the point is: i have good estimates for my variables, 
+    
+## stuff to consider
+## - probability to die given that having survived
+## - variation in baserate -> should use time_specific baserates
+## predicted baserate different from actual baserate
+## probably due to age?
+
+## could just use curves without confidence intervals?
+## 
+
+
+plot(exp(1)^res/rep(exp(1)^base_rate, 10), type = 'l')
+plot(exp(1)^res_lo/rep(exp(1)^base_rate, 10), type = 'l')
+plot(exp(1)^res_hi/rep(exp(1)^base_rate, 10), type = 'l')
+
+
+
+## plot(exp(1)^res, type = 'l')
+lines(exp(1)^(res-1.96*ses), type = 'l')
+lines(exp(1)^(res+1.96*ses), type = 'l')
+
+
+se <- function(x) sqrt(var(x)/length(x))
+
+
+## is probability? NOPE
+## coefs are logs of risk ratios
+## exponentiated coefs are relative risks/hazard ratios
+## so what does hazard ratio of 0.3 mean? A hazard ratio of 0.333 tells you that the hazard rate in the treatment group is one third of that in the control group.
+## let's just do it like Piazzai and call them multipliers
+
+
+    
 ## * coxph
 
+ctrl_vars_cbnd2 <- paste(ctrl_vars[1:2], collapse = ' + ')
+f_ctrl_coxph <- as.formula(paste(c(dv, paste(c(ctrl_vars_cbnd2), collapse = '+')), collapse = ' ~ '))
 
-f_ctrl_coxph <- as.formula(paste(c(dv, paste(c(ctrl_vars_cbnd, 'cluster(X)'), collapse = '+')), collapse = ' ~ '))
+res_coxph_ctrl <- coxph(f_ctrl_coxph, data=dfc3, ties='breslow')
+summary(res_coxph_ctrl)
+screenreg(res_coxph_ctrl)
 
-res_coxph_ctrl <- coxph(f_ctrl_coxph, data=dfc3)
-## ## res_coxreg <- coxreg(f_ctrl_coxreg, data=dfc3)
+preds <- predict(res_coxph_ctrl, type = 'expected')
+
+
+hist(exp(1)^-preds, breaks = 100)
+
+pred_df <- as.data.frame(preds)
+## pred_df$X <- rownames(pred_df)
+
+pred_df2 <- cbind(pred_df, dfc3$inftns_disc2)
+names(pred_df2) <- c('pred', 'inftns_disc2')
+
+mfx2 <- aggregate(pred_df2$pred, list(pred_df2$inftns_disc2), mean)
+
+x <- margins(res_coxph_ctrl, type = 'risk')
+# margins doesn't seem to like whatever type
+
+
+y <- stdReg(res_coxph_ctrl)
+
+
+
+hist(preds)
+
+dfc3$pre
+
+res_coxreg <- coxreg(f_ctrl_coxreg, data=dfc3)
+
 ## screenreg(res_coxph)
 
 ## coxreg takes forever -> not good
@@ -481,6 +776,26 @@ f_all_coxph <- as.formula(paste(c(dv, paste(c(all_vars_cbnd, 'cluster(X)'), coll
 res_coxph_all <- coxph(f_all_coxph, data = dfc3)
 screenreg(list(res_coxph_ctrl,res_coxph_all))
 
+
+
+
+n <- 1000
+Z <- rnorm(n)
+X <- rnorm(n, mean=Z)
+T <- rexp(n, rate=exp(X+Z+X*Z)) #survival time
+C <- rexp(n, rate=exp(X+Z+X*Z)) #censoring time
+U <- pmin(T, C) #time at risk
+D <- as.numeric(T < C) #event indicator
+dd <- data.frame(Z, X, U, D)
+fit <- coxph(formula=Surv(U, D)~X+Z+X*Z, data=dd, method="breslow")
+fit.std <- stdCoxph(fit=fit, data=dd, X="X", x=seq(-1,1,0.5), t=1:5)
+print(summary(fit.std, t=3))
+plot(fit.std)
+
+
+stdCoxph(res_coxph_ctrl, data = dfc3, X="spngns_std", x = c(-4, -2, 0, 2), t=5:6)
+
+specials <- pmatch(c("strata(","cluster(","tt("), attr(terms(fit$formula), "variables"))
 
        
 
@@ -525,372 +840,69 @@ screenreg(fit_ctrl_plm)
 
 
 
+## * mets
 
-## * testing
-## ** documentation of pchreg
-n <- 1000
-x <- runif(n)
-time <- rnorm(n, 1 + x, 1 + x)
-cens <- rnorm(n,2,2)
-y <- pmin(time,cens) # censored variable
-d <- (time <= cens) # indicator of the event
+write.csv(dfc3, file = "dfc3.csv")
+dfc3 <- read.csv("dfc3.csv")
 
-model <- pchreg(Surv(y,d) ~ x, breaks = 20)
+library(mets)
 
+fitx <- gof(fit_ctrl)
 
-## ** bromstrom
-require(eha)
-data(fert)
-f12 <- fert[fert$parity == 1, ]
-f12$Y <- Surv(f12$next.ivl, f12$event)
-head(f12)
+f_ctrl <- as.formula(paste(c(dv, ctrl_vars_cbnd), collapse = ' ~ '))
+fit_ctrl <- mets::phreg(f_ctrl, data=dfc3)
+summary(fit_ctrl)
+, cuts = seq(1,28),dist = 'pch')
 
+re
 
-fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, data = f12, dist = "pch", cuts = c(4, 8, 12))
-fit.c <- coxreg(Surv(next.ivl, event) ~ age + year + ses,data = f12)
-fit.pch2 <- phreg(Surv(next.ivl, event) ~ age + year + ses, data = f12, dist = "pch", cuts = 1:13)
+basehazplot.phreg(fit_ctrl)
+gofM.phreg(f_ctrl, )
 
-fit.pch
-check.dist(fit.c, fit.pch2)
-## apparently should compare between parametric (phreg) and semi-parametric coxreg models?
+## * timereg
+library(timereg)
 
-plot(fit.pch2, fn = "haz")
+dfc3$genre <- dfc3$X
 
-plot(fit.pch)
-plot(fit.pch2)
+fitx <- cox.aalen(Surv(tp_id, tp_id2,event) ~ prop(sz) + prop(dist_mean), data=dfc3, id = dfc3$genre, cluster = dfc3$genre, max.timepoint.sim = 10, basesim=1, propodds = 1)
+summary(fitx)
 
+## Z=as.matrix(dfc3[1:10,c('sz', 'dist_mean')])
+Z = cbind(c(2,4,6), rep(mean(dfc3$dist_mean), 3))
 
-check.dist(fit2, fit2)
-## search for
-## - repeated measures
-## - time-varying covariates
+pred <- predict(fitx, Z=Z, n.sim=0)
+plot(pred,multiple=1,se=2,uniform=5,col=1:3,lty=1:10)
 
+## hmm not sure if useful
+## i mean i could predict stuff for each variable and process that further
+## but that doesn't make it any easier
 
 
 
-## ??
-## newcgd <- tmerge(data1=cgd0[, 1:13], data2=cgd0, id=id, tstop=futime)
-## coxph(formula = Surv(tstart, tstop, infect) ~ treat + inherit + steroids +cluster(id), data = newcgd)
+summary(fitx)
+plot(fitx)
 
+data(sTRACE)
+head(sTRACE)
 
 
+out<-cox.aalen(Surv(time,status==9)~prop(age)+prop(sex)+
+prop(diabetes)+chf+vf,
+data=sTRACE,max.time=7,n.sim=0,resample.iid=1)
 
-## dfc3 <- dfc2[-which(dfc2$prnt_odg_wtd==Inf),]
-## dfc3 <- dfc2[-0,]
+pout<-predict(out,X=rbind(c(1,0,0),c(1,1,0)),Z=rbind(c(55,0,1),c(60,1,1)))
+head(pout$S0[,1:5]); head(pout$se.S0[,1:5])
+par(mfrow=c(2,2))
+plot(pout,multiple=1,se=0,uniform=0,col=1:2,lty=1:2)
+plot(pout,multiple=0,se=1,uniform=2,col=1:2)
 
-## dfc4 <- dfc2[-10,]
 
-fit1 <- coxph(Surv(tp_id, tp_id2, event) ~ inftns + disctns + cluster(X), data=dfc2)
-fit1 <- coxph
+           
 
+par(mfrow=c(1,2))
+ss <- cox.aalen(Surv(time,status==9)~+prop(vf),data=sTRACE,robust=0)
+par(mfrow=c(1,2))
+plot(ss)
 
 
-
-
-
-
-fit <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel_mean + cohrt_pct_inf_mean + sz_raw_mean + prnt3_dvrg_mean + prnt_odg_mean + prnt_odg_wtd_mean + spngns_mean + spngns_std_mean + cluster(X), data= dfc2)
-## size is fairly obvious
-## prnt3_dvrg is more interesting tbh: more informative -> more likely to die
-
-fit2 <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel_mean + cohrt_pct_inf_mean + 
-                 sz_raw_mean + prnt3_dvrg_mean + prnt_odg_mean + prnt_odg_wtd_mean +
-                 spngns_mean + spngns_std_mean + cluster(X), data= dfc2)
-## including cohrt_mean_non_inf and deleting a bunch -> cohrt_pct_inf suddenly significant, prnt3 dvrg not anymore
-
-
-fit3 <- coxph(Surv(tp_id, tp_id2, event) ~ cohrt_pct_inf_mean + prnt3_dvrg_mean + I(prnt3_dvrg_mean^2)+
-                 sz_raw_mean +  prnt_odg_mean + prnt_odg_wtd_mean +
-                 spngns_mean + spngns_std_mean + cluster(X), data= dfc3)
-
-
-fit_cheat <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel + cohrt_pct_inf + sz_raw + prnt3_dvrg + prnt_odg + prnt_odg_wtd + spngns + spngns_std, data= dfc3)
-
-
-
-
-## not clusterin -> average weight relative becomes suddenly significant ahahha
-
-screenreg(fit)
-
-## there seem to be be issues with prnt3_dvrg and prnt_odt_wtd, both have infinites but shouldn't
-## is one weird case for both
-
-
-## i'm losing like half of my cases for DVs to cheesiness
-## is there a solution to cheesiness?
-
-## only count last block?
-
-## don't like it: the underlying process is not a clear-cut death-or-alive state
-## maybe really fitness more generally does better job of capturing dynamics
-
-
-## add age/tenure
-
-## make general function
-
-## doesn't seem so bad? most (1511/1755) seem coherent 
-## might be due to later start: most are present at the end, but don't have 15 entries because they are younger
-## -> not as holy as worst case
-## might be that holy ones are disproportionally in failed ones tho
-
-## ** just treat it as unbalanced panel?
-
-formla <- "(1 | X)"
-formla2 <- "sz_raw ~ (1 | X ) + prnt3_dvrg"
-
-fit_fe <- lmer(formla2, data=dfc3)
-
-## ** use plm? claims to be good for unbalanced panels
-## ahhh so much stuff and no dieuwke
-
-dfc1.5 <- dfc[-which(dfc$prnt3_dvrg == Inf),]
-
-fit_plm_fe <- plm(sz_raw ~ prnt3_dvrg + cohrt_pct_inf + spngns, data=dfc1.5, model = 'within', na.action = 'na.exclude', index = 'X')
-
-fit_plm_fe_lag <- plm(sz_raw ~ lag(prnt3_dvrg,1) + lag(cohrt_pct_inf,1) + lag(spngns,1), data=dfc1.5, model = 'within', na.action = 'na.exclude', index = 'X')
-
-fit_plm_re_lag <- plm(sz_raw ~ lag(prnt3_dvrg,1) + lag(cohrt_pct_inf,1) + lag(spngns,1), data=dfc1.5, model = 'random', na.action = 'na.exclude', index = c('X'))
-
-fit_plm_re2 <- plm(sz_raw ~ prnt3_dvrg + cohrt_pct_inf + spngns, data=dfc3, model = 'random', na.action = 'na.exclude', index = c('X', 'tp_id'))
-
-screenreg(list(fit_plm_fe_lag, fit_plm_re, fit_plm_re_lag))
-phtest(fit_plm_fe_lag, fit_plm_re_lag)
-
-plmtest(fit_plm_re_lag, type='bp', effect = 'time')
-
-
-## ** DV transformation
-
-## idk just do log?
-## piazzai: doesn't seem to use log?
-## but uses poisson
-
-## ** pglm
-library(pglm)
-fit_g_fe <- pglm(log(sz_raw) ~ lag(prnt3_dvrg,1) + lag(cohrt_pct_inf,1) + lag(spngns,1),
-                 data = dfc1.5[which(dfc1.5$tp_id > 7),],
-                 family = 'poisson',
-                 model = 'within',
-                 index = 'tp_id')
-
-
-## ** time series descripties
-tsx <- aggregate(dfc1.5$sz_raw, list(dfc1.5$tp_id), sum)
-barplot(tsx$x)
-
-
-## ** other stuff
-
-## need example of data structure: long/short?
-## how are multiple observations treated?
-
-## x <- n.0.disease.1year<-data.frame(event=rep(0,times=177), right=rep(1,times=177))
-## x2 <- n.0.disease.2year<-data.frame(event=rep(0,times=937), right=rep(2,times=937))
-
-## how to get multiple time points
-## or do i need to summarize to time to death?
-## but then i lose information on covariates
-## Negro Winemaking doesn't sound like they summarized into one time to death variables
-
-
-data(cancer)
-fit <- survfit(Surv(time, status) ~ sex, data = cancer)
-print(fit)
-
-ggsurvplot(fit,
-          pval = TRUE, conf.int = TRUE,
-          risk.table = TRUE, # Add risk table
-          risk.table.col = "strata", # Change risk table color by groups
-          linetype = "strata", # Change line type by groups
-          surv.median.line = "hv", # Specify median survival
-          ggtheme = theme_bw(), # Change ggplot2 theme
-          palette = c("#E7B800", "#2E9FDF"))
-
-newcgd <- tmerge(data1=cgd0[, 1:13], data2=cgd0, id=id, tstop=futime)
-newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime1))
-newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime2))
-newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime3))
-newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime4))
-newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime5))
-newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime6))
-newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime7))
-newcgd <- tmerge(newcgd, newcgd, id, enum=cumtdc(tstart))
-
-attr(newcgd, "tcount")
-
-coxph(formula = Surv(tstart, tstop, infect) ~ treat + inherit + steroids +cluster(id), data = newcgd)
-
-## this looks nice, basically what i want
-## multiple observations for each case
-## clustering by genre
-
-## tstart and tstop are not the same across cases
-## wonder what they should be based on?
-
-## is because futime (follow up time) is not completely uniform i guess? 
-## infect gets added by decoding the etimes i guess
-
-## not really time dependent covariates but that comes later?
-
-## * transplant as time dependent variable
-
-jasa$subject <- 1:nrow(jasa) #we need an identifier variable
-tdata <- with(jasa, data.frame(subject = subject,
-                               futime= pmax(.5, fu.date - accept.dt),
-                               txtime= ifelse(tx.date== fu.date,
-                               (tx.date -accept.dt) -.5,
-                               (tx.date - accept.dt)),
-                               fustat = fustat
-                               ))
-sdata <- tmerge(jasa, tdata, id=subject,
-                death = event(futime, fustat),
-                trt= tdc(txtime),
-                options= list(idname="subject"))
-attr(sdata, "tcount")
-
-sdata$age <- sdata$age -48
-
-sdata$year <- as.numeric(sdata$accept.dt - as.Date("1967-10-01"))/365.25
-
-coxph(Surv(tstart, tstop, death) ~ age*trt + surgery + year + cluster(subject),  data= sdata, ties="breslow")
-coxph(Surv(tstart, tstop, death) ~ age*trt + surgery + year,  data= sdata, ties="breslow")
-
-## have to see what this formula does exactly
-## again varying times
-
-## *** something else
-
-library(texreg)
-
-
-data(mort)
-fit <- phreg(Surv(enter, exit, event) ~ ses, data = mort)
-fit
-plot(fit)
-fit.cr <- coxreg(Surv(enter, exit, event) ~ ses, data = mort)
-check.dist(fit.cr, fit)
-
-## *** pch
-library(pch)
-
-## no examples??
-
-## *** https://stats.stackexchange.com/questions/236382/how-to-fit-piece-wise-exponential-model-in-r
-
-
-library(devtools)
-devtools::install_github("adibender/pammtools")
-library(pammtools)
-library(survival)
-library(ggplot2)
-theme_set(theme_bw())
-library(mgcv)
-
-# load example data
-data(tumor)
-
-## transform to piece-wise exponential data (PED)
-ped_tumor <- as_ped(Surv(days, status) ~ ., data = tumor, cut = seq(0, 3000, by = 100))
-
-# Fit the Piece-wise-exponential Additive Model (PAM) instead of PEM
-# with piece-wise constant hazards, term s(tend), and constant covariate effects:
-pam <- mgcv::gam(ped_status ~ s(tend) + age + sex + complications, 
-  data = ped_tumor, family = poisson(), offset = offset)
-summary(pam)
-## plot baseline hazard: 
-ped_tumor %>% 
-  make_newdata(tend=unique(tend), age = c(0), sex = c("male"), complications=c("no")) %>% 
-  add_hazard(pam) %>% 
-  ggplot(aes(x = tstart, y = hazard)) + 
-  geom_stepribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.2) +
-  geom_step()
-
-
-## *** Bornstrom book
-data(oldmort)
-
-om <- oldmort[oldmort$enter == 60, ]
-om <- age.window(om, c(60, 70))
-om$m.id <- om$f.id <- om$imr.birth <- om$birthplace <- NULL
-om$birthdate <- om$ses.50 <- NULL
-om1 <- survSplit(om, cut = 61:69, start = "enter", end = "exit", event = "event", episode = "agegrp")
-om1$agegrp <- factor(om1$agegrp, labels = 60:69)
-om1 <- om1[order(om1$id, om1$enter), ]
-head(om1)
-
-rownames(om1) <- 1:NROW(om1)
-om1$id <- as.numeric(as.factor(om1$id))
-head(om1)
-
-recs <- tapply(om1$id, om1$id, length)
-barplot(table(recs))
-
-om1$exit <- om1$enter <- NULL
-
-om2 <- reshape(om1, v.names = c("event", "civ", "region"),
-               idvar = "id", direction = "wide",
-               timevar = "agegrp")
-names(om2)
-
-om3 <- reshape(om2, direction = 'long', idvar = 'id', varying = 3:32)
-om3 <- om3[order(om3$id, om3$time), ]
-om3 <- om3[!is.na(om3$event), ]
-
-om3$time <- as.factor(om3$time)
-
-om3[1:11, ]
-
-fit.glm <- glm(event ~ sex + civ + region + time, family = binomial(link = cloglog), data = om3)
-
-drop1(fit.glm, test='Chisq')
-
-library(glmmML)
-fit.boot <- glmmML::glmmboot(event ~ sex + civ + region, cluster = time, family = binomial(link = cloglog), data = om3)
-
-
-om3$exit <- as.numeric(as.character(om3$time))
-om3$enter <- om3$exit - 0.5
-fit.ML <- coxreg(Surv(enter, exit, event) ~ sex + civ + region, method = "ml", data = om3)
-fit.ML
-
-plot(fit.ML, fn = 'cum', xlim = c(60,70))
-plot(fit.ML, fn = 'surv', xlim = c(60,70))
-
-fit2.glm <- glm(event ~ (sex + civ + region) * time, family = binomial(link = cloglog), data = om3)
-drop1(fit2.glm, test = "Chisq")
-
-x <- drop1(fit2.glm, test = "Chisq")
-
-## *** trying to skip reshaping, works just fine -> reshaping not needed
-om1$agegrp <- as.numeric(as.character(om1$agegrp))
-om1$agegrp2 <- as.numeric(as.character(om1$agegrp)) - 1
-fit.ML2 <- coxreg(Surv(agegrp2, agegrp, event) ~ sex + civ + region, method = "ml", data = om1)
-
-
-
-
-## *** timedp.pdf
-## seems to have clustering by id
-
-fit.x2 <- coxph(Surv(agegrp2, agegrp, event) ~ sex + civ + region + +cluster(id), data = om1)
-## seems to produce same estimates as coxreg
-
-fit.x3 <- coxph(Surv(agegrp2, agegrp, event) ~ sex + civ + region, data = om1)
-## also exactly same stuff as when not clustering
-## makes me wonder if cluster(id) is doing what's it's supposed to
-## coefs are same, but SEs/p-values are slightly different, seem to be up to 10% bigger when accounting for clustering
-## or sometimes also smaller?
-
-## i think that only works if some condition is fulfilled
-## last dda task?
-7
-
-
-
-
-
-## * stuff
-
-
+## hmm i can just predict as they do: not use the entire df, just change the value of interest, keep rest at mean
