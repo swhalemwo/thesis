@@ -1,3 +1,4 @@
+
 #+latex_class: article_usual2
 # erases make title
 #+BIND: org-export-latex-title-command ""
@@ -54,7 +55,27 @@ While the specific operationalization has been both critiqued on theoretical gro
 
 
 
+**** stuff to add
+age: tenure protects
+innovation: 
+
 *** Multiple Classification Systems
+**** sociological
+textcite:Hannan_2019_concepts argue that "there tends to be more consensus on concepts within communities and more divergence across communities" (p.3) as well as that labels are generally public (p.39). 
+#
+However, there is little reason to assume the converse, namely that all people that use (some of set of) shared labels necessarily form an actual community. 
+#
+This is even more doubtful in a weakly institutionalized where no formal authorities enforce a particular meaning. 
+# 
+While different positions are not necessarily tied to similar understandings [[parencite:Sewell_2004_concepts][p.166]], agreement cannot simply be assumed either. 
+#
+In the case of music, textcite:goldberg2011mapping,Boutyline_2017_CCA have shown the existence of substantial disagreements about the elements that make up the classification frameworks of music. 
+
+
+
+**** psychological
+
+
 
 Given the high detail of the concepts in question, it is implausible to assume that each user of the service is familiar with every single concept. 
 #
@@ -69,61 +90,346 @@ Not considering different classification systems would assume the genres to be p
 
 ** Data and Methods
 *** About last.fm
+Last.fm [fn::https://www.last.fm] is a digitial music service website, which provides users a number of ways to organize their music listening activities. 
+# 
+Founded in 2002, it grew to more than 50 million users a decade later, but has been waning since, presumably due to the emergence of other music streaming services. 
+# 
+While Last.fm initially hosted internet radio streams, it did not provide on-demand selection of specific works that emerging competitors such as Spotify, Deezer and Google Play provided. 
+#
+Most importantly for this study, last.fm allows users to track the songs they play on various devices by  /scrobbling/ them to last.fm, which over time builds up a unique listening history [fn::last.fm also has social network features which allow to befriend other users and exchange messages. While the spread of music through social networks this data is only accessible publicly to a very limited extent, and even less is available about the longitudinal development]. 
+# 
+The website provides a variety of services to analyze one's music consumption patterns such as weekly reports of favorite songs and artists, and gives recommendations for similar music.
+#
+Of central importance is also the last.fm API (Application programming interface), which (while by current standards relatively slow) allows access to large amounts of highly detailed information. 
 
-*** User partitioning
+**** labelling
+# 
+Another way in which users can shape their music consumption on last.fm is through a labeling system:
 #
-I partition the users ~for each time point~ using Latent Dirichlet Allocation (LDA) [fn::While it would also be possible to partition users with their entire listening histories, this would assume that both general user topics as well as individual user tastes stay constant over time. Both assumptions can be regarded as plausible, but ]
-~is actually preferable now with large sample because takes so fucking long~
+last.fm allows users to freely label songs, artists and tracks with so-called tags. 
 #
-While LDA is primarily known for its use in  topic modeling of documents parencite:DiMaggio_2013_affinities or protocols parencite:Fligstein_2017, it also seems well suited for sparse cultural networks due to what textcite:DiMaggio_2013_affinities call polysemy and heteroglossia. 
+It is primarily this lack of limitations that distinguishes the categorizations of last.fm from those of other platforms.
 # 
-First, polysemy refers to the possibility multiple (i.e. gradient) membership of songs in the topics, which allows to account for the fact that a song might be not exclusively associated by one ~framework~, but might be associated with multiple partitions where its meaning changes depending on the other songs in the respective groupings. 
+In the case of Spotify and Allmusic, genre, style and mood classifications are provided by the musical industry. 
 #
-Second, heteroglossia ('multiple voices') refers to the fact that unlike other network community detection algorithms parencite:beckett2016improved,Peixoto_2017_Bayesian, LDA accounts for gradient membership of users in the latent partitions and can therefore better corresponds to the probabilistic framework as it eschews clear-cut membership [fn::It is also preferable in terms of processing power as the network-based measures are orders of magnitude more comptutationally expensive].
+Where users have influence, for example in the case of Discogs, they have to select genres from an explicitly  defined classification system which in turn are also subject to control by other users or moderators to ensure correct classification textcite:Piazzai_concepts. 
 # 
-With all its potential, it is important to stress that LDA an magic or effortless solution. 
+last.fm however allows users to tag songs, albums and artists without restrictions. 
 #
-Rather it requires substantial consideration of the number of topics, which have to be set in advance, as well as the hyperparameters \alpha and \beta that guide the allocation of users to clusters. 
-# 
-In terms of partitions, I decided apriori to generate five. 
-# 
-This is certainly much lower than what is typical for topic modeling using documents, where rarely less than 30 topics are extracted, and values above 100 are not rare either. 
-# 
-As such, fit indices (log likelihood) could certainly be improved by more topics. 
-# 
-However, since my primary interest lies in a general partitioning of users to get a measurement of consensus about genres rather than to investigate the intricacies of latent partitions, I assume that five partitions are sufficient. 
+As one might expect this, this opportunity produces vast amount of tags.
 #
-The \alpha and \beta parameters shape the topics to be extracted, and have to be chosen in respect to prior knowledge about the distribution of topics: 
+While familiar concepts such as rock (along its variants of alternative, classic and indie rock), rap, metal, punk, dance or electronic are the most widely used once, a much larger number of much more specific tags are present as well: 
 # 
-\alpha influences the extent to which a document is constructed from multiple topics, with high values resulting in each document containing a mixture of most topics, whereas low alpha values results in documents containing only few topics. 
+"Italian progressive rock", "punk noise hardcore rocknroll" and "neoclassical darkwave" are examples of highly specific combinations of established genres. 
+#
+However, since there are no restrictions, tags can also reflect sentiments ("most loved", "i want back to the 60s", "sweetncatchy") or other works ("green eggs and ham"), refer to seemingly trivial features ("title is a full sentence", "why on earth is this just a bonus track") and parody the existence of specialized genres ("TELECFUNKNOHAUSINDUBSTRIPIALBREAKSTEP") [fn::they can also turn exceptionally long, such as "songs die so gut sind das ich meiner oma ihr klein haeuschen zwar nicht verkaufen aber zumindest dafuer beleihen wuerde" (german for songs so good that I wouldn't sell, but at least hypothecate my grandma's little house for them)]
 # 
-\beta influences the number of in each topic songs with high values resulting in topics which share a substantial amount of songs, whereas for low values each topic contains just a few words exclusive to that topic. 
+As such, the tags of last.fm constitute (or given its decline in current years, constituted) a diverse conceptual ecology. 
+#
+Given the low extent of formal structuration and absence of explicit guidelines, it seems likely that mechanisms involving the information content of the concepts have substantial impact[fn::It is however worth pointing out that it is not clear who exactly performs the labeling and therefore might be possible that 'behind the scenes' substantial amount of labeling are not performed by users, but by industry actors. While there are certainly more forces in category creation involved than can be accounted in this study, there is no reason to assume that actors involved in other processes do not also process the genres in terms of features, which are focused in this study.].
+
+**** features
+#
+Given such extensive opportunities for categorizations, the vast majority of songs has multiple tags (the ones which are only member of one category are songs with very low playcounts).
+#
+Last.fm therefore weights tags based on the frequency with which they were assigned: 
+#
+Tags that are often given to a track, artist or album are given high weights and are displayed (without weights) on the respective site to provide genre information to users. 
+#
+However, weights for all (not just the most popular ones that are listed on the websites) are available via the API [fn::https://www.last.fm/api/].
+#
+Here the most frequent tag is given the weight 100, while less popular ones receive lower weights. 
+#
+It is not explicitly stated how tags are weighted, but the distribution of tag weights for songs with few tags shows spikes at 20, 25 and 33 and 50, which makes me fairly confident that weights are assigned in a linear fashion: 
+#
+As the most popular tag receives a weight of 100, all subsequent ones are weighted by how frequently they were assigned compared to the most popular one (this also seems likely as (unpopular) songs can have multiple tags with weights of 100, which would be plausible if these are all given once). 
+# more sources
+It is thus possible to estimate the gradient of each membership, which is rare in the case of music classification (for example, genre membership in the more formalized classification systems of Discogs or Allmusic is binary). 
+#
+
+
+*** the Music Listening Histories Dataset
+#
+Next to information about the tags and their frequencies, the last.fm API also provides access to a users listening history accumulated over his or her time of using the service.
 # 
-With the default values of ~python's sklearn implementation~ being 1/number of topics for both alpha and beta, I ran a number of tests with different values for \alpha and \beta ~appendix~.
+This is a key distinguishing feature from other services that collect such listening histories (such as Spotify or Google Play), for which third parties have to acquire explicit authentication from each user individually. 
+#
+On last.fm however, users (formally) agree to their listening history being publicly accessible signing up. 
+#
+textcite:Vigliensoni_2017_mlhd have therefore used the last.fm API to construct a the Music Listening History Dataset (MLHD), which consists of the listening logs of 582,703 random last.fm users with a a total of 27 billion listening events. 
+#
+To be included, each of the users has to have a total playcount of 7300, corresponding to an average of ten songs every day for a period of two years. 
 # 
-Guided by these simulations with the goal of a rather strict partitioning of users, I chose an \alpha value of 0.1 and a \beta values of 0.4. 
+To maintain degree of cultural consistency I limit my selection to users that have listed the United States as their country of residence, which with around 100,000 users contributes the largest amount of users to the MLHD. 
 # 
-Due to computational limitations, I partition the users with a subset of ~5000~ songs. 
+Due to computational limitations, I select a random subset of 26,231 US users. 
+
+**** bias
+While textcite:Vigliensoni_2017_mlhd have sampled the users randomly, such a big data source does not constitute a representative sample in the traditional sense. 
+#
+First, the very use of last.fm is obviously not evenly spread along socio-demographic lines:
+#
+Younger (the average age in the sample is 25) and male (men contribute 58%, women 23%, 18% undeclared) demographics are very clearly over-represented.
+#
+Secondly, the requirement of a playcount of at least 7300 requires that users are avid music consumers, which likely skews the selection to favor voracious parencite:Sullivan_2006_voracious consumers. 
 # 
-Do to do not use the song membership values directly and instead use the user values to weigh the contribution of each user to the respective partition, the exact process of which I now turn to. 
+Third, there is no information on socio-economic indicators, albeit given that voraciousness is linked to educational qualifications and social staatus (ibid.) one could likely expect a skew towards upper social strata. 
+
+**** contra-bias
+# 
+However, there is no substantial reason to despair either. 
+#
+As the interest lies in the survival chances of concepts rather than the properties held on a personal level, it has to be considered how the biased sample affects this goal. 
+#
+From this point of view, the focus on voracious consumers might be a benefit as it highlights those which are heavily invested in music. 
+# 
+Such avid consumers are likely to have a well-developed sense of their areas of interest which enables them to evaluate the cultural fit of new or existing categories. 
+#
+Hence due to this above average interest, their actions might have an above average amount of influence on a genre's survival chances.
+# 
+Additionally, in the case of categories that were coined or established through last.fm's tagging system, highly active last.fm might actually be the best way to study their development. 
+
+**** log processing
+#
+The dataset consists of a file for each user, with each line constituting a listening event. 
+#
+Each listening event in turn consists of a time stamp, and MusicBrainz IDs of (an identification system developed by the MusicBrainz Project) the song, the album and the artist, to the extent that they are available. 
+# 
+As my operationalizations of genres as prototypes which describe a probability distribution over feature values, I only use listening events for which an MBID of the song is present[fn::Due to the particular technical setup I use I can currently not precisely estimate how many listening events do not have a song MBID and are therefore dropped. However, I do not think this poses a substantial issue: First, manual inspection of some logs seems to indicate that song MBIDs are generally, it is rather album MBIDS that seem to be missing. Second, songs lack MBIDs presumably due to their rarity (such as old recordings) and are therefore unlikely to be influential in defining genres]. 
+# 
+This results 1,034,669,879 listening events for the 26,231 users, or 39,445 on average. 
+# 
+This 1 billion of listening events is spread over 4,150,846 unique songs in a highly skewed way. 
+#
+To obtain genre membership information, I queried the last.fm tag API for the 3.2 million most listened songs, which given the variation in popularity, account for 98.5% of the listening events.
+#
+Furthermore I used the MusicBrainz API retrieve information on release dates, which is not provided by last.fm. 
+#
+For 97% songs, both of these queries were successful, which resulted in 3,136,615 songs for which genre membership is available (As we will see soon, a more substantial bottleneck lies elsewhere). 
+#
+In total there are 885,630 tags associated with the 3.1 million songs. 
+# 
+I will describe later on how these are filtered down. 
+
+# Last.fm however was no exclusive place for avant-garde audiences, as mainstream artists and established genres are ~strongly present~. 
+# # 
+# Awarded multiple times for its innovativeness, last.fm stood for a time period in the 2000s for a new way of consuming and interacting with music. 
+# # 
+# New genres in this period of time are likely to have left a trace in the digital listening logs
+# TRUE BUT THEN LOGS DON"T SAY ANYTHING ABOUT THEIR CHANCES
 
 *** AcousticBrainz and Prototype construction
+# unclear if lfm uses acoustic features
+
+**** prototypes more justifiable than exemplars
+
+One might (correctly) argue that it is already possible to generate a model of the semi-lattice structure of genres without reference to their attributes. 
+#
+It is for example possible to use the song-tag links to generate measures of co-occurence to infer a genre hierarchy:
+#
+Genre X might be a subset of genre Y if most or all songs of genre X are also members of the much larger genre Y. 
+#
+However, such a definition is /extensional/ and corresponds more to the exemplar model than an /intensional/ feature-based prototype parencite:Murphy_2004_concepts. 
+# 
+It would therefore be much more cognitively expensive as large numbers of objects would have to be stored, whereas a prototype is much due to its level of abstraction ~more compact~ [fn::It is nevertheless worth noting though that despite a lacking theoretical foundation this is likely the underlying principle of last.fm's recommendation system as there is no indication that last.fm anywhere uses musicological features (Spotify on the other hand seems to integrate musicological features in their services, as it makes them accessible via the API).].
+
+
+**** actual features
+ # (and more importantly, the meaning vis-a-vis other genres) 
+A thoroughly theoretically-informed cognitive model therefore requires information regarding the features of the items, from which then (as category memberships are known) prototypes can be inferred. 
+#
+For this purpose I use the AcousticBrainz project [fn::https://acousticbrainz.org], a joint effort of the Music Technology Group at Universitat Pompeu Fabra in Barcelona and the /MusicBrainz/ aiming to provide detailed musicological information on a large number of tracks. 
+#
+AcousticBrainz provides information on two levels: 
+# 
+Low-level data is comprised of more technical characteristics as measures for loudness, dynamics and spectral shape of a signal, rhythm descriptors and tonal information such as keys and scales, which results in hundreds of variables whose specific meaning is hard to discern. 
+#
+High-level data however consists of a of summarizing constructs based on the low-level data obtained through supervised machine learning. 
+# 
+As evaluating the highly technical aspect of low-level musicological data generation is beyond the possibilities of this project, I exclusively use the high level-data as I assume that it captures meaningful differentiation in terms of how songs sound. 
+#
+In particular, I use 12 dimensions of the high-level data which describe each track in terms of danceability, gender (of vocals), timbre, tonality, voice (contrasted against instrumentality), acoustic-ness (vs non-acoustic), aggressiveness, electronic-ness (vs non-electronic), happiness, party-ness, relaxed-ness, and sadness. 
+# 
+Each of the dimension ranges from 0 to 1. 
+
+**** binominal distributions
+
+During preliminary investigation, it became clear that the classifiers which produce the high level dimensions are geared towards producing unambiguous classifications of tracks, which results in bimodal distributions where most tracks are situated on the extremes of the scales. 
+# NOT CONVINCING
+This is not necessarily a reason for concern: 
+#
+Features can certainly be described as binary, in fact [[textcite:Smith_1981_categories][p.12]] see the lack of dimensionality as the defining characteristic of a feature vis-a-vis a dimension. 
+#
+Since multiple dimensions are included, binary features would also not imply binary category memberships (
+# 
+However, most of the dimensions would not be intuitively understood as binary. 
+#
+It therefore seems reasonably to 
+
+
+Finally, 
+
+Instead of using a single measurement for each dimension, I therefore split each dimension into five discrete ranges to better capture the probability distribution of a genre over the dimensions. ~example figure~
+#
+
+
 
 *** Hierarchy construction
 
 *** Key Variables
 **** Dependent Variable: Genre Abandonment
 # 
-However, while the death of organizations such as companies parencite:Rao_1994_reputation,Kennedy_2008_counted or voluntary associations parencite:Singh_1991_change is straightforward to demarcate by formal events such as declaration of bankruptcy, no such explicit event exists for organizational forms (for an exception in the case of single organizational form see textcite:Ruef_2004_demise). 
+The primary variable of interest is the disappearance of a genre. 
 # 
-This is even more the case for weakly institutionalized or informal concepts as are investigated here. 
+However, the informal nature of the categories under investigation complicates the ability to exactly determine their disappearance. 
+# 
+Whereas disappearance in organizations parencite:Rao_1994_reputation,Kennedy_2008_counted,Singh_1991_change or highly institutionalized categories parencite:Lounsbury_2004_sources is demarcated by formal events such as declaration of bankruptcy or removal from category-defining institutions, no natural event indicates the disappearance of a last.fm tag. 
+# 
+As such, their abandonment has to be inferred from their use frequencies. 
+#
+Since I generate measures for each time period separate, a genre can be classified as having died in period t when in period t+1 it fails any of the thresholds discussed. 
+# 
+A further complication arises from the fact that genres can display spotty histories: 
+# 
+After being considered alive in time period t, it may be considered dead in period t+1 but through a gain in popularity be considered alive again in period t+2. 
+# 
+To ensure that genres have actually disappeared, I do not require them therefore to have died at least three time periods before the end of the observation period. 
+#
+In the case of abandoned genres with spotty histories the last time period in which they were active is coded as the time period in which they were active. 
+
+*** predictors concepts
+**** Predictor: Informativeness 
+# 
+Informativeness describes the extent to which a subordinate genre differs from their parents, which for each genre are the three least-divergent genres. 
+# 
+Informativeness is therefore operationalized as the sum of the Kullback-Leibler divergences between a genre and its three superordinates (since all genres have three parents, it makes no difference whether the mean or sum is taken). 
 #
 
 
+**** Predictor: Distinctiveness
+# 
+Distinctiveness concerns the relation between a genre and the genres in the same cohort, which is defined through parent genres. 
+# 
+As such, it indicates the extent to which a genre stands out. 
+# 
+It hence is operationalized as the mean of a distance metric between a genre and the other genres of its cohort parencite:Piazzai_concepts. 
+# 
+However, an issue arises with the choice of the distance metric: 
+# 
+A central aspect of concept similarity (and distance) is asymmetry parencite:Tversky_1977_similarity, which arises due from feature overlap. 
+#
+However, the Kullback-Leibler divergence, which had allowed asymmetric similarity judgments to infer the hierarchical structure of the classification framework, is not necessarily defined for relations between cohort members. 
+# 
+Since the Kullback-Leibler divergence is measured  from one genre to another, it requires the first to be a subset of the second as otherwise the lack of features cause it to be undefined.  
+# 
+While all songs are measured on the same variables, the splitting of these dimensions into five cells for each features can result in genres having values of zero for some of the features. 
+# 
+This is no problem for inferring the hierarchical structure as it is constructed with only the three lowest divergences (in practice Python returns undefined divergences as undefined) and hence uses only a small subset (in the case of 1k genres, only 3k/1k*1k-1=0.003=0.3% of the computed KLDs are used for network construction), of which by definition all are defined. 
+#
+Within cohorts however, Kullback-Leibler divergences can be undefined. 
+# 
+While textcite:Hannan_2019_concepts recommend the Kullback-Leibler divergence for distinctiveness measurements as well, it cannot reliably be used for this task.
+#
+The genres also have still the same weighted total amount of features as the presence of zero values on some features is offset by higher values elsewhere, which would result in a measure of similarity based on feature overlap to be symmetric as well. 
+# 
+Since I could not employ a true asymmetric measurement for distinctiveness,  use the mean cosine similarity between a genre and its cohort members (which is what textcite:Hannan_2019_concepts eventually resort to as well).
+# 
+While it might that asymmetry is less central for comparisons within cohorts as there due to the shared roots overall similarities can be expected to be lower  than within a random selection of genres, this specific issue clearly requires further investigation. 
+
+
+*** predictor ecology
+
+**** Predictor: bandwagoning, parent popularity
+# 
+Parents might not only in matter in terms of how informative genres are with regards to them. 
+#
+It might also be relevant how large parents are: 
+#
+Roots with large audiences might provide more viewers that can insulate its children, as well as provide symbolic legitimation. 
+#
+On the contrary, large parents might attract many genres, and hence increase competition. 
+#
+To investigate both mechanisms, a linear and a squared coefficient for parent size are added. 
+
+
+
+
+**** is cohort volume indicator of density? kinda is about how much listening is going on 
+# 
+An equivalent of the dual relationships to roots can be found for cohorts. 
+#
+They might not only be relevant in terms of distinctiveness as the concept theories elaborate, but also matter in terms of ecological characteristics. 
+#
+Density plays a central role in this regard, and the typical arguments of density dependence made for organizations apply to genres as organizational forms as well: 
+#
+Cohorts with a low number of genres offer opportunities to expand as they provide legitimation, while crowded cohorts are expected to be dominated by competition. 
+#
+In line with the traditional approach, a genre's cohort density is first operationalized as the number of other genres with which it has at least one parent in common[fn::Genres with multiple common parents are only considered once], for which both a linear and a quadratic term are added. 
+#
+
+
+Additionally, the high detail of the data further allows to operationalize a cohort in terms of playcount. 
+#
+A cohort may consist of only have a handful of genres, but if these are all highly popular, one might expect different cohort effects compared to an equally-sized cohort of genres of low or medium popularity. 
+# 
+I have therefore added additional (linear and quadratic) measure of cohort density by summing up the (tag-weighted) playcounts of each genre in the cohort. 
+#  
+
+
+However, the playcount information allows to construct even further metrics to characterize a genre's environment. 
+#
+First, it allows to estimate the extent to which the genre 'fills out' its cohort by dividing the genre's playcount by the total cohort playcount. 
+#
+Secondly, it is possible to see how large in terms of playcount a genre is in comparison with the average genre in cohort in terms by playcount by dividing the genre's playcount by the mean cohort playcount. 
+#
+
+
+
+**** Controls
+# 
+Most relevant controls concern the size of a genre, as genres with large following are less likely to be abandoned. 
+# 
+I therefore control for the total weighted playcount of a genre by summing up the playcounts for each song weighted by the extent to which it belongs to any genre. 
+# 
+I further control for the number of releases in the time period in question using the release date data from MusicBrainz. 
+# 
+I also use the release information to calculate the average age the songs in the genre, again weighted by song playcount and tag weight. 
+#
+Furthermore use the Gini index of playcount by artist to estimate the extent to which a genre is dominated by a small proportion of the artists. 
+# 
+While tags that were highly dominated by one artist were excluded (see above), variations in evenness are still likely to exist and might impact survival chances. 
+# 
+Given the phenomenon of gradient multiple membership, it is worth to investigate the extent to which a genre is associated with its items. 
+#
+I therefore control for the average tag weight of a genre's songs, which is weighted by song playcount. 
+# 
+~put dist_mean to concept variables?~
+
+***** item similarity
+The coal of concepts is to function as distillations of objects which are similar in terms of their features. 
+#
+Consequently, one might expect that they are more clearly described, less cognitively expensive and ultimately more useful if the items they describe are similar. 
+#
+A key question is therefore the range of objects that are supposed to be subsumed by a concept. 
+#
+If they are not very similar, a concept might be harder to keep track of. 
+#
+Large ranges can also indicate conflict or lack of disagreement over what a category means in terms of content. 
+#
+To capture this item similarity, I calculate the mean cosine similarity between the songs of a genre (or a random sample of 750, if there are more songs in the genre). 
+#
+The comparisons are weighted by the sum of the tag weights multiplied with the playcounts of both songs to be compared. 
+
+
+
 *** Survival Analysis
+To estimate the impact of the covariates on the survival chances I use piecewise constant hazards. 
 
+ Another example is the Cox regression model used in survival analysis; many studies apply this popular model without even being aware of the proportionality assumption (i.e., the relative hazard of groups of interest is constant over time) required for valid inference.
 ** Results
+*** concepts
 
+*** ecology
 
 ** Discussion
 
