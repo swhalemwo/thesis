@@ -172,7 +172,7 @@ dfc2$cohrt_dom <- log(dfc2$volm/dfc2$cohrt_vol_sum)
 
 cohrt_vol_mean <- dfc2$cohrt_vol_sum/dfc2$cohrt_len
 
-dfc2$cohrt_rel_sz <- log(dfc2$volm/tru_cohrt_vol_mean)
+dfc2$cohrt_rel_sz <- log(dfc2$volm/cohrt_vol_mean)
 
 
 
@@ -335,7 +335,9 @@ dfc2$new_rlss <- log(dfc2$nbr_rlss_tprd+1)
 
 ## *** one partition
 
-ctrl_vars <- c('avg_weight_rel_wtd','spngns_std', 'cos_sims_mean_wtd', 'gnr_gini', 'avg_age', 'len_penl_prnts_100', 'sz', 'new_rlss', 'gnr_age')
+ctrl_vars <- c('avg_weight_rel_wtd', 'cos_sims_mean_wtd', 'gnr_gini', 'avg_age', 'sz', 'new_rlss', 'gnr_age')
+## 'len_penl_prnts_100'
+## 'spngns_std'
 
 ## chart.Correlation(dfc2[,var_set_crols])
 ## all seems sufficiently uncorrelated
@@ -371,10 +373,21 @@ not_scale <- c('gnr_age')
 
 ## scale(dfc2[,all_vars[all_vars %!in% not_scale]], center = FALSE, scale = apply(dfc2[,all_vars[all_vars %!in% not_scale]], 2, sd, na.rm = T))
 
+dfc3 <- dfc2[0,all_vars]
 
-dfc3 <- as.data.frame(scale(dfc2[,all_vars[all_vars %!in% not_scale]], center=FALSE, scale = apply(dfc2[,all_vars[all_vars %!in% not_scale]], 2, sd, na.rm = T)))
+for (i in unique(dfc2$tp_id)){
+    dfc3_prep <- as.data.frame(scale(dfc2[which(dfc2$tp_id == i),all_vars[all_vars %!in% not_scale]], center=FALSE,
+                                     scale = apply(dfc2[which(dfc2$tp_id == i),all_vars[all_vars %!in% not_scale]],
+                                                   2, sd, na.rm = T)))
+                               
+    dfc3_prep2 <- cbind(dfc3_prep, dfc2[which(dfc2$tp_id == i),c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
+    dfc3 <- rbind(dfc3, dfc3_prep2)
+}
+ 
+       
+## dfc3 <- as.data.frame(scale(dfc2[,all_vars[all_vars %!in% not_scale]], center=FALSE, scale = apply(dfc2[,all_vars[all_vars %!in% not_scale]], 2, sd, na.rm = T)))
 
-dfc3 <- cbind(dfc3, dfc2[,c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
+## dfc3 <- cbind(dfc3, dfc2[,c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
 
 ## could add log size
 ## size negatively related to distinctiveness and informativeness: kinda like that stuff that's closer together is bigger; more distant things don't grow so well
@@ -383,7 +396,6 @@ dfc3 <- cbind(dfc3, dfc2[,c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
 # chart.Correlation(dfc2[,all_vars])
 
 ## * phreg
-
 
 dv <- 'Surv(tp_id, tp_id2, event)'
 
