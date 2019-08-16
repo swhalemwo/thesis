@@ -156,19 +156,27 @@ def gnrt_acst_el(acst_gnr_dict, nbr_cls, gnrs):
         wts = dfcx['rel_weight'] * dfcx['cnt']
 
         for vrbl in vrbls:
+            if nbr_cls == 1:
+                
+                vlu = np.average(dfcx[vrbl], weights = wts)
+                nds1 = vrbl + '1'
+                nds2 = gnr
 
-            bins = np.arange(0, 1 + 1/nbr_cls, 1/nbr_cls)
-            a1, a0 = np.histogram(dfcx[vrbl], bins=nbr_cls, weights=wts)
-            # a_old, a0 = np.histogram(dfcx[vrbl], bins=10)
+                elx = [[nds2, nds1, sum(wts), vlu, vlu]]
 
-            nds1 = [vrbl + str(i) for i in range(1, len(bins))]
-            nds2 = [gnr]*len(nds1)
+            else:
+                bins = np.arange(0, 1 + 1/nbr_cls, 1/nbr_cls)
+                a1, a0 = np.histogram(dfcx[vrbl], bins=nbr_cls, weights=wts)
+                # a_old, a0 = np.histogram(dfcx[vrbl], bins=10)
 
-            a_wtd = [i/sum(wts) for i in a1]
-            # a_wtd_old = [i/gnr_cnt for i in a_old]
-            a_wtd2 = [i/max(wts) for i in a1]
+                nds1 = [vrbl + str(i) for i in range(1, len(bins))]
+                nds2 = [gnr]*len(nds1)
 
-            elx = [i for i in zip(nds2, nds1, a1, a_wtd, a_wtd2)]
+                a_wtd = [i/sum(wts) for i in a1]
+                # a_wtd_old = [i/gnr_cnt for i in a_old]
+                a_wtd2 = [i/max(wts) for i in a1]
+
+                elx = [i for i in zip(nds2, nds1, a1, a_wtd, a_wtd2)]
 
             el_gnr = el_gnr + elx
 
@@ -511,6 +519,7 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
         # cohorts
         cohrt_vlu_names, cohrt_vlus = chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict)
         for i in zip(cohrt_vlu_names, cohrt_vlus):
+            
             res_dict[gnr][i[0]] = i[1]
 
         # spanningness
@@ -524,7 +533,6 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
         # dfcx stuff
         dfcx_names, dfcx_vlus = dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int)
         for i in zip(dfcx_names, dfcx_vlus):
-            print(i)
             res_dict[gnr][i[0]] = i[1]
 
         tx6 = time.time()
@@ -722,11 +730,17 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     cohrt_vol_mean = np.mean(cht_sizes)
     cohrt_vol_sd = np.std(cht_sizes)
 
+    cohrt_med = np.median(cht_sizes)
+
     cohrt_ovlp = 1-(len(cohrt_mbrs)/len(cohrt_mbrs_dupl))
 
-    cohrt_vlu_names = ['pct_non_inf', 'cohrt_mean_non_inf', 'cohrt_mean_cos_dists_wtd', 'cohrt_mean_cos_dists_uwtd', 'cohrt_len', 'cohrt_vol_sum', 'cohrt_vol_mean', 'cohrt_vol_sd', 'cohrt_ovlp']
+    cohrt_vlu_names = ['pct_non_inf', 'cohrt_mean_non_inf', 'cohrt_mean_cos_dists_wtd',
+                       'cohrt_mean_cos_dists_uwtd', 'cohrt_len',
+                       'cohrt_vol_sum', 'cohrt_vol_mean', 'cohrt_vol_sd', 'cohrt_ovlp', 'cohrt_med']
 
-    cohrt_vlus = [pct_non_inf, cohrt_mean_non_inf, cohrt_mean_cos_dists_wtd, cohrt_mean_cos_dists_uwtd, cohrt_len, cohrt_vol_sum, cohrt_vol_mean, cohrt_vol_sd, cohrt_ovlp]
+    cohrt_vlus = [pct_non_inf, cohrt_mean_non_inf, cohrt_mean_cos_dists_wtd,
+                  cohrt_mean_cos_dists_uwtd, cohrt_len,
+                  cohrt_vol_sum, cohrt_vol_mean, cohrt_vol_sd, cohrt_ovlp, cohrt_med]
 
     return(cohrt_vlu_names, cohrt_vlus)
 
@@ -892,7 +906,7 @@ def ptn_proc(ptn):
 
     print('construct acst gnr dict')
 
-    nbr_cls = 5
+    nbr_cls = 1
     acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
     sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
@@ -906,10 +920,9 @@ def ptn_proc(ptn):
     print('construct acoustic mat')
     acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
 
-    t1 = time.time()
     print('construct kld mat')
     ar_cb = kld_mat_crubgs(gnrs, acst_mat)
-    t2 = time.time()
+
 
     print('construct kld 3 parent edgelist')
     # could loop over npr 1-5, add prnt to column names? 
@@ -918,6 +931,7 @@ def ptn_proc(ptn):
 
     print('construct kld graph')
     g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+    graph_pltr(g_kld2, g_kld2.vp.id, '1_cell_space.pdf', 1)
 
     print('extract features')
     # could be parallelized as well
@@ -927,7 +941,6 @@ def ptn_proc(ptn):
 
     df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat)
     tx2 = time.time()
-
 
     ret_dict = {'g_kld2':g_kld2, 'df_res':df_res, 'gnr_ind':gnr_ind, 'acst_mat':acst_mat}
 
@@ -1488,3 +1501,6 @@ if __name__ == '__main__':
 # ch_hist = client.execute("SELECT quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
 
 # ch_hist = client.execute("SELECT quantilesExactWeighted(0, 0.1, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8,0.9,1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
+
+
+
