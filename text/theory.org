@@ -1,4 +1,15 @@
 
+#+latex_class: article_usual2
+# erases make title
+# #+BIND: org-export-latex-title-command ""
+
+# fucks all the maketitlestuff just to be sure
+# #+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+# #+OPTIONS: toc:nil#+TITLE: #+AUTHOR: #+DATE: 
+# #+OPTIONS: h:5
+
+
 * theory/IRC final :noexport:
 
 ** notes alex
@@ -165,37 +176,13 @@ audience
 
 - cite:van_Venrooij_2018_fuzziness
 
-
-** concepts
 #
 textcite:Powell_1991_introduction highlight the importance of classification and cognitive aspects as a core aspect of sociological neoinstitutionalism. 
 # 
 
 
+** concepts
 
-*** location of concepts
-# """debates the location of concepts, not clear if needed"""
-# underlying motivation is to integrate lizardo 2016, and don't treat concepts as free floating, or arbitrary switch locations
-
-It is certainly relevant to consider whether concepts reside in a public domain, an individual's mind, or both parencite:Lizardo_2016_improving. 
-# 
-
-- cite:Martin_2010_ant 
-  - emphasizes the cognitive limitations, and therefore similarly argues to conceptualize culture as a network of concepts
-  - stresses interaction with environment for sensemaking: availability heuristic, representativeness heuristic, anchoring-and-adjustment
-  - *ecologically rational*: good decision making if high quality information is accessible
-
-- [[textcite:Steyvers_2005_structure][p.44]] argue that same developmental mechanisms shape semantic association networks, whether they are personal (language acquisition)  or public (language evolution). 
-- cite:Strauss_1997_cognitive: the meaning we will give to "meaning" here is the interpretation evoked /in a person/ by an object or event at a given time" (emphasis added). (p.6)
-
-# hmm no sin-gle person knows all the entire classification system -> public? 
-# is tagging system an institution? kinda.. has a place, material reality, interface
-idea of explicit hierarchies seems like an imposition of public culture/order (bureaucracy) into minds
-
- 
-
-
-# 
 
 *** classical view
 # """introduces classical view: definitions, hierarchy"""
@@ -213,75 +200,57 @@ idea of explicit hierarchies seems like an imposition of public culture/order (b
 # - processing: categorization, inference
 # - learning/acquisition: not really important here me thinks: could put it into suggestions for further research
 
-Given
-- logocentrism (Derrida)
-- bureaucratization/iron cage 
-  - narrow down to institutional logic? 
+# Given
+# - logocentrism (Derrida)
+# - bureaucratization/iron cage 
+#   - narrow down to institutional logic? 
 
-It may seem intuitive to think that concepts adhere to a unambiguous and internally coherent structure. 
+In everyday life, it may seem intuitive to think that concepts adhere to a unambiguous and internally coherent structure. 
+# 
+We (think we) aim for clear definitions of the objects or situations we encounter, and the extensive accounts we can produce to justify a choice in favor of one possibility vis-a-vis another (such as the comparison of two products) can give us the impression that we have grasped the essence of things. 
 # (~it certainly seems to an extent be the prevailing worldview in formal education systems~) . 
 # 
-This general idea of well-orderedness is what textcite:Smith_1981_categories,Murphy_2004_concepts call the "classical view", and argue that it not only constitutes a lay understanding of concepts, but was the established paradigm in the psychology of concepts until the 1970s. 
+This general idea of well-orderedness is what textcite:Smith_1981_categories,Murphy_2004_concepts call the "classical view". 
 # 
-The classical view makes a number of assumptions. 
+It is argued that it not only constitutes a lay understanding of concepts, but was the established paradigm in the psychology of concepts until the 1970s. 
 # 
-First, it argues that concepts are definitions which can be clearly defined with a list of necessary and/or jointly sufficient features. 
+The classical view entails a number of characteristics. 
 # 
+First, it argues that concepts are /definitions/ which can be clearly defined with a list of necessary and/or jointly sufficient features. 
+# 
+For example, one might consider the argument of textcite:popper1971conjectural to consider falsifiability as the demarcation criterion between science and non-science. 
+#  
 Inspired by set theory, a necessary consequence of this assumption is to view category membership as clear cut:
 # 
 Objects are either complete members of categories, or they are not members at all. 
 # 
-In turn, this assumes that all objects that exactly fulfill the membership conditions are equally good members (p.15).  
-# NOPE
-Second, concepts at different levels of abstraction are seen as forming a logically ordered and explicitly stored hierarchy. 
+In turn, this assumes that all objects that exactly fulfill the membership conditions are equally good members [[parencite:Murphy_2004_concepts][p.15]]
 # 
-If a concept is a sub-concept of another concept, all members of the sub-concept are also members of the super ordinate concept, resulting in membership being transitive [[parencite:Murphy_2004_concepts][p.27]]. 
-# 
-For example, if one considers dogs as a sub-concept of mammals, than every member that is a member of the set of dogs is also a member of the set of mammals [[parencite:Smith_1981_categories][p.177]]. 
 
-
-*** conceptual hierarchy
-# """feature storage at relevant level"""
-# is that part of classical view? 
-# unclear: has logic fetishism: explicitly stored links rather than similarity judgments
-# but Quillian/Collins consider substantial limitations in 1969 and Quillian doesn't require logical hierarchy in any of his other papers afaik
-
-# is it even needed? definitely don't have different features at different levels as that what defines concepts
-# -> would leaving it out not require me to elaborate on features v dimensions? 
-# no would still need features v dimensions because i need overlap (not distance) to drive similarity judgment
-
-
-
-~Third??~, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
-# 
-While 'barking' is a feature that is relevant to define a dog, more general features that dogs share with other mammals (for example, lactation), are stored only at the more general mammal concept and can be retrieved by traversing up the explicitly stored hierarchical link between the concept of dog and mammal. 
-# 
-This distributed storage is argued to be more efficient parencite:Collins_1969_retrieval, as it greatly reduces the need to define all properties especially at more specific lower levels, which instead receive most defining properties from superordinate concepts. 
-
-
-# A further assumption is that features are only saved at the corresponding level of abstraction: 
-# 
-# For example in the case of vehicles, the property of being a mechanical device to transport things is seen as associated with the most general ~vehicle~ level, the feature of having wheels and driving on roads to the intermediate and the feature of having an open cargo area associated with the most specific level. 
-#
-# Within such a (crisp) hierarchy, features are inherited from higher levels. 
-# 
-# Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks are cars as well as vehicles. 
 
 *** new view: probabilistic, connectionist
-cite:Murphy_2004_concepts argues that each of these points has received criticisms to an extent that they have been abandoned or heavily reformulated. 
-# 
-I will start with the notion of concepts as definitions. 
 
-**** probabilistic 
+cite:Murphy_2004_concepts argues that the classical view has received criticism to an extent that they it has been abandoned or heavily reformulated. 
+# 
+Most fundamental is the question whether concepts have a central core that can be captured precisely by a definition. 
 # """Wittgenstein quote: no clear definitions possible"""
-textcite:Wittgenstein_1968_investigations argues that while we have an understanding of what a game entails, there is no precise definition of them: 
+In regard to this possibility to clearly define a concept, textcite:Wittgenstein_1968_investigations argues that while we have an understanding of what a game entails, there is no precise definition of them: 
 
 #+begin_quote
 If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail. (p.31)
 #+end_quote
 
-Following Wittgenstein's argument in regard to inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurred boundaries. [fn\::It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms that attempt to make sense of social action. As these blurry boundaries are a feature of classification systems generally, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs.]
+Following Wittgenstein's argument in regard to inability to clearly define a game in terms of necessary and sufficient conditions, textcite:Murphy_2004_concepts,Hannan_2019_concepts argue that concepts are fuzzy and entail blurry boundaries. 
 # 
+It might be noteworthy to point out that such impossibility to clearly define a concept is not confined to the realms that attempt to make sense of social action. 
+# 
+As these blurry boundaries are a feature of classification systems generally, they also occur in technical domains such as the planethood of Pluto, or the classification of polyhedras parencite:Lakatos_2015_proofs. 
+# 
+Similarly, the idea of falsifiability as the demarcation criterion between science and non-science has been criticized. 
+# 
+textcite:Kuhn_2012_structure considers the presence of a paradigm crucial but given the complexity of a paradigm which consists of metaphysical principles, assumptions, instruments and established practices parencite:chalmers2013thing a much greater range emerges on what can count as science. 
+# 
+textcite:Feyerabend_1993_method completely foregoes the attempt to define science. 
 
 # ~One might argue that it is possible to construct crisp definitions in some cases~. 
 # - square: 4 sides of equal length, 4 90% degree angles
@@ -293,25 +262,25 @@ Following Wittgenstein's argument in regard to inability to clearly define a gam
 # - bird flies
 # - vehicle wheels, hovercraft
 
-Moreover, when asking participants to list features of a category (a common technique in the psychology of concepts) 
-
-participants often list features that do not apply to every member
  
 **** probabilistic 2 WORK WORK
 # """typicality, graded membership, MODEL??"""
-# 
+# prototype, exemplar, holistic ? schema? 
 The abandonment of crisp boundaries does not entail the adoption of an arbitrary 'postmodern' 'anything-goes' approach (or more precisely a caricature thereof). 
 # 
 Rather, the proper reformulation of crisp boundaries is through a probabilistic specification of concept-feature relations and category membership, which leads textcite:Smith_1981_categories to call it the *probabilistic view*. 
 # 
-
-prototype, exemplar, holistic ? schema? 
-
- # of features co-occurrence. 
+Rather than having an essence that can be grasped with a clear definitions, concepts are seen to acquire their meaning through relations to features. 
 # 
-A clear implication of a probabilistic formulation is variation in typicality instead of clear-cut membership, which textcite:Rosch_1975_family show in the case of fruits. 
+No single features (or combination of features) is decisive, but it is rather the multiplicity of features associated to varying degrees that constitute the meaning of a concept. 
+# 
+Central to the establishment of this perspective was the research of textcite:Rosch_1975_family, who found that instead of clear-cut membership, items vary in the degree of membership, 
+# 
+The variations in membership, also termed degree of (proto-) /typicality/ can be seen in the case of fruit. 
 # 
 While apples and oranges are very typical members of the category fruit, blueberries and lemons are rated as less typical, while tomatoes and olives are given the lowest typicality ratings. 
+# 
+However, the existence of graded memberships does not in itself provide an alternative model of concept structure that to replace the view of concepts as definitions. 
 
 # expand on FEATURES leading to high typicality judgement
 # could use Smith/Medin (all items similar to ~fruit~ category) -> lead into network as model: this raises the so-far overlooked question how concept storage is structured
@@ -320,44 +289,19 @@ While apples and oranges are very typical members of the category fruit, blueber
 # network as general structure, metric space as exception that still fulfills all conditions? 
 # fits better with idea of feature overlap
 
-***** network structure???
-# """arguing that network is good model: features as nodes, tie strength as probability densities"""
-
-# directed? 
-
-What might a proper structure of concepts then look like? 
+**** concept structure
+In this regard, textcite:Smith_1981_categories,Murphy_2004_concepts distinguish primarily between /prototype/ theories and /exemplar/ theories. 
 # 
-textcite:Steyvers_2005_structure argue that a networks provide a number of advantages over alternative models of conceptual structure. 
-# not clear how to elaborate without much technical details 
-
-
-Concepts can be modeled as probability distribution over features. 
-#  
-If a feature is typical for a concept, it would have a strong connection with this feature, whereas ties would be weaker or nonexistant for peripheral and irrelevant features, respectively. 
+According to /prototype/ theory, concepts are generalized abstractions of features, which given the probabilistic framework that replaced the classical view, can vary in the degree to which they are associated with the concept.
 # 
-However, in practice no qualitative distinction can be made whether something constitutes a concept, an item, or a feature. 
-# 
-Furthermore, concepts are often defined recursively by other concepts. 
-# 
-
- 
-***** metric space ???????????
-# """concepts in metric space, blurry region -> probability density"""
-
-# it just sounds a bit more intuitive
-# does it? features are binary, using metric dimension is not that catchy
-# using features (of fruit, of dog is quite intuitive)
-
-If one conceptualizes features as dimensions in a geometric space, a concept can then be spatially located. [fn::Nevertheless, the idea of feature values as geometric spaces has limitations, I will elaborate below]
-problem with network is that it makes concept node
-
-A concept does then however not constitute a point or a clear-cut area (which would be the classical view of concept defined by precise feature values), but rather a blurry region without clear-cut borders. 
+For example, the feature of sweetness may be a highly influential one for the concept of fruit, that of size might be moderately important, and the thickness of the peel might only have limited influence. 
 #
-To characterize this region, textcite:Hannan_2019_concepts invoke the notion of "probability densities" which describe the probability of each point to be a member of the concept. 
+/Exemplar/ theory however argues sees concepts as collections of objects. 
+# 
+Each encounter with an object is stored, resulting in large list of objects experiences to which new instances are compared. 
+#
+Recently, textcite:Murphy_2016_exemplar has argued that prototype theory is more adequate in regards to explain phenomena such as conceptual hierarchies (which will be elaborated further), knowledge and induction; I therefore use it primarily. 
 
-
-
-The relations between concepts can hence be inferred by the relations of their respective probability densities. 
 
 
 **** asymmetric distances
@@ -373,9 +317,9 @@ This would then result in a symmetric distance, as the distance from concept A t
 # 
 However, textcite:Tversky_1977_similarity finds that similarity judgments can differ depending on the order in which two items are to be compared. 
 # 
-Specifically, he finds that North Korea is judged to be more similar to China than China is judged to be similar to North Korea (Figure [[fig1]], left). 
+Specifically, he finds that North Korea is judged to be more similar to China than China is judged to be similar to North Korea.
 # 
-Rather than Euclidean distance, these similarities judgments are based on feature overlap of the probability densities cite:Murphy_2004_concepts. 
+Rather than Euclidean distance, these similarities judgments are based on feature overlap of the probability densities parencite:Murphy_2004_concepts. 
 #
 While the overlap is the same for each concept, its proportion of the entire probability distribution can vary if the size of the probability distributions of the concepts differ. 
 # 
@@ -385,11 +329,11 @@ While he focuses on competition rather than similarity, he employs a approach ba
 # 
 Another implication of using distance between centers would be that the extent of the probability density would not effect similarity judgments. 
 # 
-However, in figure [[fig1]] (middle and right), the same distances can result in different overlaps, which seems likely to lead to different similarity judgments. 
+~the same distances can result in different overlaps, which seems likely to lead to different similarity judgments.~
 
-#+caption: properties of concepts as probability densities
-#+label: fig1
-[[file:fig1.png]]
+# #+caption: properties of concepts as probability densities
+# #+label: fig1
+# [[file:fig1.png]]
 
 
 **** triangle inequality violations
@@ -518,7 +462,7 @@ Mammals as a term for taxonomic classification would be in a cohort with concept
 #
 As such a dog is not a hybrid in the same sense as a romantic comedy is as the concepts belong to different "visions of division" [[parencite:Bourdieu_1989_space][p.17]] where different things are at stake [[parencite:Fligstein_2015_fields][p.27]]. 
 # 
-These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannanq_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
+These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannan_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
 
 
 *** caveat classical view
@@ -548,16 +492,20 @@ In other words, the fact that some classification systems are characterized by a
 textcite:Quillian_1966_memory also shows that he is clearly aware of the limitations of hierarchical and has adopted his model accordingly: 
 
 #+begin_quote
-Programs by Green (1961), and by Lindsay (1961), explored the idea of using a memory organized as a single predefined hierarchy. Green's program showed that such a memory can be interrogated with natural language questions, and Lindsay's demonstrated that this kind of memory organization can provide certain inference-making properties, as long as information is confined to a single subject like a family tree. However, this kind of organization becomes uncomfortably rigid as larger amounts of material are considered, and is clearly not a general enough organization for the diverse knowledge people know and utilize. (p.6)
-#+end_quote
-
-In a later version of the same research parencite:Quillian_1988_memory, he notes: 
-
-#+begin_quote
-[A dictionary-like] outline organization is only adequate for one hierarchical grouping, when in fact the common elements existing between various meanings of a word call for a complex cross classification. In other words, the common elements within and between various meanings of a word are many, and any one outline designed to get some of these together under common headings must at the same time necessarily separate other common elements, equally valid from some other point of view. Making the present memory network a /general graph rather than a tree/ (the network equivalent of an outline) [...] makes it possible to [...] show any and every common element within and between the meanings of a word. (p.88, emphasis added)
+Programs by Green (1961), and by Lindsay (1961), explored the idea of using a memory organized as a single predefined hierarchy. [...] However, this kind of organization becomes uncomfortably rigid as larger amounts of material are considered, and is clearly not a general enough organization for the diverse knowledge people know and utilize. (p.6)
 #+end_quote
 
 
+# In a later version of the same research parencite:Quillian_1988_memory, he notes: 
+# #+begin_quote
+# [A dictionary-like] outline organization is only adequate for one hierarchical grouping, when in fact the common elements existing between various meanings of a word call for a complex cross classification. In other words, the common elements within and between various meanings of a word are many, and any one outline designed to get some of these together under common headings must at the same time necessarily separate other common elements, equally valid from some other point of view. Making the present memory network a /general graph rather than a tree/ (the network equivalent of an outline) [...] makes it possible to [...] show any and every common element within and between the meanings of a word. (p.88, emphasis added)
+# #+end_quote
+
+# On the surface the caveat might only be seen to the meaning of features. 
+# # 
+# However, given the interchangeability between concepts and features parencite:Smith_1981_categories, it seems to have implications for relations between concepts as well: 
+# # 
+# Just as features may be common to multiple concepts, 
 
 *** measurement?
 **** Hannan hierarchy relations
@@ -675,7 +623,111 @@ However, the more sub-genres are formed, the higher the competition for the regi
 
 
 
-* questions (list of ideas with more or less relevance)
+* reorder
+
+*** conceptual hierarchy
+
+# NOPE
+Second, concepts at different levels of abstraction are seen as forming a logically ordered and explicitly stored hierarchy. 
+# 
+If a concept is a sub-concept of another concept, all members of the sub-concept are also members of the super ordinate concept, resulting in membership being transitive (ibid., p.27)
+# 
+For example, if one considers dogs as a sub-concept of mammals, than every member that is a member of the set of dogs is also a member of the set of mammals [[parencite:Smith_1981_categories][p.177]]. 
+
+
+# """feature storage at relevant level"""
+# is that part of classical view? 
+# unclear: has logic fetishism: explicitly stored links rather than similarity judgments
+# but Quillian/Collins consider substantial limitations in 1969 and Quillian doesn't require logical hierarchy in any of his other papers afaik
+
+# is it even needed? definitely don't have different features at different levels as that what defines concepts
+# -> would leaving it out not require me to elaborate on features v dimensions? 
+# no would still need features v dimensions because i need overlap (not distance) to drive similarity judgment
+
+
+~Third??~, the features that define each level of the conceptual hierarchy are seen as stored at the level for which they are relevant to define. 
+# 
+While 'barking' is a feature that is relevant to define a dog, more general features that dogs share with other mammals (for example, lactation), are stored only at the more general mammal concept and can be retrieved by traversing up the explicitly stored hierarchical link between the concept of dog and mammal. 
+# 
+This distributed storage is argued to be more efficient parencite:Collins_1969_retrieval, as it greatly reduces the need to define all properties especially at more specific lower levels, which instead receive most defining properties from superordinate concepts. 
+
+
+# A further assumption is that features are only saved at the corresponding level of abstraction: 
+# 
+# For example in the case of vehicles, the property of being a mechanical device to transport things is seen as associated with the most general ~vehicle~ level, the feature of having wheels and driving on roads to the intermediate and the feature of having an open cargo area associated with the most specific level. 
+#
+# Within such a (crisp) hierarchy, features are inherited from higher levels. 
+# 
+# Membership ~in the sub-concepts~ is furthermore transitive: all pick up trucks are cars as well as vehicles. 
+
+
+*** location of concepts
+# """debates the location of concepts, not clear if needed"""
+# underlying motivation is to integrate lizardo 2016, and don't treat concepts as free floating, or arbitrary switch locations
+
+It is certainly relevant to consider whether concepts reside in a public domain, an individual's mind, or both parencite:Lizardo_2016_improving. 
+# 
+
+- cite:Martin_2010_ant 
+  - emphasizes the cognitive limitations, and therefore similarly argues to conceptualize culture as a network of concepts
+  - stresses interaction with environment for sensemaking: availability heuristic, representativeness heuristic, anchoring-and-adjustment
+  - *ecologically rational*: good decision making if high quality information is accessible
+
+- [[textcite:Steyvers_2005_structure][p.44]] argue that same developmental mechanisms shape semantic association networks, whether they are personal (language acquisition)  or public (language evolution). 
+- cite:Strauss_1997_cognitive: the meaning we will give to "meaning" here is the interpretation evoked /in a person/ by an object or event at a given time" (emphasis added). (p.6)
+
+# hmm no sin-gle person knows all the entire classification system -> public? 
+# is tagging system an institution? kinda.. has a place, material reality, interface
+idea of explicit hierarchies seems like an imposition of public culture/order (bureaucracy) into minds
+
+***** network structure???
+
+# """arguing that network is good model: features as nodes, tie strength as probability densities"""
+
+# directed? 
+
+What might a proper structure of concepts then look like? 
+# 
+textcite:Steyvers_2005_structure argue that a networks provide a number of advantages over alternative models of conceptual structure. 
+# not clear how to elaborate without much technical details 
+
+
+Concepts can be modeled as probability distribution over features. 
+#  
+If a feature is typical for a concept, it would have a strong connection with this feature, whereas ties would be weaker or nonexistant for peripheral and irrelevant features, respectively. 
+# 
+However, in practice no qualitative distinction can be made whether something constitutes a concept, an item, or a feature. 
+# 
+Furthermore, concepts are often defined recursively by other concepts. 
+# 
+
+ 
+***** metric space ???????????
+# """concepts in metric space, blurry region -> probability density"""
+
+# it just sounds a bit more intuitive
+# does it? features are binary, using metric dimension is not that catchy
+# using features (of fruit, of dog is quite intuitive)
+
+If one conceptualizes features as dimensions in a geometric space, a concept can then be spatially located. [fn::Nevertheless, the idea of feature values as geometric spaces has limitations, I will elaborate below]
+problem with network is that it makes concept node
+
+A concept does then however not constitute a point or a clear-cut area (which would be the classical view of concept defined by precise feature values), but rather a blurry region without clear-cut borders. 
+#
+To characterize this region, textcite:Hannan_2019_concepts invoke the notion of "probability densities" which describe the probability of each point to be a member of the concept. 
+
+
+
+The relations between concepts can hence be inferred by the relations of their respective probability densities. 
+
+
+** scrap
+
+Moreover, when asking participants to list features of a category (a common technique in the psychology of concepts) 
+
+participants often list features that do not apply to every member: For example, while not all birds are capable of flight, we nevertheless consider the ability to fly a typical feature of birds. 
+
+* questions (list of ideas with more or less relevance) :noexport:
 
 can i test prototype vs exemplar model? 
 do they imply different mechanisms for survival? 
