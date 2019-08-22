@@ -453,10 +453,164 @@ def all_cmps_crubgs(gnrs, vd, type):
 
 
 
+# ** alternative cells
+
+
+
+def acst_clr(gnr_ind, acst_gnr_dict, vol_dict, gnr_sel):
+    """acst cells generator"""
+    
+    sec_cls = []
+
+    for gnr in gnr_sel:
+        dfcx = acst_gnr_dict[gnr]
+        nbr_cls2 = 2
+        posgns = list(itertools.product(range(nbr_cls2), repeat = len(vrbls)))
+        gnr_dict = {}
+        for i in posgns:
+            gnr_dict[i] = 0
+
+        vlm = vol_dict[gnr]
+
+        for r in dfcx.itertuples():
+
+            row_vlus = tuple([round(getattr(r, i)) for i in vrbls])
+            gnr_dict[tuple(row_vlus)] += (r.rel_weight * r.cnt)/vlm
+
+        gnr_vlus = [gnr_dict[i] for i in gnr_dict.keys()]
+        sec_cls.append(np.array(gnr_vlus))
+
+    sec_cls_cbnd = np.vstack(sec_cls)
+    
+    return(sec_cls_cbnd)
+    
+
+
+def acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict):
+    NO_CHUNKS = 3
+    gnr_chnks = list(split(gnrs, NO_CHUNKS))
+
+    func = partial(acst_clr, gnr_ind, acst_gnr_dict, vol_dict)
+        
+    t1 = time.time()
+    p = Pool(processes=NO_CHUNKS)
+    data = p.map(func, [i for i in gnr_chnks])
+    t2=time.time()
+
+    p.close()
+    p.join()
+    acst_mat2 = np.vstack(data)
+    return(acst_mat2)
+
+
+# g1 = acst_clr('folk metal')
+# g2 = acst_clr('metal')
+
+# t1 = time.time()
+# data = [acst_clr(i) for i in gnrs]
+# t2 = time.time()
+
+
+
+
+def acst_cpr2(gnr2, gnrs, gnr_ind, acst_mat2):
+    """calculates the divergences between each gnr in gnrs and gnr2"""
+    t1 = time.time()
+    # gnr_cpr = gnr_cprs[100]
+    g2_vec = acst_mat2[gnr_ind[gnr2]]
+    g2_zeros = np.where(g2_vec ==0)
+    g2_nzeros = np.where(g2_vec > 0)
+    
+    res_vec = []
+
+    for g1 in gnrs:
+        
+        g1_vec = acst_mat2[gnr_ind[g1]]
+
+        sumx = np.sum(g1_vec[g2_zeros])
+        # delete overlap if less than x percent is 5%
+        
+        if sumx < 0.05:
+
+            g1_mod = g1_vec[g2_nzeros[0]]
+            g2_mod = g2_vec[g2_nzeros[0]]
+
+            res = entropy(g1_mod,g2_mod)
+
+        else:
+            res = math.inf
+        
+        res_vec.append(res)
+
+    return(res_vec)
+    
+
+def acst_cpr2_mp(gnr_ind, acst_mat2, gnrs, gnr_sel):
+    """manages acst_cpr2"""
+    
+    mp_res = []
+    
+    for g2 in gnr_sel:
+        colx = acst_cpr2(g2, gnrs, gnr_ind, acst_mat2)
+        mp_res.append(colx)
+        
+    mp_res_h = np.vstack(mp_res)
+    return(mp_res_h)
+
+
+def acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2):
+    
+    
+    NO_CHUNKS = 3
+    gnr_chnks = list(split(gnrs, NO_CHUNKS))
+
+    func = partial(acst_cpr2_mp, gnr_ind, acst_mat2, gnrs)
+
+    t1 = time.time()
+    p = Pool(processes=NO_CHUNKS)
+    data = p.map(func, [i for i in gnr_chnks])
+    t2=time.time()
+
+    p.close()
+    p.join()
+
+    ar_cb2 = np.vstack(data)
+    return(ar_cb2)
+
+
+def kld_n_prnts2(ar_cb, npr, gnrs, gnr_ind):
+    """generates edgelist by taking npr (number of parents) lowest values of row of asym kld mat"""
+
+    npr = npr + 1
+    
+    kld2_el = []
+
+    for i in gnrs:
+        i_id = gnr_ind[i]
+        sims = ar_cb[i_id]
+
+        idx = np.argpartition(sims, npr)
+        prnts = idx[0:npr]
+        vlus = sims[idx[0:npr]]
+
+        for k in zip(prnts, vlus):
+            if k[1] == math.inf:
+                break
+
+            if k[0] == i_id:
+                pass
+            else:
+                kld2_el.append((gnrs[k[0]], gnrs[i_id], k[1]))
+                
+    return(kld2_el)
+
+
 
 # * feature extraction
 
-def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat):
+def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, 
+               w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, 
+               ar_cb2, g_kld3, vd_kld3):
 
     NO_CHUNKS = 3
     chnks = list(split(gnrs, NO_CHUNKS))
@@ -467,7 +621,9 @@ def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std
     print('prep spanning done')
 
 
-    func3 = partial(ftr_extrct_mp, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v)
+    func3 = partial(ftr_extrct_mp, nbr_cls, gac, vd, w, gnr_ind, 
+                    ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, 
+                    sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, ar_cb2, g_kld3, vd_kld3)
     
     p = Pool(processes=NO_CHUNKS)
     res_data = p.map(func3, [i for i in chnks])
@@ -490,8 +646,22 @@ def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std
     return(df_res)
 
 
+def hier_ftrs(gnr, g_hier, vd_hier, ar_cbx, acst_mat, vol_dict, gnr_ind, hst_lbl):
+    """processes hierarchical sets (hsts)"""
+    prnt_stats_names, prnt_stats_vlus = prnt_stats(gnr, gnr_ind, ar_cbx, g_hier, vd_hier, acst_mat, vol_dict)
+    
+    cohrt_vlu_names, cohrt_vlus = chrt_proc(gnr, g_hier, gnr_ind, vd_hier, ar_cbx, acst_mat, vol_dict)
 
-def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, gnrs):
+    all_names = prnt_stats_names + cohrt_vlu_names
+    all_names2 = [hst_lbl + '_' + i for i in all_names]
+    
+    all_vlus = prnt_stats_vlus + cohrt_vlus
+
+    return(all_names2, all_vlus)
+
+
+def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, 
+                  acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, ar_cb2, g_kld3, vd_kld3, gnrs):
     # seems to sometimes require self, somtimes not??
     """extracts features like a boss"""
 
@@ -506,20 +676,29 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
     for gnr in gnrs:
         # generate a whole bunch of measures
 
-        gv = g_kld2.vertex(vd_kld2[gnr])
+        hier_sets = {'smpl_ftrs': [g_kld2, vd_kld2, ar_cb],
+                     'cell_cmbs': [g_kld3, vd_kld3, ar_cb2]}
 
-        prnt_stats_names, prnt_stats_vlus = prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat, vol_dict)
-        for i in zip(prnt_stats_names, prnt_stats_vlus):
-            res_dict[gnr][i[0]] = i[1]
+        for hst in hier_sets.keys():
+            if gnr in hier_sets[hst][1]:
+                hstv = hier_sets[hst]
+                if len(list(hstv[0].vertex(hstv[1][gnr]).in_neighbors())) > 0:
+                    hier_names, hier_vlus = hier_ftrs(gnr, hstv[0], hstv[1], hstv[2], acst_mat, vol_dict, gnr_ind, hst)
+                    for i in zip(hier_names, hier_vlus):
+                        res_dict[gnr][i[0]] = i[1]
+
+
+        # prnt_stats_names, prnt_stats_vlus = prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict)
+        # for i in zip(prnt_stats_names, prnt_stats_vlus):
+        #     res_dict[gnr][i[0]] = i[1]
+
+        # # cohorts
+        # cohrt_vlu_names, cohrt_vlus = chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict)
+        # for i in zip(cohrt_vlu_names, cohrt_vlus):
+        #     res_dict[gnr][i[0]] = i[1]
 
         thd_res, thd_names = ar_cb_proc(gnr, gnr_ind, ar_cb)
         for i in zip(thd_names, thd_res):
-            res_dict[gnr][i[0]] = i[1]
-
-        # cohorts
-        cohrt_vlu_names, cohrt_vlus = chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict)
-        for i in zip(cohrt_vlu_names, cohrt_vlus):
-            
             res_dict[gnr][i[0]] = i[1]
 
         # spanningness
@@ -548,7 +727,7 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, a
     return(res_dict)
 
 # ** prnt stats
-def prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat, vol_dict):
+def prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict):
     """calculates parent stats: 
     prnt3_dvrgs: sum of divergences from parents, 
     clst_prnt: distance to closest parent, 
@@ -556,7 +735,9 @@ def prnt_stats(gv, gnr_ind, ar_cb, g_kld2, acst_mat, vol_dict):
     prnt_odg, prnt_odg_wtd: out-degree of parents (unweighted and weighted by distance)
     prnt_plcnt: playcount of parents, with sd
     """
-    
+
+    gv = g_kld2.vertex(vd_kld2[gnr])
+
     prnt3_dvrg = gv.in_degree(g_kld2.ep.kld_sim)
     clst_prnt = min([g_kld2.ep.kld_sim[v] for v in gv.in_edges()])
 
@@ -931,15 +1112,23 @@ def ptn_proc(ptn):
 
     print('construct kld graph')
     g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-    graph_pltr(g_kld2, g_kld2.vp.id, '1_cell_space.pdf', 1)
+    # graph_pltr(g_kld2, g_kld2.vp.id, '1_cell_space.pdf', 1)
+
+    
+    print('generate acst_mat, ar_cb2, kld3_el, g_kld3 based on feature combination cells')
+    acst_mat2 = acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict)
+    ar_cb2 = acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2)
+    kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
+    g_kld3, vd_kld3, vd_kld3_rv = kld_proc(kld3_el)
+    
 
     print('extract features')
     # could be parallelized as well
     tx1 = time.time()
-    # df_res = ftr_extrct(gnrs)
-    # get it working first with mp part, less passing arguments around
-
-    df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat)
+        
+    df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, 
+                        g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, 
+                        ar_cb2, g_kld3, vd_kld3)
     tx2 = time.time()
 
     ret_dict = {'g_kld2':g_kld2, 'df_res':df_res, 'gnr_ind':gnr_ind, 'acst_mat':acst_mat}
@@ -990,7 +1179,7 @@ def ptn_eval(ptns, ptn_obj_dict):
             if gnr in ptn_obj_dict[ptn]['gnr_ind'].keys():
                 rel_ptns.append(ptn)
 
-        nbr_cls = 1
+        nbr_cls = 5
         gnr_acsts = np.zeros((nbr_cls*len(vrbls),len(rel_ptns)))
 
         gnr_prnts = []
@@ -1087,10 +1276,10 @@ if __name__ == '__main__':
 
     res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
     print('set parameters')
-    min_cnt = 5
-    min_weight = 8
-    min_rel_weight = 0.075
-    min_tag_aprnc = 20
+    min_cnt = 8
+    min_weight = 20
+    min_rel_weight = 0.1
+    min_tag_aprnc = 15
     min_unq_artsts = 8
     max_propx1 = 0.5
     max_propx2 = 0.7
@@ -1501,6 +1690,49 @@ if __name__ == '__main__':
 # ch_hist = client.execute("SELECT quantilesTDigestWeighted(0, 0.2, 0.4, 0.6, 0.8, 1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
 
 # ch_hist = client.execute("SELECT quantilesExactWeighted(0, 0.1, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8,0.9,1)(dncblt,1) FROM usr_qntls where usr = 'f18621'")
+
+
+# * test alternative cells
+
+
+# acst_mat2 = acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind)
+# ar_cb2 = acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2)
+
+# npr = 3
+# kld3_el = kld_n_prnts(ar_cb, npr, gnrs, gnr_ind)
+# kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
+# g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld3_el)
+
+# graph_pltr(g_kld2, g_kld2.vp.id, 'cell_combns.pdf', 0.4)
+
+# # ar_cb2 needs to be T-ed
+# # kld_n_prnts needs to be adapted to handle lack of parents
+
+
+
+# t1 = time.time()
+# test_res = acst_cpr2(gnrs[3], gnrs[0:30])
+# t2 = time.time()
+
+# x = acst_cpr2(gnr_cprs[30])[1]
+
+# 264 comps per sec
+# so like 1k/sec with multiprocessing
+# could do a whole lot of g1s for each g2 zeroes
+# proper sum: 12k/sec, seems acceptable with multiprocessing
+# can increase it by another factor of ~2 by keepign g2_zeros constant
+# so i basically keep parent constant? so i basically calculate rows in ar_cb
+
+## can't broadcast that shit
+
+
+
+
+
+
+
+
+
 
 
 
