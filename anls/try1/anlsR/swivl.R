@@ -59,7 +59,7 @@ phreg_mdlr <- function(mdl, d, imprvmnt){
 
 ## * merge data together
 
-res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/5_cells_thds2/'
+res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/5_cells_again/'
 res_files = list.files(res_dir)
 
 dfc <- read.csv(paste0(res_dir, res_files[1]))
@@ -70,12 +70,16 @@ for (i in res_files[2:length(res_files)]){
     dfc <- rbind(dfc, dfx)
 }
 
+
+
+
 ## dfc_bu <- dfc
 ## dfc <- dfc_bu
 
 ## filter if needed
 ## dfc <- dfc[which(dfc$nbr_rlss_tprd > 0),]
 
+## * find ded genres
 
 dfc$X <- as.factor(dfc$X)
 dfc <- dfc[order(dfc$X, dfc$tp_id),]
@@ -99,31 +103,41 @@ df_gnrs$max2 <- df_gnrs$max +1
 df_gnrs$chk <- df_gnrs$max2 - df_gnrs$nb_entrs
 
 ## cheese genres due to holes like swiss cheese
-cheese_gnrs <- df_gnrs[which(df_gnrs$min != df_gnrs$chk),'X']
-usbl_cheese_gnrs <- df_gnrs[df_gnrs$X %in% cheese_gnrs & df_gnrs$max <= max(df_gnrs$max)-3 ,]$X
+## cheese_gnrs <- df_gnrs[which(df_gnrs$min != df_gnrs$chk),'X']
+## usbl_cheese_gnrs <- df_gnrs[df_gnrs$X %in% cheese_gnrs & df_gnrs$max < max(df_gnrs$max)-1 ,]$X
+
+## can't see what this is adding
+## cheese genres also have to be ded 2 periods before end
+## but they're all defined in the same way, so don't see why it matters
+## maybe if i want different thresholds for cheesy and continuous
+## actually two periods sound good for both
 
 
-length(which(ded_gnrs %!in% cheese_gnrs))
+## length(which(ded_gnrs %!in% cheese_gnrs)) ???
 ## i mean still have 233 complete ded gnrs
 
-## dfc2 <- dfc[which(dfc$X %!in% cheese_gnrs),]
+## dfc2 <- dfc[which(dfc$X %!in% cheese_gnrs)
+
 
 dfc2 <- merge(dfc, df_gnrs, by = 'X')
 
 dfc2$gnr_age <- dfc2$tp_id - dfc2$min
 
-ded_gnrs2 <- unique(dfc2$X)[which(unique(dfc2$X) %in% ded_gnrs)]
-ded_gnrs2 <- ded_gnrs[which(ded_gnrs %!in% cheese_gnrs)]
+## ded_gnrs2 <- unique(dfc2$X)[which(unique(dfc2$X) %in% ded_gnrs)]
+## ded_gnrs2 <- ded_gnrs[which(ded_gnrs %!in% cheese_gnrs)]
 
-ded_gnrs3 <- paste(c(as.character(ded_gnrs2), as.character(usbl_cheese_gnrs)))
+## ded_gnrs3 <- paste(c(as.character(ded_gnrs), as.character(usbl_cheese_gnrs)))
 
-dfx <- dfc2[dfc2$X %in% ded_gnrs3,]
+ded_gnrs2 <- df_gnrs[df_gnrs$X %in% ded_gnrs & df_gnrs$nb_entrs > 2,]$X
+## ded_gnrs2 <- ded_gnrs
+
+dfx <- dfc2[dfc2$X %in% ded_gnrs2,]
 max_szs <- aggregate(dfx$sz_raw, list(dfx$X), max)
 
 ded_gnrs4 <- max_szs[max_szs$x > 25,]$Group.1
 len(ded_gnrs4)
 
-## set dying out for ded genres
+##  ** set dying out for ded genres
 
 for (i in ded_gnrs4){
 
@@ -134,29 +148,64 @@ for (i in ded_gnrs4){
     ## print(c(i, dim(dfx)))
 }
 
-## delete undead genres
-unded_gnrs <- ded_gnrs3[ded_gnrs3 %!in% ded_gnrs4]
-dfc2 <- dfc2[-which(dfc2$X %in% unded_gnrs),]
+## dfc2_bu <- dfc2
+## dfc2 <- dfc2_bu
 
+## delete undead genres
+unded_gnrs <- ded_gnrs[ded_gnrs %!in% ded_gnrs4]
+len(unded_gnrs)
+if (len(unded_gnrs) > 0){
+    print('adsf')
+    dfc2 <- dfc2[-which(dfc2$X %in% unded_gnrs),]
+}
+
+## delete cell_cmbs missing values
+## atm removes only two events, which seems ok i guess
+
+## dfc22 <- dfc2[-which(is.na(dfc2$cell_cmbs_prnt3_dvrg)),]
+## dfc2 <- dfc22
+
+table(dfc2$event)
 ## dfc2_bu <- dfc2
 ## dfc2 <- dfc2_bu
 
 deds <- aggregate(dfc2$event, list(dfc2$tp_id), sum)
+barplot(deds$x)
 
 ## also need to check how much it goes up afterwards
 ## or i can just skip that
 
 ## i can also combine the multiple reasons how genres have died
 
+## ** renaming into desired hierarchical set
+
+smpl_ftrs_names <- names(dfc)[unlist(lapply(names(dfc), function(x){grepl('smpl_ftrs', x)}))]
+for (i in smpl_ftrs_names){
+    
+    new_vrbl_name <- substr(i, 11, 100)
+
+    dfc2[,new_vrbl_name] <- dfc2[,i]
+}
+
+
+
+
 
 ## * variable construction
 ## ** informativeness
+
 dfc2$inftns <- log(dfc2$prnt3_dvrg)
 dfc2$inftns_sqrd <- log(dfc2$prnt3_dvrg)^2
 
+## *** no logs
+
+## dfc2$inftns <- dfc2$prnt3_dvrg
+## dfc2$inftns_sqrd <- dfc2$prnt3_dvrg^2
+
+
 ## ** distinctiveness
 
-dfc2$disctns <- log(dfc2$cohrt_mean_cos_dists_wtd+0.05)
+dfc2$disctns <- log(dfc2$cohrt_mean_cos_dists_wtd+0.01)
 
 # dfc2$cohrt_dom <- log(dfc2$volm/dfc2$cohrt_vol_sum)
 
@@ -169,6 +218,10 @@ dfc2$cohrt_rel_sz <- log(dfc2$volm/dfc2$cohrt_med)
 ## ** legitimation
 dfc2$leg <- log(dfc2$prnt_plcnt)
 
+## *** no logs
+
+## dfc2$leg <- dfc2$prnt_plcnt
+
 ## ** density
 
 dfc2$dens_vol <- log(dfc2$cohrt_vol_sum)
@@ -179,6 +232,9 @@ dfc2$dens_len_sqrd <- dfc2$dens_len^2
 
 ## dfc2$dens_vol_sqrd <- log(dfc2$cohrt_vol_sum^2)
 
+## *** no logs
+
+## dfc2$dens_vol <- dfc2$cohrt_vol_sum
 
 ## ** size
 
@@ -189,6 +245,8 @@ dfc2$new_rlss <- log(dfc2$nbr_rlss_tprd+1)
 
 dfc2$avg_weight_rel_wtd <- dfc2$avg_weight_rel_wtd
 ctrl_vars <- c('avg_weight_rel_wtd', 'cos_sims_mean_wtd', 'gnr_gini', 'avg_age', 'sz', 'new_rlss', 'gnr_age')
+
+
 
 ## keep cos_sims_mean_wtd as control, would have to come up with proper theory
 
@@ -204,7 +262,6 @@ dens_vars <- c('dens_vol', 'dens_len', 'dens_vol_sqrd', 'dens_len_sqrd', 'cohrt_
 ## should check effects
 
 all_vars <- c(inf_vars, dens_vars, ctrl_vars)
-
 
 
 
@@ -255,8 +312,8 @@ d <- Dict$new(list(
 
 
 
-tbl <- t(basicStats(dfc3[,all_vars])[c("Mean", "Median", "Minimum", "Maximum", "nobs", "Stdev"),])
-colnames(tbl) <- c("Mean", "Median", "Min.", "Max.", "N.Obs", "SD")
+tbl <- t(basicStats(dfc3[,all_vars])[c("Mean", "Median", "Minimum", "Maximum", "nobs", "Stdev", "Skewness", "Kurtosis"),])
+colnames(tbl) <- c("Mean", "Median", "Min.", "Max.", "N.Obs", "SD", "Skew", "Kurtosis")
 tbl <- round(tbl, 3)
 vrbl_names = unlist(lapply(all_vars, function(x){d$get(x)}))
 
@@ -340,8 +397,15 @@ fit_inf5 <- phreg(f_inf5, data=dfc3, cuts = seq(1,28),dist = 'pch')
 res_inf5 <- phreg_mdlr(fit_inf5, d, None)
 
 
+v_inf6 <- paste(c(ctrl_vars_cbnd, 'inftns', 'disctns', 'dens_vol', 'dens_vol_sqrd', 'dens_len', 'dens_len_sqrd', 'leg'), collapse = ' + ')
+f_inf6 <- as.formula(paste(c(dv, v_inf6) , collapse = ' ~ ' ))
+fit_inf6 <- phreg(f_inf6, data=dfc3, cuts = seq(1,28),dist = 'pch')
+res_inf6 <- phreg_mdlr(fit_inf6, d, None)
 
-screenreg(list(res_ctrl, res_inf1, res_inf2, res_inf3, res_inf4, res_inf5), reorder.coef = c(8:15,1:7))
+
+
+
+screenreg(list(res_ctrl, res_inf1, res_inf2, res_inf3, res_inf4, res_inf5, res_inf6), reorder.coef = c(8:15,1:7))
 
 texreg(list(res_ctrl, res_inf1, res_inf2, res_inf3, res_inf4, res_inf5),
        reorder.coef = c(8:15,1:7),
@@ -409,25 +473,28 @@ texreg(list(res_dens1, res_dens2, res_dens3, res_dens4, res_dens5, res_dens6),
 texreg_cleaner('/home/johannes/Dropbox/gsss/thesis/text/tables/res2.tex')
 
 ## * comparison
+
+
 logdiff = 2*(-531.41  + 531.38)
 logdiff = 2*(3.42)
 pchisq(logdiff, df=2, lower.tail=FALSE)
 
 logdiff = 2*(-537.85 + 538.31)
-pchisq(logdiff, df=8
-     , lower.tail=FALSE)
+pchisq(logdiff, df=8 , lower.tail=FALSE)
+
+logdiff = -2*(-531.40 + 519.66)
 
 ## * figure
 
 
-vis_df <- as.data.frame(t(fit_ctrl$hazards))
-names(vis_df) <- 'haz'
-vis_df$tprd <- seq(29)
+## vis_df <- as.data.frame(t(fit_ctrl$hazards))
+## names(vis_df) <- 'haz'
+## vis_df$tprd <- seq(29)
 
-pdf('/home/johannes/Dropbox/gsss/thesis/text/figures/hazards.pdf', width = 8, height = 4)
-ggplot(vis_df, aes(x=tprd, y=haz)) +
-    geom_col() +
-    labs(title = 'Hazard rate per time period',
-         y= 'Hazard',
-         x='Time Period') 
-dev.off()
+## pdf('/home/johannes/Dropbox/gsss/thesis/text/figures/hazards.pdf', width = 8, height = 4)
+## ggplot(vis_df, aes(x=tprd, y=haz)) +
+##     geom_col() +
+##     labs(title = 'Hazard rate per time period',
+##          y= 'Hazard',
+##          x='Time Period') 
+## dev.off()
