@@ -62,18 +62,19 @@ I give then a detailed description of how this data was processed to construct a
 As I fail to find substantial support for my key predictors, I discuss possible causes and outline areas for future research. 
 
 
-* Theory
-** The structure of concepts: When is something something? 
+* Theoretical framework
+** The structure of concepts: What makes something something? 
 
 *** classical view :ignhead:
 # 
-The question of how information is stored and process to enable complex cognitive functions is not a recent one. 
+The question of how information is stored and processed to enable complex cognitive functions is not a recent one. 
 #
-textcite:Smith_1981_categories,Strauss_1997_cognitive,Murphy_2004_concepts characterize the historical development of the scholarship of concepts by contrasting broad developments. 
+textcite:Smith_1981_categories,Strauss_1997_cognitive and textcite:Murphy_2004_concepts characterize the historical development of the scholarship of concepts by contrasting broad developments. 
 #
-The first contrast concerns is primarily historical and posits a so-called /classical view/, taken for granted since Aristotle up to the 1970s, against a much more recently emerged and theoretically sound /probabilistic view/. 
+# in particular finds its exp
+The main distinction is posited between the so-called /classical view/, taken for granted "since Aristotle" [[parencite:Smith_1981_categories][Preface]] up to the 1970s, against a much more recently emerged /probabilistic view/. 
 # 
-The classical view is primarily characterized by logic and well-orderedness of the conceptual realm, which entails a the idea of /concepts as definitions/: 
+The classical view is primarily characterized by logic and well-orderedness of the conceptual realm, which is expressed in particular in the idea of /concepts as definitions/ [[parencite:Murphy_2004_concepts][p.15]].  
 #
 Drawing on formal logic and set theory, it posits that a concept can be clearly defined in terms of its necessary and sufficient features. 
 # 
@@ -84,34 +85,45 @@ Either an item fulfills the specific requirements, in which case it is a member,
 For example, if membership in the category of "animals" requires members to be alive, evince metabolism and movement (or have so in the past), it is clear that a dog or a butterfly are clear members, whereas a rock or a cup of coffee are not. 
 
 *** probabilistic view :ignhead:
-While such a rigid view has appeal as it provides a great amount of clarity [fn::A more situated analysis might evaluate its taken-for-grantedness through a theoretical lens of logocentrism parencite:derrida2016grammatology or a bureaucratic institutional logic cite:thornton_2012_logics], it demands high requirements which create problems for everyday concepts: 
-#
+While such a rigid view has appeal as it provides a great amount of clarity (or rather, is assumed to do so [fn::A more situated analysis might evaluate the taken-for-grantedness of the classical view through a theoretical lens of logocentrism parencite:derrida2016grammatology or a bureaucratic institutional logic parencite:thornton_2012_logics]), the high requirements for formal integrity creates problems when trying to find a clear definition. 
+# 
 textcite:Wittgenstein_1968_investigations has pointed out these problems in his influential discussion of the attempt to define the the everyday-concept of "game":
 
 #+begin_quote
-If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail. (p.31)
+"If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail." (p.31)
 #+end_quote
 
-*** prototypicality :ignhead:
-Such difficulties to clearly define a concept have received support from empirical studies that question clear-cut membership. 
+*** concept as definition bad :ignhead:
+# 
+Thus while it might be possible to construct for some constructs, the idea that concepts are generally clearly defined seems difficult to uphold.
 #
-textcite:Rosch_1975_family argues that category membership is not absolute, but rather partial. 
+It is worth noting that such ambiguity is not only present in every-day concepts, but in highly formalized domains as well, such as the debate whether Pluto is a planet or the categorization of geometric figures parencite:Lakatos_2015_proofs.
+# 
+Similarly, attempts to clearly define science such as by the demarcation criterion of falsifiability parencite:popper1971conjectural, have been contested by alternative conceptualization that stress a multitude of non-formal aspects parencite:Kuhn_2012_structure or outright deny the possibility of a clear definition parencite:Feyerabend_1993_method. 
+# 
+While (particularly in the latter case of science) the idea of concepts as definitions might be argued to still loom in public consciousness, it encounters difficulties to provide definitions in the case of complex concepts to an extent that warrants the consideration of alternatives. 
+
+*** prototypicality :ignhead:
+
+Difficulties to clearly define a concept have also received empirical support from studies that question clear-cut membership. 
+#
+textcite:Rosch_1975_family argue that category membership is not absolute, but rather partial. 
 #
 Asking respondents to list fruits, apples and oranges are listed more frequently than pineapples and blueberries, while tomatoes and olives are listed even less. 
 #
-Such /typicality effects/ show that membership is not a yes-or-no question, but an gradient dependent. 
+Such /typicality effects/ show that membership is not a yes-or-no question, but a gradient. 
 # 
 However, graded memberships still leaves open the question of how a concept (for example, fruit) is structured. 
 
 
 *** prototypes vs exemplars :ignhead:
 # 
-In this regard, textcite:Smith_1981_categories,Murphy_2004_concepts distinguish primarily between /prototype/ theories and /exemplar/ theories. 
+In this regard, textcite:Smith_1981_categories and Murphy (citeyear:Murphy_2004_concepts,Murphy_2016_exemplar) distinguish primarily between /prototype/ theories and /exemplar/ theories. 
 # 
-According to prototype theory, concepts are generalized abstractions of features, which given the probabilistic framework that replaced the classical view, can vary in the degree to which they are associated with the concept.
+According to prototype theory, concepts are generalized abstractions of features, which - given the probabilistic framework that replaced the classical view - can vary in the degree to which they are associated with the concept.
 # 
 For example, the feature of sweetness may be a highly influential one for the concept of fruit, that of size might be moderately important, and the thickness of the peel might only have limited influence. 
-#
+# maybe add schema stuff here
 Exemplar theory however argues sees concepts as collections of objects. 
 # 
 Each encounter with an object is stored, resulting in large list of objects experiences to which new instances are compared. 
@@ -119,47 +131,74 @@ Each encounter with an object is stored, resulting in large list of objects expe
 Recently, textcite:Murphy_2016_exemplar has argued that prototype theory is more adequate in regards to explain phenomena such as conceptual hierarchies (which will be elaborated further), knowledge and induction; I therefore use it primarily. 
 
 *** concepts = features :ignhead:
-It is additionally relevant to point out that there is no apriori way to distinguish concepts and features   parencite:Smith_1981_categories: 
+Additionally, it is relevant to point out that there is no a priori way to distinguish concepts and features   [[parencite:Smith_1981_categories][p.17]]: 
 # 
-The letter "e" can be a feature of a word such as bed, or it can be a concept if it is compared to other letters, the features the being the positions, shapes and angles of the lines that make up each individual letter. 
+The letter "e" can be a feature of a word such as bed, or it can be a concept if it is compared to other letters, the features the being the positions, shapes and angles of the lines that make up each individual 
+letter. 
+# 
+
+
+
 
 
 ** Relations between Concepts
 *** Hierarchical Relations: tree structure bad :ignhead:
-
+# add references? 
+As we have many concepts, cannot exist that they are only described by their features. 
 # 
-While it is possible to deduce a order in degree of abstraction from this observation, it is also to some degree apparent: 
+Additionally, we need to consider relations between concepts. 
+#
+One way in which concepts can be considered to be linked is by their degree of abstraction:
 # 
 "Animals" for example refers to a much more general category than does "mammals", while "dogs" and "cats" are even more specific concepts. 
 #
-What is however less obvious is the relations between these concepts at dfiferent levels of abstraction. 
+What is however less obvious is the relations between these concepts at different levels of abstraction. 
 # 
-The case of a taxonomy shows a well ordered hierarchical structure that represents a tree: 
+The example of a species taxonomy shows a well ordered hierarchical structure that represents a tree cite:Collins_1969_retrieval. 
+# 
+In such a model, a general concept stem branches out into a few sub-concepts, which in turn are the basis for even more fine-grained twig-like concepts. 
 #
-At each level, a concept has one superordinate the properties of which its inherits, which causes category memberships to be transitive: 
+At each level, a concept has one (and only one) superordinate concept from which it inherits features.
 # 
-All dogs and cats are both mammals well as animals, and all mammals are animals. 
+Category memberships is therefore transitive as all dogs and cats are both mammals well as animals, and all mammals are animals. 
 #
-Furthermore, there is no "cross-branching" between once separated concept links; no cat is also a member of the "fish" category. 
+Furthermore, there is no "cross-branching" between once separated concept links as no "cat" is also a member of the "fish" category. 
 # 
-However the concerns raised by the probabilistic view should elicit caution in how far this logical well-orderedness is generally applicable[fn::The scholars most associated with the taxonomic feature structure, [[textcite:Collins_1969_retrieval][p.242]] seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (also see cite:Quillian_1966_memory,Quillian_1988_memory). However, this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts of characterizing the tree-structure as a /general/ view of conceptual structure. Such a characterization might be motivated different topics topics of interest, such as rigidly institutionalized classification systems in the former contrasted against flexible categorization in everyday life.]
+An valuable contribution of this perspective is its ability to explain the location of feature values. 
+#
+In particular, it posits that features are only stored at the level of abstraction for which they are relevant, and "passed down" the branches. 
+# 
+For example, it argues that we do not need to store the feature "is alive" for every animal we have a concept of separately, but that the "is alive" feature is stored only once in a general "animal" class which all specific animal concepts inherit. 
+#
+However, this model has the substantial requirement of explicitly stored links between different levels to allow concepts to retrieve features of their superordinates. 
+# 
+Given the concerns raised by the probabilistic view, caution is advised in the judgment of how far such well-orderedness is generally applicable[fn::The scholars most associated with the taxonomic feature structure, textcite:Collins_1969_retrieval seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (p.242, also see [[textcite:Quillian_1966_memory][p.6]] and [[textcite:Quillian_1988_memory][p.88]]). However this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts from characterizing the tree model as a /general/ model of conceptual structure. Such a characterization might be motivated by different topics of interest, such as explicitly institutionalized classification systems in the former contrasted against flexible categorization in everyday life in the latter.]
 #
 
 *** computational :ignhead:
-textcite:Murphy_2004_concepts in particular provides two main reasons against explicitly stored hierarchical linkages, which leads him to regard the alternative of hierarchical relationships being computed on the spot due to feature overlap as more plausible (p.207). 
-#
-First, typicality effects are present in hierarchical links as well. 
+textcite:Murphy_2004_concepts in particular provides two main reasons against explicitly stored hierarchical linkages. 
+# 
+First, typicality effects are present in hierarchical links as well (p.208). 
 # 
 Judgements for typical items are generally stronger or faster, whether they concern membership ("a robin is a bird" is evaluated faster as "a penguin is a bird") or feature inference ("birds have an ulnar artery, therefore robins have an ulnar artery" is rated more believable as "birds have an ulnar artery, therefore penguins have an ulnar artery"). 
 #
 Secondly, transitivity violations give raise doubts to how strictly membership is passed downwards the branch: 
 #
-While respondents agree that seats are furniture, and car seats are seats, they deny that car seats are furniture. 
+While respondents agree that seats are furniture, and car seats are seats, they deny that car seats are furniture (p.207). 
 #
-Both effects are however explainable by a seeing hierarchical links as computed by feature overlap. 
+
+*** overlap 
+Due to these arguments that question the existence of stored explicit links between different levels of abstraction, he argues that instead hierarchical relationships are computed on the spot due to feature overlap (p.207). 
+#
+In this line of reasoning, concepts are considered similar if they are associated with similar features. 
+#
+While this approach does away with the cognitive economy of a hierarchical order in which features are stored only once, it provides more ~flexibility as concepts can be arbitrarily juxtaposed~. 
+# 
+Feature overlap can then explain the phenomena that pose problems for the pre-stored view: 
 #
 As robins are more typical birds than penguins, inferences between the a typical concept and its superordinate flow easier as it resembles the prototype stronger than an atypical one. 
-
+# 
+Similarly, while car seats share some features with furniture and some with car seats, car seats and furniture do have a substantial feature overlap, resulting in the rejection of membership of the former in the latter. 
 
 *** tversky makes only sense after discussing multiple concepts, so after hierarchy? :ignhead:
 # 
@@ -180,7 +219,7 @@ In this case, the similarity can be reduced to
 S(a,b) = \frac{f(A \cap B)}{f(A)}
 \end{equation*}
 
-which describes the proportion of feature overlap compared to the features of a.[fn::It is worth to point out that textcite:McPherson_1983_affiliation effectively used the same approach to measure competition between organizational forms]
+which describes the proportion of feature overlap compared to the features of a.[fn::It is worth to point out that textcite:McPherson_1983_affiliation effectively used the same approach to measure competition between organizational forms.]
 # 
 Robins, for example are typical birds, and therefore the proportion of the intersection of the concepts "robin" and "bird" (f(A \cap B)) to the features of robins (A) is high. 
 #
@@ -247,7 +286,8 @@ Here the primary forces that are seen to shape the survival chances of an organi
 # 
 textcite:Hannan_1977_ecology has argued that both of these can be inferred from density, which described the number of organizations at a given point in time. 
 # 
-Legitimation is hypothesized to be the shaping force in times of low densities: 
+Legitimation is hypothesized to be the shaping force in times
+ of low densities: 
 # 
 As new industries develop, they lack still lack recognition, and an increase in organizations operating in the sector increases founding rates and enhances survival prospects as it indicates acceptance of the form. 
 #
