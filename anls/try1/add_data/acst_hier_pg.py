@@ -84,8 +84,9 @@ klbk_lblr_dist(x2,x1)
 
 from sklearn.metrics.pairwise import cosine_similarity
 
+t1 = time.time()
 x= cosine_similarity(acst_mat)
-
+t2 = time.time()
 
 plt.hist(x[np.where(0<np.tril(x))], bins='auto')
 plt.show()
@@ -778,8 +779,8 @@ for m in mthds:
         for thd in thds:
             res_dict[m][cc][thd] = []
 
-# for gnr in gnrs:
-for gnr in sample(gnrs, 200):
+for gnr in gnrs:
+# for gnr in sample(gnrs, 200):
 
     gnr_vlus = acst_mat[gnr_ind[gnr]]
     preds2 = np.delete(acst_mat, gnr_ind[gnr], axis=0).T
@@ -857,8 +858,12 @@ stuff to evaluate:
 - average degree (in/out)
 - degree concentration
 
+# could also skip thresholds and filter with edge maps
+# needed: 
+
 nph(las_scrs)
 
+lasso_el = res_dict['addtv']['coef_log_vol'][0.5]
 
 g_las = Graph()
 g_las_waet = g_las.new_edge_property('float')
@@ -1135,3 +1140,157 @@ for gnr in gnrs_l:
 
 
 # this opens the can of worms of integrating artist information as well FUCK ME
+
+# * alternative cells
+
+
+
+def acst_clr(gnr_ind, acst_gnr_dict, vol_dict, gnr_sel):
+    """acst cells generator"""
+    
+    sec_cls = []
+
+    for gnr in gnr_sel:
+        dfcx = acst_gnr_dict[gnr]
+        nbr_cls2 = 2
+        posgns = list(itertools.product(range(nbr_cls2), repeat = len(vrbls)))
+        gnr_dict = {}
+        for i in posgns:
+            gnr_dict[i] = 0
+
+        vlm = vol_dict[gnr]
+
+        for r in dfcx.itertuples():
+
+            row_vlus = tuple([round(getattr(r, i)) for i in vrbls])
+            gnr_dict[tuple(row_vlus)] += (r.rel_weight * r.cnt)/vlm
+
+        gnr_vlus = [gnr_dict[i] for i in gnr_dict.keys()]
+        sec_cls.append(np.array(gnr_vlus))
+
+    sec_cls_cbnd = np.vstack(sec_cls)
+    
+    return(sec_cls_cbnd)
+    
+
+
+def acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict):
+    NO_CHUNKS = 3
+    gnr_chnks = list(split(gnrs, NO_CHUNKS))
+
+    func = partial(acst_clr, gnr_ind, acst_gnr_dict, vol_dict)
+        
+    t1 = time.time()
+    p = Pool(processes=NO_CHUNKS)
+    data = p.map(func, [i for i in gnr_chnks])
+    t2=time.time()
+
+    p.close()
+    p.join()
+    acst_mat2 = np.vstack(data)
+    return(acst_mat2)
+
+
+# g1 = acst_clr('folk metal')
+# g2 = acst_clr('metal')
+
+# t1 = time.time()
+# data = [acst_clr(i) for i in gnrs]
+# t2 = time.time()
+
+
+
+
+def acst_cpr2(gnr2, gnrs, gnr_ind, acst_mat2):
+    """calculates the divergences between each gnr in gnrs and gnr2"""
+    t1 = time.time()
+    # gnr_cpr = gnr_cprs[100]
+    g2_vec = acst_mat2[gnr_ind[gnr2]]
+    g2_zeros = np.where(g2_vec ==0)
+    g2_nzeros = np.where(g2_vec > 0)
+    
+    res_vec = []
+
+    for g1 in gnrs:
+        
+        g1_vec = acst_mat2[gnr_ind[g1]]
+
+        sumx = np.sum(g1_vec[g2_zeros])
+        # delete overlap if less than x percent is 5%
+        
+        if sumx < 0.05:
+
+            g1_mod = g1_vec[g2_nzeros[0]]
+            g2_mod = g2_vec[g2_nzeros[0]]
+
+            res = entropy(g1_mod,g2_mod)
+
+        else:
+            res = math.inf
+        
+        res_vec.append(res)
+
+    return(res_vec)
+    
+
+def acst_cpr2_mp(gnr_ind, acst_mat2, gnrs, gnr_sel):
+    """manages acst_cpr2"""
+    
+    mp_res = []
+    
+    for g2 in gnr_sel:
+        colx = acst_cpr2(g2, gnrs, gnr_ind, acst_mat2)
+        mp_res.append(colx)
+        
+    mp_res_h = np.vstack(mp_res)
+    return(mp_res_h)
+
+
+def acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2):
+    
+    
+    NO_CHUNKS = 3
+    gnr_chnks = list(split(gnrs, NO_CHUNKS))
+
+    func = partial(acst_cpr2_mp, gnr_ind, acst_mat2, gnrs)
+
+    t1 = time.time()
+    p = Pool(processes=NO_CHUNKS)
+    data = p.map(func, [i for i in gnr_chnks])
+    t2=time.time()
+
+    p.close()
+    p.join()
+
+    ar_cb2 = np.vstack(data)
+    return(ar_cb2)
+
+
+def kld_n_prnts2(ar_cb, npr, gnrs, gnr_ind):
+    """generates edgelist by taking npr (number of parents) lowest values of row of asym kld mat"""
+
+    npr = npr + 1
+    
+    kld2_el = []
+
+    for i in gnrs:
+        i_id = gnr_ind[i]
+        sims = ar_cb[i_id]
+
+        idx = np.argpartition(sims, npr)
+        prnts = idx[0:npr]
+        vlus = sims[idx[0:npr]]
+
+        for k in zip(prnts, vlus):
+            if k[1] == math.inf:
+                break
+
+            if k[0] == i_id:
+                pass
+            else:
+                kld2_el.append((gnrs[k[0]], gnrs[i_id], k[1]))
+                
+    return(kld2_el)
+
+
+
