@@ -452,165 +452,11 @@ def all_cmps_crubgs(gnrs, vd, type):
     return(cmps)
 
 
-
-# ** alternative cells
-
-
-
-def acst_clr(gnr_ind, acst_gnr_dict, vol_dict, gnr_sel):
-    """acst cells generator"""
-    
-    sec_cls = []
-
-    for gnr in gnr_sel:
-        dfcx = acst_gnr_dict[gnr]
-        nbr_cls2 = 2
-        posgns = list(itertools.product(range(nbr_cls2), repeat = len(vrbls)))
-        gnr_dict = {}
-        for i in posgns:
-            gnr_dict[i] = 0
-
-        vlm = vol_dict[gnr]
-
-        for r in dfcx.itertuples():
-
-            row_vlus = tuple([round(getattr(r, i)) for i in vrbls])
-            gnr_dict[tuple(row_vlus)] += (r.rel_weight * r.cnt)/vlm
-
-        gnr_vlus = [gnr_dict[i] for i in gnr_dict.keys()]
-        sec_cls.append(np.array(gnr_vlus))
-
-    sec_cls_cbnd = np.vstack(sec_cls)
-    
-    return(sec_cls_cbnd)
-    
-
-
-def acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict):
-    NO_CHUNKS = 3
-    gnr_chnks = list(split(gnrs, NO_CHUNKS))
-
-    func = partial(acst_clr, gnr_ind, acst_gnr_dict, vol_dict)
-        
-    t1 = time.time()
-    p = Pool(processes=NO_CHUNKS)
-    data = p.map(func, [i for i in gnr_chnks])
-    t2=time.time()
-
-    p.close()
-    p.join()
-    acst_mat2 = np.vstack(data)
-    return(acst_mat2)
-
-
-# g1 = acst_clr('folk metal')
-# g2 = acst_clr('metal')
-
-# t1 = time.time()
-# data = [acst_clr(i) for i in gnrs]
-# t2 = time.time()
-
-
-
-
-def acst_cpr2(gnr2, gnrs, gnr_ind, acst_mat2):
-    """calculates the divergences between each gnr in gnrs and gnr2"""
-    t1 = time.time()
-    # gnr_cpr = gnr_cprs[100]
-    g2_vec = acst_mat2[gnr_ind[gnr2]]
-    g2_zeros = np.where(g2_vec ==0)
-    g2_nzeros = np.where(g2_vec > 0)
-    
-    res_vec = []
-
-    for g1 in gnrs:
-        
-        g1_vec = acst_mat2[gnr_ind[g1]]
-
-        sumx = np.sum(g1_vec[g2_zeros])
-        # delete overlap if less than x percent is 5%
-        
-        if sumx < 0.05:
-
-            g1_mod = g1_vec[g2_nzeros[0]]
-            g2_mod = g2_vec[g2_nzeros[0]]
-
-            res = entropy(g1_mod,g2_mod)
-
-        else:
-            res = math.inf
-        
-        res_vec.append(res)
-
-    return(res_vec)
-    
-
-def acst_cpr2_mp(gnr_ind, acst_mat2, gnrs, gnr_sel):
-    """manages acst_cpr2"""
-    
-    mp_res = []
-    
-    for g2 in gnr_sel:
-        colx = acst_cpr2(g2, gnrs, gnr_ind, acst_mat2)
-        mp_res.append(colx)
-        
-    mp_res_h = np.vstack(mp_res)
-    return(mp_res_h)
-
-
-def acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2):
-    
-    
-    NO_CHUNKS = 3
-    gnr_chnks = list(split(gnrs, NO_CHUNKS))
-
-    func = partial(acst_cpr2_mp, gnr_ind, acst_mat2, gnrs)
-
-    t1 = time.time()
-    p = Pool(processes=NO_CHUNKS)
-    data = p.map(func, [i for i in gnr_chnks])
-    t2=time.time()
-
-    p.close()
-    p.join()
-
-    ar_cb2 = np.vstack(data)
-    return(ar_cb2)
-
-
-def kld_n_prnts2(ar_cb, npr, gnrs, gnr_ind):
-    """generates edgelist by taking npr (number of parents) lowest values of row of asym kld mat"""
-
-    npr = npr + 1
-    
-    kld2_el = []
-
-    for i in gnrs:
-        i_id = gnr_ind[i]
-        sims = ar_cb[i_id]
-
-        idx = np.argpartition(sims, npr)
-        prnts = idx[0:npr]
-        vlus = sims[idx[0:npr]]
-
-        for k in zip(prnts, vlus):
-            if k[1] == math.inf:
-                break
-
-            if k[0] == i_id:
-                pass
-            else:
-                kld2_el.append((gnrs[k[0]], gnrs[i_id], k[1]))
-                
-    return(kld2_el)
-
-
-
 # * feature extraction
 
 def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, 
-               w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, 
-               ar_cb2, g_kld3, vd_kld3):
+               w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat):
+               # ar_cb2, g_kld3, vd_kld3):
 
     NO_CHUNKS = 3
     chnks = list(split(gnrs, NO_CHUNKS))
@@ -623,7 +469,8 @@ def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2,
 
     func3 = partial(ftr_extrct_mp, nbr_cls, gac, vd, w, gnr_ind, 
                     ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, 
-                    sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, ar_cb2, g_kld3, vd_kld3)
+                    sz_dict, vol_dict, acst_mat, cmps_rel, sim_v)
+                    # ar_cb2, g_kld3, vd_kld3)
     
     p = Pool(processes=NO_CHUNKS)
     res_data = p.map(func3, [i for i in chnks])
@@ -661,7 +508,8 @@ def hier_ftrs(gnr, g_hier, vd_hier, ar_cbx, acst_mat, vol_dict, gnr_ind, hst_lbl
 
 
 def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, 
-                  acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, ar_cb2, g_kld3, vd_kld3, gnrs):
+                  acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, gnrs):
+                  # ar_cb2, g_kld3, vd_kld3, ):
     # seems to sometimes require self, somtimes not??
     """extracts features like a boss"""
 
@@ -676,8 +524,8 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std,
     for gnr in gnrs:
         # generate a whole bunch of measures
 
-        hier_sets = {'smpl_ftrs': [g_kld2, vd_kld2, ar_cb],
-                     'cell_cmbs': [g_kld3, vd_kld3, ar_cb2]}
+        hier_sets = {'smpl_ftrs': [g_kld2, vd_kld2, ar_cb]}
+                    # 'cell_cmbs': [g_kld3, vd_kld3, ar_cb2]}
 
         for hst in hier_sets.keys():
             if gnr in hier_sets[hst][1]:
@@ -686,7 +534,6 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std,
                     hier_names, hier_vlus = hier_ftrs(gnr, hstv[0], hstv[1], hstv[2], acst_mat, vol_dict, gnr_ind, hst)
                     for i in zip(hier_names, hier_vlus):
                         res_dict[gnr][i[0]] = i[1]
-
 
         # prnt_stats_names, prnt_stats_vlus = prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict)
         # for i in zip(prnt_stats_names, prnt_stats_vlus):
@@ -1087,7 +934,7 @@ def ptn_proc(ptn):
 
     print('construct acst gnr dict')
 
-    nbr_cls = 1
+    nbr_cls = 5
     acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
     sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
@@ -1115,11 +962,11 @@ def ptn_proc(ptn):
     # graph_pltr(g_kld2, g_kld2.vp.id, '1_cell_space.pdf', 1)
 
     
-    print('generate acst_mat, ar_cb2, kld3_el, g_kld3 based on feature combination cells')
-    acst_mat2 = acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict)
-    ar_cb2 = acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2)
-    kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
-    g_kld3, vd_kld3, vd_kld3_rv = kld_proc(kld3_el)
+    # print('generate acst_mat, ar_cb2, kld3_el, g_kld3 based on feature combination cells')
+    # acst_mat2 = acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict)
+    # ar_cb2 = acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2)
+    # kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
+    # g_kld3, vd_kld3, vd_kld3_rv = kld_proc(kld3_el)
     
 
     print('extract features')
@@ -1127,8 +974,8 @@ def ptn_proc(ptn):
     tx1 = time.time()
         
     df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, 
-                        g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat, 
-                        ar_cb2, g_kld3, vd_kld3)
+                        g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat)
+                        # ar_cb2, g_kld3, vd_kld3)
     tx2 = time.time()
 
     ret_dict = {'g_kld2':g_kld2, 'df_res':df_res, 'gnr_ind':gnr_ind, 'acst_mat':acst_mat}
@@ -1703,7 +1550,7 @@ if __name__ == '__main__':
 # kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
 # g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld3_el)
 
-# graph_pltr(g_kld2, g_kld2.vp.id, 'cell_combns.pdf', 0.4)
+graph_pltr(g_kld2, g_kld2.vp.id, 'cell_combns.pdf', 0.4)
 
 # # ar_cb2 needs to be T-ed
 # # kld_n_prnts needs to be adapted to handle lack of parents
@@ -1726,13 +1573,145 @@ if __name__ == '__main__':
 ## can't broadcast that shit
 
 
+# * network stats
+# # pagerank
+# pgrnk = pagerank(g_kld2)
+# pgrnks = [pgrnk[vd_kld2[i]] for i in gnrs]
+
+# # betweenness
+# tweens = betweenness(g_kld2)[0]
+# tween_vlus = [tweens[vd_kld2[i]] for i in gnrs]
+# # might be a kind of brokering? but only non-zero for like half: pretty sure none with that will die out
+# # tons of zeroes
+
+
+# # closeness: as measure of centrality? 
+# # many nans tho
+# clsns = closeness(g_kld2)
+# clsns_vlus = [clsns[vd_kld2[i]] for i in gnrs]
+
+# would also have to figure out how to use weights
+
+# # i don't like spaces
+# # could actually have been that the decisive calculations were done with 1cell
+
+# eig_vec = eigenvector(g_kld2, g_kld2.ep.kld_sim)[1]
+# eig_vecs = [eig_vec[vd_kld2[i]] for i in gnrs]
+# # seems to produce nonsense
+
+# katz_vp = katz(g_kld2)
+# katz_vlus2 = [katz_vp[vd_kld2[i]] for i in gnrs]
+
+# # nonsense
+
+
+
+# # * integrate diagnotisticy to now schema model
+
+# def kld_schema(acst_mat, nbr_cls, vrbl_set):
+    
+#     vrbl_vec = list(itertools.chain.from_iterable([[i] * nbr_cls for i in vrbls]))
+    
+#     res_mat = []
+    
+#     for vrbl in vrbl_set:
+        
+#         rel_cols = np.where(np.array(vrbl_vec) == vrbl)[0]
+#         vrbl_mat = acst_mat[:,rel_cols]
+
+#         vrbl_maxs = np.max(vrbl_mat, axis = 1)
+#         vrbl_maxs_mat = np.array([vrbl_maxs] * nbr_cls).T
+
+#         vrbl_ttl = vrbl_mat/vrbl_maxs_mat
+#         vrbl_diagnst = 1/np.sum(vrbl_ttl, axis = 1)
+        
+#         diag_mat = np.array([vrbl_diagnst] * len(vrbl_diagnst))
+#         diag_mat2 = diag_mat.T
+#         diag_mat_pruc = diag_mat * diag_mat2
+
+#         kldx = entropy(vrbl_mat.T[:,:,None], vrbl_mat.T[:,None,:])
+
+#         kldx_wtd = kldx * diag_mat_pruc
+#         res_mat.append(kldx_wtd)
+
+#     res_mat_ttl = sum(res_mat)
+#     return(res_mat_ttl)
+
+
+
+# def kld_schema_mp(vrbls, acst_mat, nbr_cls):
+
+#     NO_CHUNKS = 3
+#     vrbl_chnks = list(split(vrbls, NO_CHUNKS))
+
+#     func = partial(kld_schema, acst_mat, nbr_cls)
+
+#     t1 = time.time()
+#     p = Pool(processes=NO_CHUNKS)
+#     data = p.map(func, [i for i in vrbl_chnks])
+#     t2=time.time()
+
+#     p.close()
+#     p.join()
+
+#     kld_schema = sum(data)
+#     return(kld_schema)
+
+
+
+# ## weights don't seem to add up amazingly
+
+
+# npr = 3
+# kld2_el = kld_n_prnts(kld_schema, npr, gnrs, gnr_ind)
+
+# print('construct kld graph')
+# g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+# graph_pltr(g_kld2, g_kld2.vp.id, '1_cell_space.pdf', 0.3)
 
 
 
 
+# [print(gnrs[i], dncblt_mat[i]) for i in list(np.where(dncblt_diagnst > 0.8)[0])]
+# seems to be mostly diagnostic for undanceable ones
 
 
 
 
+## how to use diagnostic weights? 
+## i have two comparisons
+## can make quadratic diag weight mat and use the weights of both genres in both directions
+## if i compare objects a and b, it seems like it should matter how important how important the feature is for both objects
 
 
+
+
+   
+# ** general comparison
+
+## entropy is somewhow normalized, don't think it really makes a difference tho
+
+# v1 = acst_mat[gnr_ind['ambient']]
+# v2 = acst_mat[gnr_ind['jazz']]
+
+# vlus = []
+l# for vrbl in vrbls: 
+#     rel_cols = np.where(np.array(vrbl_vec) == vrbl)[0]
+#     v1_mod = v1[rel_cols]
+#     v2_mod = v2[rel_cols]
+    
+#     vlu = entropy(v1_mod,v2_mod)
+#     vlus.append(vlu)
+    
+
+# entropy(v1, v2)
+
+
+# ar_cb[gnr_ind['jazz'], gnr_ind['ambient']]
+
+# vrbl = 'dncblt'
+
+
+# acst_mat_sbst = acst_mat[:,rel_cols]
+
+# kldx = entropy(acst_mat_sbst[:,:].T[:,:,None], acst_mat_sbst.T[:,None,:])
