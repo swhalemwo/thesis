@@ -378,6 +378,80 @@ def kld_mat_crubgs(gnrs, acst_mat):
 # where do they come from? 0s in A i think
 # assess badness of fit: sum of cells of a that are 0 in b should not be above X (0.95)
 
+# * integrate diagnotisticy to now schema model
+
+def kld_schema(acst_mat, nbr_cls, vrbl_set):
+    """calculate KLD for each vrbl separately and weight by diagnosticity"""
+    
+    vrbl_vec = list(itertools.chain.from_iterable([[i] * nbr_cls for i in vrbls]))
+    
+    res_mat = []
+    
+    for vrbl in vrbl_set:
+        
+        rel_cols = np.where(np.array(vrbl_vec) == vrbl)[0]
+        vrbl_mat = acst_mat[:,rel_cols]
+
+        vrbl_maxs = np.max(vrbl_mat, axis = 1)
+        vrbl_maxs_mat = np.array([vrbl_maxs] * nbr_cls).T
+
+        vrbl_ttl = vrbl_mat/vrbl_maxs_mat
+        vrbl_diagnst = 1/np.sum(vrbl_ttl, axis = 1)
+        
+        diag_mat = np.array([vrbl_diagnst] * len(vrbl_diagnst)).T
+        
+        # diag_mat2 = diag_mat.T
+        # diag_mat_pruc = diag_mat * diag_mat2
+
+        # which diag_array do i need? 
+        # would say weights shoyld be in rows..
+        
+        kldx = entropy(vrbl_mat.T[:,:,None], vrbl_mat.T[:,None,:])
+
+        kldx_wtd = kldx * diag_mat
+        res_mat.append(kldx_wtd)
+
+    res_mat_ttl = sum(res_mat)
+    return(res_mat_ttl)
+
+
+# g1 = gnrs[10]
+# g2 = gnrs[20]
+
+# entropy(vrbl_mat[10], vrbl_mat[20])
+
+# sum([i[0] * np.log(i[0]/i[1]) for i in zip(vrbl_mat[10], vrbl_mat[20])])
+# kld is divergence of p from q
+# q can't be 0
+# importance of p matters more me thinks
+# have to take reverse of vector mat: 
+# rows in ar_cb show the distances of the row from the potential parents
+
+
+
+
+
+def kld_schema_mp(vrbls, acst_mat, nbr_cls):
+
+    NO_CHUNKS = 3
+    vrbl_chnks = list(split(vrbls, NO_CHUNKS))
+
+    func = partial(kld_schema, acst_mat, nbr_cls)
+
+    t1 = time.time()
+    p = Pool(processes=NO_CHUNKS)
+    data = p.map(func, [i for i in vrbl_chnks])
+    t2=time.time()
+
+    p.close()
+    p.join()
+
+    kld_schema_mat = sum(data)
+    return(kld_schema_mat)
+
+
+
+
 
 # *** get N closest parents
 
@@ -949,7 +1023,8 @@ def ptn_proc(ptn):
     acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
 
     print('construct kld mat')
-    ar_cb = kld_mat_crubgs(gnrs, acst_mat)
+    ar_cb = kld_schema_mp(vrbls, acst_mat, nbr_cls)
+    # ar_cb = kld_mat_crubgs(gnrs, acst_mat)
 
 
     print('construct kld 3 parent edgelist')
@@ -1606,58 +1681,8 @@ graph_pltr(g_kld2, g_kld2.vp.id, 'cell_combns.pdf', 0.4)
 
 
 
-# # * integrate diagnotisticy to now schema model
 
-# def kld_schema(acst_mat, nbr_cls, vrbl_set):
-    
-#     vrbl_vec = list(itertools.chain.from_iterable([[i] * nbr_cls for i in vrbls]))
-    
-#     res_mat = []
-    
-#     for vrbl in vrbl_set:
-        
-#         rel_cols = np.where(np.array(vrbl_vec) == vrbl)[0]
-#         vrbl_mat = acst_mat[:,rel_cols]
-
-#         vrbl_maxs = np.max(vrbl_mat, axis = 1)
-#         vrbl_maxs_mat = np.array([vrbl_maxs] * nbr_cls).T
-
-#         vrbl_ttl = vrbl_mat/vrbl_maxs_mat
-#         vrbl_diagnst = 1/np.sum(vrbl_ttl, axis = 1)
-        
-#         diag_mat = np.array([vrbl_diagnst] * len(vrbl_diagnst))
-#         diag_mat2 = diag_mat.T
-#         diag_mat_pruc = diag_mat * diag_mat2
-
-#         kldx = entropy(vrbl_mat.T[:,:,None], vrbl_mat.T[:,None,:])
-
-#         kldx_wtd = kldx * diag_mat_pruc
-#         res_mat.append(kldx_wtd)
-
-#     res_mat_ttl = sum(res_mat)
-#     return(res_mat_ttl)
-
-
-
-# def kld_schema_mp(vrbls, acst_mat, nbr_cls):
-
-#     NO_CHUNKS = 3
-#     vrbl_chnks = list(split(vrbls, NO_CHUNKS))
-
-#     func = partial(kld_schema, acst_mat, nbr_cls)
-
-#     t1 = time.time()
-#     p = Pool(processes=NO_CHUNKS)
-#     data = p.map(func, [i for i in vrbl_chnks])
-#     t2=time.time()
-
-#     p.close()
-#     p.join()
-
-#     kld_schema = sum(data)
-#     return(kld_schema)
-
-
+ar_cb2 = kld_schema_mp(vrbls, acst_mat, nbr_cls)
 
 # ## weights don't seem to add up amazingly
 
