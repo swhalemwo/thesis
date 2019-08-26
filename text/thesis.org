@@ -120,9 +120,28 @@ However, graded memberships still leaves open the question of how a concept (for
 # 
 In this regard, textcite:Smith_1981_categories and Murphy (citeyear:Murphy_2004_concepts,Murphy_2016_exemplar) distinguish primarily between /prototype/ theories and /exemplar/ theories. 
 # 
-According to prototype theory, concepts are generalized abstractions of features, which - given the probabilistic framework that replaced the classical view - can vary in the degree to which they are associated with the concept.
+According to prototype theory, concepts are generalized abstractions of features, 
 # 
-For example, the feature of sweetness may be a highly influential one for the concept of fruit, that of size might be moderately important, and the thickness of the peel might only have limited influence. 
+A typical fruit might therefore be seen an edible plant that is sweet, has bright colors and is approximately hand-sized. 
+# 
+However, it is obvious that none of these features are not a simply a unstructured list. 
+# 
+The color of a typical can be red or yellow, but less easily both at the same time. 
+#
+To capture such variation, textcite:Murphy_2004_concepts proposes the /schema/ view, a specialization of the prototype view. 
+# 
+In this view, a concept has a number of dimensions (or slots) in which all possible values are weighted by typicality. 
+# 
+This notion of typical values can be captured more precisely through the concept of a /probability distribution function/, which specifies the typical probability for each position on a slot. 
+# 
+For example, the "color" slot of the concept of fruit displays the highest values for bright colors such as red or yellow whereas darker colors like green or brown receive lower values. 
+# 
+A complete prototype can therefore be conceptualized as a collection of probability functions which for each slot describe typical values. 
+
+
+# which - given the probabilistic framework that replaced the classical view - can vary in the degree to which they are associated with the concept.
+# 
+# For example, the feature of sweetness may be a highly influential one for the concept of fruit, that of size might be moderately important, and the thickness of the peel might only have limited influence. 
 # maybe add schema stuff here
 Exemplar theory however argues sees concepts as collections of objects. 
 # 
