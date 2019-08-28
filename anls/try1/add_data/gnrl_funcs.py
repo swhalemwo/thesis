@@ -122,8 +122,6 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # integrate lsnrs and plcnt from dones_tags?
     # does not vary over time...
     # is like looking in the future: has information from 2019 -> can't really use it to predict stuff in 2012
-    
-
 
 
     # tags with basic requirement (in entire df)
@@ -170,11 +168,12 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
         AND (rel_weight > """ + str(min_rel_weight) + """ ))
 
     JOIN (
-        SELECT mbid_basic as mbid, cnt, artist, erl_rls, len_rls_lst from mbids_basic)
+        SELECT mbid_basic as mbid, cnt, artist, erl_rls, len_rls_lst FROM mbids_basic)
     USING mbid"""
     
     # get tags that are actually present enough in intsec
     # no real need for separate table for this, not that big an operation and only done once
+    # maybe should write separate table tho 
     intsect_tags = """
     SELECT tag from (
         SELECT tag, cnt_tag, unq_artsts, max_cnt2, max_cnt2/cnt_tag as propx, max_sz2/szx as propx2 FROM (
@@ -204,6 +203,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     JOIN ( """ + intsect_tags + """)
     USING tag"""
     
+
     # make merge table by getting stuff from acstb in
     # filtered on acstb before so should all be in there, and seems like it is
 
@@ -211,7 +211,37 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst, """ + vrbl_strs + """ from acstb2
     JOIN (""" + int_sec_all + """) USING mbid"""
     
-    drops = [
+    # try to work in usrs count
+    
+
+
+    x = """
+    SELECT tag, uniqExact(usr) as unq_usrs FROM (
+        SELECT tag, usr, uniqExact(abbrv) as cxx FROM 
+            (SELECT usr, song as abbrv from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'  
+                GROUP BY (usr, song))
+        JOIN (SELECT mbid, abbrv, tag FROM (
+                SELECT mbid,tag FROM basic_songs_tags 
+                    JOIN (
+                        SELECT distinct(tag) from (""" + int_sec_all + """)
+                    ) using tag
+             ) JOIN (SELECT mbid, abbrv from song_info) USING mbid
+        ) USING abbrv
+
+        GROUP BY (usr, tag)
+        HAVING cxx > 2
+        
+    ) GROUP BY tag
+    order by unq_usrs desc
+    """
+    
+    # probably should have a separate one to see group user by tag to make sure that user has at least 5 uniq songs on tag
+    # can actually done nicely iteratively
+    # question is how many uniqe songs does a user need to be counted to a tag
+    # relevant because it reduces number of genres
+    # need integration anyways 
+    
+drops = [
         'drop table mbids_basic',
         'drop table tags_basic',
         'drop table basic_songs_tags']
