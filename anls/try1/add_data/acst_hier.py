@@ -972,7 +972,8 @@ def dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int):
 
 def gnr_t_prds(tdlt):
     time_start = datetime.date(datetime(2006,1,1))
-    period_end = datetime.date(datetime(2012,12,20))
+    # period_end = datetime.date(datetime(2012,12,20))
+    period_end = datetime.date(datetime(2013,1,24))
 
     # tdlt = 28
 
@@ -1194,7 +1195,7 @@ def ptn_eval(ptns, ptn_obj_dict):
 # * actual program
 
 if __name__ == '__main__':
-    time_periods = gnr_t_prds(28*3)
+    time_periods = gnr_t_prds(7*4*3)
 
     res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
     print('set parameters')
