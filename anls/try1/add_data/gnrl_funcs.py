@@ -144,7 +144,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     basic_songs_tags_tbl = """
     CREATE TEMPORARY TABLE basic_songs_tags (
     mbid String,
-    cnt Int16,
+    cnt Int32,
     tag String,
     weight Int8,
     rel_weight Float32, 
@@ -172,8 +172,10 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     USING mbid"""
     
     # get tags that are actually present enough in intsec
-    # no real need for separate table for this, not that big an operation and only done once
-    # maybe should write separate table tho 
+    # use actual table since used again to get users
+    
+
+    
     intsect_tags = """
     SELECT tag from (
         SELECT tag, cnt_tag, unq_artsts, max_cnt2, max_cnt2/cnt_tag as propx, max_sz2/szx as propx2 FROM (
@@ -197,8 +199,21 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     AND propx2 < """ + str(max_propx2)
     
 
+    int_sect_all_qry = """
+    CREATE TEMPORARY TABLE int_sect_all (
+    mbid String, 
+    cnt Int32,
+    tag String,
+    weight Int8,
+    rel_weight Float32,
+    artist String,
+    erl_rls Int8,
+    len_rls_lst Int8)
+    """
+
     # boil down basic_songs_tags to intersection requirements
-    int_sec_all = """
+    int_sect_all = """
+    INSERT INTO int_sect_all
     SELECT * from basic_songs_tags
     JOIN ( """ + intsect_tags + """)
     USING tag"""
@@ -207,44 +222,79 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # make merge table by getting stuff from acstb in
     # filtered on acstb before so should all be in there, and seems like it is
 
-    merge_qry = """
-    SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst, """ + vrbl_strs + """ from acstb2
-    JOIN (""" + int_sec_all + """) USING mbid"""
     
     # try to work in usrs count
+    # usr_dedcgs: user dedication: how many unique songs a user needs to be counted as listening to it
+    # unq_usrs: how many users a genre needs to be considered
+    # maybe add something like playcount? 
+    # is a bit tempting to add all the user information tbh
+    # maybe later; this is about genre filtering
     
+    # my listening counts for songs are now still taking into account listening events i delete later on
+    # not good
+    # i think it mostly affects small genres
+    # compare results of usr_fltr with size_dict_raw
 
+    # but usr gnr playcount not weighted 
+    # i'm not sure if it should be: it's really more a minimum threshold, not an indicator of playcount
+    # but that means it's not possible to compare how much my song playcount estimates are affected by NOT EXCLUDING??
+    # listening events of marginally interested people are now included in popular genres
+    # although they only listen once or twice these events are included because others listen a whole lot more
+    # can't see how that's supposed to have a large impact on actual genres, the main impact is on small ones which get rightly excluded
+    
+    usr_fltrd_tags_qry = """
+    CREATE TEMPORARY TABLE usr_fltrd_tags (
+    tag String,
+    unq_usrs Int32,
+    sum_tag_plcnt Int32)
+    """
 
-    x = """
-    SELECT tag, uniqExact(usr) as unq_usrs FROM (
-        SELECT tag, usr, uniqExact(abbrv) as cxx FROM 
-            (SELECT usr, song as abbrv from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'  
+    usr_fltr = """
+    INSERT INTO usr_fltrd_tags
+    SELECT tag, uniqExact(usr) as unq_usrs, sum(tag_plcnt) as sum_tag_plcnt FROM (
+        SELECT tag, usr, uniqExact(abbrv) as usr_dedcgs, sum(cnt_abbrv) as tag_plcnt FROM 
+            (SELECT usr, song as abbrv, count(abbrv) as cnt_abbrv from logs
+                WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'  
                 GROUP BY (usr, song))
         JOIN (SELECT mbid, abbrv, tag FROM (
                 SELECT mbid,tag FROM basic_songs_tags 
                     JOIN (
-                        SELECT distinct(tag) from (""" + int_sec_all + """)
+                        SELECT distinct(tag) from int_sect_all
                     ) using tag
              ) JOIN (SELECT mbid, abbrv from song_info) USING mbid
         ) USING abbrv
 
         GROUP BY (usr, tag)
-        HAVING cxx > 2
+        HAVING usr_dedcgs > 2 AND tag_plcnt > 8
         
     ) GROUP BY tag
-    order by unq_usrs desc
+    HAVING unq_usrs > 10
     """
+
+
+    int_sec_all2 = """
+    SELECT * from int_sect_all JOIN (SELECT tag from usr_fltrd_tags) using tag
+    """
+    
+    merge_qry = """
+    SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst, """ + vrbl_strs + """ from acstb2
+    JOIN (""" + int_sec_all2 + """) USING mbid"""
     
     # probably should have a separate one to see group user by tag to make sure that user has at least 5 uniq songs on tag
     # can actually done nicely iteratively
-    # question is how many uniqe songs does a user need to be counted to a tag
+    # question is how many uniqe songs does a user need to be counted to a tag: 3 sounds reasonable
+    # how many users does tag need? lets say 15
     # relevant because it reduces number of genres
     # need integration anyways 
+    # maybe intsec all should be a table, it's called more than once now
     
-drops = [
+    drops = [
         'drop table mbids_basic',
         'drop table tags_basic',
-        'drop table basic_songs_tags']
+        'drop table basic_songs_tags',
+        'drop table int_sect_all',
+        'drop table usr_fltrd_tags'
+    ]
     for d in drops:
         try:
             client.execute(d)
@@ -257,6 +307,10 @@ drops = [
     client.execute(tag_basic_insert)
     client.execute(basic_songs_tags_tbl)
     client.execute(basic_songs_tags)
+    client.execute(int_sect_all_qry)
+    client.execute(int_sect_all)
+    client.execute(usr_fltrd_tags_qry)
+    client.execute(usr_fltr)
     
     rows_merged = client.execute(merge_qry)
 
