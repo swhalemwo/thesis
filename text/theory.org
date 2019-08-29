@@ -465,6 +465,166 @@ As such a dog is not a hybrid in the same sense as a romantic comedy is as the c
 These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannan_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
 
 
+*** metric spaces bad
+# 
+An alternative approach of the structure of concepts has been developed by parencite:Hannan_2019_concepts. 
+# 
+Central to this idea is the concept of the feature space, a metric space of the features or dimensions. 
+# 
+The authors lament that a interpretation of "[typicality judgments] as distances in a semantic space seems not to have affected subsequent developments" (p.16). 
+#
+As such they aim for a "recasting of the Rips-Schoben-Smith model in probabilistic form" (ibid.).
+#
+At another point, the authors cite as their inspiration of geometry. 
+
+**** 
+It seems to me that the insistence of a spatial model entails substantial costs with very few benefits. 
+#
+While the probabilistic approach can mitigate some of the worst ~aspects~, it does so at great costs to parsimony which, in the realm of limited cognitive resources, quite directly links to plausibility. 
+# 
+
+**** 
+Dimensions do not imply metric spaces cite:Smith_1981_categories. 
+# 
+
+**** 
+One might wonder why geometric models have not been endorsed in the psychology of concepts. 
+# 
+The idea of concepts as points is in to some way intuitive ~animals ferocity~. 
+# 
+However, it seems to me that textcite:Tversky_1977_similarity has effectively killed this approach with the findings that distances between concepts are asymmetric and do not adhere to triangle inequality. 
+# 
+While operationalizations that assume symmetric distances and triangle inequality adherence such Latent Semantic Analysis are still in use, my hunch is that they rather are used as imperfect measurement tools, not theoretical models. 
+# 
+A new kind of measurement that better respects the features of concept relations has also emerged in the form of topic modeling parencite:Griffiths_2007_representation,Griffiths_2019_probabilistic. 
+
+**** 
+What are the downsides of a probabilistic recasting of metric space models? 
+# 
+If we imagine a concept with just 5 binary features. 
+# 
+In a traditional metric model this concept would have been a point. 
+# 
+However in the probabilistic recasting it is seen now as a (hyper-)volume within the feature space. 
+# 
+# 
+In practice, this results in splitting the space into cells of feature combinations over which the concept is defined as a probability distribution. 
+# 
+For example, 10% of the probability mass may be located in cell (1,1,1, 0,0), 5% in cell (1,1,0,0,1) and so on. 
+# 
+Effectively this approach entails that a concept is now operationalized as its feature /combinations/. 
+ 
+
+It might become clearer why geometric probabilistic models have been unpopular to explain concept structure: 
+# 
+The original 5 features have turned into 2^5=32 feature-cells which have to be known to grasp the meaning of the concepts. 
+# 
+However, things hardly get better as complexity increases exponentially: 
+# 
+If the 5 features are dimensions (which according to textcite:Smith_1981_categories require at least three possible values to allow for ~betweenness~), 3^5 = 243 combinations have to be known. 
+# 
+If a concept has ten binary features, 2^10 = 1024 possible combinations emerge, which explode to 3^10 = 59049 in case the features are dimensions. 
+# 
+
+
+
+However, besides the increase in complexity, I cannot see a particular reason why feature combinations should matter in the first place. 
+# 
+For decades, the prototype and schema models have considered feature as the defining criterions.
+# 
+In the case of similarity assessment, feature matching seems much more plausible than the matching of feature /combinations/. 
+# 
+
+It is also worthwhile to note that textcite:Hannan_2019_concepts propose a particular kind of feature combinations, namely those that involve all the features of a concept, and not for example combinations of pairs or triplets of features. 
+# 
+Coming from the prototype view of textcite:Murphy_2004_concepts does take this approach. 
+# 
+While he dismisses it as due to lack of psychological evidence of features being perceived in /combination/ as well as cognitive requirements, it would seem to me as the theoretically more plausible approach as combinations of few features are less cognitively demanding (Murphy does not wander into the discussion of combinations that involve all features). 
+#
+This seems to me to be quite telling of something. 
+# 
+The combinations that involve all features have two desirables mathematical property: 
+# 
+First, They are mutually exclusive and can therefore be used to construct a probability density. 
+# 
+Second, only combinations of all features are representable in a space of all features. 
+# 
+All these seem to indicate to me that the preferences in operationalization have taken priority over theory building: 
+# 
+In particular, the aim to construct a model of concepts which is both geometric and probabilistic seems to have taken preference over plausibility. 
+
+
+**** 
+The spatial model also is not that well suited to deal with concepts that differ in their feature dimensions (rather than the values). 
+# 
+From a feature matching perspective, this poses no substantial problem: 
+# 
+The union of features and each concepts distinctive feature set can be used to make inferences about similarity judgments. 
+# 
+In the spatial model however, the requirement of feature /combinations/ results in these concepts being defined over completely different spaces and hence not immediately comparable. 
+# 
+In the case of hierarchical relations (where concepts are very likely to differ in features) the authors find a solution to this issue by expanding the (smaller) concept space of the superordinate concepts to the dimensionality of the subordinate using uninformative priors (p.73), i.e. assigning uniform values on these new cells that do not point the superordinate in a specific direction. 
+# 
+While there can be no doubt of the ingenuity of this solution, the question arises if it is theoretically plausible (even with simple concepts, hundreds of cells have to be created and assigned uninformative values) or rather an ad-hoc adjustment that allows to maintain a geometric model. 
+
+
+****  
+Despite their probabilistic intentions, the authors readily adapt non-probabilistic metrics when relying on combination ~overlap~ would produce counterintuitive results. 
+# 
+In the case of typicality judgments, which are conceptualized as point distances between a position and the concept core. 
+# 
+It becomes clear why probabilistic measures of feature combinations are not useful when we evaluate the similarity between the artificial string concepts "ABCDE" vs "ABCDF". 
+# 
+These look fairly similar, which is what one would expect from a feature matching perspective as most of the features overlap. 
+# 
+However, the /combination/ of all features does not overlap, which should lead us to believe that these concepts are as dissimilar as possible. 
+# 
+Only by relying on traditional symmetric metrics such as cosine similarity (p.50) with all the problems they entail parencite:Tversky_1977_similarity is it possible to continuously use a geometric model. 
+
+
+
+metric models are attractive because simple
+
+when i first learned about concepts, I remember that I could not really think of an alternative to a metric space
+
+
+
+
+**** 
+in particular not the discussion by cite:Smith_1981_categories. 
+
+
+The choice of metric spaces is not justified so one can only speculate why a metric representation of concepts received such central importance within this project. 
+# 
+textcite:Smith_1981_categories argues that a "major virtue of current metric representations is their use of simple visual displays to make relations between concepts transparent" (p.114). 
+# 
+There is no doubt that the multidimensional scaling solution of concepts such as those by textcite:Rips_1973_semantic that textcite:Hannan_2019_concepts refer to as inspiration convey a certain kind of order in an intuitive fashion, but can this intuitive plausibility really explain such an influential decision? 
+# 
+Maybe influential studies that used metric spaces such as textcite:Ruef_2000_emergence played a role as well. 
+# 
+Additionally, the presence of Blau spaces in ecological paradigms parencite:McPherson_1983_affiliation which at least some of the authors are affiliated with might be part of an explanation (while I have become "wary of metric representations" [[parencite:Smith_1981_categories][p.129]] my exclusive focus on concepts prevents me from evaluating their appropriateness in other domains). 
+#
+Anecdotally, I remember that when I first started reading about concepts their positioning within a metric space seemed without alternative and taken-for-granted; they do certainly constitute an effective form of representing some forms of data. 
+# 
+~Whatever the motivations may have been, the insistence on a spatial model results necessarily results in theoretically implausible and impractical in terms of operationalization.~ 
+
+
+
+
+
+**** 
+It is crucial to distinguish metric and non-metric dimensions here [[parencite:Smith_1981_categories][~page]]: 
+# 
+Whereas non-metric approaches of dimensions treat them virtually equivalent to features, the metric approach requires that they are treated together. 
+
+~normal distribution as example of probability distribution~
+
+
+**** other contraditctions
+- how concepts are used in every day life rather than in scientific debate (p.26) VS 
+  use of explicitly stored concepts links (p. 54) and transitivity of membership (p.56)
+
+
 *** caveat classical view
 # """argues that classical gets bad rep by ignoring caveats/overgeneralizing clear hierarchies to universal conceptual structure"""
 
@@ -511,7 +671,6 @@ Programs by Green (1961), and by Lindsay (1961), explored the idea of using a me
 **** Hannan hierarchy relations
 # """KVD only works for informativeness"""
 
-
 textcite:Hannan_2019_concepts use the Kullback-Leibler divergence (KDV) to measure distance between concepts (p.75), which is calculated as 
 #
 \begin{equation*}
@@ -533,7 +692,6 @@ While log(0) is negative infinite, the entire expression becomes 0 as the follow
 
 **** Hannan informativeness 2 elaboration
 # """dimensions of P2 have to be non-zero in P1 example"""
-
 
 As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
 # 
@@ -822,6 +980,22 @@ https://youtu.be/PnCXJn2cRf4?t=2120
 
 #+RESULTS:
 : #<buffer /home/johannes/Dropbox/gsss/thesis/text/theory.pdf>
+
+
+
+
+* structure :noexport:
+prototype: features
+similarity: feature overlap
+
+hierachy: feature overlap, computational
+
+probability distribution
+implications of measuring on varying features vs on dimensions with probability distribution
+
+** Hannan bad 
+- turning metric spaces probabilistic is nonsense
+- fixed hierarchical relations nonsense for everyday concepts
 
 
 
