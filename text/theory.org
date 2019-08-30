@@ -89,8 +89,8 @@ make the use more the improvisations (Bourdieu) -> stresses flexibility
 
 
 * text
-** introduction
-*** meaning important for social order/action :ignhead:
+** Introduction
+*** relevance
 # """classification systems (sensemaking) are crucial for social order, action"""
 
 # namedrop meaning, interpretation, framing
@@ -99,92 +99,37 @@ Classification systems are essential for social life parencite:Durkheim_2019_pri
 # 
 Without conceptual systems to aid in sense-making and generalization of experience, the complexity of perception would be overwhelming. 
 # 
-Interpretive frameworks that precede action/perception are hence crucial for ~XYZ~
+Interpretive frameworks that precede action and perception are hence crucial for structuring virtually all domains of social life (e.g. cite:Powell_1991_introduction,lamont1992money,Zuckerman_1999_illegitimacy,Fligstein_2017)
 # 
-The ways in which the world is symbolic divided up can facilitate understanding and coordination if agreement over them is obtained, be it through cooperation or imposition 
-# is parencite:diMaggio_1983_iron example for imposition? somewhat
+The importance of cognition for social action can thus hardly be overstated. 
 # 
-Visions of division can compete [[parencite:Bourdieu_1989_space][p.17]], yet competition can also occur in the case of shared classification systems where agreement exists over what is at stake [[parencite:Fligstein_2015_fields][p.27]].
-# 
-The importance of categories for social action can hardly be overstated. 
-
-expand on enabling, shaping, constraining
-action in 
-- economy
-  - cite:Zuckerman_1999_illegitimacy
-  - cite:Hsu_2006_jacks
-- ~politics?~
-- individual decision making? Coleman boat
-- valuation?  cite:Lamont_2012_comparative
-
-  
-*** origin, change of classification systems
-# """necessary to investiagate classification system itself"""
-
-# 
-Yet it is equally important to take a step back and investigate the processes and dynamics that in turn shape  classification systems. 
-# 
-A symbolic order cannot simply be treated as stable, for granted, or inevitable:
-# 
-As it as much relies on social processes as the action and sensemaking it enables and constrains, one  has to trace its development, institutionalization and/or abandonment based on general processes and mechanism as well as particular contingencies. 
-
-~Bourdieu: Kantian aesthetic vs aesthetic of neccessity~
-
-- cite:Ruef_2000_emergence
-- cite:Ruef_2004_demise
-
-introduce basic lfm
-
-*** combine different schools
+Recently, parencite:Pontikes_2012_coin has explicitly highlighted the importance of informal, or practical classification systems. 
 #
-Given the importance of classification systems, hardly any subdiscipline (~or even discipline~) has been able to mark it as an exclusively field of study. 
-# 
-I therefore combine insights from neoinstitutionalism, organizational sociology and the psychology of concepts to 
-# 
-Each of these areas contributes complementary insights. 
-- Neoinstitutionalism: 
-  - practical action? 
-  - legitimacy? 
-  - audience? 
-- organizational sociology
-  - ecology/community/
-
-- psychology of concept 
-  - 
-The contribution of the latter one can maybe be defined most clearly due to
-- their dogmatism, normal science (Kuhn)
-- sharp boundaries: only focus on concepts internal or in relation to others, not much wider array of social influences
-- exclusive focus 
-- bracketing out of social questions
-Such paradigm, while obviously limited to investigate social impact, has nevertheless provided elaborate ~meat and bones~ models on 
-- concept structure, 
-- information processing, 
-- similarity judgments
-- typicality ratings
-- feature ~something~
-
-
-Meanwhile, the much less clearly defined neoinstitutionalism and organizational school provide the correspondingly more diverse social influences. 
-# 
-audience
-# that's literally the only thing for now
-
-*** Practical classification 
-# """ distinguish between informal and practical classification"""
-
-# lfm kinda inbetween: it is written out, but not under central authority
-
-- cite:van_Venrooij_2018_fuzziness
-
+While these are characterized by a low degree of formal institutionalization, they can nevertheless be decisive. 
 #
-textcite:Powell_1991_introduction highlight the importance of classification and cognitive aspects as a core aspect of sociological neoinstitutionalism. 
+A focus on concepts that people use in their everyday life is hence needed in addition to an account of formally established categories.
+
+# expand on enabling, shaping, constraining
+# action in 
+# - economy
+#   - cite:Zuckerman_1999_illegitimacy
+#   - cite:Hsu_2006_jacks
+# - ~politics?~
+# - individual decision making? Coleman boat
+# - valuation?  cite:Lamont_2012_comparative
+*** overview
 # 
+I will focus here primarily on the structure of classification systems, that is to say the components of concepts as well as the relations between concepts. 
+# 
+In particular, I describe the historical developments (primarily based on secondary literature), which leads me to characterize the schema model as the preferable approach for the current purpose of constructing a practical classification system. 
+# 
+As a contrast, I discuss a geometric probabilistic model recently proposed by textcite:Hannan_2019_concepts. 
+# 
+By making the various implicit theoretical assumption explicit, I argue that this model is of limited plausibility. 
 
 
-** concepts
 
-
-*** classical view
+** The classical view
 # """introduces classical view: definitions, hierarchy"""
 
 # is bluerprint actually a good metaphor? quite technical/precise/exact, qute unlike fuzzy probability distributions
@@ -207,16 +152,16 @@ textcite:Powell_1991_introduction highlight the importance of classification and
 
 In everyday life, it may seem intuitive to think that concepts adhere to a unambiguous and internally coherent structure. 
 # 
-We (think we) aim for clear definitions of the objects or situations we encounter, and the extensive accounts we can produce to justify a choice in favor of one possibility vis-a-vis another (such as the comparison of two products) can give us the impression that we have grasped the essence of things. 
+We (think we) aim for clear definitions of the objects or situations we encounter, and the extensive accounts we can produce to justify a choice in favor of one possibility vis-a-vis another (such as the comparison of two products) may give us the impression that we have grasped the essence of things. 
 # (~it certainly seems to an extent be the prevailing worldview in formal education systems~) . 
 # 
 This general idea of well-orderedness is what textcite:Smith_1981_categories,Murphy_2004_concepts call the "classical view". 
 # 
 It is argued that it not only constitutes a lay understanding of concepts, but was the established paradigm in the psychology of concepts until the 1970s. 
 # 
-The classical view entails a number of characteristics. 
+The classical view can be characterized by a general view of clear, logical structure. 
 # 
-First, it argues that concepts are /definitions/ which can be clearly defined with a list of necessary and/or jointly sufficient features. 
+Primarily, it argues that concepts are /definitions/ which can be clearly defined with a list of necessary and/or jointly sufficient features. 
 # 
 For example, one might consider the argument of textcite:popper1971conjectural to consider falsifiability as the demarcation criterion between science and non-science. 
 #  
@@ -232,9 +177,9 @@ In turn, this assumes that all objects that exactly fulfill the membership condi
 
 cite:Murphy_2004_concepts argues that the classical view has received criticism to an extent that they it has been abandoned or heavily reformulated. 
 # 
-Most fundamental is the question whether concepts have a central core that can be captured precisely by a definition. 
+Most fundamental is the question whether concepts have a central core that can be accurately captured by a definition. 
 # """Wittgenstein quote: no clear definitions possible"""
-In regard to this possibility to clearly define a concept, textcite:Wittgenstein_1968_investigations argues that while we have an understanding of what a game entails, there is no precise definition of them: 
+In this regard, textcite:Wittgenstein_1968_investigations argues that while we have an understanding of what the concept of "game" entails, there is no precise definition of them: 
 
 #+begin_quote
 If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail. (p.31)
@@ -299,8 +244,47 @@ For example, the feature of sweetness may be a highly influential one for the co
 /Exemplar/ theory however argues sees concepts as collections of objects. 
 # 
 Each encounter with an object is stored, resulting in large list of objects experiences to which new instances are compared. 
+# 
+Typicality effects can then be explained as frequent encounters with the items (such as apples and oranges) which are labeled as fruits so that new encounters of these are judged as typical. 
 #
-Recently, textcite:Murphy_2016_exemplar has argued that prototype theory is more adequate in regards to explain phenomena such as conceptual hierarchies (which will be elaborated further), knowledge and induction; I therefore use it primarily. 
+Recently, textcite:Murphy_2016_exemplar has argued that prototype theory is more adequate in regards to explain phenomena such as conceptual hierarchies (which will be elaborated further), knowledge and induction; I therefore use it primarily, or rather a specialization of it. 
+
+**** schema
+# 
+The basic prototype view is that prototypes are unstructured lists of features. 
+# 
+However, it can be seen that features are not completely unrelated: 
+# 
+The color of a typical fruit can be red or orange, but not both at the same time.
+# 
+Such features are mutually exclusive and are present in a range of cases, such as size (an object cannot be both tall and small) or sound (loud vs quiet). 
+#
+To capture such variation, textcite:Murphy_2004_concepts proposes the /schema/ view, a specialization of the prototype view. 
+# 
+In this view, a concept has a number of dimensions (or slots) for each dimension of mutually exclusive values on which all possible values are weighted by typicality. 
+# 
+For example, the "color" slot of the concept of fruit displays the highest values for bright colors such as red or yellow whereas darker colors like green or brown receive lower values. 
+
+
+
+**** probability distribution
+This notion of typical values can be captured more precisely through the concept of a /probability distribution function/, which specifies the typical probability for each position on a slot (In the case of discrete dimensions such as color, sometimes the term probability /mass/ function is used instead, albeit I refer here to both interchangeably). 
+# 
+While the name "probability distribution" is not used frequently, the notion it describes is very familiar. 
+# 
+In general, it does exactly what it says, namely describing the distribution of probabilities over a dimension (or possibly also over a space). 
+# 
+The most well-known probability function is presumably the normal distribution, the bell shape of which specifies a concentration of the probability mass around the mean which  symmetrically and monotonically thins out when one approaches the tails. 
+# 
+With its clear definition, it can for example be said that ~95% of the observations fall within two standard deviations from the mean, and over 99% within three standard deviations. 
+# 
+While such /parametric/ probability distributions are very precise, there is no guarantee that the empirical probability distributions of typicality positions of a dimension adhere to such strict criteria. 
+# 
+However, they maintain the feature of probability distributions generally, namely that they sum up to 1. 
+# 
+A complete schema can therefore be conceptualized as a collection of probability functions which for each slot describe typical values. 
+
+
 
 
 
@@ -465,7 +449,9 @@ As such a dog is not a hybrid in the same sense as a romantic comedy is as the c
 These issues are not yet discussed by textcite:Murphy_2004_concepts who mentions such cases, but limit his discussion of multiple membership to hierarchically structured taxonomies (p.199), or textcite:Hannan_2019_concepts, who discuss ambiguity due to multiple membership with regards to concepts of the same cohort (p.152). 
 
 
-*** metric spaces bad
+** ~Dimensions do not imply metric spaces cite:Smith_1981_categories.~
+
+** metric spaces bad
 # 
 An alternative approach of the structure of concepts has been developed by parencite:Hannan_2019_concepts. 
 # 
@@ -476,96 +462,166 @@ The authors lament that a interpretation of "[typicality judgments] as distances
 As such they aim for a "recasting of the Rips-Schoben-Smith model in probabilistic form" (ibid.).
 #
 At another point, the authors cite as their inspiration of geometry. 
+# 
+While geometric models may be preferred due to its simplicity, it seems to me that the insistence of a spatial model that can account for key concepts phenomena entails substantial costs with very few benefits. 
+# 
+In particular, the requirement of a probabilistic model can be shown to lead to assumptions that are theoretically rather implausible as well as very unparsimonious which, in the realm of limited cognitive resources, not necessarily but typically links to diminished plausibility. 
 
-**** 
-It seems to me that the insistence of a spatial model entails substantial costs with very few benefits. 
+
+**** key features of metric spaces
+It is necessary to clearly point out the specificities of a geometric approach. 
 #
-While the probabilistic approach can mitigate some of the worst ~aspects~, it does so at great costs to parsimony which, in the realm of limited cognitive resources, quite directly links to plausibility. 
+Whereas the previously discussed prototype and schema approaches treat the features (discrete) and dimensions (continuous) as separate from each other, the geometric approach assumes that each feature constitutes an axis in a metric space. 
 # 
-
-**** 
-Dimensions do not imply metric spaces cite:Smith_1981_categories. 
+The geometric approach has traditionally then located concepts as points in the space, which gives an intuitive understanding of which concepts are similar (as they are grouped together) as well as which are dissimilar (distant). 
+#
+Furthermore, some spaces (primarily those constructed from pairwise similarity judgments) allow to interpret the dimensions of the spaces. 
 # 
+Ideally, this provides an intuitive understanding of the underlying features, such as the sorting of birds in terms of size and ferocity parencite:Rips_1973_semantic. 
 
-**** 
+
+**** Tversky kills metric spaces with facts and logic
 One might wonder why geometric models have not been endorsed in the psychology of concepts. 
 # 
-The idea of concepts as points is in to some way intuitive ~animals ferocity~. 
+While I cannot give a definite answer, it seems to me that textcite:Tversky_1977_similarity has effectively killed this approach with the findings that distances between concepts are asymmetric and do not adhere to triangle inequality. 
 # 
-However, it seems to me that textcite:Tversky_1977_similarity has effectively killed this approach with the findings that distances between concepts are asymmetric and do not adhere to triangle inequality. 
+However, one might still think that a probabilistic approach can salvage the metric model. 
 # 
-While operationalizations that assume symmetric distances and triangle inequality adherence such Latent Semantic Analysis are still in use, my hunch is that they rather are used as imperfect measurement tools, not theoretical models. 
+This might be in particular plausible as criticism of metric spaces has in fact often been limited to those models that conceptualize concepts as /points/ parencite:Steyvers_2005_structure,Smith_1981_categories. 
+# # 
+# A probabilistic account that would refrain from concepts as points might and adopts the idea of concepts as probability densities over the feature space might hence provide a plausible model. 
 # 
-A new kind of measurement that better respects the features of concept relations has also emerged in the form of topic modeling parencite:Griffiths_2007_representation,Griffiths_2019_probabilistic. 
+# While operationalizations that assume symmetric distances and triangle inequality adherence such Latent Semantic Analysis are still in use, my hunch is that they rather are used as imperfect measurement tools, not theoretical models. 
+# 
+# A new kind of measurement that better respects the features of concept relations has also emerged in the form of topic modeling parencite:Griffiths_2007_representation,Griffiths_2019_probabilistic. 
 
-**** 
-What are the downsides of a probabilistic recasting of metric space models? 
+**** example
+How does a probabilistic recasting of metric space models look like? 
 # 
-If we imagine a concept with just 5 binary features. 
+If we start with imagining a concept with 5 binary features the differences between the approaches become apparent. 
 # 
 In a traditional metric model this concept would have been a point. 
 # 
-However in the probabilistic recasting it is seen now as a (hyper-)volume within the feature space. 
+However in the probabilistic recasting it is seen now as a (hyper-)volume within the feature space (using the instances of the concept would imply an exemplar model; I am therefore focusing here on how a prototype or schema model would be distributed). 
 # 
-# 
-In practice, this results in splitting the space into cells of feature combinations over which the concept is defined as a probability distribution. 
+Since the features are binary, space is split into "cells" of feature combinations over which the concept is defined as a probability distribution. 
 # 
 For example, 10% of the probability mass may be located in cell (1,1,1, 0,0), 5% in cell (1,1,0,0,1) and so on. 
 # 
-Effectively this approach entails that a concept is now operationalized as its feature /combinations/. 
+Crucially this approach entails that a concept is now operationalized as its feature /combinations/: 
+# 
+A feature does not matter on its own anymore, but only in combination with the other features. 
+
+
+**** feature combinations bad
+textcite:Murphy_2004_concepts discusses the possibility feature combinations (p.118). 
+# 
+# First however he urges to keep in mind the distinction between correlation of features that is provided by prototypes and the direct use of feature correlation as concept properties. 
+# # 
+# The former is illustrated in the case of birds: If we know that an animals has a beak, wings and lives in a nest it is more likely that it migrates in the winter than if it has paws and lives in a burrow. 
+# #
+# Features, especially those that load highly on their respective concepts, co-occur in the items of the category and are hence correlated. 
+# # 
+# The latter implies that the correlation between features is used in addition to the features individually. 
+# # 
+In his review of the literature, he finds little influence of these in the case of natural concepts: 
+# 
+While some features that are not highly typical (such as "sings" and "small" for birds) are correlated, the presence of the correlation has no effect on typicality judgments beyond individual features, nor does its absence decrease typicality values parencite:Malt_1984_correlated.
+# 
+Correlations between features are also not generally acquired in feature learning parencite:Chin_Parker_2002_correlations.
  
 
-It might become clearer why geometric probabilistic models have been unpopular to explain concept structure: 
+**** exceptions that do not matter :ignhead:
+There are however two noteworthy cases where correlations have an impact. 
 # 
-The original 5 features have turned into 2^5=32 feature-cells which have to be known to grasp the meaning of the concepts. 
+The first concerns forced-choice comparisons in which one of two objects which only differ in that one has correlated features (e.g. "small" and "sings" in the first, "small" and "eats bugs" in the second). 
 # 
-However, things hardly get better as complexity increases exponentially: 
-# 
-If the 5 features are dimensions (which according to textcite:Smith_1981_categories require at least three possible values to allow for ~betweenness~), 3^5 = 243 combinations have to be known. 
-# 
-If a concept has ten binary features, 2^10 = 1024 possible combinations emerge, which explode to 3^10 = 59049 in case the features are dimensions. 
-# 
-
-
-
-However, besides the increase in complexity, I cannot see a particular reason why feature combinations should matter in the first place. 
-# 
-For decades, the prototype and schema models have considered feature as the defining criterions.
-# 
-In the case of similarity assessment, feature matching seems much more plausible than the matching of feature /combinations/. 
-# 
-
-It is also worthwhile to note that textcite:Hannan_2019_concepts propose a particular kind of feature combinations, namely those that involve all the features of a concept, and not for example combinations of pairs or triplets of features. 
-# 
-Coming from the prototype view of textcite:Murphy_2004_concepts does take this approach. 
-# 
-While he dismisses it as due to lack of psychological evidence of features being perceived in /combination/ as well as cognitive requirements, it would seem to me as the theoretically more plausible approach as combinations of few features are less cognitively demanding (Murphy does not wander into the discussion of combinations that involve all features). 
+In such situations, correlations seem to have a effect as the object with correlated features is in 61% of the cases chosen as the more typical parencite:Malt_1984_correlated. 
 #
-This seems to me to be quite telling of something. 
+However, Murphy judges the general applicability as limited as the absence of other distinguishing features artificially increases the salience of the correlation, while in the presence of other features the correlation has no substantial impact. 
 # 
-The combinations that involve all features have two desirables mathematical property: 
+The second exception concerns concern logical concepts such as legal rules or tax codes, where (after substantial learning time) participants can learn necessary and sufficient feature combinations to classify concepts the membership of which would not be predictable by a the dimensions individually . 
 # 
-First, They are mutually exclusive and can therefore be used to construct a probability density. 
+Here Murphy argues that such clear-cut concepts with logical "exclusive-or" (XOR) feature relations are not representative of natural concepts (to me, they seem reminiscent of the classical view). 
 # 
-Second, only combinations of all features are representable in a space of all features. 
+For these natural concepts, he rejects feature correlation as concept properties since "instead of storing the facts that wings go with feathers, and feathers go with nests, and nests go with beaks, and wings go with beaks, and wings go with nests, and feathers go with beaks, and so on, we can store the facts that wings,
+feathers, nests, and beaks are all properties of birds, which implicitly represents the
+feature-to-feature correlations" [[parencite:Murphy_2004_concepts][p.124]].
+ 
+**** feature combinations still bad
 # 
-All these seem to indicate to me that the preferences in operationalization have taken priority over theory building: 
+While there is not only little support for feature combinations,  it is also worthwhile to note that textcite:Hannan_2019_concepts propose a particular kind of feature combinations, namely those that involve all the features of a concept, and not for example combinations of pairs or triplets of features. 
+# 
+The previous literature had focused on feature combinations /in addition/ to features, yet the properties of the probability distribution in metric space require the disappearance of the individual features and their subsumption into exhaustive combinations. 
+#
+This seems to me not just one, but rather a lot of steps further from what the previous literature has proposed on feature combinations. 
+# 
+It hence seems to me to be less grounded in theory, but more in a the preference for the geometric model as the combinations that involve all features have a desirable mathematical property: 
+# 
+First, they are mutually exclusive and can therefore be used to construct a probability density. 
+# 
+For example, if one imagines a cube with each dimension split to create a total of 8 cubes that make up the larger cube, all possible 'slices' that fixes two dimensions to one value and allow the whole range of the remaining overlap in many parts which means that their positions are not independent. 
+# 
+As such, only cells which are exclusive combinations of /all features/ (the individual cells) can be used a  in a space of /all/ features. 
+# 
+This seems to indicate to me that the preferences in operationalization have taken priority over theory building: 
 # 
 In particular, the aim to construct a model of concepts which is both geometric and probabilistic seems to have taken preference over plausibility. 
 
 
-**** 
-The spatial model also is not that well suited to deal with concepts that differ in their feature dimensions (rather than the values). 
+**** expensive
+#
+Another reason why probability densities within a metric space are undesirable is their complexity: 
+# 
+The feature space of a concept with 5 binary features requires 2^5=32 feature-cells which have to be known to grasp the meaning of the concepts. n
+# 
+Things get worse as complexity increases exponentially: 
+# 
+If the 5 features are dimensions (which according to textcite:Smith_1981_categories require at least three possible values to allow for continuity and betweenness (p.120)), 3^5 = 243 combinations have to be known. 
+# 
+If a concept has ten binary features, 2^10 = 1024 possible combinations emerge, which explode to 3^10 = 59049 in case the features are dimensions. 
+# 
+The cognitive powers of the brain are of course hard to quantify. 
+# 
+Nevertheless, the speed with which the number of cells increases does not exactly provide strong evidence for this view either. 
+
+
+# However, besides the increase in complexity, I cannot see a particular reason why feature combinations should matter in the first place. 
+# # 
+# For decades, the prototype and schema models have considered feature as the defining criterions.
+# # 
+# In the case of similarity assessment, feature matching seems much more plausible than the matching of feature /combinations/. 
+# # 
+# 
+# Coming from the prototype view of textcite:Murphy_2004_concepts does take this approach. 
+# # 
+# While he dismisses it as due to lack of psychological evidence of features being perceived in /combination/ as well as cognitive requirements, it would seem to me as the theoretically more plausible approach as combinations of few features are less cognitively demanding (Murphy does not wander into the discussion of combinations that involve all features). 
+#
+
+
+**** more expensive
+# 
+Another aspect that illustrates the substantive cognitive costs is concept comparison, in particular when the feature dimensions differ (even if concepts are defined over the exact same space, the costs are still much higher than in the feature matching model as each cell - not each dimension - has to be compared). 
+# 
+# Probability densities can of course be compared, and as textcite:Smith_1981_categories have argued, this is likely what happens when 
 # 
 From a feature matching perspective, this poses no substantial problem: 
 # 
-The union of features and each concepts distinctive feature set can be used to make inferences about similarity judgments. 
+The union of features and each concepts distinctive feature set can be used to make inferences about similarity judgments parencite:Tversky_1977_similarity. 
 # 
 In the spatial model however, the requirement of feature /combinations/ results in these concepts being defined over completely different spaces and hence not immediately comparable. 
 # 
 In the case of hierarchical relations (where concepts are very likely to differ in features) the authors find a solution to this issue by expanding the (smaller) concept space of the superordinate concepts to the dimensionality of the subordinate using uninformative priors (p.73), i.e. assigning uniform values on these new cells that do not point the superordinate in a specific direction. 
 # 
-While there can be no doubt of the ingenuity of this solution, the question arises if it is theoretically plausible (even with simple concepts, hundreds of cells have to be created and assigned uninformative values) or rather an ad-hoc adjustment that allows to maintain a geometric model. 
+textcite:Hannan_2019_concepts illustrate this in the concept of "swimmer", a subconcept of "athlete". 
+# 
+"Athlete" as general superordinate is only characterized by "practices sport daily" (with a value of 0.8 for 1, and 0.2 for 0), whereas the more precise subordinate "swimmer" also has the dimension "trains in aquatic center". 
+#
+Since the athlete does not have the dimension "trains in aquatic center", his space gets expanded by making it equally likely that he trains in an aquatic center or doesn't. 
+# 
+This results in a probability distribution of 0.4 for training daily and training in aquatic center, 0.4 for training daily and not in aquatic center, 0.1 for not training daily but in aquatic center, and 0.1 for not training daily and not in aquatic center. 
+# 
+While there can be no doubt of the ingenuity of this solution, the question arises if it is theoretically plausible (even with simple concepts, hundreds of cells have to be created and assigned uninformative values by 'shifting' the probability mass around) or rather an ad-hoc adjustment that allows to maintain a geometric model. 
 
 
 ****  
@@ -590,8 +646,7 @@ when i first learned about concepts, I remember that I could not really think of
 
 
 
-**** 
-in particular not the discussion by cite:Smith_1981_categories. 
+**** overall choice of spaces
 
 
 The choice of metric spaces is not justified so one can only speculate why a metric representation of concepts received such central importance within this project. 
@@ -610,14 +665,6 @@ Anecdotally, I remember that when I first started reading about concepts their p
 
 
 
-
-
-**** 
-It is crucial to distinguish metric and non-metric dimensions here [[parencite:Smith_1981_categories][~page]]: 
-# 
-Whereas non-metric approaches of dimensions treat them virtually equivalent to features, the metric approach requires that they are treated together. 
-
-~normal distribution as example of probability distribution~
 
 
 **** other contraditctions
@@ -688,97 +735,6 @@ While log(0) is negative infinite, the entire expression becomes 0 as the follow
 \begin{equation*}
 \lim \limits_{x \rightarrow 0^{+}} x \log(x) = 0
 \end{equation*}
-
-
-**** Hannan informativeness 2 elaboration
-# """dimensions of P2 have to be non-zero in P1 example"""
-
-As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
-# 
-For example, the divergence of the concept of a ~swimmer~ from its root concept ~athlete~ can be meaningfully calculated in this fashion. 
-#
-Here, a swimmer has non-zero values on all attributes of the ~athlete~ category. 
-# 
-This is not the case for assessing the similarity between ~swimmer~ and ~weightlifter~, as the probability distributions in the dimensions that define each category (training (primarily) in pool, training (primarily) with weights) are non-overlapping. 
-
-**** Hannan KDV fails for distinctiveness
-# """KDV not defined for comparing cohort, cos_sim is symmetric and don't account for probability density"""
-
-
-It is unclear if  textcite:Hannan_2019_concepts are aware of this limitation. 
-# 
-When measuring the distance between concepts on the same level in the case of a cohort, they claim to "also use the Kullbach-Leibler divergence to express the degree to which a concept stands out from its cohort" (p.81). 
-#
-However, when they do so in practice, they use cosine similarities converted into distances using an exponential function (and then average them for each concept as a measure of its distinctiveness vis-a-vis its cohort comembers). 
-# 
-However, using cosine similarities of (the centers of) the feature space dimensions does not take information of the probability distribution into account. 
-# 
-It would for example imply that two concepts are equally similar if their centers are at the same distance, regardless of the extent to which their probability distributions overlap (figure [[fig1]]), which strikes me as unintuitive. 
-
-It is also a symmetric distance. 
-# 
-One might argue that in the case of cohorts, which are situated on the same level of abstraction, it is justifiable to assume equally sized probability distributions. 
-
-Yet the very notion of variation in typicality (e.g. the fruit example textcite:Rosch_1975_family discusses) counteracts ~this~ idea, and  will likely result in asymmetric similarity judgments as discussed by textcite:Tversky_1977_similarity in terms of China and North Korea. 
-# 
-Overall, using different measurements for ~these~ two cases, typicality of ~sub-conceptuality~ and distance between concepts, does not strike me as a bad idea. 
-#
-The question "how similar are swimmers to athletes" seems to me to be a qualitatively different one than the question "how similar are swimmers to sociologists" and therefore warranting a separate methodological approach. 
-
-
-
-**** metric spaces bad
-# """general idea about network structure"""
-
-One might also ask generally in how far metric spaces are a adequate model for representing the relations between concepts. 
-# 
-dimensions expensive 
-
-textcite:Steyvers_2005_structure argue that natural association patterns of words exhibit small world structure and power-law degree distributions, which are better represented by a network than by inheritance hierarchies parencite:Quillian_1988_memory or high dimensional vector spaces such as those produced by LSA. 
-# 
-textcite:Martin_2010_ant ~argues that the mental capacities of the human brain are severly limited.~
-# 
-It also seems to me that high dimensional vector spaces are cognitively expensive. 
-# 
-Working with high dimensional data for this project, which encompasses millions of songs, hundreds of thousands of users, and tens of thousands of genres, I also realized that the traditional ~cultural matrix~ (poetics source) model is very expensive and highly ineffective in storing such high-dimensional data. 
-# 
-While of course no single human brain has to deal with such a number of particular objects, the complexity arises by having to deal with a much higher amount of domains. 
-
-~source that only relevant information is given when asked~
-
-A network model of semantic space thus seems to provide a much more
-- realistic (need quote for that)
-model as it also provides a model of cognitive economy. 
-
-~OVERLAP~
-~triangle inequality~
-
-
-**** metric spaces reifications
-# """reflect upon how classical view is reification of bureaucracy"""
-It seems to me that the view of concepts as definitions and of conceptual structure as a logically-ordered hierarchy is a reifications of bureaucratic social organization. 
-#
-As such ideal-typically rational administration has become wide-spread in modern societies, seems likely that it served as the template by which concepts generally were seen to be structured. 
-
-
-** conceptual ecology
-# """postulates based on ecological framework"""
-
-# 
-The original formulation of textcite:hannan89_organ,Hannan_1992_dynamics rests on an in interpretation of density dependence that emphasizes the role of legitimation and competition. 
-# 
-
-industries with little data available besides count -> different roots describe different industries (somewhat independent)
-
-
-If cohort size is a measure of density, one would expect a cohort nonmonontic relation between cohort size and survival chances: 
-# 
-At first, an established, but rarely imitated genre provides much potential for legitimating sub-genres. 
-# 
-However, the more sub-genres are formed, the higher the competition for the region of the musical space spanned by the superordinate genre. 
-
-
-
 
 
 * reorder
@@ -884,6 +840,150 @@ The relations between concepts can hence be inferred by the relations of their r
 Moreover, when asking participants to list features of a category (a common technique in the psychology of concepts) 
 
 participants often list features that do not apply to every member: For example, while not all birds are capable of flight, we nevertheless consider the ability to fly a typical feature of birds. 
+
+**** metric spaces bad
+# """general idea about network structure"""
+
+One might also ask generally in how far metric spaces are a adequate model for representing the relations between concepts. 
+# 
+dimensions expensive 
+
+textcite:Steyvers_2005_structure argue that natural association patterns of words exhibit small world structure and power-law degree distributions, which are better represented by a network than by inheritance hierarchies parencite:Quillian_1988_memory or high dimensional vector spaces such as those produced by LSA. 
+# 
+textcite:Martin_2010_ant ~argues that the mental capacities of the human brain are severly limited.~
+# 
+It also seems to me that high dimensional vector spaces are cognitively expensive. 
+# 
+Working with high dimensional data for this project, which encompasses millions of songs, hundreds of thousands of users, and tens of thousands of genres, I also realized that the traditional ~cultural matrix~ (poetics source) model is very expensive and highly ineffective in storing such high-dimensional data. 
+# 
+While of course no single human brain has to deal with such a number of particular objects, the complexity arises by having to deal with a much higher amount of domains. 
+
+~source that only relevant information is given when asked~
+
+A network model of semantic space thus seems to provide a much more
+- realistic (need quote for that)
+model as it also provides a model of cognitive economy. 
+
+~OVERLAP~
+~triangle inequality~
+
+
+**** metric spaces reifications
+# """reflect upon how classical view is reification of bureaucracy"""
+It seems to me that the view of concepts as definitions and of conceptual structure as a logically-ordered hierarchy is a reifications of bureaucratic social organization. 
+#
+As such ideal-typically rational administration has become wide-spread in modern societies, seems likely that it served as the template by which concepts generally were seen to be structured. 
+
+
+
+**** Hannan informativeness 2 elaboration
+# """dimensions of P2 have to be non-zero in P1 example"""
+
+As such KDV is suited for measuring the informativeness of a sub-concept in relation to its root, as the criterion ob absolute continuity holds if a sub-concept occupies a sub-region of a conceptual space. 
+# 
+For example, the divergence of the concept of a ~swimmer~ from its root concept ~athlete~ can be meaningfully calculated in this fashion. 
+#
+Here, a swimmer has non-zero values on all attributes of the ~athlete~ category. 
+# 
+This is not the case for assessing the similarity between ~swimmer~ and ~weightlifter~, as the probability distributions in the dimensions that define each category (training (primarily) in pool, training (primarily) with weights) are non-overlapping. 
+
+**** Hannan KDV fails for distinctiveness: ~NOPE~: can expand whatever the fuck you want
+# """KDV not defined for comparing cohort, cos_sim is symmetric and don't account for probability density"""
+
+
+It is unclear if  textcite:Hannan_2019_concepts are aware of this limitation. 
+# 
+When measuring the distance between concepts on the same level in the case of a cohort, they claim to "also use the Kullbach-Leibler divergence to express the degree to which a concept stands out from its cohort" (p.81). 
+#
+However, when they do so in practice, they use cosine similarities converted into distances using an exponential function (and then average them for each concept as a measure of its distinctiveness vis-a-vis its cohort comembers). 
+# 
+However, using cosine similarities of (the centers of) the feature space dimensions does not take information of the probability distribution into account. 
+# 
+It would for example imply that two concepts are equally similar if their centers are at the same distance, regardless of the extent to which their probability distributions overlap (figure [[fig1]]), which strikes me as unintuitive. 
+
+It is also a symmetric distance. 
+# 
+One might argue that in the case of cohorts, which are situated on the same level of abstraction, it is justifiable to assume equally sized probability distributions. 
+
+Yet the very notion of variation in typicality (e.g. the fruit example textcite:Rosch_1975_family discusses) counteracts ~this~ idea, and  will likely result in asymmetric similarity judgments as discussed by textcite:Tversky_1977_similarity in terms of China and North Korea. 
+# 
+Overall, using different measurements for ~these~ two cases, typicality of ~sub-conceptuality~ and distance between concepts, does not strike me as a bad idea. 
+#
+The question "how similar are swimmers to athletes" seems to me to be a qualitatively different one than the question "how similar are swimmers to sociologists" and therefore warranting a separate methodological approach. 
+
+
+
+*** origin, change of classification systems
+# """necessary to investiagate classification system itself"""
+
+# 
+Yet it is equally important to take a step back and investigate the processes and dynamics that in turn shape  classification systems. 
+# 
+A symbolic order cannot simply be treated as stable, for granted, or inevitable:
+# 
+As it as much relies on social processes as the action and sensemaking it enables and constrains, one  has to trace its development, institutionalization and/or abandonment based on general processes and mechanism as well as particular contingencies. 
+
+~Bourdieu: Kantian aesthetic vs aesthetic of neccessity~
+
+- cite:Ruef_2000_emergence
+- cite:Ruef_2004_demise
+
+introduce basic lfm
+
+*** combine different schools
+#
+Given the importance of classification systems, hardly any subdiscipline (~or even discipline~) has been able to mark it as an exclusively field of study. 
+# 
+I therefore combine insights from neoinstitutionalism, organizational sociology and the psychology of concepts to 
+# 
+Each of these areas contributes complementary insights. 
+- Neoinstitutionalism: 
+  - practical action? 
+  - legitimacy? 
+  - audience? 
+- organizational sociology
+  - ecology/community/
+
+- psychology of concept 
+  - 
+The contribution of the latter one can maybe be defined most clearly due to
+- their dogmatism, normal science (Kuhn)
+- sharp boundaries: only focus on concepts internal or in relation to others, not much wider array of social influences
+- exclusive focus 
+- bracketing out of social questions
+Such paradigm, while obviously limited to investigate social impact, has nevertheless provided elaborate ~meat and bones~ models on 
+- concept structure, 
+- information processing, 
+- similarity judgments
+- typicality ratings
+- feature ~something~
+
+
+Meanwhile, the much less clearly defined neoinstitutionalism and organizational school provide the correspondingly more diverse social influences. 
+# 
+audience
+# that's literally the only thing for now
+
+
+
+** conceptual ecology
+# """postulates based on ecological framework"""
+
+# 
+The original formulation of textcite:hannan89_organ,Hannan_1992_dynamics rests on an in interpretation of density dependence that emphasizes the role of legitimation and competition. 
+# 
+
+industries with little data available besides count -> different roots describe different industries (somewhat independent)
+
+
+If cohort size is a measure of density, one would expect a cohort nonmonontic relation between cohort size and survival chances: 
+# 
+At first, an established, but rarely imitated genre provides much potential for legitimating sub-genres. 
+# 
+However, the more sub-genres are formed, the higher the competition for the region of the musical space spanned by the superordinate genre. 
+
+
+
 
 * questions (list of ideas with more or less relevance) :noexport:
 
