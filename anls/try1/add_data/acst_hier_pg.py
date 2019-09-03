@@ -1294,3 +1294,206 @@ def kld_n_prnts2(ar_cb, npr, gnrs, gnr_ind):
 
 
 
+# * debug time: get average age of playcount
+# INSERT INTO tdif SELECT time_d, tdif from (
+# SELECT time_d, avg(tdif) FROM (
+
+CREATE TABLE agg (
+    time_d Date,
+    song String,
+    plcnt UInt32
+    
+)
+engine=MergeTree() partition by time_d order by time_d
+
+
+
+# SELECT min(tdif), max(tdif), avg(tdif), median(tdif) FROM (
+select quantilesExactWeighted(0 ,0.05, 0.1 , 0.15, 0.2 , 0.25, 0.3 , 0.35, 0.4 , 0.45, 0.5 , 0.55, 0.6 , 0.65, 0.7 , 0.75, 0.8 , 0.85, 0.9 , 0.95, 1)(tdif, plcnt) FROM (
+    SELECT * from (
+        SELECT time_d, toRelativeDayNum(time_d) as pdt,  mbid, plcnt, erl_rls, pdt-erl_rls as tdif FROM (
+            SELECT time_d, song AS abbrv, mbid, plcnt FROM agg
+            JOIN (SELECT abbrv, mbid FROM song_info) USING abbrv
+
+        ) JOIN (SELECT lfm_id as mbid, erl_rls FROM addgs ) USING mbid 
+        WHERE erl_rls <  pdt + 365
+    )
+)    
+    
+
+qnts2 = np.arange(0,1.05,0.05).tolist()
+qnts2 = [round(i,2) for i in qnts2]
+qntls = [-364,4,64,165,285,423,582,761,960,1186,1440,1723,2042,2420,2874,3442,4230,5375,6914,10577,340847]
+
+for i in zip(qnts2, qntls):
+    print(i)
+    
+
+#     SELECT time_d, toRelativeDayNum(time_d) as pdt, song as abbrv, lfm_id, erl_rls, pdt-erl_rls as tdif FROM agg JOIN (SELECT 
+#         lfm_id
+    
+
+    
+#     JOIN (SELECT mbid as lfm_id, abbrv FROM song_info) using abbrv 
+# ) JOIN (SELECT lfm_id, erl_rls from addgs) using lfm_id 
+# WHERE erl_rls <  pdt + 365
+# limit 10
+
+
+
+# idk this takes for fucking ever
+# song alone is pretty fast
+# combination with usr is still much faster, minute or so
+# probably becuase there are less users than songs
+# well fuck it
+
+
+time_periods = gnr_t_prds(95)
+
+
+    
+for tp in time_periods[15:]:
+    print(tp)
+    d1 = tp[0].strftime('%Y-%m-%d')
+    d2 = tp[1].strftime('%Y-%m-%d')
+    
+    qry_str = """    INSERT INTO agg
+    SELECT time_d, song as abbrv, count(time_d, abbrv) as plcnt from logs 
+    WHERE time_d BETWEEN '"""  + d1 + "' and '" + d2 + """'
+    GROUP BY (time_d, abbrv)"""
+    client.execute(qry_str)
+    
+
+# * get song playcount accumulation times
+
+CREATE TABLE ttl_plcnt (
+    mbid String,
+    plcnt Int32, 
+    rndm Int8
+)
+engine=MergeTree() partition by rndm order by tuple()
+
+INSERT INTO ttl_plcnt
+    SELECT mbid, sum(plcnt) as plcnt, plcnt % 30 from (
+        SELECT time_d, toRelativeDayNum(time_d) as pdt,  mbid, plcnt, erl_rls, pdt-erl_rls as tdif FROM (
+            SELECT time_d, song AS abbrv, mbid, plcnt FROM agg
+            JOIN (SELECT abbrv, mbid FROM song_info) USING abbrv
+            WHERE time_d > '2010-01-01'
+        ) JOIN (SELECT lfm_id as mbid, erl_rls FROM addgs 
+                WHERE erl_rls BETWEEN toRelativeDayNum(toDate('2010-01-01')) AND toRelativeDayNum(toDate('2010-02-01'))) USING mbid 
+        WHERE erl_rls <  pdt + 365
+    ) 
+    GROUP BY mbid
+
+# SELECT avg(prop)
+
+months = list(range(1,36))
+
+start = datetime.date(2010, 1,1)
+
+slc_res = []
+
+for mn in months:
+    dx = str(add_months(start, mn))
+    print(dx)
+    
+    # dx = '2010-' + format(mn, '02d') +'-01'
+
+
+    slc_str = """
+    SELECT avg(prop) as slc_prop_song, sum(slc_plcnt)/sum(plcnt) as slc_prop_ttl, sum(slc_plcnt), sum(plcnt) FROM (
+        SELECT mbid, slc_plcnt, plcnt, slc_plcnt/plcnt as prop FROM (
+            SELECT mbid, sum(plcnt) as slc_plcnt from (
+                SELECT time_d, toRelativeDayNum(time_d) as pdt,  mbid, plcnt, erl_rls, pdt-erl_rls as tdif FROM (
+                    SELECT time_d, song AS abbrv, mbid, plcnt FROM agg
+                    JOIN (SELECT abbrv, mbid FROM song_info) USING abbrv
+                    WHERE time_d between '2010-01-01' and '""" + dx + """'
+                ) JOIN (SELECT lfm_id as mbid, erl_rls FROM addgs WHERE erl_rls BETWEEN toRelativeDayNum(toDate('2010-01-01')) AND toRelativeDayNum(toDate('2010-02-01'))) USING mbid 
+                WHERE erl_rls <  pdt + 365
+            ) 
+            GROUP BY mbid
+        ) JOIN ttl_plcnt using mbid
+    )"""
+    
+    slc_vlus = client.execute(slc_str)
+    slc_res.append(slc_vlus)
+
+# takes for fucking ever with long time ranges, run in lunch break
+# could probably optimize to just query each slc only once, store results and add them up but FUCK THAT
+
+# user corrected playcount? not how much a song is played, but which percentage of users it reaches, or percentage of total playcount? 
+
+# just start with those released in January 2010
+# mean of timeslice? 
+
+
+x = [i[0][1] for i in slc_res]
+x = [i[0][0] for i in slc_res]
+
+npl(x)
+
+import calendar
+
+def add_months(sourcedate, months):
+    month = sourcedate.month - 1 + months
+    year = sourcedate.year + month // 12
+    month = month % 12 + 1
+    day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+    return datetime.date(year, month, day)
+
+
+# * coverage quality over time
+
+# need absolute (songs) and relative (playcounts)
+
+for mn in months:
+    dx = str(add_months(start, mn))
+    print(dx)
+
+    cvr_qry = """
+    SELECT avg(prop) as slc_prop_song, sum(slc_plcnt)/sum(plcnt) as slc_prop_ttl, sum(slc_plcnt), sum(plcnt) FROM (
+        SELECT mbid, slc_plcnt, plcnt, slc_plcnt/plcnt as prop FROM (
+            SELECT mbid, sum(plcnt) as slc_plcnt from (
+                SELECT time_d, toRelativeDayNum(time_d) as pdt,  mbid, plcnt, erl_rls, pdt-erl_rls as tdif FROM (
+                    SELECT time_d, song AS abbrv, mbid, plcnt FROM agg
+                    JOIN (SELECT abbrv, mbid FROM song_info) USING abbrv
+                    WHERE time_d between '2010-01-01' and '""" + dx + """'
+                ) JOIN (SELECT lfm_id as mbid, erl_rls FROM addgs WHERE erl_rls BETWEEN toRelativeDayNum(toDate('2010-01-01')) AND toRelativeDayNum(toDate('2010-02-01'))) USING mbid 
+                WHERE erl_rls <  pdt + 365
+            ) 
+            GROUP BY mbid)
+            JOIN ttl_plcnt using mbid)
+        JOIN (SELECT lfm_id as mbid from acstb2) USING mbid
+            """
+
+# there should be an easier way for that
+# 
+
+all_str = """SELECT time_d, sum(plcnt) FROM agg GROUP BY time_d"""
+
+cvr_str = """SELECT time_d, sum(plcnt) FROM (
+    SELECT time_d, abbrv, mbid, plcnt FROM (
+        SELECT time_d, song as abbrv, mbid, plcnt from agg 
+        JOIN (SELECT abbrv, mbid FROM song_info) USING abbrv
+    ) JOIN (SELECT lfm_id as mbid from acstb2) USING mbid
+) GROUP BY time_d"""
+
+allres = client.execute(all_str)
+
+cvr_res = client.execute(cvr_str)
+
+df_all = pd.DataFrame(allres, columns = ['dt', 'plcnt'])
+df_cvr = pd.DataFrame(cvr_res, columns = ['dt', 'plcnt'])
+
+df_cb = df_all.merge(df_cvr, on = 'dt')
+
+df_cb['prop'] = df_cb['plcnt_y']/df_cb['plcnt_x']
+
+# period agg: end 2009 to end 2012: 
+# cover looks decent, some small variations but nothing huge
+# increases somewhat to the end, is probably significant but not huge (2-3% difference)
+
+
+# for some retarded reason clickhouse aggregation gets slow af when dealing with subset
+# probably brakes the partitioning key or something
+# maybe different order? 
