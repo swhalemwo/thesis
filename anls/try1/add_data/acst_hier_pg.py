@@ -1497,3 +1497,279 @@ df_cb['prop'] = df_cb['plcnt_y']/df_cb['plcnt_x']
 # for some retarded reason clickhouse aggregation gets slow af when dealing with subset
 # probably brakes the partitioning key or something
 # maybe different order? 
+
+
+slc_res = [[(0.10951011953090062, 0.078515213797711, 310726, 3957526)], [(0.17948087486667108, 0.1412384592024673, 572992, 4056912)], [(0.2329317326958222, 0.19555917717093757, 801327, 4097619)], [(0.27625627121087065, 0.23964711163573585, 987088, 4118923)], [(0.31490569392634454, 0.27827043687145303, 1152041, 4140005)], [(0.3457399872577467, 0.3139944762420321, 1302759, 4148987)], [(0.3776216905001519, 0.34786469054645686, 1445710, 4155955)], [(0.40817687134227737, 0.3820987944999058, 1590393, 4162256)], [(0.43660690124089746, 0.4148721629094819, 1728457, 4166240)], [(0.4706448799148985, 0.4473191461999024, 1864343, 4167814)], [(0.4956091250288968, 0.4760373767975353, 1985977, 4171893)], [(0.5219568444774073, 0.5093690914614221, 2126129, 4174044)], [(0.5520787480448778, 0.5429599446363602, 2268984, 4178916)], [(0.5769410575694204, 0.5718670773106139, 2390091, 4179452)], [(0.6020439755281131, 0.6008733024833119, 2511785, 4180224)], [(0.6259395779923139, 0.6276274624632847, 2624637, 4181839)], [(0.6502110750446899, 0.6535624567506316, 2733291, 4182142)], [(0.6726468842207992, 0.6770403603312377, 2831636, 4182374)], [(0.6916575650186885, 0.6988054056767734, 2923110, 4183010)], [(0.7153233177230313, 0.7214676478842198, 3018169, 4183374)], [(0.7350539690431652, 0.7434412005143969, 3110216, 4183540)], [(0.7575359462047243, 0.7658854682661105, 3204366, 4183871)], [(0.7783285810156192, 0.7865451615655669, 3290879, 4183967)], [(0.799024708030667, 0.8070860477332878, 3376982, 4184166)], [(0.8219281713080676, 0.8292265571526352, 3469736, 4184304)], [(0.84344604949839, 0.8512184595207415, 3561893, 4184464)], [(0.8660649142362608, 0.8741864353759347, 3658048, 4184517)], [(0.8870104645916926, 0.8950365667170823, 3745319, 4184543)], [(0.9069567790569785, 0.9152874328723501, 3830250, 4184751)], [(0.9266805856956504, 0.9330273379066969, 3904544, 4184812)], [(0.9459146725685404, 0.9506928479037017, 3978487, 4184829)], [(0.9639874879044484, 0.9681115009021801, 4051414, 4184863)], [(0.9833797930535066, 0.9848049119394586, 4121315, 4184905)], [(1.0014213489754829, 1.0005130312812878, 4187077, 4184930)], [(1.0014213489754829, 1.0005130312812878, 4187077, 4184930)]]
+
+x = [i[0][0] for i in slc_res]
+npl([0] + x)
+
+
+# * KLD direction
+
+swimmer = [0.7,0.2, 0.05,0.05]
+athlete = [0.4, 0.4, 0.1, 0.1]
+
+entropy(swimmer, athlete)
+entropy(athlete, swimmer)
+
+# * figuring out kernel, use 1/2*nbr_cls as bandwidth for now
+gnr = 'rock'
+gnr = 'skit'
+gnr = 'score'
+gnr = 'comedy favorites'
+
+
+dfcx = acst_gnr_dict[gnr]
+vrbl = 'dncblt'
+wts = dfcx['rel_weight'] * dfcx['cnt']
+
+bins = np.arange(0, 1 + 1/nbr_cls, 1/nbr_cls)
+a1, a0 = np.histogram(dfcx[vrbl], bins=nbr_cls, weights=wts)
+
+npl(a1/sum(a1))
+
+from scipy.stats import gaussian_kde
+
+krnl= gaussian_kde(dfcx[vrbl], bw_method = 0.2, weights=wts)
+krnl_vlus = krnl(list(np.arange(0, 1.1, 0.1)))
+
+krnl_vlus = krnl(list(np.arange(-2, 2, 0.1)))
+
+npl(krnl_vlus)
+
+acst_gnr_dict['rock']
+
+from sklearn.neighbors import KernelDensity
+
+X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
+
+N = 20
+X = np.concatenate((np.random.normal(0, 1, int(0.3 * N)),np.random.normal(5, 1, int(0.7 * N))))[:, np.newaxis]
+
+kde = KernelDensity(kernel='gaussian', bandwidth=0.75).fit(X)
+X_plot = np.linspace(-2, 8, 100)[:, np.newaxis]
+
+log_dens = kde.score_samples(X_plot)
+
+npl(log_dens)
+
+
+
+import sklearn
+from sklearn.model_selection import GridSearchCV
+grid = GridSearchCV(KernelDensity(),
+                    {'bandwidth': [0.001, 0.005, 0.01, 0.02333, 0.3666, 0.05, 0.0666, 0.08333, 0.1, 0.125, 0.15]},
+                    cv=3, verbose = 2, n_jobs = 3)
+
+grid.fit(np.array(dfcx[[vrbl]]), sample_weight = wts)
+print(grid.best_params_)
+
+
+
+x_vlus = np.array(np.linspace(0, 1, 9))[:, np.newaxis]
+
+
+xx = KernelDensity(bandwidth = 0.1).fit(np.array(dfcx[[vrbl]]), sample_weight = wts)
+vlus = np.exp(xx.score_samples(x_vlus))
+npl(vlus)
+
+
+
+
+widths = [0.001, 0.005, 0.01, 0.02333, 0.03666, 0.05, 0.0666, 0.08333, 0.1, 0.125, 0.15]
+
+res_dict = {}
+res_list = []
+
+for gnr in sample(gnrs, 10):
+    print(gnr)
+    res_dict[gnr] = {}
+    dfcx = acst_gnr_dict[gnr]
+    wts = dfcx['rel_weight'] * dfcx['cnt']
+    
+    for vrbl in vrbls:
+        print(gnr, vrbl)
+        run_res = {}
+        for w in widths: 
+            print(gnr, vrbl, w)
+            # print(w)
+            xx = KernelDensity(bandwidth = w).fit(np.array(dfcx[[vrbl]]), sample_weight = wts)
+            scrs = xx.score(x_vlus)
+            run_res[w] = scrs
+
+            # grid.fit(np.array(dfcx[[vrbl]]), sample_weight = wts) 
+        
+        min_scr = min(list(run_res.values()))
+        max_scr_pos = list(run_res.values()).index(min_scr)
+        
+        
+        # res_dict[gnr][vrbl + '_params_'] = grid.best_params_['bandwidth']
+        # res_dict[gnr][vrbl + '_score_'] = grid.best_score_
+
+        # res_list.append([gnr, vrbl, 'param', grid.best_params_['bandwidth']])
+        # res_list.append([gnr, vrbl, 'score', grid.best_score_])
+
+        res_list.append([gnr, vrbl, 'param', widths[max_scr_pos]])
+        res_list.append([gnr, vrbl, 'score', max_scr])
+
+x = pd.DataFrame(res_dict)
+
+x = pd.DataFrame(res_list, columns = ['gnr', 'vrbl', 'prm_scr', 'vlu'])
+
+
+# how to summarize? 
+# slice by vrbl
+# slice by gnr
+
+# long format?
+
+gnr vrbl scr/param
+
+
+# takes for fucking ever
+# scoring seems expensive? 
+# seems like he scores the original dataset
+
+    
+
+
+widths = [0.001, 0.01, 0.25, 0.05, 0.075, 0.1, 0.125, 0.15]
+
+widths = [0.001, 0.01, 0.05, 0.1, 0.15]
+
+widths = [0.05, 0.075, 0.1, 0.15]
+
+t_gnrs = ['rock', 'electro', 'Acid', 'Disco', 'Gothic', 'Jam']
+
+t_gnrs = ['Christian Metalcore', 'American Idol', 'modern country', 'chamber pop', 'kill bill']
+
+vrbl = 'dncblt'
+
+vis_res = {}
+
+for gnr in t_gnrs :
+    vis_res[gnr] = {}
+    
+    dfcx = acst_gnr_dict[gnr]
+    wts = dfcx['rel_weight'] * dfcx['cnt']
+    
+    
+    for w in widths: 
+        xx = KernelDensity(bandwidth = w).fit(np.array(dfcx[[vrbl]]), sample_weight = wts)
+        scrs = xx.score_samples(x_vlus)
+        
+        vis_res[gnr][w] = scrs
+        
+
+        
+fig, axs = plt.subplots(len(t_gnrs))
+st = fig.suptitle('Genre Probability Distributions')
+
+c = 0    
+for gnr in t_gnrs:
+    
+    for w in widths: 
+        ax = axs[c]
+        plt_vlus = np.exp(vis_res[gnr][w])
+        plt_vlus2 = plt_vlus/sum(plt_vlus)
+        ylbl = gnr 
+        xlbl = 'whatever'
+
+        ax.set_ylabel(gnr)
+
+        sb_pltr(ax, x_vlus, plt_vlus2, xlbl, ylbl, str(w))
+        
+    c+=1
+
+plt.legend(ncol=3, bbox_to_anchor = (1, -0.4))        
+plt.show()
+
+# hmm too low ws: super skewed
+# too high: super flat
+# something like half of the interval size seems to be working? 
+
+
+def sb_pltr(ax, xs, ys, xlbl, ylbl, line_name):
+    # plt.subplot(ttl, row, nbr)
+    ax.plot(xs, ys, '.-', label = line_name)
+    plt.xlabel(xlbl)
+    plt.ylabel(ylbl)
+
+
+# * spanningness: not used, makes shit unnecessary complex (requires gac)
+
+# ** amount of musical space spanning
+# use similar logic of omnivorousness
+
+def gnr_span_prep(gac, vrbls, nbr_cls, vd, w):
+    """prepares feature similarity matrix, needed to see how well genres span"""
+    # not sure if good:
+    # weight
+
+    print('strt spanning prep')
+    vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,nbr_cls + 1)] for vrbl in vrbls]
+    vrbl_nd_strs = list(itertools.chain.from_iterable(vrbl_nd_strs_raw))
+
+    vrbl_cmprs = all_cmps_crubgs(vrbl_nd_strs, vd, 'product')
+
+    # vrbl_sims = vertex_similarity(GraphView(gac, reversed=True), 'dice', vertex_pairs = vrbl_cmprs, eweight = w_std)
+    vrbl_sims = vertex_similarity(GraphView(gac, reversed=True), 'dice', vertex_pairs = vrbl_cmprs, eweight = w)
+    vrbl_sim_rows = np.split(vrbl_sims, len(vrbl_nd_strs))
+    vrbl_sim_ar = np.array(vrbl_sim_rows)
+
+
+    # plt.imshow(1-vrbl_sim_ar, cmap='hot', interpolation='nearest')
+    # plt.show()
+
+    # sims or dsims? 
+
+    vrbl_nds = [vd[i] for i in vrbl_nd_strs]
+
+    # map to array row/col positions
+    vrbl_mat_ids = {}
+    for i in vrbl_nds:
+        vrbl_mat_ids[i] = vrbl_nds.index(i) 
+
+
+    cmps_rel = list(itertools.combinations(vrbl_nds, 2))
+
+    sim_v = [1-vrbl_sim_ar[vrbl_mat_ids[i[0]],vrbl_mat_ids[i[1]]] for i in cmps_rel]
+
+    return(cmps_rel, sim_v)
+
+# cmps_rel, sim_v = gnr_span_prep(vrbls)
+
+
+def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std):
+    """calculates sum of dissimilarities for a gnr from a vector of relative comparisons and given similarities between genres"""
+    # relies on feature nodes always being returned in the same order so that sim_v applies across genres
+
+    t1 = time.time()
+    gv = gac.vertex(vd[gnr])
+    g_es_raw = list(gv.out_edges())
+    
+    g_es = {}
+    for i in g_es_raw:
+        g_es[int(i.target())] = w_std[i]
+
+    e1_v = []
+    e2_v = []
+
+    for i in cmps_rel:
+
+        # e1 = w_std[gac.edge(gv, gac.vertex(i[0]))]
+        # e2 = w_std[gac.edge(gv, gac.vertex(i[1]))]
+
+        e1 = g_es[i[0]]
+        e2 = g_es[i[1]]
+
+        e1_v.append(e1)
+        e2_v.append(e2)
+
+    x = np.array(e1_v) * np.array(e2_v) * sim_v
+    ttl_asim = sum(x)
+    
+    t2 = time.time()
+    return(ttl_asim)
+

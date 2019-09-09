@@ -23,7 +23,7 @@ from scipy.spatial.distance import cosine
 from sklearn.metrics.pairwise import cosine_similarity
 
 from sklearn.linear_model import Lasso
-
+from sklearn.neighbors import KernelDensity
 
 from graph_tool.all import *
 from graph_tool import *
@@ -293,6 +293,7 @@ def kld_thrshld(el_acst):
     return(ghrac, sim_vlu, ghrac_id, vd_hr, vd_hr_rv)
 
 
+
 def acst_arfy(el_ttl, vrbls, el_pos, gnrs, nbr_cls):
     """converts edge list to matrix"""
 
@@ -314,6 +315,58 @@ def acst_arfy(el_ttl, vrbls, el_pos, gnrs, nbr_cls):
             ypos+=1
 
         c+=1
+    return(acst_mat)
+
+def krnl_acst(acst_gnr_dict, nbr_cls, gnrs):
+    """generates acst kernel (gaussian smoothing) with bandwith of half of cell size"""
+    
+    bw = 1/(2*nbr_cls)
+    
+
+    x_vlus = np.array(np.linspace(0, 1, nbr_cls))[:, np.newaxis]
+    # should i start x_vlus at 0 or 0 + bw? 
+    # x_vlus = np.array(np.linspace(0 + bw, 1 -bw, nbr_cls))[:, np.newaxis]
+    
+    chnk_scrs = []
+
+    for gnr in gnrs:
+        dfcx = acst_gnr_dict[gnr]
+        wts = dfcx['rel_weight'] * dfcx['cnt']
+        
+        gnr_scrs = []
+
+        for vrbl in vrbls:
+            
+            krnl = KernelDensity(bandwidth = bw).fit(np.array(dfcx[[vrbl]]), sample_weight = wts)
+            scrs = krnl.score_samples(x_vlus)
+            scrs_exp = np.exp(scrs)
+            scrs_nml = scrs_exp/sum(scrs_exp)
+            
+            gnr_scrs.append(scrs_nml)
+    
+        gnr_scrs2 = np.concatenate(gnr_scrs)
+        chnk_scrs.append(gnr_scrs2)
+        
+    ttl_scrs = np.concatenate([chnk_scrs], axis = 1)
+    
+    return(ttl_scrs)
+
+def krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls):
+    """multiproccessing managing function for acst kernel"""
+    NO_CHUNKS = 3
+    gnr_chnks = list(split(gnrs, NO_CHUNKS))
+
+    func = partial(krnl_acst, acst_gnr_dict, nbr_cls)
+    
+    t1 = time.time()
+    p = Pool(processes=NO_CHUNKS)
+    data = p.map(func, [i for i in gnr_chnks])
+    t2=time.time()
+
+    p.close()
+    p.join()
+
+    acst_mat = np.concatenate(data, axis = 0)
     return(acst_mat)
 
 # acst_mat = acst_arfy(el_ttl, vrbls,3)
@@ -631,6 +684,8 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std,
         # CHECK IF ARGUMETNS OF SPECIFIC EXTRACTION FUNCTIONS ARE ALL IN MAIN EXTRACTION FUNCTION
 
         # dfcx stuff
+    for gnr in gnrs:
+        print(gnr)
         dfcx_names, dfcx_vlus = dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int)
         for i in zip(dfcx_names, dfcx_vlus):
             res_dict[gnr][i[0]] = i[1]
@@ -688,79 +743,6 @@ def prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict):
 
 
 
-# ** amount of musical space spanning
-# use similar logic of omnivorousness
-
-def gnr_span_prep(gac, vrbls, nbr_cls, vd, w):
-    """prepares feature similarity matrix, needed to see how well genres span"""
-    # not sure if good:
-    # weight
-
-    print('strt spanning prep')
-    vrbl_nd_strs_raw = [[vrbl + str(i) for i in range(1,nbr_cls + 1)] for vrbl in vrbls]
-    vrbl_nd_strs = list(itertools.chain.from_iterable(vrbl_nd_strs_raw))
-
-    vrbl_cmprs = all_cmps_crubgs(vrbl_nd_strs, vd, 'product')
-
-    # vrbl_sims = vertex_similarity(GraphView(gac, reversed=True), 'dice', vertex_pairs = vrbl_cmprs, eweight = w_std)
-    vrbl_sims = vertex_similarity(GraphView(gac, reversed=True), 'dice', vertex_pairs = vrbl_cmprs, eweight = w)
-    vrbl_sim_rows = np.split(vrbl_sims, len(vrbl_nd_strs))
-    vrbl_sim_ar = np.array(vrbl_sim_rows)
-
-
-    # plt.imshow(1-vrbl_sim_ar, cmap='hot', interpolation='nearest')
-    # plt.show()
-
-    # sims or dsims? 
-
-    vrbl_nds = [vd[i] for i in vrbl_nd_strs]
-
-    # map to array row/col positions
-    vrbl_mat_ids = {}
-    for i in vrbl_nds:
-        vrbl_mat_ids[i] = vrbl_nds.index(i) 
-
-
-    cmps_rel = list(itertools.combinations(vrbl_nds, 2))
-
-    sim_v = [1-vrbl_sim_ar[vrbl_mat_ids[i[0]],vrbl_mat_ids[i[1]]] for i in cmps_rel]
-
-    return(cmps_rel, sim_v)
-
-# cmps_rel, sim_v = gnr_span_prep(vrbls)
-
-
-def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std):
-    """calculates sum of dissimilarities for a gnr from a vector of relative comparisons and given similarities between genres"""
-    # relies on feature nodes always being returned in the same order so that sim_v applies across genres
-
-    t1 = time.time()
-    gv = gac.vertex(vd[gnr])
-    g_es_raw = list(gv.out_edges())
-    
-    g_es = {}
-    for i in g_es_raw:
-        g_es[int(i.target())] = w_std[i]
-
-    e1_v = []
-    e2_v = []
-
-    for i in cmps_rel:
-
-        # e1 = w_std[gac.edge(gv, gac.vertex(i[0]))]
-        # e2 = w_std[gac.edge(gv, gac.vertex(i[1]))]
-
-        e1 = g_es[i[0]]
-        e2 = g_es[i[1]]
-
-        e1_v.append(e1)
-        e2_v.append(e2)
-
-    x = np.array(e1_v) * np.array(e2_v) * sim_v
-    ttl_asim = sum(x)
-    
-    t2 = time.time()
-    return(ttl_asim)
 
 # average of similarities of indegrees
 # superordinates
@@ -1013,15 +995,19 @@ def ptn_proc(ptn):
     acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
     sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
-    print('construct acoustic edge list')
+    # print('construct acoustic edge list')
 
-    el_ttl = gnrt_acst_el_mp(gnrs, acst_gnr_dict, nbr_cls)
+    # el_ttl = gnrt_acst_el_mp(gnrs, acst_gnr_dict, nbr_cls)
 
-    print('construct acoustic graph')
-    gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
+    # print('construct acoustic graph')
+    # gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
 
-    print('construct acoustic mat')
-    acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
+    # print('construct acoustic mat')
+    # acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
+
+    acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls)
+
+
 
     print('construct kld mat')
     ar_cb = kld_schema_mp(vrbls, acst_mat, nbr_cls)
@@ -1195,7 +1181,7 @@ def ptn_eval(ptns, ptn_obj_dict):
 # * actual program
 
 if __name__ == '__main__':
-    time_periods = gnr_t_prds(7*4*3)
+    time_periods = gnr_t_prds(7*3*3)
 
     res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
     print('set parameters')
@@ -1214,6 +1200,11 @@ if __name__ == '__main__':
     # tprd = time_periods[2]
 
     for tprd in time_periods:
+        print(tprd)
+        # !!! TEST
+        # tprd = time_periods[23]
+        # !!! TEST
+        
         client = Client(host='localhost', password='anudora', database='frrl')
         d1 = tprd[0].strftime('%Y-%m-%d')
         d2 = tprd[1].strftime('%Y-%m-%d')
@@ -1224,6 +1215,8 @@ if __name__ == '__main__':
         d2_int = (d2_dt - base_dt).days
         tp_id = time_periods.index(tprd)
         tp_clm = d1 + ' -- ' + d2
+
+        
         
         # CREATE PARTITIONS
         # min_usr_cnt = 25
@@ -1258,6 +1251,7 @@ if __name__ == '__main__':
         # df_ttl = ptn_eval(ptns, ptn_obj_dict)
         df_ttl.to_csv(res_dir + tp_clm + '.csv')
         
+
         # pnt_obj_dict[ptn] = {}
 
         # print(df_res.shape)
@@ -1626,7 +1620,7 @@ if __name__ == '__main__':
 # kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
 # g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld3_el)
 
-graph_pltr(g_kld2, g_kld2.vp.id, 'cell_combns.pdf', 0.4)
+# graph_pltr(g_kld2, g_kld2.vp.id, 'cell_combns.pdf', 0.4)
 
 # # ar_cb2 needs to be T-ed
 # # kld_n_prnts needs to be adapted to handle lack of parents
@@ -1683,7 +1677,7 @@ graph_pltr(g_kld2, g_kld2.vp.id, 'cell_combns.pdf', 0.4)
 
 
 
-ar_cb2 = kld_schema_mp(vrbls, acst_mat, nbr_cls)
+# ar_cb2 = kld_schema_mp(vrbls, acst_mat, nbr_cls)
 
 # ## weights don't seem to add up amazingly
 
@@ -1741,3 +1735,20 @@ l# for vrbl in vrbls:
 # acst_mat_sbst = acst_mat[:,rel_cols]
 
 # kldx = entropy(acst_mat_sbst[:,:].T[:,:,None], acst_mat_sbst.T[:,None,:])
+
+# all_acst = dfc[['lfm_id'] + vrbls].groupby('lfm_id').max()
+
+# cor_mat = np.corrcoef(all_acst.T)
+# plt.matshow(cor_mat)
+# plt.show()
+
+# highest is 0.78 between mood acoustic and mood_sad
+# 
+
+
+
+
+    
+
+
+    
