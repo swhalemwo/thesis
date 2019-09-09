@@ -745,6 +745,7 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     """generates all kinds of measures related to cohorts
     - cohrt_pct_inf: mean (of each cohort) of proportion of cohort members to which KLD is infinite
     - cohrt_mean_non_inf: average mean of the KLDs that are not infinite
+    - cohrt_mean_non_inf_wtd: weighted average mean of the KLDs that are not infinite
     - cohrt_mean_cos_dists_wtd: volume-weighted mean of acst_mat cosine distance between genre and cohort members
     - cohrt_mean_cos_dists_uwtd: unweighted mean of acst_mat cosine distance between genre and cohort members
     - cohrt_len: number of genres in all cohorts
@@ -786,16 +787,14 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
 
     pos_non_inf = np.where(np.array(cht_klds) < math.inf)
     pct_non_inf = len(pos_non_inf[0])/len(cht_klds)
-    mean_non_inf = np.mean([cht_klds[i] for i in pos_non_inf[0]])
-
-    mean_cos_dist_wtd, sd_cos_dist_wtd  = weighted_avg_and_std(np, cht_cos_dists, cht_sizes)
-    mean_cos_dist_uwtd = np.mean(cht_cos_dists)
-
-    cohrt_mean_non_inf = np.mean(mean_non_inf)
-
-    cohrt_mean_cos_dists_wtd = np.average(cht_cos_dists, weights=cht_sizes)
-    cohrt_mean_cos_dists_uwtd = np.mean(cht_cos_dists)
     
+
+    cohrt_mean_mean_cos_dists_wtd, sd_cos_dist_wtd  = weighted_avg_and_std(np, cht_cos_dists, cht_sizes)
+    cohrt_mean_cos_dists_uwtd = np.mean(cht_cos_dists)
+
+    cohrt_mean_non_inf = np.mean([cht_klds[i] for i in pos_non_inf[0]])
+    cohrt_mean_non_inf_wtd = np.average([cht_klds[i] for i in pos_non_inf[0]], weights=cht_sizes)    
+
     cohrt_len = len(cht_sizes)
     cohrt_vol_sum = sum(cht_sizes)
     cohrt_vol_mean = np.mean(cht_sizes)
@@ -805,11 +804,11 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
 
     cohrt_ovlp = 1-(len(cohrt_mbrs)/len(cohrt_mbrs_dupl))
 
-    cohrt_vlu_names = ['pct_non_inf', 'cohrt_mean_non_inf', 'cohrt_mean_cos_dists_wtd',
+    cohrt_vlu_names = ['pct_non_inf', 'cohrt_mean_non_inf', 'cohrt_mean_non_inf_wtd', 'cohrt_mean_cos_dists_wtd',
                        'cohrt_mean_cos_dists_uwtd', 'cohrt_len',
                        'cohrt_vol_sum', 'cohrt_vol_mean', 'cohrt_vol_sd', 'cohrt_ovlp', 'cohrt_med']
 
-    cohrt_vlus = [pct_non_inf, cohrt_mean_non_inf, cohrt_mean_cos_dists_wtd,
+    cohrt_vlus = [pct_non_inf, cohrt_mean_non_inf, cohrt_mean_non_inf_wtd, cohrt_mean_cos_dists_wtd,
                   cohrt_mean_cos_dists_uwtd, cohrt_len,
                   cohrt_vol_sum, cohrt_vol_mean, cohrt_vol_sd, cohrt_ovlp, cohrt_med]
 
@@ -993,7 +992,6 @@ def ptn_proc(ptn):
     # acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
 
     acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls)
-
 
 
     print('construct kld mat')
