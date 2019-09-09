@@ -232,22 +232,6 @@ def gnrt_sup_dicts(acst_gnr_dict,gnrs):
 # sz_dict, gnr_ind = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
 
-def gac_crubgs(el_ttl):
-    """constructs acoustic graph of genres and features"""
-    
-    gac = Graph()
-    w = gac.new_edge_property('double')
-    w_std = gac.new_edge_property('double')
-    w_std2 = gac.new_edge_property('double')
-
-    gac_id = gac.add_edge_list(el_ttl, hashed=True, string_vals=True,  eprops = [w, w_std, w_std2])
-
-    vd,vdrv = vd_fer(gac, gac_id)
-    return(gac, w, w_std, w_std2, gac_id, vd, vdrv)
-    
-
-# gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std2)
-
 
 def sbst_eler(gt_sims, oprtr, thrshld):
     """assumes (asymmetric quadratic) similarity matrix as input"""
@@ -581,22 +565,23 @@ def all_cmps_crubgs(gnrs, vd, type):
 
 # * feature extraction
 
-def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, 
-               w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat):
+def ftr_extrct(gnrs, nbr_cls, gnr_ind, ar_cb, g_kld2, vd_kld2, 
+               acst_gnr_dict, sz_dict, vol_dict, acst_mat):
                # ar_cb2, g_kld3, vd_kld3):
 
     NO_CHUNKS = 3
     chnks = list(split(gnrs, NO_CHUNKS))
     print(chnks)
 
-    print('prep spanning')
-    cmps_rel, sim_v = gnr_span_prep(gac, vrbls, nbr_cls, vd, w)
-    print('prep spanning done')
+    # print('prep spanning')
+    # cmps_rel, sim_v = gnr_span_prep(gac, vrbls, nbr_cls, vd, w)
+    # print('prep spanning done')
 
 
-    func3 = partial(ftr_extrct_mp, nbr_cls, gac, vd, w, gnr_ind, 
-                    ar_cb, g_kld2, vd_kld2, w_std, acst_gnr_dict, 
-                    sz_dict, vol_dict, acst_mat, cmps_rel, sim_v)
+    func3 = partial(ftr_extrct_mp, nbr_cls, gnr_ind, 
+                    ar_cb, g_kld2, vd_kld2, acst_gnr_dict, 
+                    sz_dict, vol_dict, acst_mat)
+                    # , cmps_rel, sim_v) gac, vd, w,
                     # ar_cb2, g_kld3, vd_kld3)
     
     p = Pool(processes=NO_CHUNKS)
@@ -614,8 +599,8 @@ def ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2,
     # with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     #     print(df_res)
     
-    df_res['spngns_std'] = df_res['spngns']-min(df_res['spngns'])
-    df_res['spngns_std'] = df_res['spngns_std']/max(df_res['spngns_std'])
+    # df_res['spngns_std'] = df_res['spngns']-min(df_res['spngns'])
+    # df_res['spngns_std'] = df_res['spngns_std']/max(df_res['spngns_std'])
 
     return(df_res)
 
@@ -634,9 +619,11 @@ def hier_ftrs(gnr, g_hier, vd_hier, ar_cbx, acst_mat, vol_dict, gnr_ind, hst_lbl
     return(all_names2, all_vlus)
 
 
-def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std, 
-                  acst_gnr_dict, sz_dict, vol_dict, acst_mat, cmps_rel, sim_v, gnrs):
+def ftr_extrct_mp(nbr_cls, gnr_ind, ar_cb, g_kld2, vd_kld2, 
+                  acst_gnr_dict, sz_dict, vol_dict, acst_mat, gnrs):
                   # ar_cb2, g_kld3, vd_kld3, ):
+    # gac, vd, w, w_std, 
+    # , cmps_rel, sim_v, gnrs)
     # seems to sometimes require self, somtimes not??
     """extracts features like a boss"""
 
@@ -676,8 +663,8 @@ def ftr_extrct_mp(nbr_cls, gac, vd, w, gnr_ind, ar_cb, g_kld2, vd_kld2, w_std,
             res_dict[gnr][i[0]] = i[1]
 
         # spanningness
-        spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std)
-        res_dict[gnr]['spngns'] = spngns
+        # spngns = gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std)
+        # res_dict[gnr]['spngns'] = spngns
         
         tx5 = time.time()
         
@@ -1021,22 +1008,15 @@ def ptn_proc(ptn):
 
     print('construct kld graph')
     g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-    # graph_pltr(g_kld2, g_kld2.vp.id, '1_cell_space.pdf', 1)
+    # graph_pltr(g_kld2, g_kld2.vp.id, '5_cell_space.pdf', 1.0)
 
     
-    # print('generate acst_mat, ar_cb2, kld3_el, g_kld3 based on feature combination cells')
-    # acst_mat2 = acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict)
-    # ar_cb2 = acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2)
-    # kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
-    # g_kld3, vd_kld3, vd_kld3_rv = kld_proc(kld3_el)
-    
-
     print('extract features')
-    # could be parallelized as well
+
     tx1 = time.time()
         
-    df_res = ftr_extrct(gnrs, nbr_cls, gac, vd, w, gnr_ind, ar_cb, 
-                        g_kld2, vd_kld2, w_std, acst_gnr_dict, sz_dict, vol_dict, acst_mat)
+    df_res = ftr_extrct(gnrs, nbr_cls, gnr_ind, ar_cb, 
+                        g_kld2, vd_kld2 , acst_gnr_dict, sz_dict, vol_dict, acst_mat)
                         # ar_cb2, g_kld3, vd_kld3)
     tx2 = time.time()
 

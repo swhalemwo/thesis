@@ -1143,7 +1143,16 @@ for gnr in gnrs_l:
 
 # * alternative cells
 
+# ** ptn_proc code
 
+print('generate acst_mat, ar_cb2, kld3_el, g_kld3 based on feature combination cells')
+acst_mat2 = acst_clr_mp(gnrs, acst_gnr_dict, gnr_ind, vol_dict)
+ar_cb2 = acst_cpr2_mp_mng(gnrs, gnr_ind, acst_mat2)
+kld3_el = kld_n_prnts2(ar_cb2.T, npr, gnrs, gnr_ind)
+g_kld3, vd_kld3, vd_kld3_rv = kld_proc(kld3_el)
+    
+
+# ** funcs
 
 def acst_clr(gnr_ind, acst_gnr_dict, vol_dict, gnr_sel):
     """acst cells generator"""
@@ -1542,6 +1551,7 @@ acst_gnr_dict['rock']
 
 from sklearn.neighbors import KernelDensity
 
+
 X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
 
 N = 20
@@ -1773,3 +1783,21 @@ def gnr_mus_spc_spng(gnr, cmps_rel, sim_v, gac, vd, w_std):
     t2 = time.time()
     return(ttl_asim)
 
+
+
+# * gac: not used
+def gac_crubgs(el_ttl):
+    """constructs acoustic graph of genres and features"""
+    
+    gac = Graph()
+    w = gac.new_edge_property('double')
+    w_std = gac.new_edge_property('double')
+    w_std2 = gac.new_edge_property('double')
+
+    gac_id = gac.add_edge_list(el_ttl, hashed=True, string_vals=True,  eprops = [w, w_std, w_std2])
+
+    vd,vdrv = vd_fer(gac, gac_id)
+    return(gac, w, w_std, w_std2, gac_id, vd, vdrv)
+    
+
+# gt_sims = vertex_similarity(gac, 'dice', vertex_pairs = cmps, eweight=w_std2)
