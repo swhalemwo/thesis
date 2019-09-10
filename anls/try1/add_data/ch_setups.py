@@ -10,6 +10,7 @@ client = Client(host='localhost', password='anudora', database='frrl')
 client.execute('drop table logs')
 client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
 
+
 client.execute('drop table song_info')
 client.execute('create table song_info (mbid String, abbrv String, rndm Int) engine=MergeTree() Partition by rndm order by tuple()')
 
@@ -52,18 +53,18 @@ SELECT uuid, abbrv2 from(
 """
 )
 
-some_uuids = random.sample(uuids, 1000)
+# some_uuids = random.sample(uuids, 4000)
 
 c = 0
 uuid_rows = []
-for i in some_uuids:
-    uuid_row = (i[0], i[1], c % 10)
+for i in uuids:
+    uuid_row = (i[0], i[1], c % 100)
     uuid_rows.append(uuid_row)
     c +=1
 
-client.execute('DROP TABLE usrs1k')
+# client.execute('DROP TABLE usrs1k')
     
-client.execute("""CREATE TABLE usrs1k
+client.execute("""CREATE TABLE usrs_prent
 (uuid String,
 abbrv2 String,
 rndm Int8)
@@ -71,9 +72,10 @@ engine = MergeTree()
 PARTITION BY rndm
 ORDER BY tuple()""")
 
-client.execute('INSERT INTO usrs1k VALUES', uuid_rows)
+client.execute('INSERT INTO usrs_prent VALUES', uuid_rows)
 
-
+# client.execute('ALTER TABLE usrs4k ADD COLUMN ptn Int8')
+# client.execute('ALTER TABLE usrs4k UPDATE ptn = 99 where ptn = 0')
 
 
 # * playcount testing #
@@ -405,3 +407,16 @@ with open(acstb_file, 'r') as fi:
 
 # client.execute("""insert into song_info3 select * from song_info join
 # (select song as abbrv, cnt from song_info2) using (abbrv)""")
+
+# ** sampling in CH
+# is unflexible (needs same as  partitioning index -> would suck to have to drop entire days
+# also not flexible for usr
+
+# client.execute("""create table logs2 (time_d Date, time_num UInt16, usr String, song String) 
+# engine=MergeTree() 
+# PARTITION BY (time_d, time_num)
+# ORDER BY (time_d, time_num)
+# SAMPLE BY time_num""")
+# # index_granularity = 8192""")
+
+# client.execute("""INSERT INTO logs2 SELECT time_d, toRelativeDayNum(time_d) as time_num, usr, song from logs limit 2000000""")
