@@ -712,6 +712,7 @@ def prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict):
     prnt_plcnt_sd = np.std([vol_dict[i] for i in prnts])
 
     prnt_cmps = list(itertools.permutations(prnt_ids,2))
+    prnt_cmps_names = list(itertools.permutations(prnts,2))
 
     prnt_sims_mat = cosine_similarity(acst_mat[prnt_ids])
     prnt_sims = prnt_sims_mat[np.where(np.triu(prnt_sims_mat, k=1) > 0,)]
@@ -723,7 +724,7 @@ def prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict):
     prnt_klds = [ar_cb[i] for i in prnt_cmps]
     mean_prnt_kld = np.mean(prnt_klds)
     
-    prnt_cmps_wts = [vol_dict[gnrs[i[0]]] + vol_dict[gnrs[i[1]]] for i in prnt_cmps]
+    prnt_cmps_wts = [vol_dict[i[0]] + vol_dict[i[1]] for i in prnt_cmps_names]
     mean_prnt_kld_wtd = np.average(prnt_klds, weights = prnt_cmps_wts)
     
 
@@ -1015,6 +1016,7 @@ def ptn_proc(ptn):
     non_staeb_gnrs = list(set(gnrs) - set(est_gnrs2))
     
     gnrs = [i for i in gnrs if i in set(est_gnrs2)]
+    
     sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
     
     # acst_gnr_dict_bu = acst_gnr_dict
@@ -1038,7 +1040,7 @@ def ptn_proc(ptn):
 
     print('construct kld graph')
     g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-    graph_pltr(g_kld2, g_kld2.vp.id, '5_cell_space.pdf', 1.0)
+    # graph_pltr(g_kld2, g_kld2.vp.id, '5_cell_space.pdf', 1.0)
 
     
     print('extract features')
@@ -1209,7 +1211,7 @@ if __name__ == '__main__':
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
-    # tprd = time_periods[10]
+    # tprd = time_periods[1]
 
     for tprd in time_periods:
         print(tprd)
