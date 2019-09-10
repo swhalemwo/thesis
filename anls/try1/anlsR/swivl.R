@@ -59,7 +59,7 @@ phreg_mdlr <- function(mdl, d, imprvmnt){
 
 ## * merge data together
 
-res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/schema_1way/'
+res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/schema_xxx/'
 res_files = list.files(res_dir)
 
 dfc <- read.csv(paste0(res_dir, res_files[1]))
@@ -74,12 +74,19 @@ for (i in res_files[2:length(res_files)]){
 
 
 ## dfc_bu <- dfc
-## dfc <- dfc_bu
+dfc <- dfc_bu
 
 ## filter if needed
 ## dfc <- dfc[which(dfc$nbr_rlss_tprd > 0),]
 
 ## * find ded genres
+
+INST_MIN = 20 # instantiation threshold: genre not alive before reaching this point
+NBR_ENTRS = 3 # minimum number of entries
+EMPT_END = 4 # number of period at end in which genre may not appear
+## if 9 weeks: 4
+## if 6 weeks: 5
+
 
 dfc$X <- as.factor(dfc$X)
 dfc <- dfc[order(dfc$X, dfc$tp_id),]
@@ -92,10 +99,11 @@ first_equal_to2 = function(x, value) {
 }
 
 dfc$thd_bin <- 0
-dfc[dfc$sz_raw > 25,]$thd_bin <- TRUE
+dfc[dfc$sz_raw > INST_MIN,]$thd_bin <- TRUE
 
 dfc$first_thd <- 0
 
+## find first time point where genre appears (> INST_MIN)
 dx <- dfc %>% group_by(X) %>% mutate(first_thd = first_equal_to2(thd_bin, 1))
 
 first_thds <- dx[dx$first_thd,c('X', 'tp_id')]
@@ -105,9 +113,13 @@ dx2 <- merge(dx, first_thds, by = 'X')
 dx2$imtur <- 0
 dx2[which(dx2$tp_id < dx2$first_tp),]$imtur <- 1
 
-dx3 <- dx2[-which(dx2$imtur ==1),]
+## DELETE IMMATURE? before instantiation
+##
+NEEDS TO BE PUT INTO PYTHON
 
-dfc <- dx3
+## dx3 <- dx2[-which(dx2$imtur ==1),]
+## dfc <- dx3
+dfc <- dx2
 
 dfc$event <- 0
 
@@ -116,7 +128,7 @@ gnr_inf2 <- aggregate(dfc$tp_id, list(dfc$X), max)
 ## 364 failed
 ## that's not nothing but not nearly as much as i wish
 
-ded_gnrs <- gnr_inf2[which(gnr_inf2$x < max(gnr_inf2$x)-2),]$Group.1
+ded_gnrs <- gnr_inf2[which(gnr_inf2$x <= max(gnr_inf2$x)-EMPT_END),]$Group.1
 
 gnr_inf3 <- aggregate(dfc$tp_id, list(dfc$X), length)
 
@@ -125,8 +137,6 @@ gnr_max_sz <- aggregate(sz_raw ~ X, dfc, max)
 
 df_gnrs <- cbind(gnr_inf, gnr_inf2$x, gnr_inf3$x, gnr_max_sz$sz_raw)
 names(df_gnrs) <- c('X', 'min', 'max', 'nb_entrs', 'max_sz')
-
-
 
 ## are event accumulated before timeframe?
 ## ded_gnrs only has those which died before 3 before end
@@ -153,7 +163,7 @@ dfc2$gnr_age2 <- ages2
 
 ## ded_gnrs3 <- paste(c(as.character(ded_gnrs), as.character(usbl_cheese_gnrs)))
 
-ded_gnrs4 <- df_gnrs[df_gnrs$X %in% ded_gnrs & df_gnrs$nb_entrs > 0,]$X
+ded_gnrs4 <- df_gnrs[df_gnrs$X %in% ded_gnrs & df_gnrs$nb_entrs >= NBR_ENTRS,]$X
 ## ded_gnrs2 <- ded_gnrs
 
 ## dfx <- dfc2[dfc2$X %in% ded_gnrs2,]
@@ -166,6 +176,7 @@ dfc2$max_tp <- FALSE
 dfc2$max_tp[which(dfc2$tp_id == dfc2$max)] <- TRUE
 
 dfc2$event[dfc2$X %in% ded_gnrs4 & dfc2$max_tp ==TRUE] <- 1
+
 
 
 ##  ** set dying out for ded genres
@@ -182,7 +193,7 @@ if (len(unded_gnrs) > 0){
     dfc2 <- dfc2[-which(dfc2$X %in% unded_gnrs),]
 }
 
-dfc2 <- dfc2[dfc2$tp_id < max(dfc2$tp_id)-2,]
+dfc2 <- dfc2[dfc2$tp_id <= max(dfc2$tp_id)-EMPT_END,]
 
 ## delete cell_cmbs missing values
 ## atm removes only two events, which seems ok i guess
@@ -205,6 +216,7 @@ barplot(deds$x)
 ## ** renaming into desired hierarchical set
 
 smpl_ftrs_names <- names(dfc)[unlist(lapply(names(dfc), function(x){grepl('smpl_ftrs', x)}))]
+
 for (i in smpl_ftrs_names){
     
     new_vrbl_name <- substr(i, 11, 100)
@@ -230,7 +242,8 @@ dfc2$inftns_sqrd <- log(dfc2$prnt3_dvrg)^2
 
 ## ** distinctiveness
 
-dfc2$disctns <- log(dfc2$cohrt_mean_cos_dists_wtd+0.01)
+## dfc2$disctns <- log(dfc2$cohrt_mean_cos_dists_wtd+0.01)
+dfc2$disctns <- log(dfc2$cohrt_mean_non_inf_wtd+0.01)
 
 # dfc2$cohrt_dom <- log(dfc2$volm/dfc2$cohrt_vol_sum)
 
@@ -287,8 +300,6 @@ dens_vars <- c('dens_vol', 'dens_len', 'dens_vol_sqrd', 'dens_len_sqrd', 'cohrt_
 ## should check effects
 
 all_vars <- c(inf_vars, dens_vars, ctrl_vars)
-
-
 
 ## * processing
 ## ** standardizing
@@ -383,43 +394,45 @@ latex(cor_tbl2,
 dv <- 'Surv(tp_id, tp_id2, event)'
 ## ** concepts
 
+## exclude new_rlss for current buggy version
+## ctrl_vars <- ctrl_vars[ctrl_vars %!in% c('new_rlss')]
+
 ctrl_vars_cbnd <- paste(ctrl_vars, collapse = ' + ')
 f_ctrl <- as.formula(paste(c(dv, ctrl_vars_cbnd), collapse = ' ~ '))
-fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(1,26),dist = 'pch')
+fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
 res_ctrl <- phreg_mdlr(fit_ctrl, d, None)
 
 
 v_inf1 <- paste(c(ctrl_vars_cbnd, 'inftns'), collapse = ' + ')
 f_inf1 <- as.formula(paste(c(dv, v_inf1) , collapse = ' ~ ' ))
-fit_inf1 <- phreg(f_inf1, data=dfc3, cuts = seq(1,26),dist = 'pch')
+fit_inf1 <- phreg(f_inf1, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
 res_inf1 <- phreg_mdlr(fit_inf1, d, None)
-screenreg(res_inf1)
+## screenreg(res_inf1)
 
 v_inf2 <- paste(c(ctrl_vars_cbnd, 'inftns', 'inftns_sqrd'), collapse = ' + ')
 f_inf2 <- as.formula(paste(c(dv, v_inf2) , collapse = ' ~ ' ))
-fit_inf2 <- phreg(f_inf2, data=dfc3, cuts = seq(1,26),dist = 'pch')
+fit_inf2 <- phreg(f_inf2, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
 res_inf2 <- phreg_mdlr(fit_inf2, d, None)
-screenreg(res_inf2)
+## screenreg(res_inf2)
 
 
 v_inf3 <- paste(c(ctrl_vars_cbnd, 'disctns'), collapse = ' + ')
 f_inf3 <- as.formula(paste(c(dv, v_inf3) , collapse = ' ~ ' ))
-fit_inf3 <- phreg(f_inf3, data=dfc3, cuts = seq(1,26),dist = 'pch')
+fit_inf3 <- phreg(f_inf3, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
 res_inf3 <- phreg_mdlr(fit_inf3, d, None)
-screenreg(res_inf3)
+## screenreg(res_inf3)
 
 
 v_inf4 <- paste(c(ctrl_vars_cbnd, 'inftns', 'inftns_sqrd', 'disctns'), collapse = ' + ')
 f_inf4 <- as.formula(paste(c(dv, v_inf4) , collapse = ' ~ ' ))
-fit_inf4 <- phreg(f_inf4, data=dfc3, cuts = seq(1,26),dist = 'pch')
+fit_inf4 <- phreg(f_inf4, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
 res_inf4 <- phreg_mdlr(fit_inf4, d, None)
 
 
 v_inf5 <- paste(c(ctrl_vars_cbnd, 'inftns', 'inftns_sqrd', 'disctns', 'dens_vol', 'dens_vol_sqrd', 'dens_len', 'dens_len_sqrd', 'leg'), collapse = ' + ')
 f_inf5 <- as.formula(paste(c(dv, v_inf5) , collapse = ' ~ ' ))
-fit_inf5 <- phreg(f_inf5, data=dfc3, cuts = seq(1,26),dist = 'pch')
+fit_inf5 <- phreg(f_inf5, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
 res_inf5 <- phreg_mdlr(fit_inf5, d, None)
-
 
 
 
@@ -432,9 +445,10 @@ res_inf5 <- phreg_mdlr(fit_inf5, d, None)
 
 
 
-## 
 
-screenreg(list(res_ctrl, res_inf1, res_inf2, res_inf3, res_inf4, res_inf5), reorder.coef = c(8:15,1:7))
+## screenreg(list(res_ctrl, res_inf1, res_inf2, res_inf3, res_inf4, res_inf5), reorder.coef = c(8:15,1:7))
+screenreg(list(res_ctrl, res_inf1, res_inf2, res_inf3, res_inf4, res_inf5))
+
 
 texreg(list(res_ctrl, res_inf1, res_inf2, res_inf3, res_inf4, res_inf5),
        reorder.coef = c(8:15,1:7),
@@ -489,6 +503,7 @@ res_dens6 <- phreg_mdlr(fit_dens6, d, None)
 
 
 screenreg(list(res_dens1, res_dens2, res_dens3, res_dens4, res_dens5, res_dens6), reorder.coef = c(8:15, 1:7))
+screenreg(list(res_dens1, res_dens2, res_dens3, res_dens4, res_dens5, res_dens6))
 
 texreg(list(res_dens1, res_dens2, res_dens3, res_dens4, res_dens5, res_dens6),
        caption = 'Impact of ecological predictors on genre abandonment',
