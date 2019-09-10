@@ -54,7 +54,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     mbid_basic String,
     cnt Float32,
     artist String,
-    erl_rls Int16,
+    erl_rls Int32,
     len_rls_lst Int8
     )
     """
@@ -149,7 +149,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     weight Int8,
     rel_weight Float32, 
     artist String, 
-    erl_rls Int16, 
+    erl_rls Int32, 
     len_rls_lst Int8
     )
     """
@@ -207,7 +207,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     weight Int8,
     rel_weight Float32,
     artist String,
-    erl_rls Int8,
+    erl_rls Int32,
     len_rls_lst Int8)
     """
 
