@@ -732,8 +732,8 @@ def prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict):
     prnt_odg = np.mean([prnt_v.out_degree() for prnt_v in prnt_vs])
     prnt_odg_wtd = np.mean([prnt_v.out_degree() * g_kld2.ep.kld_sim[g_kld2.edge(prnt_v,gv)] for prnt_v in prnt_vs])
 
-    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_sim', 'prnt_odg', 'prnt_odg_wtd', 'prnt_plcnt', 'prnt_plcnt_sd']
-    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_sim, prnt_odg, prnt_odg_wtd, prnt_plcnt, prnt_plcnt_sd]
+    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_sim', 'prnt_odg', 'prnt_odg_wtd', 'prnt_plcnt', 'prnt_plcnt_sd', 'mean_prnt_kld', 'mean_prnt_kld_wtd']
+    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_sim, prnt_odg, prnt_odg_wtd, prnt_plcnt, prnt_plcnt_sd, mean_prnt_kld, mean_prnt_kld_wtd]
 
     return(prnt_stats_names, prnt_stats_vlus)
 
