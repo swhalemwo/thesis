@@ -12,7 +12,7 @@ g_one_mode.load('one_mode1k_dice_005.gt')
 g_one_mode.load('one_mode4k_dice_002_smpl.gt')
 g_one_mode.load('one_mode4k_dice_00175_smpl.gt')
 g_one_mode.load('one_mode4k_dice_002_smpl_l025.gt')
-
+g_one_mode.load('one_mode4k_dice_002_smpl_l03.gt')
 
 g_one_mode.load('one_mode4k_004.gt')
 

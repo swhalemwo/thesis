@@ -61,30 +61,21 @@ Do to do not use the song membership values directly and instead use the user va
 
 ** hierarchy construction
 *** features used
-To evaluate genres in terms of their informativeness, distinctiveness and other feature-related characteristics I construct prototypes using musicological features of the tracks provided by AcousticBrainz (https://acousticbrainz.org).
-# 
-AcousticBrainz is a joint project of the Music Technology Group at Universitat Pompeu Fabra in Barcelona and the MusicBrainz project which aims to provide detailed acoustic information on a large number of tracks. 
-#
-AcousticBrainz provides information on two levels: 
-# 
-Low-level data is comprised of more technical characteristics such as frequency distributions, keys andscales (which can be extracted from tracks with specific programs), whereas high-level data consists of a handful summarizing constructs based on the low-level data. 
-# 
-I assume that the high-level data is closer to the human perception of music which would likely be overwhelmed by the hundreds of dimensions which are present in the low-level data. 
-#
-I hence use 12 dimensions of the high-level data which describe each track in terms of danceability, gender (of vocals), timbre, tonality, voice (vs instrumental), acousticness (vs non-acoustic), aggressiveness, electronic-ness (vs non-electronic), happiness, party-ness, relaxed-ness, and sadness to construct my genre prototypes. 
-#
-Each of the dimension ranges from 0 to 1. 
-# 
-During preliminary investigation, it became clear that the classifiers which produce the high level dimensions are geared towards producing unambiguous classifications of tracks, which results in bimodal distributions where most tracks are situated on the extremes of the scales. 
-# NOT CONVINCING
-Instead of using a single measurement for each dimension, I therefore split each dimension into five discrete ranges to better capture the probability distribution of a genre over the dimensions. ~example figure~
 # 
 
 *** weighting procedure
 ~example needed? latex notation?~
 For each partition, links between user and aggregate song playcount of the period are weighted by partition membership: 
+
+'volume' (out of lack for a better word) depends on 
+
+\begin{equation*}
+v_{s, t} = \sum \limits_{s} s_{t_{w}}  \sum \limits_u u_{s_{p}}  m_u
+\end{equation*}
+with user u, tag t, playcount p, partition membership m, song s, tag weight w
+
 # 
-For example, if user X listened to track Y 10 times, and has a values 0.8 for LDA partition a and 0.1 for LDA partition b, the link gets weighted eight times stronger in partition a then partition b. 
+For example, if user X listens to track Y 10 times, and has a values 0.8 for LDA partition a and 0.1 for LDA partition b, the link gets weighted eight times stronger in partition a then partition b. 
 # 
 These weights allows genres to differ in meaning (i.e. in  different acoustic features) between partitions (or be not present at all). 
 # 

@@ -126,7 +126,7 @@ A typical fruit might therefore be seen an edible plant that is sweet, has brigh
 # 
 However, it is obvious that none of these features are not a simply a unstructured list. 
 # 
-The color of a typical can be red or yellow, but less easily both at the same time. 
+The color of a typical fruit can be red or yellow, but less easily both at the same time. 
 #
 To capture such variation, textcite:Murphy_2004_concepts proposes the /schema/ view, a specialization of the prototype view. 
 # 

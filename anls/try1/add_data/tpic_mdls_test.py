@@ -23,7 +23,7 @@ from joblib import dump, load
 # actually vary sampling method with keeping sampling methods constant at 8k
 # - edge sampling: 0.3, min 12 usrs, min plcnt 18 (gets it nicely to 10k songs)
 # - cutoffs: at least 20 listeners, at least 93 playcount
-# column (song) sampling
+# column (song) sampling: 
 
 # reliability: each 5 times
 diag_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/add_data/lda_diag/'
@@ -36,10 +36,10 @@ mat_dict = {'mat_song_smpl':mat_song_smpl, 'mat_edge_smpl':mat_edge_smpl, 'mat_c
 
 # mats = ['mat_song_smpl','mat_edge_smpl','mat_cutofs']
 mats = ['mat_song_smpl']
-comps = [3,4,5]
+comps = [5]
 max_iters = [30, 37, 45]
-doc_topic_priors = [0.1, 0.25, 0.4]
-topic_word_priors = [0.25, 0.4, 0.55, 0.7]
+doc_topic_priors = [0.05, 0.1, 0.2]
+topic_word_priors = [0.25, 0.4, 0.55]
 
 configs = []
 for mat in mats:
@@ -55,7 +55,7 @@ for mat in mats:
 # ** running
 
 for cfg in configs:
-    for itr in range(3,5):
+    for itr in range(1,5):
 
         t1 = time.time()
         ldax = LatentDirichletAllocation(n_jobs = 3,

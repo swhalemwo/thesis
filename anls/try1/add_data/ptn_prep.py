@@ -51,6 +51,10 @@ GROUP BY usr HAVING count(usr) > 50) USING usr
 
 usr_trk_lnks = client.execute(usr_string)
 
+with open('usr_trk_lnks.csv', 'w') as fo:
+    wr = csv.writer(fo)
+    wr.writerows(usr_trk_lnks)
+
 # don't like how long loading data into python takes...
 # also the amount of memory Jesus
 # focus only on most relevant songs reduces resources needed, also makes similarity calculations faster
@@ -74,7 +78,7 @@ for u in unq_usrs:
     # u_dg_org = vu.out_degree(g_usrs.ep.plcnt)
     u_dg_org = vu.out_degree()
     # alctd_dg = u_dg_org**0.5
-    alctd_dg = u_dg_org*0.25
+    alctd_dg = u_dg_org*0.3
 
     new_deg = 0
     
@@ -111,7 +115,6 @@ t2 = time.time()
 # where to split? if i restart CH server righ after getting the rows, i think i can put everything in one script
 
 
-
 # can also just use cutoff for smpl_sims? 
 # usr_lnks_sim = np.where(smpl_sims > 0.0253)
 # x = set(usr_lnks_sim[0]) - set(usr_lnks[0]) # not exactly the same edges, 1500/10k not there
@@ -132,7 +135,7 @@ g_usrs_1md.vertex_properties['id'] = g_usrs_1md_id
 
 # g_usrs_1md.save('one_mode1k_dice_005.gt')
 # g_usrs_1md.save('one_mode1k_dice_0025_smpl.gt')
-g_usrs_1md.save('one_mode4k_dice_002_smpl_l025.gt')
+g_usrs_1md.save('one_mode4k_dice_002_smpl_l03.gt')
 
 
 # NEED WAY TO PASS VARIABLES

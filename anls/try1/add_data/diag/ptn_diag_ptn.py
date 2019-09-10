@@ -41,7 +41,7 @@ if __name__ == '__main__':
     v_cnts = []
     e_cnts = []
 
-    for it in range(1,4):
+    for it in range(1,9):
         
         flnm = "diag_onmd_smpl_" + str(smpl_prop) + "_sim_"+   str(sim_cutof) + '_it_' + str(it) + '.gt'
         g_one_mode = Graph()
@@ -118,6 +118,7 @@ if __name__ == '__main__':
     ptn_means = []
     ptn_cell_cnts = []
     ptn_szs = []
+    ptn_szs_sds = []
 
     for p in range(ptn_cnt):
         # print(p)
@@ -139,16 +140,18 @@ if __name__ == '__main__':
         ptn_grps = np.where(col_lbls == p)[0]
         ptn_sz = np.mean([len(all_grps[i]) for i in ptn_grps])
         ptn_szs.append(ptn_sz)
+        ptn_szs_sds.append(np.std([len(all_grps[i]) for i in ptn_grps]))
 
 
     ovrl_sim = np.average(ptn_means, weights = ptn_cell_cnts)
     ptn_sz_sd = np.std(list(Counter(col_lbls).values()))
+    ptn_sz_sd2 = np.mean(ptn_szs_sds)
 
-    nbr_es = np.mean(v_cnts)
-    nbr_vs = np.mean(e_cnts)
+    nbr_es = np.mean(e_cnts)
+    nbr_vs = np.mean(v_cnts)
     avg_t = np.mean(ts)
 
-    num_res = [ptn_cnt, smpl_prop, sim_cutof, ovrl_sim, ptn_sz_sd, nbr_vs, nbr_es, avg_t] + ptn_szs
+    num_res = [ptn_cnt, smpl_prop, sim_cutof, ovrl_sim, ptn_sz_sd, nbr_vs, nbr_es, avg_t, ptn_sz_sd2] + ptn_szs
 
     with open(num_res_file, 'a') as fo:
         wr = csv.writer(fo)

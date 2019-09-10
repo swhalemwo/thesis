@@ -452,7 +452,7 @@ def compr(comp_pairs, amt_base):
     t2 = time.time()
 
     sims_dice_splt = np.split(sims_dice, amt_base)
-    sim_ar = np.array(sims_dice_splt)
+    sim_ar = np.arrayl(sims_dice_splt)
 
     return(sim_ar)
 

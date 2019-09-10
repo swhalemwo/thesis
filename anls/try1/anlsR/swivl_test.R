@@ -193,7 +193,7 @@ dfc2$cohrt_rel_sz <- log(dfc2$volm/cohrt_vol_mean)
 
 ## ALSO USE THE penl_chirns here
 
-## *** potential parents
+## *** Potential parents
 
 len_vars = c("len_penl_prnts_100_mean", "len_penl_prnts_0.1_mean", "len_penl_prnts_0.2_mean", "len_penl_prnts_0.3_mean")
 

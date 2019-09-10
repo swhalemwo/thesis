@@ -160,7 +160,7 @@ for i in gt_files:
 
 
 
-## need dict of mbids to vertex index
+## need dict of mbids vertex index
 ## vertex count: where was it? what was it important for? density, but apparently not
 
 

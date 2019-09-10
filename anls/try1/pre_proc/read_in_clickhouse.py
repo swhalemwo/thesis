@@ -321,12 +321,6 @@ if __name__ == '__main__':
 # SETUP TABLES #
 ################
 
-
-# client.execute('drop table song_info')
-
-# client.execute('create table song_info (mbid String, abbrv String, rndm Int) engine=MergeTree() Partition by rndm order by tuple()')
-
-
 client.execute('drop table logs')
 client.execute('create table logs (time_d Date, usr String, song String) engine=MergeTree(time_d, time_d, 8192)')
 

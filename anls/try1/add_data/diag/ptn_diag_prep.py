@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # smpl_prop = 0.3
     # sim_cutof = 0.02
 
-    for it in range(1,4):
+    for it in range(1,9):
         smpl_ep = g_usrs.new_edge_property('bool')
 
         print('sample graph')

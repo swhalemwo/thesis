@@ -123,7 +123,7 @@ for i in range(6):
 
 
     state = minimize_blockmodel_dl(g_one_mode,
-                                   # B_min = 3, B_max = 3,
+                                   B_min = 4, B_max = 4,
                                    bisection_args = bisection_args,
                                    mcmc_args  = mcmc_args,
                                    mcmc_equilibrate_args = mcmc_equilibrate_args,
@@ -179,7 +179,7 @@ for i in csist_res:
 
 # from sklearn.cluster.bicluster import SpectralBiclustering
 
-clust_mdl = SpectralBiclustering(n_clusters = 3)
+clust_mdl = SpectralBiclustering(n_clusters = 4)
 clust1 = clust_mdl.fit(res_mat)
 
 col_lbls = clust1.column_labels_

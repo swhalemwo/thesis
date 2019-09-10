@@ -187,10 +187,11 @@ if __name__ == '__main__':
     base_dir = '/home/johannes/mlhd/us/'
     # missing: 10-19, 218/219
 
-    start_fldr = 36
-    end_fldr = 150
+    start_fldr = 201
+    end_fldr = 250
     # done: 1-35, not clear how boundaries are handled
-    # 36-150: works until chunk 370 
+    # 36-150: done until chunk 370 
+    # 151-200: done
 
     # seems to work, and should given previous cleaning in downloading stage
     usr_abbrvs = client.execute('select uuid, abbrv2 from usr_info')
@@ -207,7 +208,7 @@ if __name__ == '__main__':
 
     print('creating mbid abbrv dict')
     mbid_abbrv_dict=get_db_songs()
-
+    
     for c in chunks:
         print('new chunk', chunks.index(c)+1, '/', len(chunks))
         # bulk dict construction
@@ -246,7 +247,7 @@ if __name__ == '__main__':
 #     abbrvs.append(abbrv)
 # * scrap
 
-# ** old chunk_prep
+# ** old chunk_prep[
 # some logs are reverse: earliest first
 # if int(logx[0][0]) > int(logx[-1][0]):
 #     print('dddd', logx2[-1][0])

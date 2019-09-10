@@ -247,7 +247,7 @@ ttest_ind(kld3_df['g1_g2'], kld3_df['g2_g1'])
 # bigger: more entropy -> more evenly spread
 
 
-
+x
 
 # asymmetry as predictor? 
 
