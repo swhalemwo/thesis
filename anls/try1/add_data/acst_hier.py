@@ -718,6 +718,15 @@ def prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict):
     
     mean_prnt_sim = np.mean(prnt_sims)
 
+    # can also use KLD now
+
+    prnt_klds = [ar_cb[i] for i in prnt_cmps]
+    mean_prnt_kld = np.mean(prnt_klds)
+    
+    prnt_cmps_wts = [vol_dict[gnrs[i[0]]] + vol_dict[gnrs[i[1]]] for i in prnt_cmps]
+    mean_prnt_kld_wtd = np.average(prnt_klds, weights = prnt_cmps_wts)
+    
+
     # may have to divide by 1 (or other thing to get distance), not quite clear now
     
     prnt_odg = np.mean([prnt_v.out_degree() for prnt_v in prnt_vs])
@@ -789,7 +798,7 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     pct_non_inf = len(pos_non_inf[0])/len(cht_klds)
     
 
-    cohrt_mean_mean_cos_dists_wtd, sd_cos_dist_wtd  = weighted_avg_and_std(np, cht_cos_dists, cht_sizes)
+    cohrt_mean_cos_dists_wtd, sd_cos_dist_wtd  = weighted_avg_and_std(np, cht_cos_dists, cht_sizes)
     cohrt_mean_cos_dists_uwtd = np.mean(cht_cos_dists)
 
     cohrt_mean_non_inf = np.mean([cht_klds[i] for i in pos_non_inf[0]])
@@ -971,25 +980,48 @@ def ptn_proc(ptn):
                   min_unq_artsts, max_propx1, max_propx2, d1, d2, ptn,
                   client, pd)
 
+
     gnrs = list(np.unique(dfc['tag']))
     artsts = list(np.unique(dfc['artist']))
     trks = list(np.unique(dfc['lfm_id']))
 
     print('construct acst gnr dict')
 
-    nbr_cls = 5
+    nbr_cls = 7
     acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
     sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
-    # print('construct acoustic edge list')
-
-    # el_ttl = gnrt_acst_el_mp(gnrs, acst_gnr_dict, nbr_cls)
-
-    # print('construct acoustic graph')
-    # gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
-
-    # print('construct acoustic mat')
-    # acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
+    # NEED TO CHECK IF GENRES ARE ALREADY ESTABLISHED, OTHERWISE DELETE SMALL ONES
+    # WRITE FIRST all that are, then pop those that aren't
+    # save dfc? might allow it to filter faster afterwards
+    # is large tho
+    # dfc.to_csv(res_dir + 'dfc_' + tp_clm + '.csv')
+    
+    
+    debug_file = "debug.csv"
+    
+    # genre counts as established if size >= 20
+    # once established, keeps on counting even if atm not fulfilling the criteria
+    est_gnrs = [[i, tp_id] for i in gnrs if sz_dict[i] >= 20]
+    
+    with open(res_dir + debug_file, 'a') as fo:
+        wr = csv.writer(fo)
+        wr.writerows(est_gnrs)
+        
+    with open(res_dir + debug_file, 'r') as fi:
+        rdr = csv.reader(fi)
+        est_gnrs2 = [r[0] for r in rdr]
+    
+    non_staeb_gnrs = list(set(gnrs) - set(est_gnrs2))
+    
+    gnrs = [i for i in gnrs if i in set(est_gnrs2)]
+    sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
+    
+    # acst_gnr_dict_bu = acst_gnr_dict
+    # i think i don't even have to really delete; just reset the info dicts
+    # for gf in non_staeb_gnrs:
+    #     acst_gnr_dict.pop(gf)
+    #     sz_dict.pop
 
     acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls)
 
@@ -1006,7 +1038,7 @@ def ptn_proc(ptn):
 
     print('construct kld graph')
     g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-    # graph_pltr(g_kld2, g_kld2.vp.id, '5_cell_space.pdf', 1.0)
+    graph_pltr(g_kld2, g_kld2.vp.id, '5_cell_space.pdf', 1.0)
 
     
     print('extract features')
@@ -1017,6 +1049,8 @@ def ptn_proc(ptn):
                         g_kld2, vd_kld2 , acst_gnr_dict, sz_dict, vol_dict, acst_mat)
                         # ar_cb2, g_kld3, vd_kld3)
     tx2 = time.time()
+
+    df_res['entrp'] = entropy(acst_mat.T)
 
     ret_dict = {'g_kld2':g_kld2, 'df_res':df_res, 'gnr_ind':gnr_ind, 'acst_mat':acst_mat}
 
@@ -1175,13 +1209,10 @@ if __name__ == '__main__':
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
-    # tprd = time_periods[2]
+    # tprd = time_periods[10]
 
     for tprd in time_periods:
         print(tprd)
-        # !!! TEST
-        # tprd = time_periods[23]
-        # !!! TEST
         
         client = Client(host='localhost', password='anudora', database='frrl')
         d1 = tprd[0].strftime('%Y-%m-%d')
@@ -1727,6 +1758,12 @@ l# for vrbl in vrbls:
 
 
     
-
+# * clean up ptn_proc
+# print('construct acoustic edge list')
+# el_ttl = gnrt_acst_el_mp(gnrs, acst_gnr_dict, nbr_cls)
+# print('construct acoustic graph')
+# gac, w, w_std, w_std2, gac_id, vd, vdrv = gac_crubgs(el_ttl)
+# print('construct acoustic mat')
+# acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
 
     
