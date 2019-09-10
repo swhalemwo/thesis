@@ -197,6 +197,7 @@ plt.matshow(res_mat2)
 plt.show()
 
 
+
 # clearly 4 clusters, 3 or 5 produce nonsenical results
 # i guess that counts as reliabilty?
 
