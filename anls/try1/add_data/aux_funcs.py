@@ -40,22 +40,26 @@ def graph_pltr(g, ids, filename, eweit):
 
     size = g.degree_property_map('out')
 
-    size_scl=graph_tool.draw.prop_to_size(size, mi=3, ma=6, log=False, power=0.5)
+    # size_scl=graph_tool.draw.prop_to_size(size, mi=1.5, ma=3, log=False, power=0.5)
+    # size_scl=graph_tool.draw.prop_to_size(size, mi=3, ma=6, log=False, power=0.5)
     # size_scl=graph_tool.draw.prop_to_size(size, mi=4, ma=8, log=False, power=0.5)
-    # size_scl=graph_tool.draw.prop_to_size(size, mi=7, ma=25, log=False, power=0.5)
+    size_scl=graph_tool.draw.prop_to_size(size, mi=7, ma=25, log=False, power=0.5)
+    # size_scl=graph_tool.draw.prop_to_size(size, mi=12, ma=50, log=False, power=0.5)
 
-    size_scl2=graph_tool.draw.prop_to_size(size, mi=0.025, ma=0.15, log=False, power=1)
+    size_scl2=graph_tool.draw.prop_to_size(size, mi=0.005, ma=0.1, log=False, power=1)
+    # size_scl2=graph_tool.draw.prop_to_size(size, mi=0.005, ma=0.07, log=False, power=1)
+    # size_scl2=graph_tool.draw.prop_to_size(size, mi=0.0025, ma=0.035, log=False, power=1)
 
-    if type(eweit) == type(1):
+    if type(eweit) == type(1.0):
         e_scl = eweit
 
     else:
         e_scl=graph_tool.draw.prop_to_size(eweit, mi=1, ma=6, log=False, power=0.5)
 
-    gvd = graphviz_draw(g, size = (100,100),
+    gvd = graphviz_draw(g, size = (70,70),
                         # layout = 'sfdp',
-                        overlap = 'scalexy',
-                        # overlap = 'false',
+                        # overlap = 'scalexy',
+                        overlap = 'false',
                         vprops = {'xlabel':gt_lbls_plot, 'fontsize':size_scl, 'height':0.03,
                                   'shape':'point', 'fixedsize': True,
                                   'width':size_scl2, 'height':size_scl2, 'fillcolor':'black'},
@@ -76,11 +80,13 @@ def graph_pltr2(g, filename, eweit):
 
     size = g.degree_property_map('out')
 
-    size_scl=graph_tool.draw.prop_to_size(size, mi=3, ma=6, log=False, power=0.5)
+    # size_scl=graph_tool.draw.prop_to_size(size, mi=3, ma=6, log=False, power=0.5)
     # size_scl=graph_tool.draw.prop_to_size(size, mi=4, ma=8, log=False, power=0.5)
     # size_scl=graph_tool.draw.prop_to_size(size, mi=7, ma=25, log=False, power=0.5)
+    size_scl=graph_tool.draw.prop_to_size(size, mi=12, ma=50, log=False, power=0.5)
 
-    size_scl2=graph_tool.draw.prop_to_size(size, mi=0.025, ma=0.15, log=False, power=1)
+    size_
+    scl2=graph_tool.draw.prop_to_size(size, mi=0.025, ma=0.15, log=False, power=1)
 
     if type(eweit) == type(1):
         e_scl = eweit
@@ -88,7 +94,7 @@ def graph_pltr2(g, filename, eweit):
     else:
         e_scl=graph_tool.draw.prop_to_size(eweit, mi=1, ma=6, log=False, power=0.5)
 
-    gvd = graphviz_draw(g, size = (100,100),
+    gvd = graphviz_draw(g, size = (20,20),
                         # layout = 'sfdp',
                         # overlap = 'scalexy',
                         overlap = 'false',
