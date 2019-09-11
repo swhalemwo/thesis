@@ -71,7 +71,6 @@ The question of how information is stored and processed to enable complex cognit
 #
 textcite:Smith_1981_categories,Strauss_1997_cognitive and textcite:Murphy_2004_concepts characterize the historical development of the scholarship of concepts by contrasting broad developments. 
 #
-# in particular finds its exp
 The main distinction is posited between the so-called /classical view/, taken for granted "since Aristotle" [[parencite:Smith_1981_categories][Preface]] up to the 1970s, against a much more recently emerged /probabilistic view/. 
 # 
 The classical view is primarily characterized by logic and well-orderedness of the conceptual realm, which is expressed in particular in the idea of /concepts as definitions/ [[parencite:Murphy_2004_concepts][p.15]].  
@@ -82,10 +81,13 @@ Category membership is hence seen as clear cut:
 # 
 Either an item fulfills the specific requirements, in which case it is a member, or it is a clear non-member. 
 # 
-For example, if membership in the category of "animals" requires members to be alive, evince metabolism and movement (or have so in the past), it is clear that a dog or a butterfly are clear members, whereas a rock or a cup of coffee are not. 
+For example, prime numbers constitute an category where membership can be clearly defined: 
+# 
+A number is either divisible only by 1 and itself in which case it is a member, or by additional numbers, in which case it is a clear non-member. 
+# 
 
 *** probabilistic view :ignhead:
-While such a rigid view has appeal as it provides a great amount of clarity (or rather, is assumed to do so [fn::A more situated analysis might evaluate the taken-for-grantedness of the classical view through a theoretical lens of logocentrism parencite:derrida2016grammatology or a bureaucratic institutional logic parencite:thornton_2012_logics]), the high requirements for formal integrity creates problems when trying to find a clear definition. 
+While such a rigid view has appeal as it provides a great amount of clarity (or rather, is assumed to do so [fn::A more situated analysis might evaluate the taken-for-grantedness of the classical view through a theoretical lens of logocentrism parencite:derrida2016grammatology or a bureaucratic institutional logic parencite:thornton_2012_logics]), the high requirements for formal integrity can create problems when trying to find a clear definition. 
 # 
 textcite:Wittgenstein_1968_investigations has pointed out these problems in his influential discussion of the attempt to define the the everyday-concept of "game":
 
@@ -95,11 +97,11 @@ textcite:Wittgenstein_1968_investigations has pointed out these problems in his 
 
 *** concept as definition bad :ignhead:
 # 
-Thus while it might be possible to construct for some constructs, the idea that concepts are generally clearly defined seems difficult to uphold.
+Thus while it might be possible to construct clear-cut membership rules for some categories, the idea that concepts /generally/ are clearly defined seems difficult to uphold.
 #
-It is worth noting that such ambiguity is not only present in every-day concepts, but in highly formalized domains as well, such as the debate whether Pluto is a planet or the categorization of geometric figures parencite:Lakatos_2015_proofs.
+It is worth noting that such ambiguity is not only present in every-day concepts, but in highly formalized domains as well, such as the debate of the planethood of Pluto or the categorization of geometric figures parencite:Lakatos_2015_proofs.
 # 
-Similarly, attempts to clearly define science such as by the demarcation criterion of falsifiability parencite:popper1971conjectural, have been contested by alternative conceptualization that stress a multitude of non-formal aspects parencite:Kuhn_2012_structure or outright deny the possibility of a clear definition parencite:Feyerabend_1993_method. 
+Similarly, attempts to clearly define science such as by the demarcation criterion of falsifiability parencite:popper1971conjectural, have been contested by alternative conceptualizations that stress a multitude of non-formal aspects parencite:Kuhn_2012_structure or outright deny the possibility of a clear definition parencite:Feyerabend_1993_method. 
 # 
 While (particularly in the latter case of science) the idea of concepts as definitions might be argued to still loom in public consciousness, it encounters difficulties to provide definitions in the case of complex concepts to an extent that warrants the consideration of alternatives. 
 
@@ -113,43 +115,93 @@ Asking respondents to list fruits, apples and oranges are listed more frequently
 #
 Such /typicality effects/ show that membership is not a yes-or-no question, but a gradient. 
 # 
-However, graded memberships still leaves open the question of how a concept (for example, fruit) is structured. 
+However, the mere existence of graded memberships does not provide an explanation of its cause. 
+
+# However, graded memberships still leaves open the question of how a concept (for example, fruit) is structured. 
+# 
+
+*** todo need a concept v categories definition paragraph somewhere
+intension 
+extension
+
+concept and categories as co-constitutive
+duality
+
 
 
 *** prototypes vs exemplars :ignhead:
+
+For this purpose, textcite:Rosch_1975_family consider the /attributes/ that the different concepts (e.g. different fruits) are associated with: 
 # 
-In this regard, textcite:Smith_1981_categories and Murphy (citeyear:Murphy_2004_concepts,Murphy_2016_exemplar) distinguish primarily between /prototype/ theories and /exemplar/ theories. 
+An apple for example can be described as approximately hand-sized, being of bright color, being edible, being moderately firm and so on. 
 # 
-According to prototype theory, concepts are generalized abstractions of features, 
+In practice, attributes are typically acquired by having participants list features. 
 # 
-A typical fruit might therefore be seen an edible plant that is sweet, has bright colors and is approximately hand-sized. 
+This necessarily includes the possibility that some features are not used for some concepts as "each item has at least one, and probably several, elements in common with one or more other items, but no, or few, elements are common to all items" [[parencite:Rosch_1975_family][p.574]]. 
 # 
-However, it is obvious that none of these features are not a simply a unstructured list. 
+This idea formally captures the notion of textcite:Wittgenstein_1968_investigations: 
 # 
-The color of a typical fruit can be red or yellow, but less easily both at the same time. 
+Rather than being characterized by a set of fully shared features to which logical operations (e.g, necessity or sufficiency) can be applied, "natural semantic categories [can be viewed as] networks of overlapping attributes" [[parencite:Rosch_1975_family][p.575]].
+# 
+Graded membership of items can hence be explained as "the extent to which they [...] have attributes which overlap those of other members of the category" (ibid.). 
+# 
+The "attributes of other members of the category" can then be abstracted into prototype which consists of the features that are typical of the category (e.g. fruit): 
+# 
+The reason then why olives and tomatoes are /atypical/ fruit is that they lack or have only few fruit features (e.g. sweetness, bright-colored, approximately hand-sized), while these features are strongly present in apples and oranges which therefore receive high typicality values. 
+
+
+# These /feature lists/ can then be used to generate abstractions for each concept by weighing how much each feature was listed for a particular concept. 
+
+*** exemplar vs prototype theory :ignhead:
+
+textcite:Smith_1981_categories and Murphy (citeyear:Murphy_2004_concepts,Murphy_2016_exemplar) refer to these abstractions of feature lists as the /prototype/ theory. 
+# 
+An alternative theory is the /exemplar/ approach. 
+# 
+While both rely on the features of items for categorization, the exemplar approach differs in that it does not assume that abstractions are formed but rather posits that many item instances are stored. 
+# 
+For example, the concept of an orange is then not seen as an abstraction of features, but as the set of objects label as oranges that an individual has encountered so far. 
+# 
+Exemplar theories can explain the limitations of the classical view (in particularly variation in typicality) however the emphasis on specific instances may underestimate the propensity to generalize [[parencite:Markman_1999_representation][p.247]] or provide only limited explanation of induction parencite:Murphy_2016_exemplar. 
+# 
+While there are certainly occasions where people rely on specific instances, the current study focuses on everyday concepts in which I consider generalization as proposed by the prototype view to be more adequate. 
+
+
+*** schema ~currently unclear what level of orange/fruit is~ :ignhead:
+# 
+So far the prototype theory has been presented as a /feature list/ in which features may differentiated by their importance to the concept. 
+# 
+However, some features are difficult to represent coherently in an unstructured list. 
+# 
+For example, the color of a typical fruit can be red or yellow, but less easily both at the same time. 
 #
-To capture such variation, textcite:Murphy_2004_concepts proposes the /schema/ view, a specialization of the prototype view. 
+To capture such variation, textcite:Murphy_2004_concepts proposes the /schema/ view as a specialization of the prototype view (textcite:Markman_1999_representation calls the same approach "structured representation"; here I however refer to this perspective as the schema view).
 # 
-In this view, a concept has a number of dimensions (or slots) in which all possible values are weighted by typicality. 
+In this view, a concept has a number of dimensions (or slots) in which all possible values are weighted by typicality.
 # 
-This notion of typical values can be captured more precisely through the concept of a /probability distribution function/, which specifies the typical probability for each position on a slot. 
+This notion of typical values can be captured more precisely through the concept of a /probability distribution function/, which specifies the probability (typicality) for each position on a slot. 
 # 
 For example, the "color" slot of the concept of fruit displays the highest values for bright colors such as red or yellow whereas darker colors like green or brown receive lower values. 
 # 
 A complete prototype can therefore be conceptualized as a collection of probability functions which for each slot describe typical values. 
+# 
+The contribution of the schema view is hence a refinement of the prototype view as the slots are in many aspects equivalent to features. 
+# 
+Just as it is not necessary that all concepts have the same features, it is not necessary that all have the same slots: 
+# 
+Typicality ratings of a ~category member~ (e.g. apple to fruit) does then depend both on how many slots are "alignable" [[parencite:Markman_1999_representation][p.131]] between the item and the prototype as well how well the probability distributions of these alignable differences coincide.[fn::Schemas also allow the specifications of relations between slots. For example, it is not the entire orange that is edible, but only the pulp. While such specifications allow to describe concepts in much more detail, they require an account of the structure. In terms of everyday concepts, in particular the musical genres investigated in this study, an account of the internal structure beyond features (or their probability distributions) has not yet been developed.]
+
 
 
 # which - given the probabilistic framework that replaced the classical view - can vary in the degree to which they are associated with the concept.
 # 
 # For example, the feature of sweetness may be a highly influential one for the concept of fruit, that of size might be moderately important, and the thickness of the peel might only have limited influence. 
-# maybe add schema stuff here
-Exemplar theory however argues sees concepts as collections of objects. 
-# 
-Each encounter with an object is stored, resulting in large list of objects experiences to which new instances are compared. 
-#
-Recently, textcite:Murphy_2016_exemplar has argued that prototype theory is more adequate in regards to explain phenomena such as conceptual hierarchies (which will be elaborated further), knowledge and induction; I therefore use it primarily. 
+# # maybe add schema stuff here
+# Exemplar theory however argues sees concepts as collections of objects. 
+# # 
+# Each encounter with an object is stored, resulting in large list of objects experiences to which new instances are compared. 
 
-*** concepts = features :ignhead:
+*** concepts = features ~is that relevant?~ :ignhead:
 Additionally, it is relevant to point out that there is no a priori way to distinguish concepts and features   [[parencite:Smith_1981_categories][p.17]]: 
 # 
 The letter "e" can be a feature of a word such as bed, or it can be a concept if it is compared to other letters, the features the being the positions, shapes and angles of the lines that make up each individual 
@@ -180,7 +232,7 @@ Furthermore, there is no "cross-branching" between once separated concept links 
 # 
 An valuable contribution of this perspective is its ability to explain the location of feature values. 
 #
-In particular, it posits that features are only stored at the level of abstraction for which they are relevant, and "passed down" the branches. 
+In particular, it posits that features are only stored at the level of abstraction for which they are relevant, and "passed down" the branches parencite:Collins_1969_retrieval. 
 # 
 For example, it argues that we do not need to store the feature "is alive" for every animal we have a concept of separately, but that the "is alive" feature is stored only once in a general "animal" class which all specific animal concepts inherit. 
 #
