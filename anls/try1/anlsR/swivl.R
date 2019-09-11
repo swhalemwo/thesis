@@ -59,12 +59,12 @@ phreg_mdlr <- function(mdl, d, imprvmnt){
 
 ## * merge data together
 
-res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/schema_xxx/'
+res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/dynamic_drop/'
 res_files = list.files(res_dir)
 
-dfc <- read.csv(paste0(res_dir, res_files[1]))
+dfc <- read.csv(paste0(res_dir, res_files[22]))
 
-for (i in res_files[2:length(res_files)]){
+for (i in res_files[23:length(res_files)]){
     res_fl = paste0(res_dir, i)
     dfx <- read.csv(res_fl)
     dfc <- rbind(dfc, dfx)
@@ -81,45 +81,49 @@ dfc <- dfc_bu
 
 ## * find ded genres
 
-INST_MIN = 20 # instantiation threshold: genre not alive before reaching this point
-NBR_ENTRS = 3 # minimum number of entries
-EMPT_END = 4 # number of period at end in which genre may not appear
+
+## INST_MIN = 20 # instantiation threshold: genre not alive before reaching this point
+## NBR_ENTRS = 3 # minimum number of entries
+## NOT USED BECAUSE CREATING UNDED GNRS
+EMPT_END = 5 # number of period at end in which genre may not appear
 ## if 9 weeks: 4
 ## if 6 weeks: 5
+## since i'm not using NBR_ENTRS, rather be cautious and use 5 for 9 weeks as well
+
+# am I making sure that NBR_ENTRS has occurred /before/ EMPT_END? 
 
 
 dfc$X <- as.factor(dfc$X)
 dfc <- dfc[order(dfc$X, dfc$tp_id),]
 
+## first_equal_to2 = function(x, value) {
+##     result = logical(length(x))
+##     result[match(value, x)] = TRUE
+##     result
+## }
 
-first_equal_to2 = function(x, value) {
-    result = logical(length(x))
-    result[match(value, x)] = TRUE
-    result
-}
+## dfc$thd_bin <- 0
+## dfc[dfc$sz_raw >= INST_MIN,]$thd_bin <- TRUE
 
-dfc$thd_bin <- 0
-dfc[dfc$sz_raw > INST_MIN,]$thd_bin <- TRUE
+## dfc$first_thd <- 0
 
-dfc$first_thd <- 0
+## ## find first time point where genre appears (> INST_MIN)
+## dx <- dfc %>% group_by(X) %>% mutate(first_thd = first_equal_to2(thd_bin, 1))
 
-## find first time point where genre appears (> INST_MIN)
-dx <- dfc %>% group_by(X) %>% mutate(first_thd = first_equal_to2(thd_bin, 1))
+## first_thds <- dx[dx$first_thd,c('X', 'tp_id')]
+## names(first_thds) <- c('X', 'first_tp')
 
-first_thds <- dx[dx$first_thd,c('X', 'tp_id')]
-names(first_thds) <- c('X', 'first_tp')
-
-dx2 <- merge(dx, first_thds, by = 'X')
-dx2$imtur <- 0
-dx2[which(dx2$tp_id < dx2$first_tp),]$imtur <- 1
+## dx2 <- merge(dx, first_thds, by = 'X')
+## dx2$imtur <- 0
+## dx2[which(dx2$tp_id < dx2$first_tp),]$imtur <- 1
 
 ## DELETE IMMATURE? before instantiation
-##
-NEEDS TO BE PUT INTO PYTHON
+## NEEDS TO BE PUT INTO PYTHON
+## seems to be working: no more imturs
 
 ## dx3 <- dx2[-which(dx2$imtur ==1),]
 ## dfc <- dx3
-dfc <- dx2
+## dfc <- dx2
 
 dfc$event <- 0
 
@@ -163,7 +167,11 @@ dfc2$gnr_age2 <- ages2
 
 ## ded_gnrs3 <- paste(c(as.character(ded_gnrs), as.character(usbl_cheese_gnrs)))
 
-ded_gnrs4 <- df_gnrs[df_gnrs$X %in% ded_gnrs & df_gnrs$nb_entrs >= NBR_ENTRS,]$X
+## i think i should not use NBR_ENTRS: unded gnrs are even deader than dead gnrs
+## also no way to find unded gnrs in python because they depend on nbr entries
+## aliveness of a genre at point in time should not depend on status in other times
+
+## ded_gnrs4 <- df_gnrs[df_gnrs$X %in% ded_gnrs & df_gnrs$nb_entrs >= NBR_ENTRS,]$X
 ## ded_gnrs2 <- ded_gnrs
 
 ## dfx <- dfc2[dfc2$X %in% ded_gnrs2,]
@@ -175,7 +183,7 @@ ded_gnrs4 <- df_gnrs[df_gnrs$X %in% ded_gnrs & df_gnrs$nb_entrs >= NBR_ENTRS,]$X
 dfc2$max_tp <- FALSE
 dfc2$max_tp[which(dfc2$tp_id == dfc2$max)] <- TRUE
 
-dfc2$event[dfc2$X %in% ded_gnrs4 & dfc2$max_tp ==TRUE] <- 1
+dfc2$event[dfc2$X %in% ded_gnrs & dfc2$max_tp ==TRUE] <- 1
 
 
 
@@ -185,13 +193,13 @@ dfc2$event[dfc2$X %in% ded_gnrs4 & dfc2$max_tp ==TRUE] <- 1
 ## dfc2 <- dfc2_bu
 
 ## delete undead genres
-unded_gnrs <- ded_gnrs[ded_gnrs %!in% ded_gnrs4]
-len(unded_gnrs)
+## unded_gnrs <- ded_gnrs[ded_gnrs %!in% ded_gnrs4]
+## len(unded_gnrs)
 
-if (len(unded_gnrs) > 0){
-    print('adsf')
-    dfc2 <- dfc2[-which(dfc2$X %in% unded_gnrs),]
-}
+## if (len(unded_gnrs) > 0){
+##     print('adsf')
+##     dfc2 <- dfc2[-which(dfc2$X %in% unded_gnrs),]
+## }
 
 dfc2 <- dfc2[dfc2$tp_id <= max(dfc2$tp_id)-EMPT_END,]
 
@@ -256,10 +264,6 @@ dfc2$cohrt_rel_sz <- log(dfc2$volm/dfc2$cohrt_med)
 ## ** legitimation
 dfc2$leg <- log(dfc2$prnt_plcnt)
 
-## *** no logs
-
-## dfc2$leg <- dfc2$prnt_plcnt
-
 ## ** density
 
 dfc2$dens_vol <- log(dfc2$cohrt_vol_sum)
@@ -270,9 +274,6 @@ dfc2$dens_len_sqrd <- dfc2$dens_len^2
 
 ## dfc2$dens_vol_sqrd <- log(dfc2$cohrt_vol_sum^2)
 
-## *** no logs
-
-## dfc2$dens_vol <- dfc2$cohrt_vol_sum
 
 ## ** size
 
@@ -283,8 +284,6 @@ dfc2$new_rlss <- log(dfc2$nbr_rlss_tprd+1)
 
 dfc2$avg_weight_rel_wtd <- dfc2$avg_weight_rel_wtd
 ctrl_vars <- c('avg_weight_rel_wtd', 'cos_sims_mean_wtd', 'gnr_gini', 'avg_age', 'sz', 'new_rlss', 'gnr_age2')
-
-
 
 ## keep cos_sims_mean_wtd as control, would have to come up with proper theory
 
@@ -309,15 +308,17 @@ not_scale <- c('gnr_age2')
 
 dfc3 <- dfc2[0,all_vars]
 
-for (i in unique(dfc2$tp_id)){
-    dfc3_prep <- as.data.frame(scale(dfc2[which(dfc2$tp_id == i),all_vars[all_vars %!in% not_scale]], center=TRUE,
-                                     scale = apply(dfc2[which(dfc2$tp_id == i),all_vars[all_vars %!in% not_scale]],
-                                                   2, sd, na.rm = T)))
+## for (i in unique(dfc2$tp_id)){
+##     dfc3_prep <- as.data.frame(scale(dfc2[which(dfc2$tp_id == i),all_vars[all_vars %!in% not_scale]], center=TRUE,
+##                                      scale = apply(dfc2[which(dfc2$tp_id == i),all_vars[all_vars %!in% not_scale]],
+##                                                    2, sd, na.rm = T)))
                                
-    dfc3_prep2 <- cbind(dfc3_prep, dfc2[which(dfc2$tp_id == i),c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
-    dfc3 <- rbind(dfc3, dfc3_prep2)
-}
- 
+##     dfc3_prep2 <- cbind(dfc3_prep, dfc2[which(dfc2$tp_id == i),c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
+##     dfc3 <- rbind(dfc3, dfc3_prep2)
+## }
+
+dfc3_prep <- scale(dfc2[,c(all_vars[all_vars %!in% not_scale])])
+dfc3 <- cbind(dfc3_prep, dfc2[, c('X', 'tp_id', 'tp_id2', 'event', not_scale)])
 
 
 ## ** descriptives
@@ -399,39 +400,39 @@ dv <- 'Surv(tp_id, tp_id2, event)'
 
 ctrl_vars_cbnd <- paste(ctrl_vars, collapse = ' + ')
 f_ctrl <- as.formula(paste(c(dv, ctrl_vars_cbnd), collapse = ' ~ '))
-fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
+fit_ctrl <- phreg(f_ctrl, data=dfc3, cuts = seq(min(dfc3$tp_id)+1,max(dfc3$tp_id)),dist = 'pch')
 res_ctrl <- phreg_mdlr(fit_ctrl, d, None)
 
 
 v_inf1 <- paste(c(ctrl_vars_cbnd, 'inftns'), collapse = ' + ')
 f_inf1 <- as.formula(paste(c(dv, v_inf1) , collapse = ' ~ ' ))
-fit_inf1 <- phreg(f_inf1, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
+fit_inf1 <- phreg(f_inf1, data=dfc3, cuts = seq(min(dfc3$tp_id)+1,max(dfc3$tp_id)),dist = 'pch')
 res_inf1 <- phreg_mdlr(fit_inf1, d, None)
 ## screenreg(res_inf1)
 
 v_inf2 <- paste(c(ctrl_vars_cbnd, 'inftns', 'inftns_sqrd'), collapse = ' + ')
 f_inf2 <- as.formula(paste(c(dv, v_inf2) , collapse = ' ~ ' ))
-fit_inf2 <- phreg(f_inf2, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
+fit_inf2 <- phreg(f_inf2, data=dfc3, cuts = seq(min(dfc3$tp_id)+1,max(dfc3$tp_id)),dist = 'pch')
 res_inf2 <- phreg_mdlr(fit_inf2, d, None)
 ## screenreg(res_inf2)
 
 
 v_inf3 <- paste(c(ctrl_vars_cbnd, 'disctns'), collapse = ' + ')
 f_inf3 <- as.formula(paste(c(dv, v_inf3) , collapse = ' ~ ' ))
-fit_inf3 <- phreg(f_inf3, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
+fit_inf3 <- phreg(f_inf3, data=dfc3, cuts = seq(min(dfc3$tp_id)+1,max(dfc3$tp_id)),dist = 'pch')
 res_inf3 <- phreg_mdlr(fit_inf3, d, None)
 ## screenreg(res_inf3)
 
 
 v_inf4 <- paste(c(ctrl_vars_cbnd, 'inftns', 'inftns_sqrd', 'disctns'), collapse = ' + ')
 f_inf4 <- as.formula(paste(c(dv, v_inf4) , collapse = ' ~ ' ))
-fit_inf4 <- phreg(f_inf4, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
+fit_inf4 <- phreg(f_inf4, data=dfc3, cuts = seq(min(dfc3$tp_id)+1,max(dfc3$tp_id)),dist = 'pch')
 res_inf4 <- phreg_mdlr(fit_inf4, d, None)
 
 
 v_inf5 <- paste(c(ctrl_vars_cbnd, 'inftns', 'inftns_sqrd', 'disctns', 'dens_vol', 'dens_vol_sqrd', 'dens_len', 'dens_len_sqrd', 'leg'), collapse = ' + ')
 f_inf5 <- as.formula(paste(c(dv, v_inf5) , collapse = ' ~ ' ))
-fit_inf5 <- phreg(f_inf5, data=dfc3, cuts = seq(1,max(dfc3$tp_id)),dist = 'pch')
+fit_inf5 <- phreg(f_inf5, data=dfc3, cuts = seq(min(dfc3$tp_id)+1,max(dfc3$tp_id)),dist = 'pch')
 res_inf5 <- phreg_mdlr(fit_inf5, d, None)
 
 
@@ -585,21 +586,29 @@ fit2 <- glm(event ~ parity + ses + years + offset(offs), family = poisson, data 
                
 ## chapter 6
 dfc3$tp_id3 <- as.factor(dfc3$tp_id)
+library(glmmML)
 
-fitx <- glmmML(event ~ inftns + inftns_sqrd + disctns + sz + gnr_age + tp_id3, family = poisson, data = dfc3, cluster = X, method = 'ghq', n.points = 20)
+fitx <- glmmML(event ~ inftns + inftns_sqrd + disctns + sz + gnr_age2 + tp_id3, family = poisson, data = dfc3, cluster = X, method = 'ghq', n.points = 20)
+summary(fitx)
 ## gives all kind of errors
+## doesn't like tp_id3 i think
 
-fitx2 <- pglm(event ~ inftns + inftns_sqrd + disctns + sz + gnr_age + tp_id3,
+library(pglm)
+
+fitx2 <- pglm(event ~ inftns + inftns_sqrd + disctns + sz + gnr_age2 + tp_id3,
               family = poisson,
               data = dfc3, index = "X",
               model = 'within')
 
-fitx3 <- coxme(Surv(tp_id, tp_id2, event) ~ inftns + inftns_sqrd + disctns + sz + gnr_age + tp_id3 + (1 | X), data = dfc3)
+summary(fitx2)
+
+library(coxme)
+fitx3 <- coxme(Surv(tp_id, tp_id2, event) ~ inftns + inftns_sqrd + disctns + sz + gnr_age2 + tp_id3 + (1 | X), data = dfc3)
 ## mean(fitx3$frail$X[names(fitx3$frail$X)  %in% ded_gnrs4])
 ## frailty differs ginormously between those that died and those that didn't
 ## sounds like hell of a lot of unexplained variance
 
-fitx4 <- coxph(Surv(tp_id, tp_id2, event) ~ inftns + inftns_sqrd + disctns + sz + gnr_age, data = dfc3)
+fitx4 <- coxph(Surv(tp_id, tp_id2, event) ~ inftns + inftns_sqrd + disctns + sz + gnr_age2, data = dfc3)
 cox.zph(fitx4)
 
 fitx5 <- coxph(f_ctrl, data = dfc3)
@@ -611,13 +620,14 @@ cox.zph(fitx5)
 
 
 fitx6 <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel_wtd + cos_sims_mean_wtd + 
-    gnr_gini + avg_age + sz + new_rlss + gnr_age + inftns + inftns_sqrd + 
+    gnr_gini + avg_age + sz + new_rlss + inftns + inftns_sqrd + 
     disctns + dens_vol + dens_vol_sqrd + dens_len + dens_len_sqrd + 
-    leg + frailty(X), data=dfc3)
+    leg  + gnr_age2 + frailty(X), data=dfc3)
 screenreg(fitx6)
-
+cox.zph(fitx6)
 
 res <- cox.zph(fitx6)
+plot(res)
 
 ## ** replicate phreg with glm
 
