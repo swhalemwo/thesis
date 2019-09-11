@@ -128,8 +128,7 @@ concept and categories as co-constitutive
 duality
 
 
-
-*** prototypes vs exemplars :ignhead:
+*** feature overlap -> typicality :ignhead:
 
 For this purpose, textcite:Rosch_1975_family consider the /attributes/ that the different concepts (e.g. different fruits) are associated with: 
 # 
@@ -148,7 +147,6 @@ Graded membership of items can hence be explained as "the extent to which they [
 The "attributes of other members of the category" can then be abstracted into prototype which consists of the features that are typical of the category (e.g. fruit): 
 # 
 The reason then why olives and tomatoes are /atypical/ fruit is that they lack or have only few fruit features (e.g. sweetness, bright-colored, approximately hand-sized), while these features are strongly present in apples and oranges which therefore receive high typicality values. 
-
 
 # These /feature lists/ can then be used to generate abstractions for each concept by weighing how much each feature was listed for a particular concept. 
 
@@ -201,59 +199,63 @@ Typicality ratings of a ~category member~ (e.g. apple to fruit) does then depend
 # # 
 # Each encounter with an object is stored, resulting in large list of objects experiences to which new instances are compared. 
 
-*** concepts = features ~is that relevant?~ :ignhead:
-Additionally, it is relevant to point out that there is no a priori way to distinguish concepts and features   [[parencite:Smith_1981_categories][p.17]]: 
-# 
-The letter "e" can be a feature of a word such as bed, or it can be a concept if it is compared to other letters, the features the being the positions, shapes and angles of the lines that make up each individual 
-letter. 
-# 
 
 
 ** Relations between Concepts
-*** Hierarchical Relations: tree structure bad :ignhead:
-# add references? 
 Concepts are not just relevant in terms of their features, but also in terms of their relation to other concepts. 
 #
 One way in which concepts can be considered to be linked is by their degree of abstraction:
 # 
-"Animals" for example refers to a much more general category than does "mammals", while "dogs" and "cats" are even more specific concepts. 
-#
-What is however less obvious is the relations between these concepts at different levels of abstraction. 
+The concepts "fruit", "apple" or "Granny Smith" can all refer to the same object, however the concepts differ in their degree of specificity. 
 # 
-The example of a species taxonomy shows a well ordered hierarchical structure that represents a tree parencite:Collins_1969_retrieval. 
+The question hence arises how these different levels of abstraction are related to each other.[fn::the question which level is used in everyday life is a separate question which is discussed by [[textcite:Murphy_2004_concepts][p.197]].]
 # 
+
+*** Hierarchical Relations: tree structure bad ~necessary? Stick with fruits?~ :ignhead:
+# add references? 
+
+# "Animals" for example refers to a much more general category than does "mammals", while "dogs" and "cats" are even more specific concepts. 
+# #
+# What is however less obvious is the relations between these concepts at different levels of abstraction. 
+# 
+# The example of a species taxonomy shows a well ordered hierarchical structure that represents a tree parencite:Collins_1969_retrieval. 
+# 
+
 In such a model, a general concept stem branches out into a few sub-concepts, which in turn are the basis for even more fine-grained twig-like concepts. 
 #
 At each level, a concept has one (and only one) superordinate concept from which it inherits features.
 # 
-Category memberships is therefore transitive as all dogs and cats are both mammals well as animals, and all mammals are animals. 
+Category memberships is therefore transitive as all Granny Smiths and ~Elstars~ are both apples as  well as fruits, and all apples are fruit. 
 #
-Furthermore, there is no "cross-branching" between once separated concept links as no "cat" is also a member of the "fish" category. 
+Furthermore, there is no "cross-branching" between once separated concept links as no apple is also a member of the "vegetable" category. 
 # 
 An valuable contribution of this perspective is its ability to explain the location of feature values. 
 #
 In particular, it posits that features are only stored at the level of abstraction for which they are relevant, and "passed down" the branches parencite:Collins_1969_retrieval. 
 # 
-For example, it argues that we do not need to store the feature "is alive" for every animal we have a concept of separately, but that the "is alive" feature is stored only once in a general "animal" class which all specific animal concepts inherit. 
+For example, it argues that we do not need to store the feature "is edible" for every fruit we have a concept of separately, but that the "is edible" feature is stored only once in a general "fruit" class which all specific fruit concepts inherit. 
 #
 However, this model has the substantial requirement of explicitly stored links between different levels to allow concepts to retrieve features of their superordinates. 
 # 
-While such hierarchical structure is a computationally efficient way of storing information, it is also very rigid, which raises the question if such a structure would be flexible enough for everyday uses. [fn::The scholars most associated with the taxonomic feature structure, textcite:Collins_1969_retrieval seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (p.242, also see [[textcite:Quillian_1966_memory][p.6]] and [[textcite:Quillian_1988_memory][p.88]]). However this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts from characterizing the tree model as a /general/ model of conceptual structure. It seems to me that such characterization might be motivated by different topics of interest, such as explicitly institutionalized classification systems in the former contrasted against flexible categorization in everyday life in the latter.]
+While such hierarchical structure is a computationally efficient way of storing information ([[textcite:Markman_1999_representation][p.93]] in fact argues that the limited processing power in the 1950s and 1960s constituted a technical constraint which turned the practical issue of efficient information storage into a theoretical consideration), it is also by definition rather rigid, which raises the question if such a structure would be flexible enough for everyday uses. [fn::The scholars most associated with the taxonomic feature structure, textcite:Collins_1969_retrieval seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (p.242, also see [[textcite:Quillian_1966_memory][p.6]] and [[textcite:Quillian_1988_memory][p.88]]). However this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts from characterizing the tree model as a /general/ model of conceptual structure. It seems to me that such characterization might be motivated by different topics of interest, such as explicitly institutionalized classification systems in the former contrasted against flexible categorization in everyday life in the latter.]
 #
 
 # caution is advised in the judgment of how far such well-orderedness is generally applicable
 
 *** computational :ignhead:
-textcite:Murphy_2004_concepts in particular provides two main reasons against explicitly stored hierarchical linkages. 
+textcite:Murphy_2004_concepts in particular provides three main reasons against explicitly stored hierarchical linkages. 
 # 
 First, typicality effects are present in hierarchical links as well (p.208). 
 # 
 Judgments for typical items are generally stronger or faster, whether they concern membership ("a robin is a bird" is evaluated faster as "a penguin is a bird") or feature inference ("birds have an ulnar artery, therefore robins have an ulnar artery" is rated more believable as "birds have an ulnar artery, therefore penguins have an ulnar artery"). 
-#
+# 
 Secondly, transitivity violations give raise doubts to how strictly membership is passed downwards the branch: 
 #
 While respondents agree that seats are furniture, and car seats are seats, they deny that car seats are furniture (p.207). 
 #
+Third, in some occasions statements that would require multiple paths to be traversed are evaluated faster than statements that require less paths.
+# 
+For example, the statement "a dog is an animal" can be faster validated than the statement ("a dog is a mammal"), although the hierarchical tree would posit the opposite as the former statement requires more paths to be traveled. 
 
 *** overlap 
 Due to these arguments that question the existence of stored explicit links between different levels of abstraction, he argues that instead hierarchical relationships are computed on the spot due to feature overlap (p.207). 
@@ -267,14 +269,19 @@ Feature overlap can then explain the phenomena that pose problems for the pre-st
 As robins are more typical birds than penguins, inferences between the a typical concept and its superordinate flow easier as it resembles the prototype stronger than an atypical one. 
 # 
 Similarly, while car seats share some features with furniture and some with car seats, car seats and furniture do have a substantial feature overlap, resulting in the rejection of membership of the former in the latter. 
-
-
-*** dimensionality: ~not clear if fits properly here~ :ignhead:
-In this line of thought, two concepts are in a hierarchical relationship if the features of the more general one are a subset of the more specific one. 
 # 
-This may at first seem unintuitive, but is in fact plausible when considering that more features imply higher specificity. 
+Additionally, the animal concept may be more familiar than the more technical mammal concept, ~resulting in greater feature overlap (does not follow~).
+
+*** hierarchy conclusion
 # 
-The concept of mammals, for example, is characterized by more detailed features than the more general concept of animals, or as textcite:Hannan_2019_concepts describe, "The dimensionality of the semantic space of a subconcept is larger that of the parent concept" (p.65). 
+There thus are substantial reasons to prefer the computational view of hierarchical structure. 
+# 
+A certain similarity of /feature matching/ can be seen as the basis of both concept typicality and concept structure. 
+# 
+As this approach rejects predetermined concept meaning (in terms of definitions) and pre-stored hierarchical structure, it highlights the flexibility and improvisation that characterize everyday life. [fn::This is not to say that this approach is nearly complete, as it in particular lacks relations between features and context effects, as well as an account of the actual process of  feature matching parencite:Medin_1993_respects. Nevertheless, it provides a useful approach to investigate conceptual structure.]
+
+ between concept meaning in terms of features and conceptual structure can thus be seen as neither are fixed a priori and 
+
 
 *** asymmetry :ignhead:
 These considerations lead to another important aspect of the relations between concepts, namely asymmetry.
@@ -655,9 +662,9 @@ This step was implemented to exclude 'artist-genres' where last.fm users (or per
 ** Hierarchy construction
 # 
 *** KLD :ignhead:
-While by now we have estimated the musicological content of all genres, this does not yet result in knowledge about their hierarchical structure. 
+While by now I have estimated the musicological content of all genres, this does not yet result in knowledge about their hierarchical structure. 
 #
-To infer such a asymmetric relationships, I combine the observation by [[textcite:Smith_1981_categories][p.118]] that a concept is rated most similar to its superordinate with the recommendation of textcite:Hannan_2019_concepts to use the Kullback-Leibler Divergence as measurement of informativeness (the measure of how much a subordinate differs from its superordinate).
+To infer such a asymmetric relationships, I combine the observation by [[textcite:Smith_1981_categories][p.118]] as well as textcite:Tversky_1986_neighbor that a concept is rated most similar to its superordinate with the recommendation of textcite:Hannan_2019_concepts to use the Kullback-Leibler Divergence as measurement of informativeness (the measure of how much a subordinate differs from its superordinate).
 # 
 The Kullback Leibler Divergence (KLD) in turn is defined as 
 \begin{equation*}
