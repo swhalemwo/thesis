@@ -224,7 +224,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
 
     
     # try to work in usrs count
-    # usr_dedcgs: user dedication: how many unique songs a user needs to be counted as listening to it
+    # usr_dedcgs: user dedication: how many unique songs a user needs to have to be counted as listening to it
     # unq_usrs: how many users a genre needs to be considered
     # maybe add something like playcount? 
     # is a bit tempting to add all the user information tbh
@@ -265,10 +265,10 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
         ) USING abbrv
 
         GROUP BY (usr, tag)
-        HAVING usr_dedcgs > 2 AND tag_plcnt > 8
+        HAVING usr_dedcgs > 4 AND tag_plcnt > 9
         
     ) GROUP BY tag
-    HAVING unq_usrs > 10
+    HAVING unq_usrs > 14
     """
 
 

@@ -949,7 +949,9 @@ def dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int):
 # * higher level  management functions
 
 def gnr_t_prds(tdlt):
-    time_start = datetime.date(datetime(2006,1,1))
+    # time_start = datetime.date(datetime(2006,1,1))
+    time_start = datetime.date(datetime(2009,9,1))
+
     # period_end = datetime.date(datetime(2012,12,20))
     period_end = datetime.date(datetime(2013,1,24))
 
@@ -1029,8 +1031,8 @@ def ptn_proc(ptn):
 
 
     print('construct kld mat')
-    ar_cb = kld_schema_mp(vrbls, acst_mat, nbr_cls)
-    # ar_cb = kld_mat_crubgs(gnrs, acst_mat)
+    # ar_cb = kld_schema_mp(vrbls, acst_mat, nbr_cls)
+    ar_cb = kld_mat_crubgs(gnrs, acst_mat)
 
 
     print('construct kld 3 parent edgelist')
@@ -1195,7 +1197,7 @@ def ptn_eval(ptns, ptn_obj_dict):
 # * actual program
 
 if __name__ == '__main__':
-    time_periods = gnr_t_prds(7*3*3)
+    time_periods = gnr_t_prds(7*3*2)
 
     res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
     print('set parameters')
