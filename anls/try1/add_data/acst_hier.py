@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import itertools
 from multiprocessing import Pool
 from functools import partial
+import argparse
+
 
 import os
 import operator
@@ -950,10 +952,10 @@ def dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int):
 
 def gnr_t_prds(tdlt):
     # time_start = datetime.date(datetime(2006,1,1))
-    time_start = datetime.date(datetime(2009,9,1))
+    time_start = datetime.date(datetime(2008,9,1))
 
     # period_end = datetime.date(datetime(2012,12,20))
-    period_end = datetime.date(datetime(2013,1,24))
+    period_end = datetime.date(datetime(2012,9,30))
 
     # tdlt = 28
 
@@ -981,6 +983,7 @@ def ptn_proc(ptn):
     print('construct dfc')
     dfc = get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
                   min_unq_artsts, max_propx1, max_propx2, d1, d2, ptn,
+                  usr_dedcgs, tag_plcnt, unq_usrs,
                   client, pd)
 
 
@@ -1005,7 +1008,7 @@ def ptn_proc(ptn):
     
     # genre counts as established if size >= 20
     # once established, keeps on counting even if atm not fulfilling the criteria
-    est_gnrs = [[i, tp_id] for i in gnrs if sz_dict[i] >= 20]
+    est_gnrs = [[i, tp_id] for i in gnrs if sz_dict[i] >= min_inst_cnt]
     
     with open(res_dir + debug_file, 'a') as fo:
         wr = csv.writer(fo)
@@ -1026,6 +1029,7 @@ def ptn_proc(ptn):
     # for gf in non_staeb_gnrs:
     #     acst_gnr_dict.pop(gf)
     #     sz_dict.pop
+    print('construct acst mat')
 
     acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls)
 
@@ -1197,18 +1201,72 @@ def ptn_eval(ptns, ptn_obj_dict):
 # * actual program
 
 if __name__ == '__main__':
-    time_periods = gnr_t_prds(7*3*2)
+        
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file', type=argparse.FileType('r'))
+    args = parser.parse_args()
+    x = args.file.readlines()
+    
+    arg_dict = {}
+    print(x)
 
-    res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
+    for i in x:
+        i2 = i.split('=')
+        arg = i2[0]
+        typ = i2[1]
+        
+        if '\n' in i2[2]:
+            vlu_raw = i2[2][0:len(i2[2])-1]
+        else:
+            vlu_raw = i2[2]
+        
+        if typ == 'int':
+            vlu = int(vlu_raw)
+        if typ == 'float':
+            vlu = float(vlu_raw)
+        if typ == 'str':
+            vlu = vlu_raw
+        
+        arg_dict[arg] = vlu
+
+    print(arg_dict)
     print('set parameters')
-    min_cnt = 8
-    min_weight = 20
-    min_rel_weight = 0.1
-    min_tag_aprnc = 15
-    min_unq_artsts = 8
+
+
+    # res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
+    # nr_wks = 6
+    # min_cnt = 8
+    # min_weight = 20
+    # min_rel_weight = 0.1
+    # min_tag_aprnc = 15
+    # min_inst_cnt = 20
+    # min_unq_artsts = 8
+    # max_propx1 = 0.5
+    # max_propx2 = 0.7
+    # ptn = '_all'
+    # usr_dedcgs = 4
+    # tag_plcnt = 9
+    # unq_usrs = 14
+
+    res_dir = arg_dict['res_dir']
+    nr_wks = arg_dict['nr_wks']
+    min_cnt = arg_dict['min_cnt']
+    min_weight = arg_dict['min_weight']
+    min_rel_weight = arg_dict['min_rel_weight']
+    min_tag_aprnc = arg_dict['min_tag_aprnc']
+    min_inst_cnt = arg_dict['min_inst_cnt']
+    min_unq_artsts = arg_dict['min_unq_artsts']
+    usr_dedcgs = arg_dict['usr_dedcgs']
+    tag_plcnt = arg_dict['tag_plcnt']
+    unq_usrs = arg_dict['unq_usrs']
+
     max_propx1 = 0.5
     max_propx2 = 0.7
     ptn = '_all'
+
+
+    time_periods = gnr_t_prds(7*nr_wks)
+    print(time_periods[0], time_periods[-1], len(time_periods))
 
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
@@ -1229,26 +1287,7 @@ if __name__ == '__main__':
         tp_id = time_periods.index(tprd)
         tp_clm = d1 + ' -- ' + d2
 
-        
-        
-        # CREATE PARTITIONS
-        # min_usr_cnt = 25
-        # song has to be listened to by at least that many users
-        # min_usr_plcnt = 50
-        # user has to play at least that many (unique) songs (which in turn have at least min_usr_cnt
-
-        # d1 = str(time_periods[0][0])
-        # d2 = str(time_periods[-1][1])
-        # ptn_vars = " ".join([str(i) for i in [d1, d2, min_cnt, min_usr_cnt, min_usr_plcnt]])
-        # ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
-        # os.system(ptn_str)
-
-        # ptn_str = 'python3.6 ptn_lda2.py ' + d1 + ' ' + d2
-        # os.system(ptn_str)
-
-        # ptns = list(range(5))
         ptns = ['_all']
-        
         ptn_obj_dict = {}
         client = Client(host='localhost', password='anudora', database='frrl')
 
@@ -1728,7 +1767,7 @@ if __name__ == '__main__':
 # v2 = acst_mat[gnr_ind['jazz']]
 
 # vlus = []
-l# for vrbl in vrbls: 
+# for vrbl in vrbls: 
 #     rel_cols = np.where(np.array(vrbl_vec) == vrbl)[0]
 #     v1_mod = v1[rel_cols]
 #     v2_mod = v2[rel_cols]
@@ -1770,4 +1809,21 @@ l# for vrbl in vrbls:
 # print('construct acoustic mat')
 # acst_mat = acst_arfy(el_ttl, vrbls, 3, gnrs, nbr_cls)
 
-    
+# ** clean up actual program partition stuff
+
+# CREATE PARTITIONS
+# min_usr_cnt = 25
+# song has to be listened to by at least that many users
+# min_usr_plcnt = 50
+# user has to play at least that many (unique) songs (which in turn have at least min_usr_cnt
+
+# d1 = str(time_periods[0][0])
+# d2 = str(time_periods[-1][1])
+# ptn_vars = " ".join([str(i) for i in [d1, d2, min_cnt, min_usr_cnt, min_usr_plcnt]])
+# ptn_str = 'python3.6 ptn_lda.py ' + ptn_vars
+# os.system(ptn_str)
+
+# ptn_str = 'python3.6 ptn_lda2.py ' + d1 + ' ' + d2
+# os.system(ptn_str)
+
+# ptns = list(range(5))

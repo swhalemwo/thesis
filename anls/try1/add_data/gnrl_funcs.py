@@ -13,6 +13,7 @@ def weighted_avg_and_std(values, weights):
 
 def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
             min_unq_artsts, max_propx1, max_propx2, d1, d2, ptn,
+            usr_dedcgs, tag_plcnt, unq_usrs,
             client, pd):
     # still has to be adopted to be able to accommodate time slices
     # wonder if the subsequent sorting can result in violations again?
@@ -28,6 +29,10 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     max_propx1: maximum percentage of songs in a genre by the largest artist
     max_propx2: maximum volume (rel_weight * cnt) in genre by largest artist
     ptn: partition in usrsNk/ptn
+    usr_dedcgs: usr dedication: how many unique songs of genre usr needs to listen to be counted as listener
+    tag_plcnt: how large playcount of genre has to be for user to be counted as listener
+    unq_usrs: how many dedicated users genre has to have to be considered
+
     """
 
     # ptn = 1
@@ -265,11 +270,15 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
         ) USING abbrv
 
         GROUP BY (usr, tag)
-        HAVING usr_dedcgs > 4 AND tag_plcnt > 9
+        HAVING usr_dedcgs > """ + str(usr_dedcgs) + """ AND tag_plcnt > """ + str(tag_plcnt) + """
         
     ) GROUP BY tag
-    HAVING unq_usrs > 14
-    """
+    HAVING unq_usrs > """ + str(unq_usrs)
+
+    # harsh: 
+    # usr_dedcgs: 4
+    # tag_plcnt: 9
+    # unq_usrs: 14
 
 
     int_sec_all2 = """
