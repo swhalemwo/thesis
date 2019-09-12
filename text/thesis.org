@@ -1,4 +1,3 @@
-
 #+latex_class: article_usual2
 # erases make title
 # #+BIND: org-export-latex-title-command ""
@@ -206,12 +205,12 @@ Concepts are not just relevant in terms of their features, but also in terms of 
 #
 One way in which concepts can be considered to be linked is by their degree of abstraction:
 # 
-The concepts "fruit", "apple" or "Granny Smith" can all refer to the same object, however the concepts differ in their degree of specificity. 
+The concepts "fruit", "apple" or "Elstar" can all refer to the same object, however the concepts differ in their degree of specificity. 
 # 
 The question hence arises how these different levels of abstraction are related to each other.[fn::the question which level is used in everyday life is a separate question which is discussed by [[textcite:Murphy_2004_concepts][p.197]].]
 # 
 
-*** Hierarchical Relations: tree structure bad ~necessary? Stick with fruits?~ :ignhead:
+*** Hierarchical Relations: tree structure bad ~necessary?~ :ignhead:
 # add references? 
 
 # "Animals" for example refers to a much more general category than does "mammals", while "dogs" and "cats" are even more specific concepts. 
@@ -225,7 +224,7 @@ In such a model, a general concept stem branches out into a few sub-concepts, wh
 #
 At each level, a concept has one (and only one) superordinate concept from which it inherits features.
 # 
-Category memberships is therefore transitive as all Granny Smiths and ~Elstars~ are both apples as  well as fruits, and all apples are fruit. 
+Category memberships is therefore transitive as all Elstars and Jonagolds are apples as well as fruits, and all apples are fruit. 
 #
 Furthermore, there is no "cross-branching" between once separated concept links as no apple is also a member of the "vegetable" category. 
 # 
@@ -278,45 +277,64 @@ There thus are substantial reasons to prefer the computational view of hierarchi
 # 
 A certain similarity of /feature matching/ can be seen as the basis of both concept typicality and concept structure. 
 # 
-As this approach rejects predetermined concept meaning (in terms of definitions) and pre-stored hierarchical structure, it highlights the flexibility and improvisation that characterize everyday life. [fn::This is not to say that this approach is nearly complete, as it in particular lacks relations between features and context effects, as well as an account of the actual process of  feature matching parencite:Medin_1993_respects. Nevertheless, it provides a useful approach to investigate conceptual structure.]
+As this approach rejects predetermined concept meaning (in terms of definitions) and pre-stored hierarchical structure, it highlights the flexibility and improvisation characteristic of everyday life. [fn::This is not to say that this approach is nearly complete, as it in particular lacks relations between features and context effects, as well as an account of the actual process of  feature matching parencite:Medin_1993_respects. Nevertheless, it provides a solid grounding to investigate conceptual structure.]
 
  between concept meaning in terms of features and conceptual structure can thus be seen as neither are fixed a priori and 
 
+** Spatial models
+~is it clear that distance = similarity?~ 
+*** content
+Next to feature based approaches that view "natural semantic categories [as] networks of overlapping attributes" [[parencite:Rosch_1975_family][p.575]], an alternative exists in the form of /spatial models/. 
+# 
+These approaches argue that the features create a semantic space, in which concepts are located as points parencite:Rips_1973_semantic,Shepard_1962_mds1 or regions parencite:Ashby_1988_unified,Hannan_2019_concepts (sometimes the phrase "space" or "spatial" is used metaphorically; here I focus on theories that explicitly utilize spatial properties to model concept structure). 
+#
+This assumption may seem negligible, it however results in far-reaching consequences, both theoretical and measurement-wise.
+# 
+For concepts to be located in a space, they need to have the same properties.
+# 
+While this seems theoretically hard to justify from the perspective of textcite:Wittgenstein_1968_investigations and textcite:Rosch_1975_family, these are of less influence and do not pose a practical problem if it is not features that are known, but pairwise similarity judgments, measurement of stimuli confusion or measures of word similarity based on co-occurence with other words. 
+# 
+In this case, multidimensional scaling can be used to find latent dimensions that (nearly) explain the dissimilarities, confusion ratios or similarities. 
+# 
+textcite:Rothkopf_1957_similarity finds morse code confusion to be structured by length and relative number of short and long tones, and textcite:Rips_1973_semantic find similarity ratings between birds to be based on size and ferocity. 
+# 
 
-*** asymmetry :ignhead:
-These considerations lead to another important aspect of the relations between concepts, namely asymmetry.
-#
-Hierarchical relations can obviously not be symmetric as a concept can not be both subordinate and superordinate to another concept at the same time. 
-#
-Yet given the general mechanism of feature overlap, judgments are also not necessarily symmetric between concepts at the same level. 
-#
-textcite:Tversky_1977_similarity finds for example that North Korea is rated more similar to China than China is to North Korea. 
+*** limitations points
+While such scaling approaches can provide insights (although one might speculate that the illustrative power has also contributed to their success), as a general theory of concept structure they entail limitations. 
 # 
-From a perspective of feature overlap perspective this is expected as the more prototypical China can be better resembled by the variant North Korea than vice versa. 
+For one, as scaling solutions generally only result in a low number of interpretable dimensions [[parencite:Markman_1999_representation][p.43]], which generally do not include shared features (for example in the case of birds the fact that birds have wings, beaks and generally fly).
 #
-Additionally, triangle inequality is not necessarily adhered: 
+Furthermore, textcite:Tversky_1977_similarity has argued that similarity judgments do often violate metric assumptions of spaces such as symmetry and triangle inequality. 
 # 
-With symmetric distances, the distance between two points can not be larger than sum of distances of both to a third point. 
+Symmetry posits that the similarity is independent of direction, however North Korea is rated more similar to China than China is to North Korea. 
 # 
-In the case of feature overlap, this does not hold, which textcite:Tversky_1977_similarity shows in the case of Jamaica, Cuba and Russia. 
-#
-Jamaica and Cuba are rated fairly similar due to their common feature of being located in the Caribbean, as are Cuba and Russia due to their (at the time) shared political system. 
+Triangle inequality demands that the distance between two points cannot be larger that the sum of the distances between each of the two points and a third point, which however does not hold for similarity ratings between Jamaica, Cuba and Russia: 
 # 
-Jamaica and Russia however are not considered similar at all, and in particular are more distant than the sum of distances between Jamaica and Cuba and Cuba and Russia. 
-#
+Both Jamaica and Cuba as well as Cuba and Russia are rated fairly similar, Jamaica and Russia are however rated less similar as would be admissible under the assumption of triangle inequality; positioning them as points in a metric space can therefore not adequately represent similarity ratings (additional more technical limitations of the view of concepts as points in metric spaces is given by best fitting distance metrics parencite:Tversky_1982_similarity,Gati_1982_dimensions and nearest neighbor analysis cite:Tversky_1986_neighbor).
+# 
 
-*** concept represenation implications ~not clear if relevant~:ignhead:
-These considerations have substantial implications for the models used to represent concepts. 
+*** limitation probability densities
 #
-They can for example hardly be represented as points in a metric space, as this form of representation assumes symmetry and triangle inequality parencite:Smith_1981_categories,Tversky_1977_similarity. 
-#
-textcite:Steyvers_2005_structure evaluate different models and suggest networks as better suited alternative. 
-#
-It is worth pointing out that the hierarchical trees discussed earlier are also forms of networks, albeit very rigid ones as they do not permit interaction between separated branches. 
-#
-textcite:Hannan_2019_concepts suggest to loosen this constraint and instead model conceptual networks as semi-lattices (p.68), which allows cross-branching. 
-#
-Concepts can therefore be members of multiple superordinates, in the case of which they constitute hybrids, such as romantic comedy which in the example of films, is both a member of genre "romance" and the genre "comedy". 
+However, when concepts are seen as /regions/ instead of points positioned in a semantic space, the limitations raised by textcite:Tversky_1977_similarity, textcite:Tversky_1982_similarity and textcite:Tversky_1986_neighbor do not apply. 
+# 
+This idea dates back to at least [[textcite:Smith_1981_categories][p.114]], and has been further developed by textcite:Ashby_1988_unified and textcite:Hannan_2019_concepts. 
+# 
+In this approach, concepts are defined as a probability density function over the semantic space [[parencite:Hannan_2019_concepts][p.70]], in which regions with high values are more typical. 
+# 
+On the first sight, this may seem similar to the schema approach, which uses probability distributions to model the typicality of feature values. 
+# 
+The key distinction is however that the schema approach views the slots as independent and therefore defines a separate probability distribution for each slot, while the probabilistic spatial approach defines a single /multivariate/ probability distribution over the entire space. 
+# 
+While in the case of the schema model the complexity of a concept grows linearly with the number of slots, in the case of the probabilistic spatial model the complexity grows exponentially as all possible feature combinations have to be considered. 
+# 
+This "combinatorial explosion" [[parencite:Murphy_2004_concepts][p.46]] does not only "greatly increase the complexity of [probabilistic] metric representations" [[parencite:Smith_1981_categories][p.114]], it also makes the theoretical assumptions that feature /combinations/ are central for concept storage and processing. 
+# 
+textcite:Murphy_2004_concepts however sees evidence for the use of feature combinations only in rare occasions, such as concepts in which a feature correlation is the only distinguishing property parencite:Malt_1984_correlated or explicit definitions in which feature values are logically combined parencite:Medin_1982_correlated and therefore considers the importance of feature combinations for everyday concepts as limited (p.118).
+# 
+While there seem to be theoretical concerns with the probabilistic spatial approach, there is no reason reject it completely (as [[textcite:Markman_1999_representation][preface]] argues, no single approach can explain every cognitive phenomenon)
+# 
+Given the novelty its most recent formulation by textcite:Hannan_2019_concepts, empirical work is needed to specify the area in which it can be most effectively utilized. [fn::Given that textcite:Ashby_1988_unified has focused /perceptual/ rather than conceptual similarity, it might be useful in this area.]
+
 
 
 ** Ecological Dynamics
@@ -346,13 +364,12 @@ While the specific operationalization of legitimation and competition as a funct
 
 
 *** focus on selection :ignhead:
-Additionally, a central aspect of the ecological paradigm lies in its focus on selection parencite:Hannan_1977_ecology. 
+Additionally, a central aspect of the ecological paradigm lies in its focus on /selection/ parencite:Hannan_1977_ecology. 
 #
-in the original framework, organizations (or in this case, concepts) are seen as heavily constrained by their initial configurations. 
+In the original framework, organizations (or in this case, concepts) are seen as heavily constrained by their initial configurations. 
 # 
-While previous literature has investigated concept emergence parencite:Ruef_2000_emergence,van_Venrooij_2015_ecology, less research exists on the causes of selection (but see cite:Lounsbury_2004_sources for a focus on power, and cite:Ruef_2004_demise for a focus on a single organizational form).  
+While previous literature has investigated concept emergence parencite:Ruef_2000_emergence,van_Venrooij_2015_ecology, less research exists on the causes of selection (but see textcite:Lounsbury_2004_sources for a focus on power, and textcite:Ruef_2004_demise for a focus on a single organizational form). 
 
-# Rather than flexibly adapting, 
 
 *** applicability :ignhead:
 # 
@@ -601,27 +618,41 @@ While coverage is therefore imperfect, I nevertheless assume this amount is suff
 #
 As there is no way to use a song in genre construction without information about its features, I limit all substantial analysis to the the 1.3 million songs for which such feature information is available. 
 
-*** binominal distributions :ignhead:
+*** kernel construction :ignhead:
 
 #+label: dists
 #+caption: Exemplarary probability distributions over feature space
 #+attr_latex: :width 9cm :float wrap :placement {R}{0pt}
 [[file:figures/ills.pdf]]
 
-To construct a schema a genres, I construct a probability distribution of each of the 12 high-level dimensions. 
+To construct a schema for a genre, I construct a separate probability distribution for each of the 12 high-level dimensions using kernel density estimation. 
 # 
-Typical values for all positions are inferred by selecting all songs that are members of the genre, and construct a histogram for each dimension. 
+This approach is similar to constructing a histogram, but does not require fixed bins as each point (here, song) shapes the probability function in an area ~around it~ (see https://mathisonian.github.io/kde/ for an illustration). 
 # 
-I use five bins for each dimensions which allows to capture variation on each dimension while not being too complex. 
+Effectively, kernel density estimation smooths the histogram. 
 # 
-To account for gradient genre membership and variation in popularity, the contribution of each song to the histogram is weighted by its playcount and relative tag weight. 
+While no clear bins are required, a crucial parameter is the /bandwidth/, which for each point determine the type and range of influence on the overall probability function. 
 # 
-The probability distributions over the dimensions of exemplary genres are shows in figure [[dists]]. 
+Large values smooth the distribution strongly, while small values result in more local variation in the eventual probability function. 
+# 
+I tried out a number of values, and found that a Gaussian (normal) kernel function with a bandwidth of 0.05 produces plausible results. 
+# 
+To account for gradient genre membership and variation in popularity, the contribution of each song to the kernel is furthermore weighted by its playcount and relative tag weight. 
+# 
+Using this kernel, I calculate the probability for each slot for seven equally-spaced points between 0 and 1. 
+# 
+While this eventually produces a result similar to a histogram, a key property of the smoothing operation is that at no point the density function is exactly zero, which is necessary for operations of probability distributions. 
+# 
+One might argue that such smoothing imputes values where actually none exist. 
+# 
+However given the narrow bandwidth, these values are extremely small (10^{-100} is no rarity), and primarily establish formal comparability rather than introducing bias. 
+# 
+The resulting probability distributions over the dimensions of exemplary genres are shows in figure [[dists]]. 
 
 
-*** Contrast to Hannan, ~footnote?~:ignhead:
+*** Contrast to Hannan, ~footnote?~ :ignhead:
 
-It is worth pointing out to differences of this operationalization to the approach used by textcite:Ruef_2000_emergence  and formalized by textcite:Hannan_2019_concepts. 
+It is worth pointing out to differences of this operationalization to the probabilistic spatial approach formalized by textcite:Hannan_2019_concepts. 
 # 
 Central to their approaches is to not analyze the features separately, but in combination with each other by constructing a metric feature space where each feature constitutes a dimension. 
 # 
@@ -629,17 +660,15 @@ Concepts can then positioned as probability densities over the cells of the feat
 #
 While there is a certain elegance to this approach as each concept only has a single probability function (unlike the here-used approach where a concept has separate ones for each dimension), this approach has crucial disadvantages. 
 # 
-Most importantly it assumes that feature /combinations/, rather than the feature values, form the basis of comparison.
-# 
-A typical feature of ambient music would then not be the mere absence of vocals, but absence of vocals /AND/ low timbre /AND/ low danceability (and so on for each dimension). 
+As it assumes that feature /combinations/, rather than the feature values, form the basis of comparison, a typical feature of ambient music would then not be the mere absence of vocals, but absence of vocals /AND/ low timbre /AND/ low danceability (and so on for each dimension). 
 # 
 Even with a moderate amount of dimensions and values per dimension, such approach results in a "combinatorial explosion" of possible features: 
 # 
-With a bare minimum of two values per dimension, the 12 dimensions used here would require 2^12 = 4096 cells. 
+With a logical minimum of two values per dimension, the 12 dimensions used here would require 2^12 = 4096 cells. 
 #
-To capture variation in bimodality, at least 3 values per dimension would be needed, which would result in 3^12 = 531,441 cells.
+To capture variation in bimodality and adequately represent the dimensions as continuous rather than binary [[parencite:Smith_1981_categories][p.120]], at least three values per dimension would be needed, which would result in 3^12 = 531,441 cells.
 # 
-It is primarily on these grounds of computational complexity that textcite:Murphy_2004_concepts generally rejects approaches involving feature combinations (p.45). 
+The schema approach employed instead makes much more modest assumptions with 12*7 = 84 values per genre, which additionally capture each slot in much better resolution. 
 
 
 
@@ -662,21 +691,52 @@ This step was implemented to exclude 'artist-genres' where last.fm users (or per
 ** Hierarchy construction
 # 
 *** KLD :ignhead:
+#+label: kld
+#+caption: KLDs between two normal distributions (range -4 to 4, \mu=0).
+#+attr_latex: :width 9cm :float wrap :placement {R}{0pt}
+[[file:figures/kld.pdf]]
+
 While by now I have estimated the musicological content of all genres, this does not yet result in knowledge about their hierarchical structure. 
 #
-To infer such a asymmetric relationships, I combine the observation by [[textcite:Smith_1981_categories][p.118]] as well as textcite:Tversky_1986_neighbor that a concept is rated most similar to its superordinate with the recommendation of textcite:Hannan_2019_concepts to use the Kullback-Leibler Divergence as measurement of informativeness (the measure of how much a subordinate differs from its superordinate).
+To infer such a asymmetric relationships, I combine the observation of textcite:Tversky_1986_neighbor that a concept is rated most similar to its superordinate with the recommendation of textcite:Hannan_2019_concepts to use the Kullback-Leibler Divergence as measurement of informativeness (the measure of how much a subordinate differs from its superordinate).
 # 
-The Kullback Leibler Divergence (KLD) in turn is defined as 
+The Kullback Leibler Divergence (KLD) is defined as 
 \begin{equation*}
-\ {\rm KLD} (P_1||P_2) = \sum\limits_{x \in \mathbb{G}} P_1(x)  \log \left( \frac{P_1(x)}{P_2(x)} \right)
+\ {\rm KLD} (P||Q) = \sum \limits_{x \in \mathbb{G}} P(x) \log \left( \frac{P(x)}{Q(x)} \right)
 \end{equation*}
-with P_1 and P_2 as probability distributions over G features. 
+with P and Q as probability distributions defined over G features. 
+# 
+Intuitively, the KLD measures the cost to approximate P with Q. 
+# 
+It can also be seen as proportional to the likelihood that P is observed if the underlying process is truly described by Q parencite:Shlens_2014_kld.
 #
-Most importantly, it is an asymmetric measure, meaning that the KLD between probability distribution P_1 and P_2 differs from the KLD between P_2 and P_1. 
+
+
+Importantly, it is an asymmetric measure, meaning that the KLD between probability distribution P and Q differs from the KLD between Q and P. 
 #
 While this property is often undesirable, it is here crucial here as hierarchical relations are by definition directional [[parencite:Hannan_2019_concepts][p.55]], as a genre cannot be both superordinate and subordinate of another genre. 
 # 
-To infer the hierarchical structure, the resulting 60 feature positions are used to calculate the Kullback-Leibler Divergence between all genres, which, given the asymmetry of the measurement, results in an asymetric quadratic matrix [fn::As the KLD is intended for single probability distribution, it might seem strange to use it for multiple ones simultaneously. However, since the KLD is additive, and the values of each slot add up to 1 there is no difference between calculating the KLD for the dimensions separately or calculating it jointly.].
+These asymmetric properties of the KLD are shown in figure [[kld]], which shows the cost of approximating different Ps with different Qs.  
+# 
+The dark blue colored diagonal indicates the low cost of approximating a distribution with a distribution similar (or identical) to itself (while the KLD between a distribution and itself is 0, 0.001 is added to all values facilitate visualization with a log-transformed color scheme). 
+# 
+The asymmetry becomes clear when comparing the top right with the bottom left corner. 
+# 
+In the top right corner, a very narrow Q (\sigma = 0.3) is used to approximate a very wide P (\sigma = 4) which is around an order of magnitude more expensive than the reverse case in the bottom left corner where a wide Q is used to approximate a narrow P. 
+# 
+The reason for this asymmetry can be illustrated in the extreme case of P(x) > 0 and Q(x) =0: 
+# 
+If the true process (Q) has a zero chance of generating event x, it is not possible for P, which has an x value greater than 0, to be generated by Q, turning the KLD infinite. 
+# 
+On the other hand, if the true process Q has Q(x) > 0, it is still possible to observe P(x) = 0.
+# 
+The asymmetries thus correspond to findings in the similarity literature parencite:Tversky_1977_similarity that specific items (narrow normal distribution) are judged as more similar to general items (wide normal distribution) than general items are judged similar to specific items. 
+
+
+# 
+To infer the asymmetric similarity between two genres, I calculate the Kullbach-Leibler Divergence for each component (danceability, timbre etc) separately and then sum up the twelve measures. 
+# 
+I repeat this process for all genre pairs which results in an asymmetric quadratic matrix.
 # 
 
 
@@ -695,7 +755,7 @@ Large amount of out-going links (out-degrees) are to some extent plausible for t
 # 
 However, it is implausible that many genres have dozens of parents, which is inadvertently the case when using a high threshold:
 # 
-While it is certainly possible for genres to have multiple parents, it seems implausible that the hybrids would still be meaningful concepts if they were influenced by dozens of parents [fn::An ironic play on this large amount of parents is the genre 'industrial jungle pussy punk', which was deliberately coined by the group Mindless Self Indulgence to parody overly specific genres, but yet incorporates much fewer genres than most genres would under a high KLD threshold.]
+While it is certainly possible for genres to have multiple parents, it seems implausible that the hybrids would still be meaningful concepts if they were influenced by dozens of parents. [fn::An ironic play on this large amount of parents is the genre 'industrial jungle pussy punk', which was deliberately coined by the group Mindless Self Indulgence to parody overly specific genres, but yet incorporates much fewer genres than most genres would under a high KLD threshold.]
 #
 
 *** lowest scoring parents :ignhead:
