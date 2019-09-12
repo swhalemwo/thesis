@@ -396,7 +396,8 @@ Jamaica and Russia however are not considered similar at all, and in particular 
 **** concept represenation implications ~not clear if relevant~ :ignhead:
 These considerations have substantial implications for the models used to represent concepts. 
 #
-They can for example hardly be represented as points in a metric space, as this form of representation assumes symmetry and triangle inequality parencite:Tversky_1977_similarity.
+They can for example hardly be represented as points in a metric space, as this form of representation assumes symmetry and 
+triangle inequality parencite:Tversky_1977_similarity.
 #
 However, concepts as feature lists (prototypes) or probability distributions over dimensions (schemas) do not imply metric spaces [[parencite:Smith_1981_categories][p.105]]. 
 # 
