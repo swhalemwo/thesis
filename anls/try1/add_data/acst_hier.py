@@ -1203,62 +1203,81 @@ def ptn_eval(ptns, ptn_obj_dict):
 if __name__ == '__main__':
         
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', type=argparse.FileType('r'))
-    args = parser.parse_args()
-    x = args.file.readlines()
+    parser.add_argument('harsh_coef', help= 'how strongly to increase/decrease base thresholds')
+    parser.add_argument('tp_coef', help= 'how strongly to increase/decrease time frame')
+    parser.add_argument('tp_start', help= 'where to start tp')
     
-    arg_dict = {}
-    print(x)
+    # parser.add_argument('file', type=argparse.FileType('r'))
+    args = parser.parse_args()
+    # x = args.file.readlines()
+    
+    # arg_dict = {}
+    # print(x)
 
-    for i in x:
-        i2 = i.split('=')
-        arg = i2[0]
-        typ = i2[1]
+    # for i in x:
+    #     i2 = i.split('=')
+    #     arg = i2[0]
+    #     typ = i2[1]
         
-        if '\n' in i2[2]:
-            vlu_raw = i2[2][0:len(i2[2])-1]
-        else:
-            vlu_raw = i2[2]
+    #     if '\n' in i2[2]:
+    #         vlu_raw = i2[2][0:len(i2[2])-1]
+    #     else:
+    #         vlu_raw = i2[2]
         
-        if typ == 'int':
-            vlu = int(vlu_raw)
-        if typ == 'float':
-            vlu = float(vlu_raw)
-        if typ == 'str':
-            vlu = vlu_raw
+    #     if typ == 'int':
+    #         vlu = int(vlu_raw)
+    #     if typ == 'float':
+    #         vlu = float(vlu_raw)
+    #     if typ == 'str':
+    #         vlu = vlu_raw
         
-        arg_dict[arg] = vlu
+    #     arg_dict[arg] = vlu
 
-    print(arg_dict)
-    print('set parameters')
+    # print(arg_dict)
+    # print('set parameters')
 
+    # harsh_coef = 0.75
+    # tp_coef = 1.25
 
-    # res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/'
-    # nr_wks = 6
-    # min_cnt = 8
-    # min_weight = 20
-    # min_rel_weight = 0.1
-    # min_tag_aprnc = 15
-    # min_inst_cnt = 20
-    # min_unq_artsts = 8
-    # max_propx1 = 0.5
-    # max_propx2 = 0.7
-    # ptn = '_all'
-    # usr_dedcgs = 4
-    # tag_plcnt = 9
-    # unq_usrs = 14
+    harsh_coef = float(args.harsh_coef)
+    tp_coef = float(args.tp_coef)
+    tp_start = int(args.tp_start)
+    
+    # base values
+    res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/robust/harsh_' +str(harsh_coef) + "_tp_" + str(tp_coef)
+    nr_wks = 16 * tp_coef
+    min_cnt = 8 * harsh_coef
+    min_weight = 16 * harsh_coef
+    min_rel_weight = 0.16 * harsh_coef
+    min_tag_aprnc = 16 * harsh_coef
+    min_inst_cnt = 20 * harsh_coef
+    min_unq_artsts = 8 * harsh_coef
+    usr_dedcgs = 6 * harsh_coef
+    tag_plcnt = 16 * harsh_coef
+    unq_usrs = 16 * harsh_coef
 
-    res_dir = arg_dict['res_dir']
-    nr_wks = arg_dict['nr_wks']
-    min_cnt = arg_dict['min_cnt']
-    min_weight = arg_dict['min_weight']
-    min_rel_weight = arg_dict['min_rel_weight']
-    min_tag_aprnc = arg_dict['min_tag_aprnc']
-    min_inst_cnt = arg_dict['min_inst_cnt']
-    min_unq_artsts = arg_dict['min_unq_artsts']
-    usr_dedcgs = arg_dict['usr_dedcgs']
-    tag_plcnt = arg_dict['tag_plcnt']
-    unq_usrs = arg_dict['unq_usrs']
+    print('nr_wks: ',         nr_wks, '\n',        
+          'min_cnt: ',        min_cnt,        '\n',        
+          'min_weight: ',     min_weight,     '\n',        
+          'min_rel_weight: ', min_rel_weight, '\n',        
+          'min_tag_aprnc: ',  min_tag_aprnc,  '\n',        
+          'min_inst_cnt: ',   min_inst_cnt,   '\n',        
+          'min_unq_artst: ',  min_unq_artsts,  '\n',        
+          'usr_dedcgs: ',     usr_dedcgs,     '\n',        
+          'tag_plcnt: ',      tag_plcnt,      '\n',        
+          'unq_usrs: ',       unq_usrs)
+
+    # res_dir = arg_dict['res_dir']
+    # nr_wks = arg_dict['nr_wks']
+    # min_cnt = arg_dict['min_cnt']
+    # min_weight = arg_dict['min_weight']
+    # min_rel_weight = arg_dict['min_rel_weight']
+    # min_tag_aprnc = arg_dict['min_tag_aprnc']
+    # min_inst_cnt = arg_dict['min_inst_cnt']
+    # min_unq_artsts = arg_dict['min_unq_artsts']
+    # usr_dedcgs = arg_dict['usr_dedcgs']
+    # tag_plcnt = arg_dict['tag_plcnt']
+    # unq_usrs = arg_dict['unq_usrs']
 
     max_propx1 = 0.5
     max_propx2 = 0.7
@@ -1271,9 +1290,9 @@ if __name__ == '__main__':
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
-    # tprd = time_periods[1]
+    # tprd = time_periods[8]
 
-    for tprd in time_periods:
+    for tprd in time_periods[tp_start:]:
         print(tprd)
         
         client = Client(host='localhost', password='anudora', database='frrl')
