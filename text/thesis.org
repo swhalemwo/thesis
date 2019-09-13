@@ -26,13 +26,13 @@
 
 Classification systems are essential for social life parencite:Durkheim_2019_primitive. 
 # 
-Without conceptual systems to aid in sense-making and generalization of experience, the complexity of perception would be overwhelming. 
+Without conceptual systems to aid in sense-making and generalization of experience, the complexity of perception would certainly be overwhelming. 
 # 
 Interpretive frameworks that structure perception and allow cognitive processing to make sense of the world parencite:Hsu_2006_jacks,Zuckerman_1999_illegitimacy. 
 # 
-Yet it is equally important to take a step back from the deployment of categorical systems and investigate the processes and dynamics that these very classification systems are shaped by.  
+While the impact of categorical systems to structure action can hardly be overestimated, it is equally important to take a step back from the and investigate the processes that these very classification systems are shaped by.
 # 
-While often taken-for-granted, a classification system is not immune to change. 
+While often taken-for-granted, classification systems are not immune to change. 
 
 
 ** para 2 :ignhead:
@@ -63,6 +63,32 @@ As I fail to find substantial support for my key predictors, I discuss possible 
 
 * Theoretical framework
 ** The structure of concepts: What makes something something? 
+*** concept v categories paragraph: ~summary?~ ~make focus explicit on everyday concepts?~
+
+
+It first is necessary to clarify terminology. 
+# 
+The notions of concepts and category are sometimes used interchangeably, however here I use them to refer to distinct ideas. 
+# 
+A category here is a set of items, be they objects, events, persons or ideas, that are classified together; it is thus an /extensional/ notion. 
+# 
+A concept on the other hand refers to the mental representation of these objects and is therefore /intensional/ parencite:Hannan_2019_concepts,Piazzai_concepts. 
+# 
+The notions of concept and category are hence mutually constitutive: 
+# 
+Without items labeled together, no mental representation of them can be formed, while without a concept, items cannot be grouped together. 
+# 
+With such terminology established, I argue that concepts are generalizations of their categories items in term of features. 
+#
+Operations that involve concepts, such as similarity assessments and hierarchical structuring, use these features dynamically rather than following predetermined structures. 
+#
+The precise meaning of these arguments depend on positioning them in the literature on concepts, to which I now turn. 
+
+# ~is apple an item~
+# ~is easier to explain that way~
+# ~if i say concept typicality, i need relations between concepts first~
+# ~check what terms Rosch uses~
+
 
 *** classical view :ignhead:
 # 
@@ -96,7 +122,7 @@ textcite:Wittgenstein_1968_investigations has pointed out these problems in his 
 
 *** concept as definition bad :ignhead:
 # 
-Thus while it might be possible to construct clear-cut membership rules for some categories, the idea that concepts /generally/ are clearly defined seems difficult to uphold.
+Thus while it might be possible to construct clear-cut membership rules for some categories, the idea that /all/ concepts are clearly defined seems difficult to uphold.
 #
 It is worth noting that such ambiguity is not only present in every-day concepts, but in highly formalized domains as well, such as the debate of the planethood of Pluto or the categorization of geometric figures parencite:Lakatos_2015_proofs.
 # 
@@ -119,12 +145,9 @@ However, the mere existence of graded memberships does not provide an explanatio
 # However, graded memberships still leaves open the question of how a concept (for example, fruit) is structured. 
 # 
 
-*** todo need a concept v categories definition paragraph somewhere
-intension 
-extension
 
-concept and categories as co-constitutive
-duality
+# without concept, items cannot be labelled together
+
 
 
 *** feature overlap -> typicality :ignhead:
@@ -143,7 +166,7 @@ Rather than being characterized by a set of fully shared features to which logic
 # 
 Graded membership of items can hence be explained as "the extent to which they [...] have attributes which overlap those of other members of the category" (ibid.). 
 # 
-The "attributes of other members of the category" can then be abstracted into prototype which consists of the features that are typical of the category (e.g. fruit): 
+The "attributes of other members of the category" can then be abstracted into a generalization which consists of the features that are typical of the category (e.g. fruit): 
 # 
 The reason then why olives and tomatoes are /atypical/ fruit is that they lack or have only few fruit features (e.g. sweetness, bright-colored, approximately hand-sized), while these features are strongly present in apples and oranges which therefore receive high typicality values. 
 
@@ -170,23 +193,27 @@ So far the prototype theory has been presented as a /feature list/ in which feat
 # 
 However, some features are difficult to represent coherently in an unstructured list. 
 # 
-For example, the color of a typical fruit can be red or yellow, but less easily both at the same time. 
+For example, the color of a typical fruit can be red or yellow, but hardly both at the same time. 
 #
-To capture such variation, textcite:Murphy_2004_concepts proposes the /schema/ view as a specialization of the prototype view (textcite:Markman_1999_representation calls the same approach "structured representation"; here I however refer to this perspective as the schema view).
-# 
+To capture such variation, textcite:Markman_1999_representation has proposed "structured representations" as a specialization of the prototype view; I refer to this view here however as the /schema/ approach as this term seems to have become more established parencite:Murphy_2004_concepts). 
+#
 In this view, a concept has a number of dimensions (or slots) in which all possible values are weighted by typicality.
 # 
 This notion of typical values can be captured more precisely through the concept of a /probability distribution function/, which specifies the probability (typicality) for each position on a slot. 
 # 
+Probability distributions can be defined over nominal, ordinal or continuous slots. 
+# 
 For example, the "color" slot of the concept of fruit displays the highest values for bright colors such as red or yellow whereas darker colors like green or brown receive lower values. 
 # 
-A complete prototype can therefore be conceptualized as a collection of probability functions which for each slot describe typical values. 
+The 'size' slot would give highest values to medium, (apple- or orange-sized) fruits, while the extremes (very small, e.g. berries or  very large, e.g. pineapples) would receive lower values. 
+#  
+A complete schema of a concept can therefore be conceptualized as a collection of probability functions which for each slot describe the typicality of possible values. 
 # 
 The contribution of the schema view is hence a refinement of the prototype view as the slots are in many aspects equivalent to features. 
 # 
 Just as it is not necessary that all concepts have the same features, it is not necessary that all have the same slots: 
 # 
-Typicality ratings of a ~category member~ (e.g. apple to fruit) does then depend both on how many slots are "alignable" [[parencite:Markman_1999_representation][p.131]] between the item and the prototype as well how well the probability distributions of these alignable differences coincide.[fn::Schemas also allow the specifications of relations between slots. For example, it is not the entire orange that is edible, but only the pulp. While such specifications allow to describe concepts in much more detail, they require an account of the structure. In terms of everyday concepts, in particular the musical genres investigated in this study, an account of the internal structure beyond features (or their probability distributions) has not yet been developed.]
+Typicality ratings of a ~category member~ (e.g. apple to fruit) does then depend both on how many slots are "alignable" [[parencite:Markman_1999_representation][p.131]] between the item and the prototype as well how well the probability distributions of these alignable differences coincide.[fn::Schemas also allow the specifications of relations between slots. For example, it is not the entire orange that is edible, but only the pulp, whereas in the case of apples, the peel is edible as well. While such specifications allow to describe concepts in much more detail, they require an account of the structure (in this case, that fruits are  have a peel and pulp). In terms of everyday concepts, in particular the musical genres investigated in this study, an account of the internal structure beyond features (or their probability distributions) has not yet been developed.]
 
 
 
@@ -207,7 +234,7 @@ One way in which concepts can be considered to be linked is by their degree of a
 # 
 The concepts "fruit", "apple" or "Elstar" can all refer to the same object, however the concepts differ in their degree of specificity. 
 # 
-The question hence arises how these different levels of abstraction are related to each other.[fn::the question which level is used in everyday life is a separate question which is discussed by [[textcite:Murphy_2004_concepts][p.197]].]
+The question hence arises how these different levels of abstraction are related to each other.[fn::Questions such the relation between everyday situations and level of specificity or individual-level variation in specificity constitute separate issues which are discussed by [[textcite:Murphy_2004_concepts][p.197]].]
 # 
 
 *** Hierarchical Relations: tree structure bad ~necessary?~ :ignhead:
@@ -217,16 +244,15 @@ The question hence arises how these different levels of abstraction are related 
 # #
 # What is however less obvious is the relations between these concepts at different levels of abstraction. 
 # 
-# The example of a species taxonomy shows a well ordered hierarchical structure that represents a tree parencite:Collins_1969_retrieval. 
+The example of a plant taxonomy shows a well ordered hierarchical structure that represents a tree parencite:Collins_1969_retrieval. 
 # 
-
 In such a model, a general concept stem branches out into a few sub-concepts, which in turn are the basis for even more fine-grained twig-like concepts. 
 #
 At each level, a concept has one (and only one) superordinate concept from which it inherits features.
 # 
 Category memberships is therefore transitive as all Elstars and Jonagolds are apples as well as fruits, and all apples are fruit. 
 #
-Furthermore, there is no "cross-branching" between once separated concept links as no apple is also a member of the "vegetable" category. 
+Furthermore, there is no "cross-branching" between once separated concept links: no apple is also a member of the "vegetable" category. 
 # 
 An valuable contribution of this perspective is its ability to explain the location of feature values. 
 #
@@ -236,25 +262,26 @@ For example, it argues that we do not need to store the feature "is edible" for 
 #
 However, this model has the substantial requirement of explicitly stored links between different levels to allow concepts to retrieve features of their superordinates. 
 # 
-While such hierarchical structure is a computationally efficient way of storing information ([[textcite:Markman_1999_representation][p.93]] in fact argues that the limited processing power in the 1950s and 1960s constituted a technical constraint which turned the practical issue of efficient information storage into a theoretical consideration), it is also by definition rather rigid, which raises the question if such a structure would be flexible enough for everyday uses. [fn::The scholars most associated with the taxonomic feature structure, textcite:Collins_1969_retrieval seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (p.242, also see [[textcite:Quillian_1966_memory][p.6]] and [[textcite:Quillian_1988_memory][p.88]]). However this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts from characterizing the tree model as a /general/ model of conceptual structure. It seems to me that such characterization might be motivated by different topics of interest, such as explicitly institutionalized classification systems in the former contrasted against flexible categorization in everyday life in the latter.]
-#
+While such hierarchical structure is a computationally efficient way of storing information, its relatively high rigidity raises the question if such a structure would be flexible enough for use in everyday life.[fn::The scholars most associated with the taxonomic feature structure, textcite:Collins_1969_retrieval seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (p.242, also see [[textcite:Quillian_1966_memory][p.6]] and [[textcite:Quillian_1988_memory][p.88]]). However this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts from characterizing the tree model as a /general/ model of conceptual structure. It seems to me that such characterization might be motivated by different topics of interest, such as explicitly institutionalized classification systems in the former contrasted against flexible categorization in everyday life in the latter. Another view is proposed by , [[textcite:Markman_1999_representation][p.93]] who argues that the limited processing power in the 1950s and 1960s constituted a technical constraint which turned the practical issue of efficient information storage into a theoretical consideration.]
 
 # caution is advised in the judgment of how far such well-orderedness is generally applicable
 
 *** computational :ignhead:
-textcite:Murphy_2004_concepts in particular provides three main reasons against explicitly stored hierarchical linkages. 
+textcite:Murphy_2004_concepts provides two reasons against explicitly stored hierarchical linkages. 
 # 
-First, typicality effects are present in hierarchical links as well (p.208). 
+First, /typicality effects/ are present in hierarchical links as well (p.208). 
 # 
 Judgments for typical items are generally stronger or faster, whether they concern membership ("a robin is a bird" is evaluated faster as "a penguin is a bird") or feature inference ("birds have an ulnar artery, therefore robins have an ulnar artery" is rated more believable as "birds have an ulnar artery, therefore penguins have an ulnar artery"). 
 # 
-Secondly, transitivity violations give raise doubts to how strictly membership is passed downwards the branch: 
+Membership verification can even violate the tree structure: the statement "a dog is an animal" can be faster validated than the statement "a dog is a mammal", although the hierarchical tree model would posit the opposite as the former statement requires more paths to be traveled. 
+# 
+Secondly, /transitivity violations/ give raise doubts to how strictly membership is passed downwards the branch: 
 #
 While respondents agree that seats are furniture, and car seats are seats, they deny that car seats are furniture (p.207). 
 #
-Third, in some occasions statements that would require multiple paths to be traversed are evaluated faster than statements that require less paths.
-# 
-For example, the statement "a dog is an animal" can be faster validated than the statement ("a dog is a mammal"), although the hierarchical tree would posit the opposite as the former statement requires more paths to be traveled. 
+# Third, in some occasions statements that would require multiple paths to be traversed are evaluated /faster/ than statements that require less paths.
+# # 
+# For example, 
 
 *** overlap 
 Due to these arguments that question the existence of stored explicit links between different levels of abstraction, he argues that instead hierarchical relationships are computed on the spot due to feature overlap (p.207). 
@@ -294,9 +321,9 @@ For concepts to be located in a space, they need to have the same properties.
 # 
 While this seems theoretically hard to justify from the perspective of textcite:Wittgenstein_1968_investigations and textcite:Rosch_1975_family, these are of less influence and do not pose a practical problem if it is not features that are known, but pairwise similarity judgments, measurement of stimuli confusion or measures of word similarity based on co-occurence with other words. 
 # 
-In this case, multidimensional scaling can be used to find latent dimensions that (nearly) explain the dissimilarities, confusion ratios or similarities. 
+In these cases, multidimensional scaling can be used to find latent dimensions that (nearly) explain the dissimilarities, confusion ratios or similarities. 
 # 
-textcite:Rothkopf_1957_similarity finds morse code confusion to be structured by length and relative number of short and long tones, and textcite:Rips_1973_semantic find similarity ratings between birds to be based on size and ferocity. 
+textcite:Rothkopf_1957_similarity finds morse code confusion to be structured by length and relative number of short and long tones, and textcite:Rips_1973_semantic find similarity ratings between birds to be based on size and ferocity (for a discussion of scaling of similarities based on co-occurrence, see [[textcite:Murphy_2004_concepts][p.426]]).
 # 
 
 *** limitations points
@@ -351,7 +378,7 @@ It is however worth to first summarize the original research program which focus
 # 
 Here the primary forces that are seen to shape the survival chances of an organization are competition and legitimation. 
 # 
-textcite:Hannan_1977_ecology has argued that both of these can be inferred from density, which described the number of organizations at a given point in time. 
+textcite:Hannan_1977_ecology have argued that both can be inferred from density, which described the number of organizations at a given point in time. 
 # 
 Legitimation is hypothesized to be the shaping force in times of low densities: 
 # 
@@ -395,7 +422,7 @@ This distance from the superordinate is characterized as /informativeness/ paren
 #
 Following the previous literature, I posit a quadratic relationship between informativeness and survival chances: 
 #
-Concepts that add little to already existing concepts can be expected to fail, but the same can be expected for extremely informative concepts whose high learning costs is not compensated by their limited utility. 
+Concepts that add little to already existing concepts can be expected to fail, but the same can be expected for extremely informative concepts the high learning costs of which is not adequately compensated by their limited utility. 
 
 
 #+latex: \bigbreak
@@ -448,10 +475,9 @@ Most importantly for this study, last.fm allows users to track the songs they pl
 # 
 The website provides a variety of services to analyze one's music consumption patterns such as weekly reports of favorite songs and artists, and gives recommendations for similar music.
 #
-Of central importance is also the last.fm API (Application programming interface), which (while by current standards relatively slow) allows access to large amounts of highly detailed information. 
+# Of central importance is also the last.fm API (Application programming interface), which (while by current standards relatively slow) allows access to large amounts of highly detailed information. 
 
 *** labelling :ignhead:
-
 
 # 
 Another way in which users can shape their music consumption on last.fm is through a labeling system:
@@ -462,17 +488,17 @@ It is primarily this lack of limitations that distinguishes the categorizations 
 # 
 In the case of Spotify and Allmusic, genre, style and mood classifications are provided by the musical industry. 
 #
-Where users have influence, for example in the case of Discogs, they have to select genres from an explicitly  defined classification system which in turn are also subject to control by other users or moderators to ensure correct classification textcite:Piazzai_concepts. 
+Where users have influence, for example in the case of Discogs, they have to select genres from an explicitly  defined classification system which in turn are also subject to control by other users or moderators to ensure correct classification parencite:Piazzai_concepts. 
 # 
 last.fm however allows users to tag songs, albums and artists without restrictions. 
 #
 As one might expect this, this opportunity produces vast amount of tags.
 #
-While familiar concepts such as rock (along its variants of alternative, classic and indie rock), rap, metal, punk, dance or electronic are the most widely used once, a much larger number of much more specific tags are present as well: 
+While familiar concepts such as rock (along its variants of alternative, classic and indie rock), rap, metal, punk, dance or electronic are the most widely used ones, a much larger number of much more specific tags are present as well: 
 # 
 "Italian progressive rock", "punk noise hardcore rocknroll" and "neoclassical darkwave" are examples of highly specific combinations of established genres. 
 #
-However, since there are no restrictions, tags can also reflect sentiments ("most loved", "i want back to the 60s", "sweetncatchy") or other works ("green eggs and ham"), refer to seemingly trivial features ("title is a full sentence", "why on earth is this just a bonus track") and parody the existence of specialized genres ("TELECFUNKNOHAUSINDUBSTRIPIALBREAKSTEP").
+However, since there are no restrictions, tags can also reflect sentiments ("most loved", "i want back to the 60s", "sweetncatchy") or other works ("green eggs and ham") or refer to seemingly trivial features ("title is a full sentence", "why on earth is this just a bonus track"). 
 # 
 As such, the tags of last.fm constitute (or given its decline in current years, constituted) a diverse conceptual ecology. 
 #
@@ -480,13 +506,13 @@ Given the low extent of formal structuration and absence of explicit guidelines,
 
 *** features :ignhead:
 #
-Given such extensive opportunities for categorizations, the vast majority of songs has multiple tags (the ones which are only member of one category are songs with very low playcounts).
+Given such extensive opportunities for categorizations, nearly all songs have multiple tags (those which are only member of one category are songs with very low playcounts).
 #
 Last.fm therefore weights tags based on the frequency with which they were assigned: 
 #
 Tags that are often given to a track, artist or album are given high weights and are displayed (without weights) on the respective site to provide genre information to users. 
 #
-However, weights for all (not just the most popular ones that are listed on the websites) are available via the API [fn::https://www.last.fm/api/].
+However, weights for all (not just the most popular ones that are listed on the websites) are available via the API (Application Programming Interface)[fn::https://www.last.fm/api/].
 #
 Here the most frequent tag is given the weight 100, while less popular ones receive lower weights. 
 #
@@ -496,7 +522,7 @@ As the most popular tag receives a weight of 100, all subsequent ones are weight
 # more sources
 To standardize the degree of membership, I calculate the proportion of each tag weight to the sum of tag weights given to the song (for example, a tag with weight 50 gets a stronger relative weight when only one other genre is present, compared to when multiple other genres with similar weights are present). 
 # 
-It is thus possible to estimate the gradient of each membership, which is rare in the case of music classification (for example, genre membership in the more formalized classification systems of Discogs or Allmusic is binary). 
+It is therefore possible to estimate the gradient of each membership, which is rare in the case of music classification (for example, genre membership in the more formalized classification systems of Discogs or Allmusic is binary). 
 #
 
 
@@ -536,11 +562,9 @@ As the interest lies in the survival chances of concepts rather than the propert
 #
 From this point of view, the focus on voracious consumers might be a benefit as it highlights those which are heavily invested in music. 
 # 
-Such avid consumers are likely to have a well-developed sense of their areas of interest which enables them to evaluate the cultural fit of new or existing categories. 
-#
-Hence their actions might have relatively strong influence on a genre's survival chances.
+Such avid consumers are likely to have a well-developed sense of their areas of interest enabling them to evaluate the cultural fit of new or existing categories and thereby exerting relatively strong influence on a genre's survival chances.
 # 
-Additionally, in the case of categories that were coined or established through last.fm's tagging system, highly active last.fm might actually be the best way to study their development. 
+Additionally, highly active last.fm might actually be the best way to study categories coined or established through last.fm's tagging system. 
 
 *** log processing :ignhead:
 #
@@ -584,14 +608,13 @@ Genre X might be a subset of genre Y if most or all songs of genre X are also me
 #
 However, such a definition is /extensional/ and corresponds more to the exemplar model than an /intensional/ feature-based prototype parencite:Murphy_2004_concepts. 
 # 
-It would therefore be much more cognitively expensive as large numbers of objects would have to be stored, whereas a prototype is much more compact and hence cognitively processable due to its level of abstraction  [fn::It is nevertheless worth noting though that despite a lacking theoretical foundation this is likely the underlying principle of last.fm's recommendation system as there is no indication that last.fm anywhere uses musicological features (Spotify on the other hand seems to integrate musicological features in their services, as it makes them accessible via the API).].
-
+It would therefore be much more cognitively expensive as large numbers of objects would have to be stored, whereas a prototype is much more compact and hence cognitively processable due to its level of abstraction  [fn::It is nevertheless worth noting though that such co-occurrence likely constitutes the underlying principle of last.fm's recommendation system as there is no indication that last.fm anywhere uses musicological features.]
 
 *** actual features :ignhead:
  # (and more importantly, the meaning vis-a-vis other genres) 
 A thoroughly theoretically-informed cognitive model therefore requires information regarding the features of the items, from which then (as category memberships are known) prototypes can be inferred. 
 #
-For this purpose I use the AcousticBrainz project [fn::https://acousticbrainz.org], a joint effort of the Music Technology Group at Universitat Pompeu Fabra in Barcelona and the /MusicBrainz/ aiming to provide detailed musicological information on a large number of tracks. 
+For this purpose I use the AcousticBrainz project [fn::https://acousticbrainz.org], a joint effort of the Music Technology Group at Universitat Pompeu Fabra in Barcelona and the MusicBrainz Project aiming to provide detailed musicological information on a large number of tracks. 
 #
 AcousticBrainz provides information on two levels: 
 # 
@@ -599,11 +622,11 @@ Low-level data is comprised of more technical characteristics such as measures f
 #
 High-level data however consists of summarizing constructs based on the low-level data obtained through supervised machine learning. 
 # 
-As evaluating the highly technical aspect of low-level musicological data generation is beyond the possibilities of this project, I exclusively use the high level-data as I assume that it captures meaningful differentiation in terms of how songs sound. 
+As evaluating the highly technical aspect of low-level musicological data generation is beyond the scope of this project, I exclusively use the high level-data as I assume that it captures meaningful differentiation in terms of how songs sound. 
 #
 In particular, I use 12 dimensions of the high-level data which describe each track in terms of danceability, gender (of vocals), timbre, tonality, voice (contrasted against instrumentality), acoustic-ness (vs non-acoustic), aggressiveness, electronic-ness (vs non-electronic), happiness, party-ness, relaxed-ness, and sadness. 
 # 
-Each of the dimension ranges from 0 to 1. 
+Each dimension ranges from 0 to 1. 
 # 
 
 *** Data availability :ignhead:
@@ -1184,7 +1207,7 @@ Despite the lack of clear findings in this study, these two specific concerns as
 
 * Appendix
 
-The code used to generate the analyses is available at https://github.com/swhalemwo/thesis. While all data used is publicly available, I can also provide the Last.fm tag data and MusicBrainz metadata to anybody who does not want to query rather slow APIs for multiple weeks. 
+The code used to generate the analyses is available at https://github.com/swhalemwo/thesis. While all data used is publicly available, I can also provided all data used to anybody who does not want to query rather slow APIs for multiple weeks. 
 
 #+latex: \begin{landscape}
 #+latex: \input{./tables/cor_tbl.tex}
