@@ -67,6 +67,22 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # d2 = '2011-11-01'
     
     # ptn = 1
+    usr_prep_tbl = """
+    CREATE TABLE usr_song_prep (
+    usr String,
+    song String, 
+    cnt Int32,
+    rndm Int8)
+    engine=MergeTree() Partition by rndm order by tuple()"""
+
+    usr_prep_qry = """
+    INSERT INTO usr_song_prep
+    SELECT usr, song, count(song) as cnt, count(song) % 30 as rndm FROM (
+    SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
+    JOIN (SELECT usr from ptn) USING usr
+    GROUP BY (usr, song)"""
+
+
 
     # filters by date and usrs having the right partition
     # date_str = """SELECT mbid, cnt FROM (
@@ -86,20 +102,23 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
 
     # SELECT usr, song, cnt, mbrshp, cnt*mbrshp as cnt_mbrshp  FROM (
     date_str = """
-    SELECT mbid, cnt_mbrshp as cnt FROM (
-        SELECT song as abbrv, SUM(cnt*mbrshp) as cnt_mbrshp  FROM (
-            SELECT usr, song, count(song) as cnt FROM (
-                SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
-                JOIN (SELECT usr from ptn) USING usr
-            GROUP BY (usr, song)
-        ) JOIN (SELECT usr, ptn"""+ str(ptn) + """ as mbrshp from ptn
-        ) USING usr
+    SELECT mbid, min_cnt as cnt FROM (
+        SELECT song as abbrv, SUM(cnt) as min_cnt FROM usr_song_prep 
         GROUP BY song
-        HAVING cnt_mbrshp > """ + str(min_cnt) + """
+        HAVING min_cnt > """ + str(min_cnt) + """
     ) JOIN (
         SELECT mbid, abbrv FROM song_info) 
         USING abbrv
         """
+
+    # SELECT usr, song, count(song) as cnt FROM (
+    #     SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
+    #     JOIN (SELECT usr from ptn) USING usr
+    # GROUP BY (usr, song)
+
+
+    # JOIN (SELECT usr, ptn"""+ str(ptn) + """ as mbrshp from ptn
+    #         ) USING usr
 
 # now i've partioned users and songs, but i don't use the coefficients of songs
 # but what about the songs that are not used for partioning
@@ -258,9 +277,8 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     INSERT INTO usr_fltrd_tags
     SELECT tag, uniqExact(usr) as unq_usrs, sum(tag_plcnt) as sum_tag_plcnt FROM (
         SELECT tag, usr, uniqExact(abbrv) as usr_dedcgs, sum(cnt_abbrv) as tag_plcnt FROM 
-            (SELECT usr, song as abbrv, count(abbrv) as cnt_abbrv from logs
-                WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'  
-                GROUP BY (usr, song))
+            (select usr, song as abbrv, cnt as cnt_abbrv from usr_song_prep)
+    
         JOIN (SELECT mbid, abbrv, tag FROM (
                 SELECT mbid,tag FROM basic_songs_tags 
                     JOIN (
@@ -274,6 +292,11 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
         
     ) GROUP BY tag
     HAVING unq_usrs > """ + str(unq_usrs)
+
+            # (SELECT usr, song as abbrv, count(abbrv) as cnt_abbrv from logs
+            #     WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'  
+            #     GROUP BY (usr, song))
+
 
     # harsh: 
     # usr_dedcgs: 4
@@ -298,6 +321,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # maybe intsec all should be a table, it's called more than once now
     
     drops = [
+        'drop table usr_song_prep',
         'drop table mbids_basic',
         'drop table tags_basic',
         'drop table basic_songs_tags',
@@ -309,9 +333,12 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
             client.execute(d)
         except:
             pass
-    
+        
+    client.execute(usr_prep_tbl)
+    client.execute(usr_prep_qry)
     client.execute(mbid_tbl_basic)
     client.execute(mbid_basic_insert)
+    
     client.execute(tag_tbl_basic)
     client.execute(tag_basic_insert)
     client.execute(basic_songs_tags_tbl)
