@@ -1244,7 +1244,7 @@ if __name__ == '__main__':
     tp_start = int(args.tp_start)
     
     # base values
-    res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/robust/harsh_' +str(harsh_coef) + "_tp_" + str(tp_coef)
+    res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/robust/harsh_' +str(harsh_coef) + "_tp_" + str(tp_coef) + '/'
     nr_wks = 16 * tp_coef
     min_cnt = 8 * harsh_coef
     min_weight = 16 * harsh_coef
@@ -1256,7 +1256,8 @@ if __name__ == '__main__':
     tag_plcnt = 16 * harsh_coef
     unq_usrs = 16 * harsh_coef
 
-    print('nr_wks: ',         nr_wks, '\n',        
+    print('res_dir: ', res_dir,
+          'nr_wks: ',         nr_wks, '\n',        
           'min_cnt: ',        min_cnt,        '\n',        
           'min_weight: ',     min_weight,     '\n',        
           'min_rel_weight: ', min_rel_weight, '\n',        
@@ -1291,6 +1292,12 @@ if __name__ == '__main__':
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
     # tprd = time_periods[8]
+    print(len(time_periods))
+    if tp_start == len(time_periods):
+        print('done here')
+        raise SystemExit
+
+
 
     for tprd in time_periods[tp_start:]:
         print(tprd)
