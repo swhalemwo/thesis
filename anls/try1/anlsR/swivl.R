@@ -4,7 +4,6 @@ library(ggplot2)
 library(PerformanceAnalytics)
 library(texreg)
 library(psych)
-library(texreg)
 library(xtable)
 library(fBasics)
 library(readr)
@@ -59,17 +58,16 @@ phreg_mdlr <- function(mdl, d, imprvmnt){
 
 ## * merge data together
 
-res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/dynamic_drop/'
+res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/harsh_narrow/'
 res_files = list.files(res_dir)
 
-dfc <- read.csv(paste0(res_dir, res_files[22]))
+dfc <- read.csv(paste0(res_dir, res_files[1]))
 
-for (i in res_files[23:length(res_files)]){
+for (i in res_files[2:length(res_files)]){
     res_fl = paste0(res_dir, i)
     dfx <- read.csv(res_fl)
     dfc <- rbind(dfc, dfx)
 }
-
 
 
 
@@ -85,7 +83,7 @@ dfc <- dfc_bu
 ## INST_MIN = 20 # instantiation threshold: genre not alive before reaching this point
 ## NBR_ENTRS = 3 # minimum number of entries
 ## NOT USED BECAUSE CREATING UNDED GNRS
-EMPT_END = 5 # number of period at end in which genre may not appear
+EMPT_END <- 4 # number of period at end in which genre may not appear
 ## if 9 weeks: 4
 ## if 6 weeks: 5
 ## since i'm not using NBR_ENTRS, rather be cautious and use 5 for 9 weeks as well
@@ -185,8 +183,6 @@ dfc2$max_tp[which(dfc2$tp_id == dfc2$max)] <- TRUE
 
 dfc2$event[dfc2$X %in% ded_gnrs & dfc2$max_tp ==TRUE] <- 1
 
-
-
 ##  ** set dying out for ded genres
 
 ## dfc2_bu <- dfc2
@@ -231,7 +227,6 @@ for (i in smpl_ftrs_names){
 
     dfc2[,new_vrbl_name] <- dfc2[,i]
 }
-
 
 
 
@@ -306,7 +301,7 @@ all_vars <- c(inf_vars, dens_vars, ctrl_vars)
 
 not_scale <- c('gnr_age2')
 
-dfc3 <- dfc2[0,all_vars]
+## dfc3 <- dfc2[0,all_vars]
 
 ## for (i in unique(dfc2$tp_id)){
 ##     dfc3_prep <- as.data.frame(scale(dfc2[which(dfc2$tp_id == i),all_vars[all_vars %!in% not_scale]], center=TRUE,
@@ -396,7 +391,11 @@ dv <- 'Surv(tp_id, tp_id2, event)'
 ## ** concepts
 
 ## exclude new_rlss for current buggy version
+## ctrl_vars_bu <- ctrl_vars
+
 ## ctrl_vars <- ctrl_vars[ctrl_vars %!in% c('new_rlss')]
+
+
 
 ctrl_vars_cbnd <- paste(ctrl_vars, collapse = ' + ')
 f_ctrl <- as.formula(paste(c(dv, ctrl_vars_cbnd), collapse = ' ~ '))
@@ -615,16 +614,15 @@ fitx5 <- coxph(f_ctrl, data = dfc3)
 cox.zph(fitx5)
 
 
-fitx5 <- coxph(f_ctrl, data = dfc3)
-cox.zph(fitx5)
-
-
 fitx6 <- coxph(Surv(tp_id, tp_id2, event) ~ avg_weight_rel_wtd + cos_sims_mean_wtd + 
     gnr_gini + avg_age + sz + new_rlss + inftns + inftns_sqrd + 
     disctns + dens_vol + dens_vol_sqrd + dens_len + dens_len_sqrd + 
     leg  + gnr_age2 + frailty(X), data=dfc3)
 screenreg(fitx6)
 cox.zph(fitx6)
+
+fitx7 <- coxph(Surv(tp_id, tp_id2, event) ~ inftns + inftns_sqrd + disctns, data = dfc3)
+screenreg(fitx7)
 
 res <- cox.zph(fitx6)
 plot(res)
@@ -656,7 +654,6 @@ fitx2 <- glm(event ~ avg_weight_rel_wtd + cos_sims_mean_wtd + gnr_gini + avg_age
 ## i think Brostrom somewhere also has a theoretical argument for it
 
 ## might be interesting for diagnostics?
-
 
 
 
