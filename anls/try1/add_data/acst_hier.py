@@ -673,7 +673,8 @@ def ftr_extrct_mp(nbr_cls, gnr_ind, ar_cb, g_kld2, vd_kld2,
         # CHECK IF ARGUMETNS OF SPECIFIC EXTRACTION FUNCTIONS ARE ALL IN MAIN EXTRACTION FUNCTION
 
         # dfcx stuff
-    for gnr in gnrs:
+        # for gnr in gnrs:
+        
         print(gnr)
         dfcx_names, dfcx_vlus = dfcx_proc(gnr, acst_gnr_dict, vrbls, d2_int)
         for i in zip(dfcx_names, dfcx_vlus):
@@ -729,14 +730,15 @@ def prnt_stats(gnr, gnr_ind, ar_cb, g_kld2, vd_kld2, acst_mat, vol_dict):
     prnt_cmps_wts = [vol_dict[i[0]] + vol_dict[i[1]] for i in prnt_cmps_names]
     mean_prnt_kld_wtd = np.average(prnt_klds, weights = prnt_cmps_wts)
     
-
     # may have to divide by 1 (or other thing to get distance), not quite clear now
     
     prnt_odg = np.mean([prnt_v.out_degree() for prnt_v in prnt_vs])
     prnt_odg_wtd = np.mean([prnt_v.out_degree() * g_kld2.ep.kld_sim[g_kld2.edge(prnt_v,gv)] for prnt_v in prnt_vs])
 
-    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_sim', 'prnt_odg', 'prnt_odg_wtd', 'prnt_plcnt', 'prnt_plcnt_sd', 'mean_prnt_kld', 'mean_prnt_kld_wtd']
-    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_sim, prnt_odg, prnt_odg_wtd, prnt_plcnt, prnt_plcnt_sd, mean_prnt_kld, mean_prnt_kld_wtd]
+    prnt_stats_names = ['prnt3_dvrg', 'clst_prnt', 'mean_prnt_sim', 'prnt_odg', 
+                        'prnt_odg_wtd', 'prnt_plcnt', 'prnt_plcnt_sd', 'mean_prnt_kld', 'mean_prnt_kld_wtd']
+    prnt_stats_vlus = [prnt3_dvrg, clst_prnt, mean_prnt_sim, prnt_odg, 
+                       prnt_odg_wtd, prnt_plcnt, prnt_plcnt_sd, mean_prnt_kld, mean_prnt_kld_wtd]
 
     return(prnt_stats_names, prnt_stats_vlus)
 
@@ -781,7 +783,6 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     # think should distinguish between total mean of all cohort members and mean of cohorts
     # not sure if really different but whatever
     
-
     # for cht in cohrts:
     #     if len(cht) > 1:
     cht_klds = []
@@ -805,7 +806,7 @@ def chrt_proc(gnr, g_kld2, gnr_ind, vd_kld2, ar_cb, acst_mat, vol_dict):
     cohrt_mean_cos_dists_uwtd = np.mean(cht_cos_dists)
 
     cohrt_mean_non_inf = np.mean([cht_klds[i] for i in pos_non_inf[0]])
-    cohrt_mean_non_inf_wtd = np.average([cht_klds[i] for i in pos_non_inf[0]], weights=cht_sizes)    
+    cohrt_mean_non_inf_wtd = np.average([cht_klds[i] for i in pos_non_inf[0]], weights=cht_sizes)
 
     cohrt_len = len(cht_sizes)
     cohrt_vol_sum = sum(cht_sizes)
@@ -986,7 +987,6 @@ def ptn_proc(ptn):
                   usr_dedcgs, tag_plcnt, unq_usrs,
                   client, pd)
 
-
     gnrs = list(np.unique(dfc['tag']))
     artsts = list(np.unique(dfc['artist']))
     trks = list(np.unique(dfc['lfm_id']))
@@ -1041,25 +1041,26 @@ def ptn_proc(ptn):
 
     print('construct kld 3 parent edgelist')
     # could loop over npr 1-5, add prnt to column names? 
-    npr = 3
+    npr = 2
     kld2_el = kld_n_prnts(ar_cb, npr, gnrs, gnr_ind)
 
     print('construct kld graph')
     g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-    # graph_pltr(g_kld2, g_kld2.vp.id, '5_cell_space.pdf', 1.0)
+    # graph_pltr(g_kld2, g_kld2.vp.id, res_dir +'/5_cell_space.pdf', 1.0)
 
     
     print('extract features')
 
     tx1 = time.time()
         
+
     df_res = ftr_extrct(gnrs, nbr_cls, gnr_ind, ar_cb, 
                         g_kld2, vd_kld2 , acst_gnr_dict, sz_dict, vol_dict, acst_mat)
                         # ar_cb2, g_kld3, vd_kld3)
     tx2 = time.time()
 
     df_res['entrp'] = entropy(acst_mat.T)
-
+    
     ret_dict = {'g_kld2':g_kld2, 'df_res':df_res, 'gnr_ind':gnr_ind, 'acst_mat':acst_mat}
 
     return(ret_dict)
@@ -1211,50 +1212,46 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # x = args.file.readlines()
     
-    # arg_dict = {}
-    # print(x)
 
-    # for i in x:
-    #     i2 = i.split('=')
-    #     arg = i2[0]
-    #     typ = i2[1]
-        
-    #     if '\n' in i2[2]:
-    #         vlu_raw = i2[2][0:len(i2[2])-1]
-    #     else:
-    #         vlu_raw = i2[2]
-        
-    #     if typ == 'int':
-    #         vlu = int(vlu_raw)
-    #     if typ == 'float':
-    #         vlu = float(vlu_raw)
-    #     if typ == 'str':
-    #         vlu = vlu_raw
-        
-    #     arg_dict[arg] = vlu
+    # harsh_coef = 1.25
+    # tp_coef = 0.75
+    # res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/robust/debug'
 
-    # print(arg_dict)
-    # print('set parameters')
-
-    # harsh_coef = 0.75
-    # tp_coef = 1.25
 
     harsh_coef = float(args.harsh_coef)
     tp_coef = float(args.tp_coef)
     tp_start = int(args.tp_start)
+
     
     # base values
     res_dir = '/home/johannes/Dropbox/gsss/thesis/anls/try1/results/robust/harsh_' +str(harsh_coef) + "_tp_" + str(tp_coef) + '/'
     nr_wks = 16 * tp_coef
-    min_cnt = 8 * harsh_coef
+    min_cnt = 8 * harsh_coef * tp_coef
     min_weight = 16 * harsh_coef
     min_rel_weight = 0.16 * harsh_coef
-    min_tag_aprnc = 16 * harsh_coef
-    min_inst_cnt = 20 * harsh_coef
-    min_unq_artsts = 8 * harsh_coef
-    usr_dedcgs = 6 * harsh_coef
-    tag_plcnt = 16 * harsh_coef
-    unq_usrs = 16 * harsh_coef
+    # min_tag_aprnc = 16 * harsh_coef
+    # min_inst_cnt = 20 * harsh_coef
+    # min_unq_artsts = 8 * harsh_coef
+    
+    min_tag_aprnc = 12 * harsh_coef * tp_coef
+    min_inst_cnt = 16 * harsh_coef * tp_coef
+    min_unq_artsts = 6 * harsh_coef * tp_coef
+
+    # usr_dedcgs = 6 * harsh_coef
+    # tag_plcnt = 16 * harsh_coef
+    # unq_usrs = 16 * harsh_coef
+    usr_dedcgs = 4 * harsh_coef * tp_coef
+    tag_plcnt = 10 * harsh_coef * tp_coef
+    unq_usrs = 10 * harsh_coef * tp_coef
+    
+    # base values have to be scaled also by tp_coef to get proportional levels
+    # e.g. min_cnt 8: harsh_coef = tp_coef =1: has 16 weeks
+    # to get the same difficulty with tp_coef = 1.25, min_cnt8 has to be scaled with it
+    # i think i won't scale the time-invariant (min weight, min_rel_weight tho)
+    # artists/usrs counts are not really invariant tho: have more time to generate them -> punish
+    
+    # and if not, i use what i have
+    
 
     print('res_dir: ', res_dir,
           'nr_wks: ',         nr_wks, '\n',        
@@ -1291,12 +1288,12 @@ if __name__ == '__main__':
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
     
-    # tprd = time_periods[8]
+    # tprd = time_periods[0]
+    
     print(len(time_periods))
     if tp_start == len(time_periods):
         print('done here')
         raise SystemExit
-
 
 
     for tprd in time_periods[tp_start:]:
@@ -1853,3 +1850,8 @@ if __name__ == '__main__':
 # os.system(ptn_str)
 
 # ptns = list(range(5))
+
+# * parent check
+# np.corrcoef(df_res_pr4['smpl_ftrs_prnt3_dvrg'], df_res_pr2['smpl_ftrs_prnt3_dvrg'])
+# np.corrcoef(df_res_pr4['smpl_ftrs_cohrt_mean_non_inf_wtd'], df_res_pr2['smpl_ftrs_cohrt_mean_non_inf_wtd'])
+# np.corrcoef(df_res_pr4['smpl_ftrs_cohrt_len'], df_res_pr2['smpl_ftrs_cohrt_len'])
