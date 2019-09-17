@@ -19,10 +19,8 @@
 # #+TOC: headlines 3
 #+latex: \tableofcontents
 
-
-
 * Introduction
-** para 1 :ignhead:
+** basic intro:ignhead:
 
 Classification systems are essential for social life parencite:Durkheim_2019_primitive. 
 # 
@@ -35,13 +33,13 @@ While the impact of categorical systems to structure action can hardly be overes
 While often taken-for-granted, classification systems are not immune to change. 
 
 
-** para 2 :ignhead:
+** specific focus :ignhead:
+
+In this study, I focus on a particular process of change, namely abandonment of concepts of practical classification frameworks, which are characterized by little explicit formalization and emerge from multiple actors parencite:Pontikes_2012_coin,van_Venrooij_2018_fuzziness. 
 # 
-In this study, I focus on a particular process of change, namely abandonment of concepts. 
-# 
-Using the case of last.fm, a digital music service website, I investigate which forces shape the disappearance of particular genres. 
+Using the case of last.fm, a digital music service website, I investigate which forces shape the disappearance of user-defined musical genres. 
 #
-In particular, I focus on predictors that measure the informative content of a genre vis-a-vis its more general superordinates ("metal" is a superordinate of "death metal") and its cohort members on the same level of specificity ("black metal" and "death metal" are cohort members). 
+Guided by the idea that a key property of concepts is to structure our understanding of the world, I focus on predictors that measure the informative content of a genre, both vis-a-vis its more general superordinates ("metal" is a superordinate of "death metal") as well as its cohort members on the same level of specificity ("black metal" and "death metal" are cohort members). 
 #
 Using an ecological approach parencite:Ruef_2009_credit, I further investigate how density (the saturation of a genre's environment) influences survival chances. 
 #
@@ -54,17 +52,16 @@ The rest of the study is structured as follows:
 #
 First, I outline the main theoretical developments in the literature on concept structure, which are furthermore evaluated in terms of ecological mechanisms. 
 # 
-I then describe the case of last.fm, which gives highly detailed account on category membership and listening histories. 
+I then describe the case of last.fm, which provides highly detailed account on category membership and individual user listening histories. 
 #
 I give then a detailed description of how this data was processed to construct a genre-network, whose longitudinal properties I exploit to fit a survival model that measures genre abandonment. 
 #
-As I fail to find substantial support for my key predictors, I discuss possible causes and outline areas for future research. 
+Given the lack of support for my key variables of interest, I discuss possible causes and outline areas for future research. 
 
 
 * Theoretical framework
 ** The structure of concepts: What makes something something? 
-*** concept v categories paragraph: ~summary?~ ~make focus explicit on everyday concepts?~
-
+*** concept v categories paragraph :ignhead:
 
 It first is necessary to clarify terminology. 
 # 
@@ -114,7 +111,7 @@ A number is either divisible only by 1 and itself in which case it is a member, 
 *** probabilistic view :ignhead:
 While such a rigid view has appeal as it provides a great amount of clarity (or rather, is assumed to do so [fn::A more situated analysis might evaluate the taken-for-grantedness of the classical view through a theoretical lens of logocentrism parencite:derrida2016grammatology or a bureaucratic institutional logic parencite:thornton_2012_logics]), the high requirements for formal integrity can create problems when trying to find a clear definition. 
 # 
-textcite:Wittgenstein_1968_investigations has pointed out these problems in his influential discussion of the attempt to define the the everyday-concept of "game":
+textcite:Wittgenstein_1968_investigations has pointed out these problems in his influential discussion of the attempt to define the everyday-concept of "game":
 
 #+begin_quote
 "If you look at [board-games, card-games, ball-games, Olympic games, and so on] you will not see something that is common to all, but similarities and relationships [...] Look for example at board-games, with their multifarious relationships. Now pass to card-games; here you find many correspondences with the first group, but many common features drop out, and others appear. When we pass next to ball-games, much that is common is retained, but much is lost. Are they all 'amusing'? Compare chess with noughts and crosses. Or is there always winning and losing, or competition between players? Think of patience. In ball games there is winning and losing; but when a child throws his ball at the wall and catches it again, this feature has disappeared. Look at the parts played by skill and luck; and at the difference between skill in chess and skill in tennis. Think now of games like ring-a-ring-a-roses; here is the element of amusement, but how many other characteristic features have disappeared! And we can go through the many, many other groups of games in the same way; can see how similarities crop up and disappear. And the result of this examination is: we see a complicated network of similarities overlapping and criss-crossing: sometimes overall similarities, sometimes similarities of detail." (p.31)
@@ -213,7 +210,7 @@ The contribution of the schema view is hence a refinement of the prototype view 
 # 
 Just as it is not necessary that all concepts have the same features, it is not necessary that all have the same slots: 
 # 
-Typicality ratings of a ~category member~ (e.g. apple to fruit) does then depend both on how many slots are "alignable" [[parencite:Markman_1999_representation][p.131]] between the item and the prototype as well how well the probability distributions of these alignable differences coincide.[fn::Schemas also allow the specifications of relations between slots. For example, it is not the entire orange that is edible, but only the pulp, whereas in the case of apples, the peel is edible as well. While such specifications allow to describe concepts in much more detail, they require an account of the structure (in this case, that fruits are  have a peel and pulp). In terms of everyday concepts, in particular the musical genres investigated in this study, an account of the internal structure beyond features (or their probability distributions) has not yet been developed.]
+Typicality ratings of a category member (e.g. apple to fruit) do then depend both on how many slots are "alignable" [[parencite:Markman_1999_representation][p.131]] between the item and the prototype as well how well the probability distributions of these alignable differences coincide.[fn::Schemas also allow the specifications of relations between slots. For example, it is not the entire orange that is edible, but only the pulp, whereas in the case of apples, the peel is edible as well. While such specifications allow to describe concepts in much more detail, they require an account of the structure (in this case, that fruits are  have a peel and pulp). In terms of everyday concepts, in particular the musical genres investigated in this study, an account of the internal structure beyond features (or their probability distributions) has to the best of my knowledge not yet been developed.]
 
 
 
@@ -237,7 +234,7 @@ The concepts "fruit", "apple" or "Elstar" can all refer to the same object, howe
 The question hence arises how these different levels of abstraction are related to each other.[fn::Questions such the relation between everyday situations and level of specificity or individual-level variation in specificity constitute separate issues which are discussed by [[textcite:Murphy_2004_concepts][p.197]].]
 # 
 
-*** Hierarchical Relations: tree structure bad ~necessary?~ :ignhead:
+*** Hierarchical Relations: tree structure bad :ignhead:
 # add references? 
 
 # "Animals" for example refers to a much more general category than does "mammals", while "dogs" and "cats" are even more specific concepts. 
@@ -254,7 +251,7 @@ Category memberships is therefore transitive as all Elstars and Jonagolds are ap
 #
 Furthermore, there is no "cross-branching" between once separated concept links: no apple is also a member of the "vegetable" category. 
 # 
-An valuable contribution of this perspective is its ability to explain the location of feature values. 
+A valuable contribution of this perspective is its ability to explain the location of feature values. 
 #
 In particular, it posits that features are only stored at the level of abstraction for which they are relevant, and "passed down" the branches parencite:Collins_1969_retrieval. 
 # 
@@ -262,7 +259,13 @@ For example, it argues that we do not need to store the feature "is edible" for 
 #
 However, this model has the substantial requirement of explicitly stored links between different levels to allow concepts to retrieve features of their superordinates. 
 # 
-While such hierarchical structure is a computationally efficient way of storing information, its relatively high rigidity raises the question if such a structure would be flexible enough for use in everyday life.[fn::The scholars most associated with the taxonomic feature structure, textcite:Collins_1969_retrieval seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (p.242, also see [[textcite:Quillian_1966_memory][p.6]] and [[textcite:Quillian_1988_memory][p.88]]). However this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts from characterizing the tree model as a /general/ model of conceptual structure. It seems to me that such characterization might be motivated by different topics of interest, such as explicitly institutionalized classification systems in the former contrasted against flexible categorization in everyday life in the latter. Another view is proposed by , [[textcite:Markman_1999_representation][p.93]] who argues that the limited processing power in the 1950s and 1960s constituted a technical constraint which turned the practical issue of efficient information storage into a theoretical consideration.]
+While such hierarchical structure is a computationally efficient way of storing information, its relatively high rigidity raises the question if such a structure would be flexible enough for use in everyday life.[fn::The scholars most associated with the taxonomic feature structure, textcite:Collins_1969_retrieval seem to have been aware of the limited applicability of the strictly hierarchical conceptualization (p.242, also see [[textcite:Quillian_1966_memory][p.6]] and [[textcite:Quillian_1988_memory][p.88]]). However this has not prevented scholars both approving parencite:Hannan_2019_concepts and disapproving parencite:Sloman_1998_tree,Steyvers_2005_structure,Murphy_2004_concepts from characterizing the tree model as a /general/ model of conceptual structure. It seems to me that such characterization might be motivated by different topics of interest, such as explicitly institutionalized classification systems in the former contrasted against flexible categorization in everyday life in the latter. Another view is proposed by [[textcite:Markman_1999_representation][p.93]] who argues that the limited processing power in the 1950s and 1960s constituted a technical constraint which turned the practical issue of efficient information storage into a theoretical consideration.]
+# 
+
+*** semi-lattice :ignhead:
+textcite:Hannan_2019_concepts propose to abandon the rigid tree structure with a /semi-lattice/ which allows multiple parents and cross-branching. 
+#
+While the semi-lattice is a plausible structure to account for concept combinations and hybrids (, the nature of the links as pre-stored requires further investigation. 
 
 # caution is advised in the judgment of how far such well-orderedness is generally applicable
 
@@ -275,7 +278,7 @@ Judgments for typical items are generally stronger or faster, whether they conce
 # 
 Membership verification can even violate the tree structure: the statement "a dog is an animal" can be faster validated than the statement "a dog is a mammal", although the hierarchical tree model would posit the opposite as the former statement requires more paths to be traveled. 
 # 
-Secondly, /transitivity violations/ give raise doubts to how strictly membership is passed downwards the branch: 
+Secondly, /transitivity violations/ raise doubts to how strictly membership is passed downwards the branch: 
 #
 While respondents agree that seats are furniture, and car seats are seats, they deny that car seats are furniture (p.207). 
 #
@@ -283,8 +286,8 @@ While respondents agree that seats are furniture, and car seats are seats, they 
 # # 
 # For example, 
 
-*** overlap 
-Due to these arguments that question the existence of stored explicit links between different levels of abstraction, he argues that instead hierarchical relationships are computed on the spot due to feature overlap (p.207). 
+*** overlap :ignhead:
+Due to these arguments that question the existence of stored explicit links between different levels of abstraction, textcite:Murphy_2004_concepts argues that instead hierarchical relationships are computed on the spot due to feature overlap (p.207). 
 #
 In this line of reasoning, concepts are considered similar if they are associated with similar features. 
 #
@@ -294,23 +297,25 @@ Feature overlap can then explain the phenomena that pose problems for the pre-st
 #
 As robins are more typical birds than penguins, inferences between the a typical concept and its superordinate flow easier as it resembles the prototype stronger than an atypical one. 
 # 
-Similarly, while car seats share some features with furniture and some with car seats, car seats and furniture do have a substantial feature overlap, resulting in the rejection of membership of the former in the latter. 
+Additionally, the animal concept is likely to be more familiar than the more abstract "mammal" concepts, the technical features of which provide little overlap to the everyday experiential features associated with the concepts of animals and dogs. 
+#
+Similarly, while car seats share some features with furniture and some with seats, car seats and furniture do have no substantial feature overlap, resulting in the rejection of membership of the former in the latter. 
 # 
-Additionally, the animal concept may be more familiar than the more technical mammal concept, ~resulting in greater feature overlap (does not follow~).
 
-*** hierarchy conclusion
+
+*** hierarchy conclusion :ignhead:
 # 
 There thus are substantial reasons to prefer the computational view of hierarchical structure. 
+# 
+I therefore combine the theory of textcite:Hannan_2019_concepts to model conceptual hierarchies as a semi-lattice with the proposition of textcite:Murphy_2004_concepts to construct the links dynamically based on overlapping attributes. 
 # 
 A certain similarity of /feature matching/ can be seen as the basis of both concept typicality and concept structure. 
 # 
 As this approach rejects predetermined concept meaning (in terms of definitions) and pre-stored hierarchical structure, it highlights the flexibility and improvisation characteristic of everyday life. [fn::This is not to say that this approach is nearly complete, as it in particular lacks relations between features and context effects, as well as an account of the actual process of  feature matching parencite:Medin_1993_respects. Nevertheless, it provides a solid grounding to investigate conceptual structure.]
 
- between concept meaning in terms of features and conceptual structure can thus be seen as neither are fixed a priori and 
 
 ** Spatial models
-~is it clear that distance = similarity?~ 
-*** content
+*** content :ignhead:
 Next to feature based approaches that view "natural semantic categories [as] networks of overlapping attributes" [[parencite:Rosch_1975_family][p.575]], an alternative exists in the form of /spatial models/. 
 # 
 These approaches argue that the features create a semantic space, in which concepts are located as points parencite:Rips_1973_semantic,Shepard_1962_mds1 or regions parencite:Ashby_1988_unified,Hannan_2019_concepts (sometimes the phrase "space" or "spatial" is used metaphorically; here I focus on theories that explicitly utilize spatial properties to model concept structure). 
@@ -319,14 +324,14 @@ This assumption may seem negligible, it however results in far-reaching conseque
 # 
 For concepts to be located in a space, they need to have the same properties.
 # 
-While this seems theoretically hard to justify from the perspective of textcite:Wittgenstein_1968_investigations and textcite:Rosch_1975_family, these are of less influence and do not pose a practical problem if it is not features that are known, but pairwise similarity judgments, measurement of stimuli confusion or measures of word similarity based on co-occurence with other words. 
+While this seems theoretically hard to justify from the perspective of textcite:Wittgenstein_1968_investigations and textcite:Rosch_1975_family, these are of less influence and do not pose a practical problem if it is not features that are known, but pairwise similarity judgments, measurement of stimuli confusion or measures of word similarity based on co-occurrence with other words which. 
 # 
-In these cases, multidimensional scaling can be used to find latent dimensions that (nearly) explain the dissimilarities, confusion ratios or similarities. 
+In these cases, multidimensional scaling can be used to find latent dimensions that (nearly) explain the dissimilarities, confusion ratios or similarities by positing a link between spatial distance and similarity judgments. 
 # 
 textcite:Rothkopf_1957_similarity finds morse code confusion to be structured by length and relative number of short and long tones, and textcite:Rips_1973_semantic find similarity ratings between birds to be based on size and ferocity (for a discussion of scaling of similarities based on co-occurrence, see [[textcite:Murphy_2004_concepts][p.426]]).
 # 
 
-*** limitations points
+*** limitations points :ignhead:
 While such scaling approaches can provide insights (although one might speculate that the illustrative power has also contributed to their success), as a general theory of concept structure they entail limitations. 
 # 
 For one, as scaling solutions generally only result in a low number of interpretable dimensions [[parencite:Markman_1999_representation][p.43]], which generally do not include shared features (for example in the case of birds the fact that birds have wings, beaks and generally fly).
@@ -340,7 +345,7 @@ Triangle inequality demands that the distance between two points cannot be large
 Both Jamaica and Cuba as well as Cuba and Russia are rated fairly similar, Jamaica and Russia are however rated less similar as would be admissible under the assumption of triangle inequality; positioning them as points in a metric space can therefore not adequately represent similarity ratings (additional more technical limitations of the view of concepts as points in metric spaces is given by best fitting distance metrics parencite:Tversky_1982_similarity,Gati_1982_dimensions and nearest neighbor analysis cite:Tversky_1986_neighbor).
 # 
 
-*** limitation probability densities
+*** limitation probability densities :ignhead:
 #
 However, when concepts are seen as /regions/ instead of points positioned in a semantic space, the limitations raised by textcite:Tversky_1977_similarity, textcite:Tversky_1982_similarity and textcite:Tversky_1986_neighbor do not apply. 
 # 
@@ -358,9 +363,9 @@ This "combinatorial explosion" [[parencite:Murphy_2004_concepts][p.46]] does not
 # 
 textcite:Murphy_2004_concepts however sees evidence for the use of feature combinations only in rare occasions, such as concepts in which a feature correlation is the only distinguishing property parencite:Malt_1984_correlated or explicit definitions in which feature values are logically combined parencite:Medin_1982_correlated and therefore considers the importance of feature combinations for everyday concepts as limited (p.118).
 # 
-While there seem to be theoretical concerns with the probabilistic spatial approach, there is no reason reject it completely (as [[textcite:Markman_1999_representation][preface]] argues, no single approach can explain every cognitive phenomenon)
+While there seem to be theoretical concerns with the probabilistic spatial approach, there is no reason reject it completely since, as [[textcite:Markman_1999_representation][preface]] argues, no single approach can explain every cognitive phenomenon. 
 # 
-Given the novelty its most recent formulation by textcite:Hannan_2019_concepts, empirical work is needed to specify the area in which it can be most effectively utilized. [fn::Given that textcite:Ashby_1988_unified has focused /perceptual/ rather than conceptual similarity, it might be useful in this area.]
+Given the novelty its most recent formulation by textcite:Hannan_2019_concepts, instead empirical work is needed to specify the area in which it can be most effectively utilized. [fn::Given that textcite:Ashby_1988_unified have focused on /perceptual/ rather than conceptual similarity, it might be useful in this area.]
 
 
 
@@ -372,7 +377,7 @@ Concepts do not exist in a vacuum, and as all social structures are subject to c
 # 
 Recently, insights from organization ecology parencite:Hannan_1977_ecology,hannan89_organ,Hannan_1992_dynamics,Singh_1991_change have been applied to population of concepts parencite:Ruef_2000_emergence,Ruef_2004_demise,van_Venrooij_2015_ecology. 
 # 
-This approach allows to study an entire population of concepts rather for example than focus on a few case studies. 
+This approach allows to study an entire population of concepts rather than for example focus on a few case studies. 
 #
 It is however worth to first summarize the original research program which focused primarily on long-term industry developments parencite:Hannan_1977_ecology,Hannan_1992_dynamics. 
 # 
@@ -382,11 +387,11 @@ textcite:Hannan_1977_ecology have argued that both can be inferred from density,
 # 
 Legitimation is hypothesized to be the shaping force in times of low densities: 
 # 
-As new industries develop, they lack still lack recognition, and an increase in organizations operating in the sector increases founding rates and enhances survival prospects as it indicates acceptance of the form. 
+As new industries develop, they still lack recognition, and an increase in organizations operating in the sector increases founding rates and enhances survival prospects as it indicates acceptance of the form. 
 #
 However, when the an industry is established, an increase in the number of organizations now increases competitive pressure, and therefore increases the risk of failure and decreases founding rates. 
 # 
-While the specific operationalization of legitimation and competition as a function of density has been both critiqued on theoretical grounds parencite:Zucker_1989_legitimacy and lost relevance due to increasing inclusion of actual measurements of legitimation parencite:Zuckerman_1999_illegitimacy,Rao_1994_reputation,Rao_2005_crossing, the overarching theoretical importance of considering competition and legitimation has remained central to studies of organizational populations cite:Kennedy_2008_counted and classification systems parencite:van_Venrooij_2015_classifications,Piazzai_concepts. 
+While the specific operationalization of legitimation and competition as a function of density has been both critiqued on theoretical grounds parencite:Zucker_1989_legitimacy and lost relevance due to increasing inclusion of actual measurements of legitimation parencite:Zuckerman_1999_illegitimacy,Rao_1994_reputation,Rao_2005_crossing, the overarching theoretical importance of considering competition and legitimation has remained central to studies of organizational populations parencite:Kennedy_2008_counted and classification systems parencite:van_Venrooij_2015_classifications,Piazzai_concepts. 
 #
 
 
@@ -465,7 +470,7 @@ Concepts whose parents are widely established can be expected to be more likely 
 * Data and Methods
 ** About last.fm
 *** general :ignhead:
-Last.fm [fn::https://www.last.fm] is a digitial music service website, which provides users a number of ways to organize their music listening activities. 
+Last.fm [fn::https://www.last.fm] is a digital music service website, which provides users a number of ways to organize their music listening activities. 
 # 
 Founded in 2002, it grew to more than 50 million users a decade later, but has been waning since, presumably due to the emergence of other music streaming services. 
 # 
@@ -482,7 +487,7 @@ The website provides a variety of services to analyze one's music consumption pa
 # 
 Another way in which users can shape their music consumption on last.fm is through a labeling system:
 #
-last.fm allows users to freely label songs, artists and tracks with so-called tags. 
+Last.fm allows users to freely label songs, artists and tracks with so-called tags. 
 #
 It is primarily this lack of limitations that distinguishes the categorizations of last.fm from those of other platforms.
 # 
@@ -502,7 +507,7 @@ However, since there are no restrictions, tags can also reflect sentiments ("mos
 # 
 As such, the tags of last.fm constitute (or given its decline in current years, constituted) a diverse conceptual ecology. 
 #
-Given the low extent of formal structuration and absence of explicit guidelines, it seems likely that mechanisms involving the information content of the concepts have substantial impact[fn::It is however worth pointing out that it is not clear who exactly performs the labeling and therefore might be possible that 'behind the scenes' substantial amount of labeling are not performed by users, but by industry actors. While there are certainly more forces in category creation involved than can be accounted in this study, there is no reason to assume that actors involved in other processes do not also process the genres in terms of features, which are focused in this study.].
+Given the low extent of formal structuration and absence of explicit guidelines, it seems likely that mechanisms involving the information content of the concepts have substantial impact[fn::It is however worth pointing out that it is not clear who exactly performs the labeling and therefore might be possible that 'behind the scenes' substantial amount of labeling are not performed by users, but by industry actors. While there are certainly more forces in category creation involved than can be accounted in this study, there is no reason to assume that actors involved in other processes do not /also/ process the genres in terms of features, which are focused in this study.].
 
 *** features :ignhead:
 #
@@ -535,9 +540,9 @@ This is a key distinguishing feature from other services that collect such liste
 #
 On last.fm however, users (formally) agree to their listening history being publicly accessible signing up. 
 #
-textcite:Vigliensoni_2017_mlhd have therefore used the last.fm API to construct a the Music Listening History Dataset (MLHD), which consists of the listening logs of 582,703 random last.fm users with a a total of 27 billion listening events. 
-#
-To be included, each of the users has to have a total playcount of 7300, corresponding to an average of ten songs every day for a period of two years. 
+textcite:Vigliensoni_2017_mlhd have therefore used the last.fm API to construct a the Music Listening History Dataset (MLHD), which consists of the listening logs of 582,703 users with a total of 27 billion listening events. 
+# 
+Users were randomly sampled from the last.fm userbase and included in the MHLD if their accumulated playcount equaled or exceeded 7300, corresponding to an average of ten songs every day for a period of two years. 
 # 
 To maintain degree of cultural consistency I limit my selection to users that have listed the United States as their country of residence, which with around 98,432 users contributes the largest amount of users to the MLHD. 
 # 
@@ -570,13 +575,11 @@ Additionally, highly active last.fm might actually be the best way to study cate
 #
 The dataset consists of a file for each user, with each line constituting a listening event. 
 #
-Each listening event in turn consists of a time stamp and MusicBrainz IDs (an identification system developed by the MusicBrainz Project) of the song, the album and the artist, to the extent that each was available at the time of dataset construction. 
+Each listening event in turn consists of a time stamp and MusicBrainz IDs (an identification system developed by the MusicBrainz Project[fn::www.musicbrainz.org]) of the song, the album and the artist, to the extent that each was available at the time of dataset construction. 
 # 
 As my operationalizations of genres as prototypes which describe a probability distribution over feature values, I only use listening events for which an MBID of the song is present[fn::Due to the particular technical setup I use I can currently not precisely estimate how many listening events do not have a song MBID and are therefore dropped. However, I do not think this poses a substantial issue: First, manual inspection of some logs seems to indicate that song MBIDs are generally present, it is rather album MBIDS that seem to be missing. Second, songs lack MBIDs presumably due to their rarity (such as old recordings) and are therefore unlikely to be influential in defining genres.]. 
 # 
-This results 1,034,669,879 listening events for the 26,231 users, or 39,445 on average. 
-# 
-This 1 billion of listening events is spread over 4,150,846 unique songs in a highly skewed way. 
+This results in 1,034,669,879 listening events for the 26,231 users, or 39,445 on average, spread over 4,150,846 unique songs in a highly skewed way. 
 #
 To obtain genre membership information, I queried the last.fm tag API for the 3.2 million most listened songs  which account for 98.5% of the listening events.
 #
@@ -586,7 +589,7 @@ For 97% songs, both of these queries were successful, which resulted in 3,136,61
 #
 In total there are 885,630 tags associated with the 3.1 million songs. 
 # 
-I will describe later on how these are filtered down. 
+I first provide a general account of schema creation given a tag, and afterwards elaborate the criteria for tag selection. 
 
 # Last.fm however was no exclusive place for avant-garde audiences, as mainstream artists and established genres are ~strongly present~. 
 # # 
@@ -595,7 +598,7 @@ I will describe later on how these are filtered down.
 # New genres in this period of time are likely to have left a trace in the digital listening logs
 # TRUE BUT THEN LOGS DON"T SAY ANYTHING ABOUT THEIR CHANCES
 
-** AcousticBrainz and Prototype construction
+** AcousticBrainz and Schema construction
 # unclear if lfm uses acoustic features
 
 *** prototypes more justifiable than exemplars :ignhead:
@@ -606,13 +609,13 @@ It is for example possible to use the song-tag links to generate measures of co-
 #
 Genre X might be a subset of genre Y if most or all songs of genre X are also members of the much larger genre Y. 
 #
-However, such a definition is /extensional/ and corresponds more to the exemplar model than an /intensional/ feature-based prototype parencite:Murphy_2004_concepts. 
+However, such a definition is /extensional/ and corresponds more to the exemplar model than an /intensional/ feature-based schema parencite:Murphy_2004_concepts. 
 # 
-It would therefore be much more cognitively expensive as large numbers of objects would have to be stored, whereas a prototype is much more compact and hence cognitively processable due to its level of abstraction  [fn::It is nevertheless worth noting though that such co-occurrence likely constitutes the underlying principle of last.fm's recommendation system as there is no indication that last.fm anywhere uses musicological features.]
+It would therefore be much more cognitively expensive as large numbers of objects would have to be stored, whereas a schema is much more compact and hence cognitively processable due to its level of abstraction  [fn::It is nevertheless worth noting though that such co-occurrence likely constitutes the underlying principle of last.fm's well-received recommendation system as there is no indication that last.fm anywhere uses musicological features.]
 
 *** actual features :ignhead:
  # (and more importantly, the meaning vis-a-vis other genres) 
-A thoroughly theoretically-informed cognitive model therefore requires information regarding the features of the items, from which then (as category memberships are known) prototypes can be inferred. 
+A thoroughly theoretically-informed cognitive model therefore requires information regarding the features of the items, from which (as category memberships are known) schemes can then be inferred. 
 #
 For this purpose I use the AcousticBrainz project [fn::https://acousticbrainz.org], a joint effort of the Music Technology Group at Universitat Pompeu Fabra in Barcelona and the MusicBrainz Project aiming to provide detailed musicological information on a large number of tracks. 
 #
@@ -647,10 +650,10 @@ As there is no way to use a song in genre construction without information about
 #+caption: Exemplarary probability distributions over feature space
 #+attr_latex: :width 9cm :float wrap :placement {R}{0pt}
 [[file:figures/ills.pdf]]
-
+# 
 To construct a schema for a genre, I construct a separate probability distribution for each of the 12 high-level dimensions using kernel density estimation. 
 # 
-This approach is similar to constructing a histogram, but does not require fixed bins as each point (here, song) shapes the probability function in an area ~around it~ (see https://mathisonian.github.io/kde/ for an illustration). 
+This approach is similar to constructing a histogram, but does not require fixed bins as each point (song) shapes the probability density function around it.[fn::see https://mathisonian.github.io/kde/ for an illustration.]
 # 
 Effectively, kernel density estimation smooths the histogram. 
 # 
@@ -668,13 +671,12 @@ While this eventually produces a result similar to a histogram, a key property o
 # 
 One might argue that such smoothing imputes values where actually none exist. 
 # 
-However given the narrow bandwidth, these values are extremely small (10^{-100} is no rarity), and primarily establish formal comparability rather than introducing bias. 
+However given the narrow bandwidth, these values are extremely small (10^{-10} is no rarity), and primarily establish formal comparability rather than substantially distorting informational content. 
 # 
-The resulting probability distributions over the dimensions of exemplary genres are shows in figure [[dists]]. 
-
+Resulting probability distributions over the dimensions of exemplary genres are shows in figure [[dists]]. 
 
 *** Contrast to Hannan, ~footnote?~ :ignhead:
-
+# 
 It is worth pointing out to differences of this operationalization to the probabilistic spatial approach formalized by textcite:Hannan_2019_concepts. 
 # 
 Central to their approaches is to not analyze the features separately, but in combination with each other by constructing a metric feature space where each feature constitutes a dimension. 
@@ -685,31 +687,16 @@ While there is a certain elegance to this approach as each concept only has a si
 # 
 As it assumes that feature /combinations/, rather than the feature values, form the basis of comparison, a typical feature of ambient music would then not be the mere absence of vocals, but absence of vocals /AND/ low timbre /AND/ low danceability (and so on for each dimension). 
 # 
-Even with a moderate amount of dimensions and values per dimension, such approach results in a "combinatorial explosion" of possible features: 
+Even with a moderate amount of dimensions and values per dimension, such approach results in a "combinatorial explosion" [[parencite:Murphy_2004_concepts][p.46]] of possible features: 
 # 
 With a logical minimum of two values per dimension, the 12 dimensions used here would require 2^12 = 4096 cells. 
 #
-To capture variation in bimodality and adequately represent the dimensions as continuous rather than binary [[parencite:Smith_1981_categories][p.120]], at least three values per dimension would be needed, which would result in 3^12 = 531,441 cells.
+To capture variation in bimodality and adequately represent the dimensions as continuous rather than binary [[parencite:Smith_1981_categories][p.120]], at least three values per dimension would be needed, resulting in 3^12 = 531,441 cells.
 # 
-The schema approach employed instead makes much more modest assumptions with 12*7 = 84 values per genre, which additionally capture each slot in much better resolution. 
+The schema approach instead makes much more modest assumptions with 12*7 = 84 values per genre while capturing each slot in substantially better resolution. 
 
 
 
-*** Cutoffs :ignhead:
-A number of cutoffs are introduced to construct meaningful genres: 
-#
-Songs where only considered if they had an weighted aggregate playcount greater than 8 to prevent the songs with little influence to slow down the analysis. 
-# 
-As all major measures are thoroughly weighted by playcount, I am fairly confident this does not bias the results. 
-# 
-Additionally, a tag needs to occur on at least 15 unique songs with a minimum absolute weight of 20 (maximum 100; indicating  a tag is used no less than a fifth of the maximum tag) and a minimum relative weight of 0.1 (maximum 1; indicating that at least 10 percent of all membership assignments go to the tag in question).
-# 
-This step both excludes idiosyncratic tags as well as ensures that genres have sufficient information to properly estimate similarity measures (discussed below) which might be biased if the content of a genre cannot be sufficiently established. 
-# 
-Furthermore, each genre needs at least 8 unique artists, and no more than 50% of the songs and 70% of the tag-weighted playcount is allowed to be of a single artist. 
-# 
-This step was implemented to exclude 'artist-genres' where last.fm users (or perhaps other parties) apparently felt the need to tag songs of famous artists (for example Eminem, Metallica, Rihanna) with the artist name [fn::While the process of institutionalization that turns a name into a category ("Kafkaesque", "Foucauldian", "Bourdieusian") is certainly worth investigating, the mere labeling of artistic works with their creators which seems to be the case here does not constitute such a process of abstraction.]
-#
 
 ** Hierarchy construction
 # 
@@ -734,7 +721,7 @@ Intuitively, the KLD measures the cost to approximate P with Q.
 It can also be seen as proportional to the likelihood that P is observed if the underlying process is truly described by Q parencite:Shlens_2014_kld.
 #
 
-
+*** kld 2 :ignhead:
 Importantly, it is an asymmetric measure, meaning that the KLD between probability distribution P and Q differs from the KLD between Q and P. 
 #
 While this property is often undesirable, it is here crucial here as hierarchical relations are by definition directional [[parencite:Hannan_2019_concepts][p.55]], as a genre cannot be both superordinate and subordinate of another genre. 
@@ -774,7 +761,7 @@ If a rather low threshold is chosen (KLD < 0.1), it is possible to estimate a se
 # 
 However, if the threshold is increased sufficiently to include all or most genres (KLD > 0.3), parent-child relationship increase by order of magnitudes, resulting in network densities (the number of actual links divided by the number of possible links) of up to 0.2. 
 # 
-Large amount of out-going links (out-degrees) are to some extent plausible for the most general genres (in this case, rock and metal) as these are likely to have dozes of children (for example in the final dataset, there are 110 genres which contain the string "metal", and 146 which contain "rock"). 
+Large amount of out-going links (out-degrees) are to some extent plausible for the most general genres (in this case, rock and metal) as these are likely to have dozes of children. 
 # 
 However, it is implausible that many genres have dozens of parents, which is inadvertently the case when using a high threshold:
 # 
@@ -783,9 +770,9 @@ While it is certainly possible for genres to have multiple parents, it seems imp
 
 *** lowest scoring parents :ignhead:
 # 
-However, here again we can exploit the fact that concepts are rated most similar to their superordinate [[parencite:Smith_1981_categories][p.118]], as it allows to select as parent(s) for each genre the genre(s) which the genre has the least divergence from. 
+However, here again we can exploit the fact that concepts are rated most similar to their superordinate parencite:Tversky_1986_neighbor, as it allows to select as parent(s) for each genre the genre(s) which the genre has the least divergence from. 
 # 
-While it requires to set the number of parents for each genre in advance, it is possible to avoid the problem of unrealistically high amounts of genre-subgenre relations - or more precisely, unrealistically high amounts of parents[fn::It might be possible to estimate the amount of parents more flexibly from its features, size and/or KLD values, which however would require further investigation.]. 
+While it requires to set the number of parents for each genre in advance, it is possible to avoid the problem of unrealistically high amounts of genre-subgenre relations - or more precisely, unrealistically high amounts of parents[fn::It might be possible to estimate the amount of parents more flexibly from features, size and/or KLD values, which however would require further investigation.]. 
 # 
 It also allows to gain information on all genres (particularly atypical ones), which is crucial as genres constitute the unit of analysis in the final model, and hence allows to capture more variation in typicality and avoid bias towards genres similar to their parents. 
 #
@@ -803,41 +790,86 @@ An example of a classification system generated in this fashion is shown in figu
 #
 When zooming it, it can be seen that every genre has three parents (incoming arrows), although the directed nature of the links allows the more general genres (e.g. electronic, pop, rock) to be parents to large numbers of subgenres, whereas most genres have not produced any subgenres. 
 # 
-It can furthermore be seen that graph depicts hierarchical relations, there is no clear ordered hierarchy as argued for by (or more precisely, attributed to) the classical view parencite:Quillian_1966_memory: 
+It can furthermore be seen that while the graph depicts hierarchical relations, there is no clear ordered hierarchy as argued for by (or more precisely, attributed to) the tree-model perspective parencite:Quillian_1966_memory: 
 #
 Instead a large amount of combination of different elements is visible. 
 #
 While regions of particular styles are still identifiable, such as metal in the bottom or pop in the top right, these do not constitute strict taxonomic subcategories but rather systems of family resemblance in which the boundaries between styles are blurred. 
 
-** Time frame
+
+** Time Period and Thresholds
+
+*** Overall time frame :ignhead:
 #+label: times
 #+caption: Daily Listening Events 
 #+attr_latex: :width 15cm
 [[file:figures/time.pdf]]
 
-#
-The temporal element of listening logs allows to investigate the longitudinal development of genre survival in a very flexible way as listening events can be selected for any time-period of interest. 
-#
-This flexibility however also requires to explicitly choose time intervals, as there is no possibility to rely on natural time intervals, such as publications in yearly parencite:Rao_2005_crossing or quarterly parencite:Kennedy_2008_counted intervals. 
-#
-Since my measures depend on playcount (both in genre selection as well as generated variables), I considered it crucial to have equally sized intervals. 
+Figure [[times]] shows the daily listening events. 
 # 
-Eventually, I decided on a time period of 12 weeks. 
-#
-Additionally it is important to misattribute genre abandonment to decreasing popularity of last.fm or data collection ranges. 
+To not confuse genre abandonment with changes in popularity of the service, I limit my analysis to a four year time period from September 2008 to September 2012 in which the popularity of last.fm was at its peak. 
+ 
+
+*** Cutoffs :ignhead:
+
+With hundreds of thousands of tags appearing at least once, it is obvious that some forms of thresholds have to be employed to ensure that the underlying genres are meaningful. 
 # 
-Figure [[times]] shows the daily listening events, which display a the harsh decline from 2013 onwards. 
-#
-It is unclear whether this decline is due to last.fm rapidy losing popularity or due to data collection taking place in that period, but either way, inclusion of 2013 would have resulted in an artificially high mortality rate.
+However, little support for these can be found in the literature, which has either focused on experiments or observational studies of clearly demarcated concepts.[fn::This issue bears similarities to the Modifiable Areal Unit Problem common in spatial analyses parencite:Cheng_2014_mtup.]
 # 
-I therefore limit my time periods from the beginning of 2006 to the end of 2012, which given the requirement for equally sized time intervals results in 29 time periods from the beginning of 2006 to the end of September 2012. 
-#
-While in this time period there were no revolutions in the musical industry parencite:Peterson_1990_advent, with the great amount of detailed data available it should still be possible to identify the entire lifespan particularly of small and emerging genres. 
-#
+Given this high uncertainty about threshold, a single selection of seemingly plausible values might overstate the confidence of the processes (on the other hand, the increase in certainty in the results as a consequence running multiple models should not be overstated either, as it crucially depends on the chosen base values and the values of the coefficients). 
+# 
+In particular, the presence and, conditional on this, the content of a genre can be described as a function of:
+- the length of each observation window 
+- the playcount a song has to acquire in this time period to be counted towards the genre
+- the minimum degree of membership in absolute (1-100) and relative (0-1) terms
+- the number of songs a genre needs to be included at first (the precise reason for is elaborated in the dependent variable section)
+- the number of songs a genre needs to be included after it has been instantiated 
+- the minimum number of songs and listening events of a user
+- the number of users a genre needs to be included
+
+ 
+To reduce the uncertainty of a set of particular thresholds, I select base values which (after experimenting with different cutoffs) appear plausible (table \ref{bases}) and modify these base values for each run with two coefficients by multiplication. 
+# 
+The first coefficient modifies the time span, and the second modifies the strictness of the song, user and genre inclusion criteria. 
+# 
+Both coefficients are valued 0.75, 1, and 1.25; their combinations results in 9 threshold sets for which I estimate the model. 
+
+*** artist concentration :ignhead:
+#+latex: \begin{wraptable}{r}{0pt}
+#+attr_latex: :center 
+|-------------------------------+------------|
+| Variable                      | Base Value |
+|-------------------------------+------------|
+| Time Span                     |   16 weeks |
+|-------------------------------+------------|
+| Min. Song Playcount           |          8 |
+| Min. Song Weight (abs)        |         16 |
+| Min. Song Weight (rel)        |       0.16 |
+| Min. Songs in Genre           |         12 |
+| Min. Instantiation Count      |         20 |
+|-------------------------------+------------|
+| Min. Genre Songs per User     |          4 |
+| Min. Genre Playcount per User |         10 |
+| Min. Users in Genre           |         10 |
+|-------------------------------+------------|
+| Min. Unique Artists           |          6 |
+|-------------------------------+------------|
+#+latex: \caption{Base values for genre construction}
+#+latex: \label{bases}
+#+latex: \end{wraptable}
+
+A stable threshold across models is the extent of concentration by artists.  
+# 
+In particular, no more than 50% of the songs and 70% of the tag-weighted playcount is allowed to be of a single artist. 
+# 
+This step was implemented to exclude 'artist-genres' where last.fm users (or perhaps other parties) apparently felt the need to tag songs of famous artists (for example Eminem, Metallica, Rihanna) with the artist name [fn::While the process of institutionalization that turns a name into a category ("Kafkaesque", "Foucauldian", "Bourdieusian") is certainly worth investigating, the mere labeling of artistic works with their creators which seems to be the case here does not constitute such a process of abstraction.]
+
+
 
 *** time caveat two :ignhead:
+*** para1 :ignhead:
 # 
-It is furthermore important to state what changes and remains stable. 
+It is thus possible to explicitly state what changes and what remains stable. 
 #
 While the listening logs accumulate over time and hence allow to reconstruct past listening patterns, no temporal information is available for feature values (AcousticBrainz musicological information) and genre membership (the last.fm tags). 
 #
@@ -847,18 +879,25 @@ More potential to interfere with accurate genre identification is the lack of lo
 #
 While the tags of each song have accumulated over time, the last.fm API only returns the aggregate labels given to a song at the time of the request. 
 #
-It is therefore imaginable that songs who were categorized in one genre at one point in time, and with a later emerged one at a later point in time indicate the presence of the second genre at a time where it was not yet developed. 
+It is therefore imaginable that songs that were categorized in one genre at one point in time, and with a later emerged one at a later point in time indicate the presence of the second genre at a time where it was not yet developed. 
 #
 Similarly, temporal changes in the gradient of membership are not recoverable from the available aggregate. 
-#
-However, I think that this problems has overall little impact on the reconstructing the content of genres at different points in time because the industry is rather innovative and constantly churns out new products, causing most songs to accumulate most of their playcount in a rather short amount of time. 
+
+
+*** para 2 :ignhead:
+However, I argue that this problem has overall little impact on the reconstructing the content of genres at different points in time. 
 # 
-One might argue that textcite:Anand_2000_sensemaking and textcite:Anand_2006_charting have shown that the idea of the musical industry as constantly innovating is to some extent ideological fabrication as classical works continue to be popular to such an extent that they would constitute a substantial presence in the charts. 
+The music industry is rather innovative and constantly churns out new products, which likely results in rather brief periods of popularity for most songs. 
 # 
-However, it seems unlikely that such classical works are in high danger of recategorization as it is precisely their membership in highly established categories that guarantees their continued popularity in the first place. 
+I hence expect that a song has received most of its tags in a such a short time period that occasional re-classifications at a later point in time do not introduce substantial bias.
+# 
+One might argue that textcite:Anand_2000_sensemaking and textcite:Anand_2006_charting have shown that the idea of the musical industry as constantly innovative is to some extent ideological fabrication as classical works continue to be popular to such an extent that they would constitute a substantial presence in the charts. 
+# 
+However, it seems unlikely that such classical works are in high danger of re-categorization as it is precisely their membership in highly established categories that guarantees their continued popularity in the first place. 
 #
 While new genres might aim for association to gain legitimacy, it seems unlikely that this would result in blatant retagging of classical works, but would rather by visible through integrating stylistic features. 
-
+# 
+Even if such re-labeling was common, it would in the worst case result in more conservative estimates as actually dead genres would "piggy-back" on alive genres; but it would not be possible to cause a type I error of giving the impression of genre disappearance where it would actually still be alive.
 
 
 ** Dependent Variable: Genre Abandonment
@@ -869,67 +908,48 @@ However, the informal nature of the categories under investigation complicates t
 # 
 Whereas disappearance in organizations parencite:Rao_1994_reputation,Kennedy_2008_counted,Singh_1991_change or highly institutionalized categories parencite:Lounsbury_2004_sources is demarcated by formal events such as declaration of bankruptcy or removal from category-defining institutions, no natural event indicates the disappearance of a last.fm tag. 
 # 
-As such, their abandonment has to be inferred from their use frequencies. 
+As such, abandonment has to be inferred from use frequencies. 
 #
-Since I generate measures for each time period separate, a genre can be classified as having died in period t when in period t+1 it fails any of the thresholds discussed (this effectively lags the predictors by one time period as no information is available for a genre for the time period in which it actually dies). 
-#
-A further complication arises from the fact that genres can display spotty histories: 
+In particular, I define a genre as disappeared if it fails to reach the thresholds in the last 3 time periods (4 or 2 time periods for time coefficients of 0.75 or 1.25, respectively), and code the time point of its last appearance as its time of death (this process effectively lags all predictors by one time period). 
 # 
-After being considered alive in time period t, it may be considered dead in period t+1 but through a gain in popularity be considered alive again in period t+2. 
-#
-To ensure that genres have actually disappeared, I do not require them therefore to have died at least three time periods before the end of the observation period. 
-#
-In the case of abandoned genres with spotty histories the last time period in which they were active is coded as the time period of their abandonment. 
+
+
+*** Hsu nonsense :ignhead:
+
+To further increase the accuracy of distinguishing alive from dead genres I employ an instantiation threshold of number of songs associated in that period  (20 by default). 
 # 
-These two operationalizations result in a total of 422 abandoned genres, 235 with complete listening histories and 187 with spotty ones. 
+Theoretically, this step exemplifies the notion of textcite:Hsu_2006_jacks of taken-for-grantedness after validation even in the case of mild nonconformity. 
 # 
-However, preliminary analysis showed that under these conditions, large amounts of genres fluctuate around the lower threshold of 15 songs. 
-#
-To make sure that genres have actually "been alive" at one point, I further limit my selection to abandoned genres which have had at least at one time point 25 songs associated with them.
+Only from the timepoints it has crossed this threshold, it is included. 
 # 
-This results in a final of 92 abandoned genres for the observation period. 
+From instantiation, it only needs to adhere to the less rigid genre playcount (12 by default). 
+# 
+This step distinguishes genres who were clearly established at one point from those that fluctuate in the lower boundaries. 
+
 
 ** Concept predictors
 *** Predictor: Informativeness :ignhead:
 # 
-Informativeness describes the extent to which a subordinate genre differs from their parents, which for each genre are the three least-divergent genres textcite:Hannan_2019_concepts. 
+Informativeness describes the extent to which a subordinate genre differs from their parents textcite:Hannan_2019_concepts, which for each genre are the three superordinates it diverges the least from. 
 # 
 Informativeness is therefore operationalized as the sum of the Kullback-Leibler divergences between a genre and its three superordinates (since all genres have three parents, it makes no difference whether the mean or sum is taken). 
 #
-As the original variable is heavily right skewed, it is transformed to a more normal shape with a log transformation. 
+As the original variable is heavily right skewed, it is transformed to a more normal shape with a natural log transformation. 
 # 
-To whether the impact of informativeness differs depending on its size, a quadratic term is added as well. 
+To assess whether informativeness follows a non-monotic relationship, a quadratic term is added as well. 
 
 
 *** Predictor: Distinctiveness :ignhead:
 # 
 Distinctiveness concerns the relation between a genre and the genres in the same cohort textcite:Hannan_2019_concepts, which is defined through parent genres. 
 # 
-As such, it indicates the extent to which a genre stands out. 
+As such, it indicates the extent to which a genre "stands out" from fellow genres at the same level. 
 # 
-It hence is operationalized as the mean of a distance metric between a genre and the other genres of its cohort parencite:Piazzai_concepts. 
+It hence is operationalized as the mean Kullback-Leibler Divergence between a genre and its cohort members. 
 # 
-However, an issue arises with the choice of the distance metric: 
+Here the advantage of a kernel which smooths the probability distribution of each slot becomes apparent: 
 # 
-A central aspect of concept similarity (and distance) is asymmetry parencite:Tversky_1977_similarity, which arises due from feature overlap. 
-#
-However, the Kullback-Leibler divergence, which had allowed asymmetric similarity judgments to infer the hierarchical structure of the classification framework, is not necessarily defined for relations between cohort members. 
-# 
-Since the Kullback-Leibler divergence is measured  from one genre to another, it requires the first to be a subset of the second as otherwise the lack of features cause it to be undefined.  
-# 
-While all songs are measured on the same variables, the splitting of these dimensions into five cells for each features can result in genres having values of zero for some of the features. 
-# 
-This is no problem for inferring the hierarchical structure as it is constructed with only the three lowest divergences (in practice Python returns undefined divergences as undefined) and hence uses only a small subset (in the case of 1k genres, only 3k/1k*1k-1=0.003=0.3% of the computed KLDs are used for network construction), of which by definition all are defined. 
-#
-Within cohorts however, Kullback-Leibler divergences can be undefined. 
-# 
-While textcite:Hannan_2019_concepts recommend the Kullback-Leibler divergence for distinctiveness measurements as well, it cannot reliably be used for this task.
-#
-The genres also have still the same weighted total amount of features as the presence of zero values on some features is offset by higher values elsewhere, which would result in a measure of similarity based on feature overlap to be symmetric as well. 
-# 
-Since I could not employ a true asymmetric measurement for distinctiveness,  use the mean cosine similarity between a genre and its cohort members (which is what textcite:Hannan_2019_concepts eventually resort to as well).
-# 
-While it might that asymmetry is less central for comparisons within cohorts as there due to the shared roots overall similarities can be expected to be lower  than within a random selection of genres, this specific issue clearly requires further investigation. 
+Histograms would result in some bins having a zero value, which would turn the KLD infinite. 
 # 
 Due to excess skew, this variable is log-transformed as well. 
 
@@ -944,22 +964,20 @@ It might also be relevant how large parents are:
 #
 Roots with large audiences might provide more viewers that can insulate its children, as well as provide symbolic legitimation. 
 #
-To investigate such legitimation effects, linear coefficient for (the log of) Parent size is added. 
+To investigate such legitimation effects, a linear coefficient for (the log of) parent size is added. 
 # 
-
 
 *** density len :ignhead:
 # 
 An equivalent of the dual relationships of roots can be found for cohorts. 
 #
-They might not only be relevant in terms of distinctiveness as the concept theories elaborate, but also matter in terms of ecological characteristics. 
+These might not only be relevant in terms of distinctiveness as the concept theories elaborate, but also matter in terms of ecological characteristics. 
 #
 Density plays a central role in this regard, and the typical arguments of density dependence made for organizations apply to genres as organizational forms as well: 
 #
 Cohorts with a low number of genres offer opportunities to expand as they provide legitimation, while crowded cohorts are expected to be dominated by competition. 
 #
-In line with the traditional approach, a genre's cohort density is first operationalized as the Number of other genres with which it has at least one parent in common (genres with multiple common parents are only considered once), for which both a linear and a quadratic term are added. 
-
+In line with the traditional approach, a genre's cohort density is first operationalized as the number of other genres with which it has at least one parent in common (genres with multiple common parents are only considered once), for which both a linear and a quadratic term are added. 
 
 
 *** density vol :ignhead:
@@ -969,18 +987,16 @@ A cohort may consist of only have a handful of genres, but if these are all high
 # 
 I have therefore added additional (linear and quadratic) measure of cohort density by summing up the (tag-weighted) playcounts of each genre in the cohort. 
 # 
-Due to the skew, this variable is log-transformed as well. 
-#  
-
+Due to high skew, this variable is natural-log-transformed as well. 
 
 
 ** Controls
 # 
 Most relevant controls concern the size of a genre, as genres with large following are less likely to be abandoned. 
 # 
-I therefore control for the (log of the) total weighted playcount of a genre by summing up the playcounts for each song weighted by the extent to which it belongs to any genre. 
+I therefore control for the (natural log of the) total weighted playcount of a genre by summing up the playcounts for each song weighted by the extent to which it belongs to the genre in question. 
 # 
-I further control for the log-transformed number of releases in the time period in question using the release date data from MusicBrainz. 
+I further control for the natural-log-transformed number of releases in the time period in question using the release date data from MusicBrainz. 
 # 
 I also use the release information to calculate the average age the songs in the genre, again weighted by song playcount and tag weight. 
 # 
@@ -988,7 +1004,7 @@ The genre age, measured in time periods alive since the first occurrence, is inc
 #
 Furthermore use the Gini index of playcount by artist to estimate the extent to which a genre is dominated by a small proportion of the artists. 
 # 
-While tags that were highly dominated by one artist were excluded (see above), variations in evenness are still likely to exist and might impact survival chances. 
+While tags that were highly dominated by one artist were excluded, variations in evenness are still likely to exist and might impact survival chances. 
 # 
 Given the phenomenon of gradient multiple membership, it is worth to investigate the extent to which a genre is associated with its items. 
 #
@@ -1000,203 +1016,197 @@ I therefore include the average cosine similarity of the pairwise comparison bet
 
 
 
-** Survival Analysis
-#+label: hazards
-#+caption: Hazard rates over time
-#+attr_latex: :width 15cm
-[[file:figures/hazards.pdf]]
-
+** Estimation: Survival Analysis
+# 
 To estimate the impact of the covariates on the survival chances I follow similar studies parencite:Kennedy_2008_counted,Negro_2011_winemaking and use a Cox proportional hazards model with piecewise exponential specification. 
+# 
+In this framework, hazard base rate is estimated for each time spell, and hence relaxes the proportional hazards assumption of the standard Cox model[fn:: textcite:Brostrom_2012_event shows that this model is equivalent to a Poisson regression with time period dummy variables (p.58, 98).].
 #
-In this framework, hazard base rate is estimated for each time spell. 
-# 
-This allows the hazard rate to vary over time (figure [[hazards]]), which is required due to substantial changes in the last.fm usercounts (figure [[times]]).
-# 
-While in traditional studies such a model is difficult as measures are often not available for all participants for all time spells, no such limitations exist for working with trace data which can be aggregated to arbitrary intervals. 
+To facilitate the interpretation of the highly artificial constructs, all variables except genre age standardized and mean-centered around 0. 
+
 
 *** parameter interpretation :ignhead:
 Coefficients are logarithms of hazard ratios relative to the baseline hazards parencite:Brostrom_2012_event. 
 # 
-Risk increases with e^\beta when the variable in increased by one unit (which for most variables is one standard deviation), and is therefore interpreted as a relative risk ratio or hazard ratio. 
+Risk increases with e^{\beta} when the variable in increased by one unit (which for most variables is one standard deviation), and is therefore interpreted as a relative risk ratio or hazard ratio. 
 #
 For example, given a coefficient of 0.5, the relative risk of genre abandonment increases with e^{0.5} = 1.65 for a one-unit increase of the corresponding dependent variable. 
+
+*** frailty :ignhead:
+While many potential predictors are included, it is still likely that important predictors are omitted, resulting in a violation of independence due to repeated observation of genres over time. 
 # 
-To facilitate the interpretation of the highly artificial constructs, all variables except genre age standardized and mean-centered around 0. 
+In the survival model literature, this problem can be addressed with frailty terms, the equivalent of fixed effects. 
+# 
+However, frailty is primarily treated in terms of a non-individual level variable, such as communities or corporate chains parencite:rossman2012climbing, and not in combination with piecewise constant hazards. 
+# 
+textcite:Brostrom_2012_event argues that individual frailty causes identification problems and advises against them (p.150). 
+# 
+While he provides an approach to include both piecewise constant hazards and frailty terms, this model does indeed not properly converge. 
+# 
+I therefore additionally estimate frailty terms without piece-wise constant hazards (thereby assuming proportionality of hazards). 
+
+
+
 
 * Results
-** Controls 
-#+latex: \input{./tables/summaries.tex}
 
+#+latex: \input{./tables/summaries_mult.tex}
+
+#+latex: \input{./tables/pch_res.tex}
+
+
+** Summary statistics
 Table \ref{summaries} shows summary statistics of the variables. 
 # 
-The correlation matrix is reported in table \ref{cor_tbl}
+Since I estimate multiple models without a priori preference for a particular set of thresholds, I averaged the summary values across the 9 models and included 95% confidence intervals. 
+# 
+The correlation matrix is reported in table \ref{cor_tbl}; which are likewise averaged and hence are reported with 95% confidence intervals. 
 
 
-#+latex: \input{./tables/res1.tex}
-
-
-Table \ref{res1} shows the effects of the variables regarding the information content. 
+** Analysis :ignhead:
+All individual piecewise constant hazard (PCH) models are in table \ref{pch} and all frailty models in table \ref{frailty}. 
 #
-Model 1 includes only controls. 
+While these tables are not convenient to read, they are indicative of the number of genre abandonments within each set of thresholds (table \ref{pch} also contains the number of genres present at least once within each model specification). 
+# 
+With the numbers of total genres ranging from 389 to 1703, it can be argued that a wide range of possible values is captured through the use of different threshold sets. 
 #
+To ease interpretation of the multiple models, I also averaged coefficients and standard errors. 
+#
+This summary is shown in table \ref{res_sum}. 
+#
+While not all coefficients are consistent across specifications, the summary table provides a good overview of those that are, to which I will turn first. 
+# 
+
+** Controls 
+#+latex: \begin{wraptable}{r}{0pt}
+#+latex: \input{./tables/res_sum.tex}
+#+latex: \caption{Averaged PCH Models}
+#+latex: \label{res_sum}
+#+latex: \end{wraptable}
+
+*** coef values :ignhead:
 It is not surprising that the largest effect is due to the size: 
 #
 Large genres are widely established and hence much less likely disappear (furthermore, the operationalization of genre abandonment hinges to some extent on size). 
 # 
-To be precise, an increase of 1 standard deviation of size decrease the risk of dying by 1- e^-1.05 = 65%.
+To be precise, an increase of 1 standard deviation of size decreases the risk of dying by 1- e^-1.50 = 78%.
 #
-All other things being equal, an average-sized genre (1.79 SD above minimum) is more than six times less likely to die out than the smallest ones. 
+All other things being equal, an average-sized genre (1.97 SD above minimum) is has its hazard ratio reduced to e^{1.97 * -1.5} = 5% of that of the smallest genres. 
 #
-Number of new releases has despite its high correlation with size still an independent negative effect on the hazard ratio and with each increase of a standard deviation lowers a genre's relative risk by 45%. 
+Number of new releases has (despite its high correlation with size) still has an independent negative effect on the hazard ratio as a increase of a standard deviation lowers a genre's relative risk by 1-e^{-0.44} =35%. 
 #
-Tenure similarly increases a genre's survival chances as each additional time period decrease the hazard by 6%. 
+Tenure similarly increases a genre's survival chances as each additional time period decrease the hazard by 1-e^{-0.39} = 32%. 
 # 
-On the other hand, a genre's likelihood to disappear is much increases by the average similarity of its songs, as well as by an unequal concentration of playcount among artist. 
-#
-It might be that these represent a lack of broader acceptance of the category as strong association with few (or even one) artists and/or a highly specific features lead to dissolution (or failure to permanently establish) a general and flexible concept. 
+This is also supported by the consistently negative and marginally significant effect of average song age. 
 # 
-
+Furthermore, a genre's likelihood to disappear is significantly decreased by an increase of the average similarity of its songs, which supports the idea that a function of concepts is to effectively structure information. 
+# 
+On the other hand genres with high average tag values are more likely to disappear, which might be indicative of isolation and lack of acceptance of a genre beyond its core. 
+# 
+There are thus a number of processes which affect genre survival at varying degrees of granularity. 
 
 ** Concept variables
-#
-Model 2 and 3 add informativeness as a linear and both linear and quadratic term. 
-#
-A quadratic specification seems to be fitting better, however no non-monotonic relationship is predicted as both the linear and the quadratic coefficient are positive, which implies that the impact of distance from superordinates is stronger at higher distances. 
-# 
-However, the standard errors of both terms are too large and imply reasonable parameters ranging from -0.717 to 1.478 for the linear and -0.786 and 1.566 for the quadratic term. 
-#
-There is no significant model improvement for between either specification and Model 1 either. 
-# 
-The parameters for the controls remain substantially unchanged. 
-#
 
-*** distinctiveness :ignhead:
-Distinctiveness is added on its in Model 4. 
 #
-With a slight negative coefficient, it points to the direction predicted by the theory.
+The summary table shows relative small and insignificant effects of informativeness, albeit the picture changes when inspecting the individual models (table \ref{pch}). 
 # 
-Yet as in the same case as informativeness, its standard error is too large to be able to speak of a substantial independent effect, which is also supported by the lack of improvement of model fit. 
-#
-Adding informativeness, informativeness squared and distinctiveness together increases the latter, albeit not to an extent to reach statistical significance or improve model fit. 
-#
-Neither does adding the ecological variables (Model 6) which might have acted as suppressors substantially change the general picture of absence of evidence of an independent impact of content-related measures. 
+Here it can be seen that values of informativeness vary greatly, ranging from 0.76 to -0.8; with values of the squared term similarly varying between 0.67 and -0.9. 
 # 
-There is hence little support for H1 and H2. 
+Since additionally only two of the linear and one squared term are significant, there is little evidence of a systematic relationship between the distance of a genre to its superordinate and its survival chances (H1). 
+# 
+While distinctiveness has on average a small negative effect, there is similarly little evidence of consistency as values range from 0.31 to -0.35 (the only significant coefficient). 
+# 
+As such, little points to a systematic relationship between the extent to which a genre "stands out from the crowd" and its survival prospect (H2). 
+ 
 
 ** Ecological Variables
+
+Similar to the conceptual predictors, the ecological variables differ too much in direction and size to allow generalizations to a systematic impact. 
 #
-#+latex: \input{./tables/res2.tex}
+The density terms describing the playcount (vol) vary from 4.7 to -2.75 in the linear specification and from 2.81 to -4.42 in the squared specification between threshold set and thereby display the largest a large degree of variation in coefficients. 
 # 
-Table \ref{res2} shows the impact of the ecological predictors. 
+While variation in the density coefficient of genre count (len) is lower with a maximum of 0.89 (squared: 1.05) and a minimum of -1.05 (squared: 0.73), there is little evidence of a systematic relationship either (H3). 
 #
-Model 7 is identical to model 1 facilitate the comparison of coefficients.
-#
-Model 8 adds the linear and squared term for density, measured as the tag-weighted cohort playcount. 
-#
-Again coefficients are insignificant and model improvement absent, however a non-monotonic relationship appears to be present. 
+The most support for an effect of a central variable of interest is the case of legitimacy (parent size), which is nearly consistently negative (only two of nine models violate this pattern). 
 # 
-It is however in the opposite direction as expected: 
-# 
-In low density regions an increase in density /increases/ the hazard, while a one-unit increase /decreases/ the hazard. 
-#
-The same relationship can be seen in weakened form for density operationalized with number of genres. 
-#
-Legitimacy (parent size) has a minuscule positive effect on its own (Model 10), albeit it is only meaningful when controlling for density (Model 11) as larger genres are likely to have more subgenres than smaller ones. 
-#
-When density is controlled for, legitimacy indeed has a slight negative effect on survival chances, which supports H4. 
-# 
-It is also noteworthy that in this variable configuration, density defined via number of genres in cohort shows the predicted non-monotonic relationship of decreasing the hazard at lower levels and increasing it at higher ones. 
-#
-This on the other hand increases the strength of density defined by playcount, which points in the other direction. 
-#
-Model 12 this time adds the concept based measures. 
-# 
-Most noteworthy is the decrease the effect size of density defined through the number of genres, particular its quadratic term, which weakens the competitive effect of an increase of the number of genres. 
-#
-However, the complete absence of statistical significance in the main predictors as well as a lack of model improvement cast strong doubt on any particular interpretation as the large standard errors allow for a wide range of possible interpretations, often ranging near the very opposite of their best estimate. 
+However, the small size of this effect relative to its standard errors still indicate a range of possible values too wide to fulfill the criterion of statistical significance (H4). 
+
+
 
 
 * Discussion
 
-** limits DV :ignhead:
+** results accurate :ignhead:
 # 
-What can explain these unexpected results? 
+This lack of evidence for conceptual and ecological variables is certainly unexpected. 
 # 
-In particular it is surprising that both scholarship of concepts and of ecology do not substantially predict genre abandonment. 
-#
-It seems reasonable to look not at their individual features, but rather the dependent variable - genre mortality. 
-#
-This variable is not naturally available, but was constructed from the longitudinal analysis. 
+A possible interpretation would be that this lack of findings does truly indicate the absence of substantial effects of relational information content on genre survival prospects in the case of musical genres. 
 # 
-First, it might be that the period for which data is available (2006 to 2012) is insufficiently short to detect disappearance. 
+In particular, it might be possible that "genres represent socially constructed organizing principles that imbue artworks with significance /beyond/ their thematic content, and are, in turn, responsive to structurally generated demand for cultural information and affiliation" [[parencite:dimaggio1987classification][p.441, emphasis added]]. 
+#
+It is imaginable that the information content is indeed secondary to the potential to function as a means of distinction parencite:bourdieu1984distinction, in which case the primary focus would not lie on genres in relation to their features, but the relative power positions of their audiences. 
+#
+However, such an approach is hard to investigate with the current dataset as no information on socio-economic status is included. 
+#
+However even if such a distinction-based mechanism is present, it does not imply that thematic content is completely insignificant. 
 # 
-It could hence be possible that what is actually observed is not abandonment but fluctuation over and under an arbitrary threshold. 
+This is especially likely since a non-relational measure of thematic content, the average song similarity, consistently predicted a decrease of likelihood of abandonment. 
 #
-It might also be that this operationalization of abandonment through a clear threshold does not actually capture genre mortality. 
+
+** limits structure :ignhead:
 #
-A decently popular genre might stop to exist in its current form and lose, say, 90% of its listening base, but a handful of loyal fans might nevertheless be able to make it seem sufficiently alive. 
+If thematic content matters, it becomes crucial to contrast the intrinsically (song similarity) and relationally defined variables. 
 #
-On the other hand, changes in popularity of a genre do not necessarily imply its abandonment. 
+While it might be that audiences do only evaluate internal coherence, a more likely explanation seems to me that the theories used to construct the genre hierarchy do not adequately model relationships between genres. 
+#
+A particularly weak links seems to lie in the dynamic hierarchy construction /based on feature values/ as proposed by textcite:Murphy_2004_concepts: 
+#
+While there is some evidence that in everyday judgments people use the extent of feature matching to judge membership, it does not need to be the case that genre relationships are judged in the same manner. 
 # 
-While seems not impossible to use continuous variables to operationalize genre abandonment, the effort to specify it given the complexity involved go beyond the realm of this study. 
+First, decisions to align or distance a genre in relation to others might be much more thought through than quick judgments of whether a car seat is a piece of furniture. 
+# 
+Second, they might be much more concerned with particular items, in this case songs, than the feature generalizations that characterize schemata. 
+# 
+These considerations hence imply a genre hierarchy constructed from tag co-occurrence in songs, which is much more feasible than the one based on audience power positions. 
+# 
+Such an approach would then use the presence of multiple membership to a great extent, and thereby also allow to distinguish similarity between genres that comes from multiple memberships (of the same songs) and unique membership of similarly sounding songs. 
 
 
 ** limits concepts :ignhead:
 # 
-While dependent variable may be misspecified, it might also be that predictive branch is operationalized in a way that makes it unlikely to capture actually existing effects. 
+Another cause of error might lie in the current requirement of three parents for each genre might be overly rigid and assume hierarchical connections where none exist, or on the other hand overlook these. 
 # 
-Regarding the theory of concepts, the construction of the genre semi-lattice seems to be the most prone to produce errors. 
+Whether such issues would still be present in a hierarchy based on co-occurrence, or if generally a different approach to constructing hierarchical links from asymmetric similarities exists, remains subjects of further research. 
 # 
-In particular the requirement of three parents for each genre might be overly rigid and assume hierarchical connections where none exist, or on the other hand overlook these. 
-# 
-While as I have outlined previously, a fixed number of parents seemed the best option to include all genres, there is obviously room for improvement as most research so far has focused rather on established classification systems with clear linkages, than how to reconstruct more fleeting classification systems from the traces it left in people's behavior[fn::For example, I also attempted to use Lasso regression to predict a genre's musicological vector with the other genre vectors. However, as it was unclear how well this approach would maintain the central feature of asymmetry I did not pursue this approach further]. 
-#
-On the other hand, the public availability of large scale datasets such as the MLHD which allow to study this issue in further detail begets optimism.
-
-** limits ecology :ignhead:
-#
-The link to the limited validity of the ecological variables is straightforward. 
-#
-With an inadequate measurement of the conceptual structure, density-related measures based on them will be of little use. 
-#
-
-
-** limits theory: ommitted variable :ignhead:
-# 
-Yet another explanation might be that features are less influential as assumed.  
-# 
-While the kind of musical genres investigated here are not strongly codified as classification schemes under government regulation, the very fact that they exist as an explicit category in symbolic form on the last.fm website might limit the influence of the probability distributions of their features. 
-#
-It might for example matter less to have a distinctive intensional sound than an established extensional set of songs. 
-# 
-In the same line of reasoning, it might be considered a limitation that this study does not distinguish similarity between genres that comes from multiple memberships (of the same songs) and unique membership of similarly sounding songs. 
-#
 
 ** additions :ignhead:
 #
-Additionally, a number of other mechanisms that could not be considered here might result in omitted variable bias and hence might be investigated in the future. 
+Topics for further investigations are generally of no short supply given the complexity of the data and their public nature that allows the combination with a variety of other data sources. 
 #
-The influence of users is one of them, as differences in breadth and volume might be influential. 
+The influence of user tastes is one of them, as differences in breadth and volume might be influential. 
 #
-This area would also allow to focus more on how a classification system is internalized parencite:Lizardo_2016_improving, and hence would allow to measure the extent of agreement of categories[fn::I spent not unconsiderable time to measure agreement by clustering users using LDA and estimating cluster-specific classification systems. However, it turned out to be of little use as the vast majority of abandonded genres were only shared by one cluster]. 
+This area would also allow to focus more on how a classification system is internalized parencite:Lizardo_2016_improving, and hence would allow to measure the extent of agreement of categories [[parencite:Hannan_2019_concepts][p.189]].
 #
-The degree of continuity or disruption in intensional features, extensional items and/or users might be relevant as well, especially to investigate the question of structural intertia parencite:Hannan_1977_ecology. 
+A focus on the user experience could also investigate the influence of changes in the interface of last.fm. 
+
 #
-More explicit forms of legitimation might be yet another topic which turned out to be beyond this studies capacities. 
+The degree of continuity or disruption in intensional features, extensional items and/or users over time might be relevant as well, especially to investigate the question of structural inertia parencite:Hannan_1977_ecology.
+#
+More explicit forms of legitimation might be yet another topic which turned out to be beyond the scope of the current project. 
 # 
 However, formal tokens of legitimation such as awards, or the degree of adherence to established musical classification systems might very well influence a genre's survival chances. 
 #
 
 
+
 * Conclusion
 This study investigated genre abandonment as a consequence of inadequate amount of differentiation from superordinates, lack of distinction from cohort members, lack of legitimation through parents and competition with cohort members. 
 # 
-However the here-used operationalizations of genre structure and predictors did not lead to any significant effects nor improvement in the prediction of genre abandonment. 
+However the employed operationalizations did not lead to significant effects of these relationally defined predictors of genre abandonment that were consistent between a different model specifications.
 # 
-A number of possible explanations was discussed, which highlight in particular the difficulty to detect genre abandonment as well as to determine the concept structure of a weakly institutionalized classification system. 
+It might thus be that relative informative content does indeed have no substantial influential on concept survival which, given the existing literature on concepts as tools for structuring information and the finding of substantial impact of non-relationally defined predictors, is less likely than a misspecification of the hierarchical genre structure by relying on feature overlap. 
 #
 Despite the lack of clear findings in this study, these two specific concerns as well as a wide range of other possible angles highlight the ample opportunities that exist to further investigate how concepts are used to make sense of the world. 
-
 
 
 
@@ -1209,9 +1219,10 @@ Despite the lack of clear findings in this study, these two specific concerns as
 
 The code used to generate the analyses is available at https://github.com/swhalemwo/thesis. While all data used is publicly available, I can also provided all data used to anybody who does not want to query rather slow APIs for multiple weeks. 
 
-#+latex: \begin{landscape}
-#+latex: \input{./tables/cor_tbl.tex}
-#+latex: \end{landscape}
+
+#+latex: \input{./tables/cors_mult.tex}
+
+#+latex: \input{./tables/frail_res.tex}
 
 ** export :noexport:
 #+BEGIN_SRC emacs-lisp
