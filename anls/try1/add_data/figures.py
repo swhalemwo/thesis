@@ -1,5 +1,7 @@
 ## * example distributions
 
+from matplotlib.pyplot import rc
+
 rc('figure', figsize=(11.69,8.27))
 
 def sb_pltr(ax, ttl, row, nbr, xs, ys, xlbl, ylbl, gnr):
@@ -10,17 +12,18 @@ def sb_pltr(ax, ttl, row, nbr, xs, ys, xlbl, ylbl, gnr):
 
 gnrs2 = ['rap', 'metal', 'ambient', 'rock', 'pop', 'punk']
 
-nbr_bins = 5
+nbr_bins = 7
 
 vrbls2 = vrbls[0:5]
 vrbl_lbls = {'dncblt': 'danceability', 'gender': 'gender', 'timb_brt':'timbre', 'tonal':'tonality', 'voice':'vocality'}
 
 
 ax_lbl = [str(round(i,2)) + '-' +str(round(i+1/nbr_bins,2)) for i in np.arange(0,1,1/nbr_bins)]
+ax_lbl = [str(round(i,2)) for i in np.arange(0,1+(1/nbr_bins),1/(nbr_bins-1))]
+
 
 fig, axs = plt.subplots(5)
 st = fig.suptitle('Genre Probability Distributions')
-
 
 
 for gnr in gnrs2: 
@@ -162,7 +165,7 @@ plt.xlabel(r'$\sigma_P$', fontsize = 18)
 ylbl = plt.ylabel(r'$\sigma_Q$', fontsize = 18,labelpad= 15)
 ylbl.set_rotation(0)
 
-plt.title('KLDs (log-normalized) between normal distributions', fontsize = 16, x =0.6)
+plt.title('KLDs between normal distributions', fontsize = 16, x =0.6)
 
 ax.invert_yaxis()
 fig.savefig('/home/johannes/Dropbox/gsss/thesis/text/figures/kld.pdf', dpi = 150)

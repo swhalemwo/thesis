@@ -43,8 +43,8 @@ def graph_pltr(g, ids, filename, eweit):
     # size_scl=graph_tool.draw.prop_to_size(size, mi=1.5, ma=3, log=False, power=0.5)
     # size_scl=graph_tool.draw.prop_to_size(size, mi=3, ma=6, log=False, power=0.5)
     # size_scl=graph_tool.draw.prop_to_size(size, mi=4, ma=8, log=False, power=0.5)
-    size_scl=graph_tool.draw.prop_to_size(size, mi=7, ma=25, log=False, power=0.5)
-    # size_scl=graph_tool.draw.prop_to_size(size, mi=12, ma=50, log=False, power=0.5)
+    # size_scl=graph_tool.draw.prop_to_size(size, mi=7, ma=25, log=False, power=0.5)
+    size_scl=graph_tool.draw.prop_to_size(size, mi=12, ma=50, log=False, power=0.5)
 
     size_scl2=graph_tool.draw.prop_to_size(size, mi=0.005, ma=0.1, log=False, power=1)
     # size_scl2=graph_tool.draw.prop_to_size(size, mi=0.005, ma=0.07, log=False, power=1)
@@ -85,7 +85,6 @@ def graph_pltr2(g, filename, eweit):
     # size_scl=graph_tool.draw.prop_to_size(size, mi=7, ma=25, log=False, power=0.5)
     size_scl=graph_tool.draw.prop_to_size(size, mi=12, ma=50, log=False, power=0.5)
 
-    size_
     scl2=graph_tool.draw.prop_to_size(size, mi=0.025, ma=0.15, log=False, power=1)
 
     if type(eweit) == type(1):
