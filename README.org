@@ -1,7 +1,26 @@
 * Master thesis: genre abandonment
 
 collection of the scripts used to collect, process and analyze the data
-scripts
-- gnrl_funcs.py: mostly used to construct dfc
+due to frequent re-writing, not all files are used, of most importance are
+
+** MLHD processing
+- ch_setups.py: defining CH tables; not intended for wholesale execution 
+- mlhd_dl.py: downloading MLHD data using selenium
+- read_in_ch_blk.py: enters logs of specific directories into CH; optimized version of read_in_clickhouse.py
+
+** data collection 
+- tags_splt1.py: query musicbrainz: requires list of mbids
+- tags22.py: query last.fm id, relies on tags_splt1 output
+- acst_brainz.py: downloads AcousticBrainz data
+- addgs.py: processing API data; not intended for wholesale execution
+
+** data processing
+- gnrl_funcs.py: mostly used to construct data frame 
 - acst_hier.py: workhorse for processing time chunks 
-- 
+- aux_funcs: functions for visualizing, plotting graphs
+- acst_hier_mnng.py: running different thresholds for acst_hier.py
+
+** data analyzing
+- swivl.R: developing general framework of survival models; not used for final analysis
+- robust: actual analysis, generates tables
+- figures.py: produces figures, relies on acst_hier.py data objects
