@@ -120,25 +120,32 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # GROUP BY (usr, song)
 
 
+
+
     # JOIN (SELECT usr, ptn"""+ str(ptn) + """ as mbrshp from ptn
     #         ) USING usr
 
-# now i've partioned users and songs, but i don't use the coefficients of songs
-# but what about the songs that are not used for partioning
-# didn't have that problem in networks because of one-mode conversion, but now i have data
-# i could limit myself to the songs that i use to partition the usrs, but would mean dropping many
-# acoustic info is cheap, so no reason to throw stuff away
+    # now i've partioned users and songs, but i don't use the coefficients of songs
+    # but what about the songs that are not used for partioning
+    # didn't have that problem in networks because of one-mode conversion, but now i have data
+    # i could limit myself to the songs that i use to partition the usrs, but would mean dropping many
+    # acoustic info is cheap, so no reason to throw stuff away
 
 
     mbid_basic_insert = """
     INSERT INTO mbids_basic
-    SELECT * FROM (
-        SELECT lfm_id as mbid, cnt from acstb2
+    SELECT mbid as mbid_basic, cnt, artist, erl_rls, len_rls_lst, cnt % 30 as rndm FROM (
+        SELECT lfm_id as mbid, cnt   from acstb2
         JOIN
         ( """ + date_str + """ ) USING mbid
         ) JOIN ( SELECT lfm_id AS mbid, artist, erl_rls, len_rls_lst 
         FROM addgs ) USING mbid
     """
+
+    # client.execute(mbid_tbl_basic)
+    client.execute("set joined_subquery_requires_alias=0")
+    client.execute(mbid_basic_insert)
+    
 
     # join with addgs
     
