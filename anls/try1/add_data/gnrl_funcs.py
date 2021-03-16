@@ -78,39 +78,27 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     rndm Int8)
     engine=MergeTree() Partition by rndm order by tuple()"""
 
+
+    # client.execute(usr_prep_tbl)
+
+    
     usr_prep_qry = """
     INSERT INTO usr_song_prep
     SELECT usr, song, count(song) as cnt, count(song) % 30 as rndm FROM (
-    SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
-    JOIN (SELECT usr from ptn) USING usr
+        SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
     GROUP BY (usr, song)"""
 
-
-
-    # filters by date and usrs having the right partition
-    # date_str = """SELECT mbid, cnt FROM (
-    #     SELECT * FROM (
-    #         SELECT song as abbrv, count(song) as cnt FROM (
-    #             SELECT usr, song from logs
-    #                 WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'
-    #             ) JOIN (SELECT abbrv2 AS usr FROM usrs4k WHERE ptn == """ + str(ptn) + """
-    #             ) USING usr
-    #             GROUP BY song
-    #             HAVING cnt > """ + str(min_cnt) + """
-    #     ) JOIN (
-    #         SELECT mbid, abbrv FROM song_info) 
-    #         USING abbrv
-    #     )"""
-
-
+    
+    # client.execute(usr_prep_qry)
+    
     # SELECT usr, song, cnt, mbrshp, cnt*mbrshp as cnt_mbrshp  FROM (
     date_str = """
     SELECT mbid, min_cnt as cnt FROM (
         SELECT song as abbrv, SUM(cnt) as min_cnt FROM usr_song_prep 
         GROUP BY song
         HAVING min_cnt > """ + str(min_cnt) + """
-    ) JOIN (
         SELECT mbid, abbrv FROM song_info) 
+    )========== JOIN (
         USING abbrv
         """
 
@@ -163,6 +151,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     CREATE TEMPORARY TABLE tags_basic
     ( tag_basic String)
     """
+    # client.execute(tag_tbl_basic)
 
     tag_basic_insert = """
     INSERT INTO tags_basic
@@ -172,6 +161,9 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
             AND (rel_weight > """ + str(min_rel_weight) + """ )
             GROUP BY tag
             HAVING count(tag) > """ + str(min_tag_aprnc)
+
+
+    # client.execute(tag_basic_insert)
 
 
     # select the tags that correspond to the relevant songs, which is not useless
@@ -187,6 +179,8 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     len_rls_lst Int8
     )
     """
+    # client.execute(basic_songs_tags_tbl)
+
 
     # select tags of songs that fulfil requirements generally (but maybe not in intersection)
     basic_songs_tags = """INSERT INTO basic_songs_tags
@@ -207,7 +201,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     
     # get tags that are actually present enough in intsec
     # use actual table since used again to get users
-    
+    # client.execute(basic_songs_tags)
 
     
     intsect_tags = """
@@ -231,6 +225,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     )
     WHERE propx < """ + str(max_propx1) + """
     AND propx2 < """ + str(max_propx2)
+
     
 
     int_sect_all_qry = """
@@ -244,6 +239,10 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     erl_rls Int32,
     len_rls_lst Int8)
     """
+    # client.execute(int_sect_all_qry)
+    
+
+
 
     # boil down basic_songs_tags to intersection requirements
     int_sect_all = """
@@ -252,6 +251,8 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     JOIN ( """ + intsect_tags + """)
     USING tag"""
     
+    # client.execute(int_sect_all)
+
 
     # make merge table by getting stuff from acstb in
     # filtered on acstb before so should all be in there, and seems like it is
@@ -282,7 +283,9 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     unq_usrs Int32,
     sum_tag_plcnt Int32)
     """
-
+    
+    # client.execute(usr_fltrd_tags_qry)
+    
     usr_fltr = """
     INSERT INTO usr_fltrd_tags
     SELECT tag, uniqExact(usr) as unq_usrs, sum(tag_plcnt) as sum_tag_plcnt FROM (
@@ -303,6 +306,9 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     ) GROUP BY tag
     HAVING unq_usrs > """ + str(unq_usrs)
 
+    # client.execute(usr_fltr)    
+
+
             # (SELECT usr, song as abbrv, count(abbrv) as cnt_abbrv from logs
             #     WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """'  
             #     GROUP BY (usr, song))
@@ -321,7 +327,8 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     merge_qry = """
     SELECT lfm_id as mbid, cnt, tag, weight, rel_weight, artist, erl_rls, len_rls_lst, """ + vrbl_strs + """ from acstb2
     JOIN (""" + int_sec_all2 + """) USING mbid"""
-    
+
+
     # probably should have a separate one to see group user by tag to make sure that user has at least 5 uniq songs on tag
     # can actually done nicely iteratively
     # question is how many uniqe songs does a user need to be counted to a tag: 3 sounds reasonable
