@@ -66,7 +66,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     """
     # d1 = '2011-10-01'
     # d2 = '2011-11-01'
-    client.execute(mbid_tbl_basic)
+    # client.execute(mbid_tbl_basic)
 
     
     # ptn = 1
@@ -97,9 +97,9 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
         SELECT song as abbrv, SUM(cnt) as min_cnt FROM usr_song_prep 
         GROUP BY song
         HAVING min_cnt > """ + str(min_cnt) + """
-        SELECT mbid, abbrv FROM song_info) 
-    )========== JOIN (
-        USING abbrv
+        ) JOIN (
+            SELECT mbid, abbrv FROM song_info) 
+            USING abbrv
         """
 
     # SELECT usr, song, count(song) as cnt FROM (
@@ -131,8 +131,8 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     """
 
     # client.execute(mbid_tbl_basic)
-    client.execute("set joined_subquery_requires_alias=0")
-    client.execute(mbid_basic_insert)
+
+    # client.execute(mbid_basic_insert)
     
 
     # join with addgs
@@ -253,7 +253,6 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     
     # client.execute(int_sect_all)
 
-
     # make merge table by getting stuff from acstb in
     # filtered on acstb before so should all be in there, and seems like it is
 
@@ -338,6 +337,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # maybe intsec all should be a table, it's called more than once now
     
     drops = [
+        'drop table mbids_basic',
         'drop table usr_song_prep',
         'drop table mbids_basic',
         'drop table tags_basic',
@@ -351,6 +351,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
         except:
             pass
         
+    client.execute("set joined_subquery_requires_alias=0")        
     client.execute(usr_prep_tbl)
     client.execute(usr_prep_qry)
     client.execute(mbid_tbl_basic)
