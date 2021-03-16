@@ -54,17 +54,20 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # probably should integrate temporal part here
 
     mbid_tbl_basic = """ 
-    CREATE TEMPORARY TABLE mbids_basic
+    CREATE TABLE mbids_basic
     (
     mbid_basic String,
     cnt Float32,
     artist String,
     erl_rls Int32,
-    len_rls_lst Int8
-    )
+    len_rls_lst Int8, 
+    rndm Int8)
+    engine=MergeTree() Partition by rndm order by tuple()
     """
     # d1 = '2011-10-01'
     # d2 = '2011-11-01'
+    client.execute(mbid_tbl_basic)
+
     
     # ptn = 1
     usr_prep_tbl = """
