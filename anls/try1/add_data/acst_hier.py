@@ -218,6 +218,7 @@ def gnrt_acst_el_mp(gnrs, acst_gnr_dict, nbr_cls):
 
 
 def gnrt_sup_dicts(acst_gnr_dict,gnrs):
+    """generate supplementary dicts: size, genre index, weight of genre?, volume (count times rel. weight)"""
     sz_dict = {}
     gnr_ind = {}
     waet_dict = {}
@@ -1342,9 +1343,9 @@ if __name__ == '__main__':
 
     
 
-# # * xprtl
+# * xprtl
 
-# # ** ptn partitioning sketch
+# ** ptn partitioning sketch
 #     # gnrs = list(np.unique(dfc['tag']))
 #     # ptn_gnrs.append(gnrs)
 
@@ -1368,7 +1369,7 @@ if __name__ == '__main__':
 
 
 
-# # ** tag_song network
+# ** tag_song network
 
 # trk_gnr_el = [i for i in zip(dfc['lfm_id'], dfc['tag'], dfc['rel_weight'], dfc['cnt'], dfc['rel_weight']*dfc['cnt'])]
 
@@ -1417,8 +1418,8 @@ if __name__ == '__main__':
 
     
 
-# # ** different clusterings
-# # *** AHC of acst_usr mat
+# ** different clusterings
+# *** AHC of acst_usr mat
 
 # # cosine_similarity is fast at least, 8m/sec
 # # would take 6sec for 10k users
@@ -1545,7 +1546,7 @@ if __name__ == '__main__':
 
 
 
-# # *** cluster users based on the tags
+# *** cluster users based on the tags
 
 # usr_tag_tbl = """CREATE TEMPORARY TABLE usr_tag_tbl (
 # usr String,
@@ -1616,15 +1617,15 @@ if __name__ == '__main__':
 # # somewhat better (get two clusters with 5, but stillmany super small ones)
 
 
-# # ** more GT: tweak settings
+# ** more GT: tweak settings
 
 # GT operates on massively trimmed graph in that most people are assumed to be unconnected
 # is that justifiable? 
 # is that transferable to other forms? 
 
 
-# # * scrap
-# # ** time durations
+# * scrap
+# ** time durations
 
 # # ch_qry = 'SELECT time_d, count(time_d) FROM logs GROUP BY time_d'
 # # time_cnts = client.execute(ch_qry)
@@ -1645,8 +1646,8 @@ if __name__ == '__main__':
 # # plt.show()
 
 
-# # ** speed up implementations
-# # *** dict_gnrs: not primarily important
+# ** speed up implementations
+# *** dict_gnrs: not primarily important
 
 # # is dict_gnrs (produces acst_gnr_dict) parallelizable?
 # # in principle yeah: can split pandas df, process rows separately,
@@ -1660,7 +1661,7 @@ if __name__ == '__main__':
 
 
 
-# ## *** fucking done
+# *** fucking done
 # # gnrt_acst_el is single core, can be parallelized tho, might be worth it
 # # kld mat also takes quite some time
 # # wonder if custom cython function would be faster
@@ -1670,7 +1671,7 @@ if __name__ == '__main__':
 # # feature extraction also parallelized
 
 
-# # ** trying to use CH functionality for usr histogram, but not working
+# ** trying to use CH functionality for usr histogram, but not working
 # how to convert CDF to histogram? 
 # relative change?
 # i want buckets/cutoffs
