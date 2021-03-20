@@ -303,7 +303,7 @@ def acst_arfy(el_ttl, vrbls, el_pos, gnrs, nbr_cls):
         c+=1
     return(acst_mat)
 
-def krnl_acst(acst_gnr_dict, nbr_cls, gnrs):
+def krnl_acst(acst_gnr_dict, nbr_cls, gnrs, vrbls):
     """generates acst kernel (gaussian smoothing) with bandwith of half of cell size"""
     
     bw = 1/(2*nbr_cls)
@@ -337,9 +337,9 @@ def krnl_acst(acst_gnr_dict, nbr_cls, gnrs):
     
     return(ttl_scrs)
 
-def krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls):
+def krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls, vrbls):
     """multiproccessing managing function for acst kernel"""
-    NO_CHUNKS = 3
+    NO_CHUNKS = 6
     gnr_chnks = list(split(gnrs, NO_CHUNKS))
 
     func = partial(krnl_acst, acst_gnr_dict, nbr_cls)
