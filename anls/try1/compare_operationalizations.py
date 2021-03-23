@@ -24,12 +24,19 @@ from gnrl_funcs import get_dfs
 from gnrl_funcs import dict_gnrgs
 from acst_hier import gnr_t_prds
 from datetime import date, datetime
-from acst_hier import gnrt_sup_dicts, split
+from acst_hier import gnrt_sup_dicts, split, vd_fer
 from acst_hier import krnl_acst, krnl_acst_mp
 from acst_hier import kld_mat_crubgs, kld_mp2
+from acst_hier import kld_n_prnts
+from acst_hier import kld_proc
+from acst_hier import asym_sim2
+from aux_funcs import nph
+
 from scipy.stats import entropy
 from scipy.special import rel_entr
 from sklearn.neighbors import KernelDensity
+
+
 
 vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
@@ -87,18 +94,70 @@ def get_dfc():
     return dfc
 
 
-dfc = get_dfc()
+def get_cooccurence_mat(dfc):
+    trk_gnr_el = [i for i in zip(dfc['lfm_id'], dfc['tag'], dfc['rel_weight'], dfc['cnt'], dfc['rel_weight']*dfc['cnt'])]
 
-gnrs = list(np.unique(dfc['tag']))
-artsts = list(np.unique(dfc['artist']))
-trks = list(np.unique(dfc['lfm_id']))
+    g_trks = Graph()
+    g_trks_waet = g_trks.new_edge_property('float')
+    g_trks_cnt = g_trks.new_edge_property('float')
+    g_trks_sz = g_trks.new_edge_property('float')
 
-nbr_cls = 7
-acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
-sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
+    g_trks_id = g_trks.add_edge_list(trk_gnr_el, hashed = True, eprops = [g_trks_waet, g_trks_cnt, g_trks_sz])
+    g_trks_vd, g_trks_id_rv = vd_fer(g_trks, g_trks_id)
 
-acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls, vrbls)
+    gnr = 'alternative'
+    # comparing genres is easier than for loop
 
-ar_cb = kld_mat_crubgs(gnrs, acst_mat)
+    gnr_comps = all_cmps_crubgs(gnrs, g_trks_vd, 'product')
+
+    gnr_sims = vertex_similarity(GraphView(g_trks, reversed = True), 'dice', vertex_pairs = gnr_comps, eweight = g_trks_waet)
+
+    gnr_sim_ar = np.array(np.split(gnr_sims, len(gnrs)))
+
+    gnr_sim_ar2 = asym_sim2(g_trks, g_trks_vd, gnrs, gnr_sim_ar, g_trks_waet)
+
+    return gnr_sim_ar2
 
 
+def get_kld_dist(dfc):
+    """process the dfc into kld graph"""
+    dfc = get_dfc()
+
+    gnrs = list(np.unique(dfc['tag']))
+    artsts = list(np.unique(dfc['artist']))
+    trks = list(np.unique(dfc['lfm_id']))
+
+    nbr_cls = 7
+    acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
+    sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
+
+    acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls, vrbls)
+
+    ar_cb = kld_mat_crubgs(gnrs, acst_mat)
+    return ar_cb
+
+npr = 3
+kld2_el = kld_n_prnts(ar_cb, npr, gnrs, gnr_ind)
+kld_el_basic = [(i[0], i[1]) for i in kld2_el]
+
+g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+
+gnr_sim_ar2 = get_cooccurence_mat(dfc)
+ovlp_el = kld_n_prnts(1-gnr_sim_ar2, npr, gnrs, gnr_ind)
+ovlp_el_basic = [(i[0], i[1]) for i in ovlp_el]
+
+g_ovlp, vd_ovlp, vd_ovlp_rv = kld_proc(ovlp_el)
+
+
+len(set(ovlp_el_basic).intersection(set(kld_el_basic)))
+
+
+# just 200 links the same huh
+
+# maybe can quantify how different the pairs are
+
+graph_pltr2(g_kld2, "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf", g_kld2.ep.kld_sim)
+
+
+graphviz_draw(g_kld2,
+              output = "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf")
