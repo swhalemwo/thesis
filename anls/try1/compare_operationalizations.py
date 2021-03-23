@@ -24,9 +24,16 @@ from gnrl_funcs import get_dfs
 from gnrl_funcs import dict_gnrgs
 from acst_hier import gnr_t_prds
 from datetime import date, datetime
-from acst_hier import gnrt_sup_dicts
-from acst_hier import krnl_acst_mp
-from acst_hier import split
+from acst_hier import gnrt_sup_dicts, split
+from acst_hier import krnl_acst, krnl_acst_mp
+from acst_hier import kld_mat_crubgs, kld_mp2
+from scipy.stats import entropy
+from scipy.special import rel_entr
+from sklearn.neighbors import KernelDensity
+
+vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
+           'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
+
 
 def get_dfc():
     """get the pandas data frame, for now settings kinda arbitrary/unsystematic"""
@@ -90,7 +97,8 @@ nbr_cls = 7
 acst_gnr_dict = dict_gnrgs(dfc, gnrs, pd)
 sz_dict, gnr_ind, waet_dict, vol_dict = gnrt_sup_dicts(acst_gnr_dict, gnrs)
 
-
 acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls, vrbls)
+
+ar_cb = kld_mat_crubgs(gnrs, acst_mat)
 
 
