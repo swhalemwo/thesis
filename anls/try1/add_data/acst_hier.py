@@ -304,7 +304,7 @@ def acst_arfy(el_ttl, vrbls, el_pos, gnrs, nbr_cls):
         c+=1
     return(acst_mat)
 
-def krnl_acst(acst_gnr_dict, nbr_cls, gnrs, vrbls):
+def krnl_acst(acst_gnr_dict, nbr_cls, vrbls, gnrs):
     """generates acst kernel (gaussian smoothing) with bandwith of half of cell size"""
     
     bw = 1/(2*nbr_cls)
@@ -343,7 +343,7 @@ def krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls, vrbls):
     NO_CHUNKS = 6
     gnr_chnks = list(split(gnrs, NO_CHUNKS))
 
-    func = partial(krnl_acst, acst_gnr_dict, nbr_cls)
+    func = partial(krnl_acst, acst_gnr_dict, nbr_cls, vrbls)
     
     t1 = time.time()
     p = Pool(processes=NO_CHUNKS)
@@ -371,13 +371,53 @@ def split(a, n):
 def kld_mp2(acst_mat, gnrs, chnk):
     """ improved kdl with https://www.oipapio.com/question-4293090, no more inf fixing but shouldn't be needed it it's proper subsets, """
     # comparison with previous shows that places which are now also infinite are generally super high
-
+    
     start_col = gnrs.index(chnk[0])
     end_col = gnrs.index(chnk[-1])+1
-
-    kldx = entropy(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:])
-    return(kldx)
     
+    # kldx = entropy(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:])
+    
+    # acst_mat[start_col:end_col,:].T[:,:,None]: shape: (84, 10, 1)
+    # https://stackoverflow.com/questions/34007028/efficient-way-of-computing-kullback-leibler-divergence-in-python
+    # kldx = rel_entr(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:]).sum(axis=0)
+    
+    # kldx = entropy_custom(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:])
+    
+    # a,b = np.broadcast(acst_mat.T[start_col:end_col,:], acst_mat.T[:,None,:])
+    
+    # a = np.broadcast(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:])
+    # kldx = entroy(
+    
+    # a, b = np.broadcast_arrays(distributions.T[:,:,None], distributions.T[:,None,:])
+    # pairwise_klds1 = entropy(a, b)
+    
+    # x= np.broadcast(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:])
+    
+    kldx = entropy_custom(acst_mat[start_col:end_col,:].T[:,:,None], acst_mat.T[:,None,:])
+    
+    return(kldx)
+
+
+    
+
+def entropy_custom(pk, qk=None, base=None, axis=0):
+    """custom version of entropy without shape requirements to enable broadcasting"""
+    pk = np.asarray(pk)
+    pk = 1.0*pk / np.sum(pk, axis=axis, keepdims=True)
+    if qk is None:
+        vec = entr(pk)
+    else:
+        qk = np.asarray(qk)
+        # if qk.shape != pk.shape:
+        #     raise ValueError("qk and pk must have same shape.")
+        qk = 1.0*qk / np.sum(qk, axis=axis, keepdims=True)
+        vec = rel_entr(pk, qk)
+    S = np.sum(vec, axis=axis)
+    if base is not None:
+        S /= log(base)
+    return S
+
+
 
 
 # t1 = time.time()
