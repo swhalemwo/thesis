@@ -576,7 +576,7 @@ def kld_proc(kld2_el):
     g_kld2 = Graph()
     
     g_kld2.ep['kld_sim'] = g_kld2.new_edge_property('double')
-    g_kld2.vp['id'] = g_kld2.add_edge_list(kld2_el, hashed=True, string_vals=True, eprops = [g_kld2.ep.kld_sim])
+    g_kld2.vp['id'] = g_kld2.add_edge_list(kld2_el, hashed=True, eprops = [g_kld2.ep.kld_sim])
 
     vd_kld2,vd_kld2_rv = vd_fer(g_kld2, g_kld2.vp.id)
 
