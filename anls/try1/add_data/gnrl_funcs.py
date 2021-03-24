@@ -82,12 +82,19 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     # client.execute(usr_prep_tbl)
 
     
-    usr_prep_qry = """
+    # usr_prep_qry = """
+    # INSERT INTO usr_song_prep
+    # SELECT usr, song, count(song) as cnt, count(song) % 30 as rndm FROM (
+    #     SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
+    # GROUP BY (usr, song)"""
+
+    usr_prep_qry = """ 
     INSERT INTO usr_song_prep
-    SELECT usr, song, count(song) as cnt, count(song) % 30 as rndm FROM (
-        SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')
+    SELECT usr, song, sum(cnt_m) as cnt, sum(cnt_m) % 30 as rndm FROM (
+        SELECT usr, song, cnt as cnt_m from logs_month WHERE time_m BETWEEN '""" + d1 + """' and '""" + d2 + """')
     GROUP BY (usr, song)"""
 
+    """
     
     # client.execute(usr_prep_qry)
     
@@ -101,6 +108,9 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
             SELECT mbid, abbrv FROM song_info) 
             USING abbrv
         """
+
+
+    
 
     # SELECT usr, song, count(song) as cnt FROM (
     #     SELECT usr, song from logs  WHERE time_d BETWEEN '""" + d1 + """' and '""" + d2 + """')

@@ -14,6 +14,23 @@ client.execute('create table logs (time_d Date, usr String, song String) engine=
 client.execute('drop table song_info')
 client.execute('create table song_info (mbid String, abbrv String, rndm Int) engine=MergeTree() Partition by rndm order by tuple()')
 
+# simplify logs
+
+client.execute('create table logs_month (time_m Date, usr String, song String, cnt Int32) engine=MergeTree(time_m, time_m, 8192)')
+
+
+for i in range(2005, 2020):
+    print(i)
+    qry = """
+    INSERT INTO logs_month
+    SELECT toStartOfMonth(time_d) AS time_m,  usr, song, count(song) as cnt FROM (
+        SELECT time_d, usr, song FROM logs 
+        WHERE time_d BETWEEN '""" + str(i)+ """-01-01' AND '""" + str(i) + """-12-31')
+    GROUP BY (time_m, usr, song)"""
+
+    client.execute(qry)
+
+
 
 # * usr info
 client.execute("""

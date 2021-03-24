@@ -42,6 +42,8 @@ vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
 
 
+
+
 def get_dfc():
     """get the pandas data frame, for now settings kinda arbitrary/unsystematic"""
 
@@ -161,3 +163,8 @@ graph_pltr2(g_kld2, "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.p
 
 graphviz_draw(g_kld2,
               output = "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf")
+
+
+
+
+
