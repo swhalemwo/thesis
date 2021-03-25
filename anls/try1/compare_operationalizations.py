@@ -121,9 +121,41 @@ def get_cooccurence_mat(dfc):
     return gnr_sim_ar2
 
 
+def describe_graph(g):
+    """generate all kinds of descriptives about graph"""
+
+    results = {}
+    # global clustering also returns also standard variation
+    global_clust_coef = graph_tool.clustering.global_clustering(g)
+    results['global_clust_coef'] = global_clust_coef[0]
+    results['global_clust_coef_sd'] = global_clust_coef[1]
+    
+    results['edge_reciprocity'] = graph_tool.topology.edge_reciprocity(g)
+
+    g.set_directed(False)
+    dist = graph_tool.topology.shortest_distance(g)
+    avg_path_length = sum([sum(i) for i in dist])/(g.num_vertices()**2-g.num_vertices())
+    results['avg_path_length'] = avg_path_length
+    g.set_directed(True)
+
+    # concentration measures of degree distribution
+    deg_map = g.degree_property_map("out")
+    deg_ar = deg_map.get_array()
+
+    results['gini_out_deg'] = gini(deg_ar).tolist()
+
+    top10_percentile = np.percentile(deg_ar, 90)
+    results['top10_perc_conc'] = deg_ar[np.where(deg_ar >= top10_percentile)].sum().tolist() / deg_ar.sum().tolist()
+
+    
+    # could add weights: but KDL and overlap have different distributions
+
+    return results
+    
+
+
 def get_kld_dist(dfc):
-    """process the dfc into kld graph"""
-    dfc = get_dfc()
+    """process the dfc into asymmetric distance matrix"""
 
     gnrs = list(np.unique(dfc['tag']))
     artsts = list(np.unique(dfc['artist']))
