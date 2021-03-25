@@ -1,3 +1,6 @@
+from graph_tool.all import *
+from graph_tool import *
+
 
 def nph(ar_x, bins):
     """custom hist function because plt.hist is fucking unreliably"""
@@ -8,7 +11,7 @@ def nph(ar_x, bins):
     plt.bar(center, a1, align='center', width=width)
     plt.show()
 
-def nps(x,y, lbl):
+def nps(x,y):
     """custom scatter function"""
     plt.scatter(x,y)
     plt.show()
@@ -148,6 +151,6 @@ def render_graph_with_graphviz(g, filename):
 
 
 
-render_graph_with_graphviz(g_kld2, "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.gv")
-render_graph_with_graphviz(g_ovlp, "/home/johannes/Dropbox/phd/papers/genres/figures/ovlp_test.gv")
+# render_graph_with_graphviz(g_kld2, "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.gv")
+# render_graph_with_graphviz(g_ovlp, "/home/johannes/Dropbox/phd/papers/genres/figures/ovlp_test.gv")
 

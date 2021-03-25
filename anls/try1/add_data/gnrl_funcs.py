@@ -94,8 +94,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
         SELECT usr, song, cnt as cnt_m from logs_month WHERE time_m BETWEEN '""" + d1 + """' and '""" + d2 + """')
     GROUP BY (usr, song)"""
 
-    """
-    
+
     # client.execute(usr_prep_qry)
     
     # SELECT usr, song, cnt, mbrshp, cnt*mbrshp as cnt_mbrshp  FROM (
@@ -357,6 +356,7 @@ def get_dfs(vrbls, min_cnt, min_weight, min_rel_weight, min_tag_aprnc,
     ]
     for d in drops:
         try:
+            # print(d)
             client.execute(d)
         except:
             pass

@@ -34,7 +34,9 @@ from acst_hier import kld_mat_crubgs, kld_mp2
 from acst_hier import kld_n_prnts
 from acst_hier import kld_proc
 from acst_hier import asym_sim2
-from aux_funcs import nph
+from aux_funcs import nph, render_graph_with_graphviz
+from acst_hier import all_cmps_crubgs
+from acst_hier import gini
 
 from scipy.stats import entropy
 from scipy.special import rel_entr
@@ -44,7 +46,6 @@ from sklearn.neighbors import KernelDensity
 
 vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
-
 
 
 
@@ -58,7 +59,7 @@ def get_dfc():
     vrbls=['dncblt','gender','timb_brt','tonal','voice','mood_acoustic',
            'mood_aggressive','mood_electronic','mood_happy','mood_party','mood_relaxed','mood_sad'] 
 
-    tprd = [date(2011,1,1), date(2011,12,31)]
+    tprd = [date(2011,1,1), date(2011,3,31)]
 
 
     d1 = tprd[0].strftime('%Y-%m-%d')

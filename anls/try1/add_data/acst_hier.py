@@ -19,6 +19,8 @@ from datetime import timedelta
 from random import sample
 
 from scipy.stats import entropy
+from scipy.special import rel_entr
+
 from sklearn import preprocessing
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.spatial.distance import cosine
@@ -77,6 +79,7 @@ def gini(array):
         # Values cannot be negative:
         array -= np.amin(array)
     # Values cannot be 0:
+    array = array*1.0
     array += 0.0000001
     # Values must be sorted:
     array = np.sort(array)
