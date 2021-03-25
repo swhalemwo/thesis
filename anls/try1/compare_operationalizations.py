@@ -15,6 +15,10 @@ import argparse
 from graph_tool.all import *
 from graph_tool import *
 
+from dotmap import DotMap as ddict
+# https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
+# https://github.com/drgrib/dotmap
+# should use dot dictionaries for config stuff, much more convenient to type
 
 
 os.chdir("/home/johannes/Dropbox/phd/papers/genres/anls/try1/add_data/")
