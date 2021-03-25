@@ -100,7 +100,8 @@ def get_dfc():
     return dfc
 
 
-def get_cooccurence_mat(dfc):
+def get_cooccurence_mat(dfc, gnrs):
+    """create asymmetric co-occurence matrix"""
     trk_gnr_el = [i for i in zip(dfc['lfm_id'], dfc['tag'], dfc['rel_weight'], dfc['cnt'], dfc['rel_weight']*dfc['cnt'])]
 
     g_trks = Graph()
@@ -172,34 +173,45 @@ def get_kld_dist(dfc):
     acst_mat = krnl_acst_mp(gnrs, acst_gnr_dict, nbr_cls, vrbls)
 
     ar_cb = kld_mat_crubgs(gnrs, acst_mat)
-    return ar_cb
 
-npr = 3
-kld2_el = kld_n_prnts(ar_cb, npr, gnrs, gnr_ind)
+    # create KLD-based graph
+    npr = 3
+    kld2_el = kld_n_prnts(ar_cb, npr, gnrs, gnr_ind)
+    g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
+    kld = {'g':g_kld2, 'vd':vd_kld2, 'vdrv': vd_kld2_rv}
+
+    # create overlap based graph
+    gnr_sim_ar2 = get_cooccurence_mat(dfc, gnrs)
+    ovlp_el = kld_n_prnts(1-gnr_sim_ar2, npr, gnrs, gnr_ind)
+    g_ovlp, vd_ovlp, vd_ovlp_rv = kld_proc(ovlp_el)
+    ovlp = {'g':g_ovlp, 'vd': vd_ovlp, 'vdrv': vd_ovlp_rv}
+
+    return kld, ovlp
+
+dfc = get_dfc()
+
+kld, ovlp = get_kld_dist(dfc)
+
+# see how much edges of graphs overlap: need to adjust now, but maybe useful in comparison to established hierarchies
 kld_el_basic = [(i[0], i[1]) for i in kld2_el]
-
-g_kld2, vd_kld2, vd_kld2_rv = kld_proc(kld2_el)
-
-gnr_sim_ar2 = get_cooccurence_mat(dfc)
-ovlp_el = kld_n_prnts(1-gnr_sim_ar2, npr, gnrs, gnr_ind)
 ovlp_el_basic = [(i[0], i[1]) for i in ovlp_el]
+len(set(ovlp_el_basic).intersection(set(kld_el_basic)))/len(ovlp_el_basic)
+# just 200/10% of links the same huh
 
-g_ovlp, vd_ovlp, vd_ovlp_rv = kld_proc(ovlp_el)
-
-
-len(set(ovlp_el_basic).intersection(set(kld_el_basic)))
-
-
-# just 200 links the same huh
-
-# maybe can quantify how different the pairs are
-
-graph_pltr2(g_kld2, "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf", g_kld2.ep.kld_sim)
+graph_pltr2(kld['g'], "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf", g_kld2.ep.kld_sim)
 
 
 graphviz_draw(g_kld2,
               output = "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf")
 
+FIG_DIR = "/home/johannes/Dropbox/phd/papers/genres/figures/"
+render_graph_with_graphviz(kld['g'], FIG_DIR + 'kld.pdf')
+render_graph_with_graphviz(ovlp['g'], FIG_DIR + 'kld.pdf')
+
+
+
+
+    
 
 
 
