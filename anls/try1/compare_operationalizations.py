@@ -189,30 +189,33 @@ def get_kld_dist(dfc):
 
     return kld, ovlp
 
+t1 = time.time()
 dfc = get_dfc()
 
 kld, ovlp = get_kld_dist(dfc)
+t2=time.time()
+# around 15 secs for 3 months
 
 # see how much edges of graphs overlap: need to adjust now, but maybe useful in comparison to established hierarchies
-kld_el_basic = [(i[0], i[1]) for i in kld2_el]
-ovlp_el_basic = [(i[0], i[1]) for i in ovlp_el]
-len(set(ovlp_el_basic).intersection(set(kld_el_basic)))/len(ovlp_el_basic)
+# kld_el_basic = [(i[0], i[1]) for i in kld2_el]
+# ovlp_el_basic = [(i[0], i[1]) for i in ovlp_el]
+# len(set(ovlp_el_basic).intersection(set(kld_el_basic)))/len(ovlp_el_basic)
 # just 200/10% of links the same huh
 
-graph_pltr2(kld['g'], "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf", g_kld2.ep.kld_sim)
+# graph_pltr2(kld['g'], "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf", kld['g'].ep.kld_sim)
 
 
-graphviz_draw(g_kld2,
-              output = "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf")
+# graphviz_draw(g_kld2,
+#               output = "/home/johannes/Dropbox/phd/papers/genres/figures/kld_test.pdf")
 
 FIG_DIR = "/home/johannes/Dropbox/phd/papers/genres/figures/"
-render_graph_with_graphviz(kld['g'], FIG_DIR + 'kld.pdf')
-render_graph_with_graphviz(ovlp['g'], FIG_DIR + 'kld.pdf')
+render_graph_with_graphviz(kld['g'], FIG_DIR + 'kld')
+render_graph_with_graphviz(ovlp['g'], FIG_DIR + 'ovlp')
 
+# describe_graph(kld['g'])
 
+pd.DataFrame([describe_graph(kld['g']), describe_graph(ovlp['g'])], index=['kld', 'ovlp'])
 
-
-    
 
 
 
